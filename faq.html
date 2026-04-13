@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>FAQ — Helix</title>
+  <meta name="description" content="Find answers to common questions about Helix, our plans, and how it all works." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       DESIGN TOKENS
+    ========================================================= */
+    :root {
+      --bg:         #050816;
+      --bg-2:       #0C1022;
+      --bg-card:    rgba(255,255,255,0.04);
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(99,102,241,0.3);
+      --primary:    #6366F1;
+      --primary-l:  #818CF8;
+      --cyan:       #22D3EE;
+      --accent:     #F59E0B;
+      --text:       #EEF2F8;
+      --text-2:     #8892A4;
+      --text-3:     #2D3A4E;
+      --green:      #10B981;
+      --red:        #EF4444;
+      --violet:     #8B5CF6;
+      --radius:     16px;
+      --nav-h:      64px;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* =========================================================
+       AURORA
+    ========================================================= */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      filter: blur(90px) saturate(130%);
+    }
+
+    .orb { position: absolute; border-radius: 50%; }
+
+    .orb-1 {
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(99,102,241,0.55) 0%, transparent 65%);
+      top: -200px; left: -200px;
+      animation: drift1 22s ease-in-out alternate infinite;
+    }
+    .orb-2 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 65%);
+      bottom: -100px; right: -100px;
+      animation: drift2 17s ease-in-out alternate infinite;
+    }
+    .orb-3 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 65%);
+      top: 10%; right: 15%;
+      animation: drift3 14s ease-in-out alternate infinite;
+    }
+    .orb-4 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%);
+      bottom: 20%; left: 30%;
+      animation: drift4 28s ease-in-out alternate infinite;
+    }
+    .orb-5 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 65%);
+      top: 50%; left: 60%;
+      animation: drift5 19s ease-in-out alternate infinite;
+    }
+
+    @keyframes drift1 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(80px, 120px) scale(1.08); }
+      66%  { transform: translate(-60px, 200px) scale(0.95); }
+      100% { transform: translate(140px, 60px) scale(1.05); }
+    }
+    @keyframes drift2 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(-100px, -80px) scale(1.1); }
+      66%  { transform: translate(60px, -150px) scale(0.9); }
+      100% { transform: translate(-80px, -40px) scale(1.05); }
+    }
+    @keyframes drift3 {
+      0%   { transform: translate(0, 0) scale(1); }
+      25%  { transform: translate(-120px, 60px) scale(1.15); }
+      75%  { transform: translate(80px, -100px) scale(0.88); }
+      100% { transform: translate(-40px, 80px) scale(1.06); }
+    }
+    @keyframes drift4 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(100px, -60px) scale(1.12); }
+      66%  { transform: translate(-80px, 100px) scale(0.93); }
+      100% { transform: translate(60px, -80px) scale(1.08); }
+    }
+    @keyframes drift5 {
+      0%   { transform: translate(0, 0) scale(1); }
+      40%  { transform: translate(-90px, 70px) scale(1.2); }
+      70%  { transform: translate(110px, -50px) scale(0.85); }
+      100% { transform: translate(-50px, 110px) scale(1.1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* =========================================================
+       GRAIN OVERLAY
+    ========================================================= */
+    .grain {
+      position: fixed; inset: 0; z-index: 1; opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    /* =========================================================
+       LAYOUT HELPERS
+    ========================================================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =========================================================
+       NAV
+    ========================================================= */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(5,8,22,0.6);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--text); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 20px rgba(99,102,241,0.45);
+    }
+
+    /* =========================================================
+       PAGE HERO
+    ========================================================= */
+    .page-hero {
+      position: relative;
+      z-index: 2;
+      padding: calc(var(--nav-h) + 80px) 0 64px;
+      text-align: center;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--primary-l);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .page-hero-h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    .page-hero-sub {
+      color: var(--text-2);
+      font-size: 1.05rem;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* =========================================================
+       FAQ SECTION
+    ========================================================= */
+    .faq-section {
+      position: relative;
+      z-index: 2;
+      padding: 16px 0 120px;
+    }
+
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* FAQ Item */
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+
+    .faq-item:hover {
+      border-color: rgba(99,102,241,0.18);
+    }
+
+    .faq-item.open {
+      border-color: rgba(99,102,241,0.28);
+      background: rgba(99,102,241,0.05);
+    }
+
+    /* Question button */
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 22px 24px;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .faq-question-text {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    .faq-item.open .faq-question-text {
+      color: var(--text);
+    }
+
+    /* Chevron icon */
+    .faq-chevron {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .faq-item.open .faq-chevron {
+      background: rgba(99,102,241,0.15);
+      border-color: rgba(99,102,241,0.3);
+      transform: rotate(180deg);
+    }
+
+    .faq-chevron svg {
+      display: block;
+    }
+
+    /* Answer container — max-height animation */
+    .faq-answer-wrap {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .faq-item.open .faq-answer-wrap {
+      max-height: 400px;
+    }
+
+    .faq-answer {
+      padding: 0 24px 22px;
+      color: var(--text-2);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+
+    .faq-answer a {
+      color: var(--primary-l);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+
+    .faq-answer a:hover {
+      color: var(--cyan);
+    }
+
+    /* =========================================================
+       CTA SECTION
+    ========================================================= */
+    .cta-section {
+      position: relative;
+      z-index: 2;
+      padding: 100px 0;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.07) 0%, transparent 70%);
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .cta-sub {
+      color: var(--text-2);
+      font-size: 1rem;
+      max-width: 400px;
+      margin: 0 auto 32px;
+      line-height: 1.65;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 32px rgba(99,102,241,0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 48px rgba(99,102,241,0.55);
+      transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    .footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 48px 0 28px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-left { display: flex; flex-direction: column; gap: 8px; }
+
+    .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-col-title {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-2); margin-bottom: 10px;
+    }
+    .footer-col a {
+      display: block; font-size: 0.85rem; color: var(--text-3);
+      text-decoration: none; margin-bottom: 7px;
+      transition: color 0.18s;
+    }
+    .footer-col a:hover { color: var(--text); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 28px auto 0; padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .footer-brand.visible { opacity: 1; transform: translateY(0); }
+
+    .footer-tagline {
+      font-size: 0.85rem;
+      margin-left: 6px;
+      font-weight: 500;
+      background: linear-gradient(
+        90deg,
+        var(--text-3) 0%, var(--text-2) 25%, var(--primary-l) 50%,
+        var(--cyan) 65%, var(--text-2) 80%, var(--text-3) 100%
+      );
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-3);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+    }
+    .footer-copy.visible { opacity: 1; transform: translateY(0); }
+
+    .footer-wave {
+      display: inline-block;
+      animation: breathe 4s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 0.8; transform: scale(1.06); }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .faq-question { padding: 18px 16px; }
+      .faq-answer { padding: 0 16px 18px; padding-top: 16px; }
+      .footer-inner { flex-direction: column; gap: 24px; }
+      .footer-cols { gap: 24px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- AURORA -->
+  <div class="aurora" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
+
+  <!-- GRAIN -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+          <defs><clipPath id="dna-faq-c"><rect width="40" height="20"/></clipPath></defs>
+          <g clip-path="url(#dna-faq-c)">
+            <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+        Helix
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#how-it-works">How it works</a></li>
+        <li><a href="index.html#languages">Languages</a></li>
+        <li><a href="pricing.html">Plans</a></li>
+      </ul>
+
+      <div id="nav-cta-area"><a href="signup.html" class="nav-cta">Get started free</a></div>
+    </div>
+  </nav>
+<script>
+(function() {
+  var _sess = null;
+  try { _sess = JSON.parse(localStorage.getItem('helix_session') || 'null'); } catch(e) {}
+  var _ctaArea = document.getElementById('nav-cta-area');
+  if (!_ctaArea || !_sess) return;
+  var _users = [];
+  try { _users = JSON.parse(localStorage.getItem('helix_users') || '[]'); } catch(e) {}
+  var _u = _users.find(function(u) { return u.id === _sess.userId; });
+  var _html = '<div style="display:flex;align-items:center;gap:0.5rem;">';
+  _html += '<a href="dashboard.html" class="nav-cta" style="background:transparent;border:1px solid rgba(99,102,241,0.4);color:var(--text);">Dashboard</a>';
+  if (_u && _u.isAdmin) {
+    _html += '<a href="admin.html" class="nav-cta" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#EF4444;padding:8px 12px;" title="Admin Panel">⚙ Admin</a>';
+  }
+  if (_u && _u.profilePic) {
+    _html += '<a href="profile.html"><img src="' + _u.profilePic + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(99,102,241,0.4);display:block;" alt="Profile"></a>';
+  } else {
+    var _init = (_sess.username || 'Y')[0].toUpperCase();
+    _html += '<a href="profile.html" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#22D3EE);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;text-decoration:none;flex-shrink:0;">' + _init + '</a>';
+  }
+  _html += '</div>';
+  _ctaArea.innerHTML = _html;
+})();
+</script>
+
+  <!-- PAGE HERO -->
+  <section class="page-hero" aria-label="FAQ hero">
+    <div class="container">
+      <div class="page-badge">Support</div>
+      <h1 class="page-hero-h1">
+        Frequently Asked<br />
+        <span class="gradient-text">Questions.</span>
+      </h1>
+      <p class="page-hero-sub">
+        Find answers to common questions about Helix, our plans, and how it all works.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <div class="container">
+      <h2 id="faq-heading" class="sr-only">FAQ</h2>
+      <div class="faq-list" role="list">
+
+        <!-- 01 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">What is Helix?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Helix is a browser-based coding education platform. You write real code in your browser — no setup, no installs, no fluff. Just you, the problem, and the helix spinning forward. We currently offer 90 lessons across 6 languages: Python, JavaScript, HTML &amp; CSS, SQL, C++, and TypeScript.
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">Is Helix really free?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              The first 5 lessons of every language track are completely free, forever. No credit card required. To unlock all 15 lessons per language (90 total), you'll need a Pro subscription. We believe learning should have a real starting point — no gates, no trials, no countdown timers.
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">What's included in the Pro plan?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Pro gives you access to all 15 lessons per language track (90 total lessons), early access to new languages as we add them, a Pro badge on the leaderboard, and priority support. Monthly at $9/month, or annual at $4.50/month (billed $54/year — 50% off). One price. The whole helix. <a href="pricing.html">See plans &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">Can I cancel my subscription at any time?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Yes, always. Cancel from your profile page at any time. Your Pro access continues until the end of your current billing period. No questions asked. No dark patterns, no guilt trips — if you need to pause the coil, you can.
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">How does the code editor work?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Our editor runs your code directly in your browser. Python uses Pyodide (WebAssembly), JavaScript runs via native browser execution, SQL uses sql.js, TypeScript compiles via the TypeScript compiler, and C++ is compiled via GCC through our partner service. No installation required on your end — the helix spins the moment you open the tab.
+            </div>
+          </div>
+        </div>
+
+        <!-- 06 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">Do I need to create an account to use Helix?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              You need an account to access lessons and track your progress. Creating an account is free and takes under 30 seconds. You can sign up with email and password — and we're adding Google and Apple sign-in soon. Your streak, XP, and progress are all tied to your account, so it's worth spinning one up.
+            </div>
+          </div>
+        </div>
+
+        <!-- 07 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">Will my progress be saved?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Yes. Your XP, level, streak, and completed lessons are saved to your account. Your progress is always there when you come back, even if you close the browser. The helix never forgets a rotation you've made.
+            </div>
+          </div>
+        </div>
+
+        <!-- 08 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">Can I use Helix on mobile?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Yes! Helix is responsive and works on mobile browsers. For the best experience with the code editor — where you're actually writing real code — we recommend a tablet or desktop. The helix doesn't need a full workstation, but it does appreciate the screen real estate.
+            </div>
+          </div>
+        </div>
+
+        <!-- 09 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">I forgot my password — what do I do?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              On the login page, click "Forgot your password?" and enter your email. We'll send you a reset link. If you signed up with Google or Apple, use those to sign in instead — password reset only applies to email/password accounts. The helix will be waiting when you get back in.
+            </div>
+          </div>
+        </div>
+
+        <!-- 10 -->
+        <div class="faq-item" role="listitem">
+          <button class="faq-question" aria-expanded="false">
+            <span class="faq-question-text">How do I contact support?</span>
+            <span class="faq-chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-answer-wrap" role="region">
+            <div class="faq-answer">
+              Reach us at <a href="mailto:support@learnhelix.org">support@learnhelix.org</a>. Pro users get priority responses within 24 hours. Free users typically hear back within 48&ndash;72 hours. We read every message — the helix team is small, but we're here.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.faq-list -->
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <div class="container">
+      <h2 class="cta-h2" id="cta-title">
+        Still have questions?<br />
+        <span class="gradient-text">We're one email away.</span>
+      </h2>
+      <p class="cta-sub">Or just spin up the helix and see for yourself — your first 5 lessons are free, no card required.</p>
+      <a href="signup.html" class="btn-primary">
+        Start for free &#8594;
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-brand" id="footer-brand">
+          <span class="footer-wave" aria-hidden="true">
+            <svg width="22" height="14" viewBox="0 0 44 28" fill="none">
+              <path d="M0,14 Q5.5,4 11,14 Q16.5,24 22,14 Q27.5,4 33,14 Q38.5,24 44,14" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M0,14 Q5.5,24 11,14 Q16.5,4 22,14 Q27.5,24 33,14 Q38.5,4 44,14" stroke="#EEF2F8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+            </svg>
+          </span>
+          Helix
+        </a>
+        <span class="footer-tagline">Always forward. Never still.</span>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-col-title">Company</div>
+          <a href="about.html">About Us</a>
+          <a href="faq.html">FAQ</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Learn</div>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="pricing.html">Plans</a>
+          <a href="challenge.html">Daily Challenge</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Account</div>
+          <a href="login.html">Sign In</a>
+          <a href="signup.html">Create Account</a>
+          <a href="profile.html">Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy" id="footer-copy">&copy; 2026 Helix &mdash; The helix never rests.</p>
+      <span class="footer-tagline" style="font-size:0.78rem;">Built with purpose.</span>
+    </div>
+  </footer>
+
+  <style>
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+
+  <script>
+    /* Accordion */
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+
+        // Close all
+        document.querySelectorAll('.faq-item.open').forEach(openItem => {
+          openItem.classList.remove('open');
+          openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        });
+
+        // Open clicked if it was closed
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    /* Footer fade-in */
+    const footerBrand = document.getElementById('footer-brand');
+    const footerCopy  = document.getElementById('footer-copy');
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          footerBrand.classList.add('visible');
+          setTimeout(() => footerCopy.classList.add('visible'), 200);
+          footerObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    footerObserver.observe(document.querySelector('.footer'));
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+User-agent: *
+
+# Public pages — allow indexing
+Allow: /
+Allow: /index.html
+Allow: /about.html
+Allow: /faq.html
+Allow: /pricing.html
+Allow: /signup.html
+Allow: /login.html
+Allow: /leaderboard.html
+Allow: /challenge.html
+Allow: /terms.html
+Allow: /privacy.html
+
+# Private / authenticated pages — block indexing
+Disallow: /dashboard.html
+Disallow: /profile.html
+Disallow: /settings.html
+Disallow: /admin.html
+Disallow: /lesson.html
+Disallow: /lesson-js.html
+Disallow: /lesson-html.html
+Disallow: /lesson-sql.html
+Disallow: /lesson-ts.html
+Disallow: /lesson-cpp.html
+Disallow: /forgot-password.html
+
+Sitemap: https://learnhelix.org/sitemap.xml

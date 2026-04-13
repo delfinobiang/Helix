@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — TypeScript</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%); top: -100px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,80px) scale(1.1); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,-60px) scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      height: 56px; padding: 0 1.5rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .nav-left  { display: flex; align-items: center; gap: 1rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .lesson-breadcrumb { font-size: 0.82rem; color: var(--text-3); }
+    .lesson-breadcrumb strong { color: var(--text-2); font-weight: 600; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; padding: 0.45rem 1.2rem; border-radius: 9px;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.28);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.38); }
+    .btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+
+    /* ─── PROGRESS ────────────────────────────────────────── */
+    .lesson-progress { height: 3px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .lesson-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.6s ease;
+    }
+
+    /* ─── SPLIT ───────────────────────────────────────────── */
+    .split {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+      overflow: hidden; min-height: 0; position: relative; z-index: 1;
+    }
+
+    /* ─── LEFT PANEL ──────────────────────────────────────── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel-left-inner {
+      flex: 1; overflow-y: auto; padding: 2rem 2rem 1rem;
+    }
+    .panel-left-inner::-webkit-scrollbar { width: 4px; }
+    .panel-left-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    .lesson-num-tag {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem;
+    }
+    .lesson-title-h {
+      font-size: 1.55rem; font-weight: 800; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 1.4rem;
+    }
+    .lesson-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.82; }
+    .lesson-body p  { margin-bottom: 1rem; }
+    .lesson-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 1.4rem 0 0.6rem; }
+    .lesson-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+    .lesson-body ul li { margin-bottom: 0.3rem; }
+    .lesson-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.1); color: #C4B5FD;
+      padding: 0.12em 0.38em; border-radius: 5px;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .lesson-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      line-height: 1.9; overflow-x: auto;
+    }
+    .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
+    .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
+
+    .challenge-box {
+      margin: 1.5rem 0 0;
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .challenge-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    /* Hint / solution */
+    .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .collapsible { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .collapsible-header {
+      width: 100%; display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; background: var(--bg-card);
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600; color: var(--text-2);
+      text-align: left; transition: background 0.18s, color 0.18s;
+    }
+    .collapsible-header:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .collapsible-header .chevron { margin-left: auto; font-size: 0.7rem; transition: transform 0.25s; }
+    .collapsible-header.open .chevron { transform: rotate(180deg); }
+    .collapsible-hint     { border-color: rgba(255,179,71,0.2); }
+    .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
+    .collapsible-solution { border-color: rgba(74,222,128,0.18); }
+    .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+
+    /* Locked solution state */
+    .collapsible-solution.locked {
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    .collapsible-solution.locked .collapsible-header {
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+    .collapsible-solution.locked .collapsible-header:hover {
+      background: var(--bg-card);
+      color: var(--text-3);
+    }
+    .sol-lock-msg {
+      font-size: 0.72rem; color: var(--text-3);
+      margin-left: auto; margin-right: 0.4rem;
+      font-style: italic; white-space: nowrap;
+    }
+    .collapsible-solution:not(.locked) .sol-lock-msg { display: none; }
+    .collapsible-body {
+      display: none; padding: 1rem;
+      font-size: 0.85rem; line-height: 1.72; color: var(--text-2);
+      background: rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+    }
+    .collapsible-body.open { display: block; }
+    .collapsible-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.08); color: #C4B5FD;
+      padding: 0.1em 0.35em; border-radius: 5px;
+    }
+    .collapsible-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
+      overflow-x: auto;
+    }
+
+    /* ─── RIGHT PANEL ─────────────────────────────────────── */
+    .panel-right { display: flex; flex-direction: column; overflow: hidden; }
+    .editor-toolbar {
+      padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(6,10,20,0.6); flex-shrink: 0;
+    }
+    .win-dots { display: flex; gap: 5px; }
+    .wd { width: 10px; height: 10px; border-radius: 50%; }
+    .wd.r { background: #FF5F57; } .wd.y { background: #FFBD2E; } .wd.g { background: #28C840; }
+    .editor-fname { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-3); margin-left: 0.4rem; flex: 1; }
+    .btn-run {
+      display: flex; align-items: center; gap: 0.45rem;
+      background: linear-gradient(135deg, #22C55E, #16A34A);
+      border: none; color: white; font-family: inherit;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(74,222,128,0.22);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-run:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(74,222,128,0.32); }
+    .btn-run:disabled { opacity: 0.4; pointer-events: none; }
+    .btn-clear {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-3); font-family: inherit; font-size: 0.78rem;
+      cursor: pointer; padding: 0.42rem 0.85rem; border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-clear:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
+
+    .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; min-height: 0; }
+    .line-nums {
+      padding: 1.1rem 0.75rem 1.1rem 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      color: var(--text-3); text-align: right; user-select: none;
+      background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
+      min-width: 44px; overflow: hidden; flex-shrink: 0;
+    }
+    .editor-textarea {
+      flex: 1; resize: none; border: none; outline: none;
+      background: #050C1A; color: #D4D4F8;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 4;
+      caret-color: var(--primary);
+      overflow-y: auto; overflow-x: auto;
+    }
+    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
+    .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    /* Output */
+    .output-panel {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; flex-direction: column; max-height: 38%;
+    }
+    .output-header {
+      padding: 0.55rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    .output-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); flex: 1; }
+    .output-status { font-size: 0.68rem; font-weight: 700; padding: 0.14rem 0.55rem; border-radius: 6px; }
+    .os-running { background: rgba(255,179,71,0.1);  color: var(--yellow); }
+    .os-ok      { background: rgba(74,222,128,0.1);  color: var(--green);  }
+    .os-error   { background: rgba(255,107,107,0.1); color: var(--red);    }
+    .os-idle    { background: rgba(255,255,255,0.04); color: var(--text-3); }
+    .output-body {
+      flex: 1; overflow-y: auto; padding: 0.9rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.85;
+      background: #040810;
+    }
+    .output-body::-webkit-scrollbar { width: 4px; }
+    .output-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
+    .out-line        { color: var(--green); white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-error       { color: var(--red);   white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-placeholder { color: var(--text-3); font-style: italic; }
+
+    /* TS loader */
+    .py-loader {
+      position: absolute; inset: 0; background: rgba(6,10,20,0.88);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.75rem; z-index: 5; backdrop-filter: blur(6px);
+    }
+    .py-loader.hidden { display: none; }
+    .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid rgba(99,102,241,0.2); border-top-color: var(--primary);
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .py-loader-text { font-size: 0.82rem; color: var(--text-3); }
+
+    /* ─── COMPLETION MODAL ────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.28s;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #05091A; border: 1px solid rgba(99,102,241,0.28);
+      border-radius: 26px; padding: 2.5rem 2.5rem 2rem;
+      max-width: 420px; width: 90%; text-align: center;
+      transform: translateY(24px) scale(0.95);
+      transition: transform 0.32s cubic-bezier(0.34,1.55,0.64,1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,102,241,0.10);
+      position: relative; overflow: hidden;
+    }
+    .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+    /* Pip in modal */
+    .modal-pip-wrap { margin-bottom: 1rem; animation: pip-bounce 0.7s ease; }
+    @keyframes pip-bounce {
+      0%   { transform: translateY(-30px) scale(0.7); opacity: 0; }
+      60%  { transform: translateY(5px) scale(1.05); opacity: 1; }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .modal-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .modal-sub   { font-size: 0.88rem; color: var(--text-2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .modal-xp-wrap {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.22);
+      color: var(--yellow); font-size: 1.15rem; font-weight: 800;
+      padding: 0.55rem 1.6rem; border-radius: 100px; margin-bottom: 1.6rem;
+    }
+    .modal-xp-count { transition: all 0.1s; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-modal-next {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; padding: 0.7rem 1.8rem; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal-next:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,102,241,0.4); }
+    .btn-modal-dash {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; padding: 0.7rem 1.4rem; border-radius: 12px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-modal-dash:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+
+    /* ─── CONFETTI CANVAS ─────────────────────────────────── */
+    #confetti-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 199;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #confetti-canvas.active { opacity: 1; }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
+      .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
+      .panel-left-inner { overflow: visible; }
+      .panel-right { min-height: 520px; flex: none; height: 520px; }
+      .lesson-breadcrumb { display: none; }
+      .output-panel { max-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="dashboard.html">← Back</a>
+    <div class="lesson-breadcrumb">TypeScript Fundamentals &nbsp;/&nbsp; <strong id="nav-lesson-title">Lesson</strong></div>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <button class="btn-primary" id="btn-submit" disabled>Submit →</button>
+  </div>
+</nav>
+
+<div class="lesson-progress">
+  <div class="lesson-progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<!-- ─── SPLIT ────────────────────────────────────────────── -->
+<div class="split">
+
+  <div class="panel-left">
+    <div class="panel-left-inner" id="lesson-content"></div>
+    <div class="extras">
+      <div class="collapsible collapsible-hint">
+        <button class="collapsible-header" id="hint-toggle">
+          💡 Show Hint <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="hint-body"></div>
+      </div>
+      <div class="collapsible collapsible-solution locked" id="solution-collapsible">
+        <button class="collapsible-header" id="solution-toggle">
+          🔒 Show Solution
+          <span class="sol-lock-msg">run your code first</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="solution-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="editor-toolbar">
+      <div class="win-dots">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+      </div>
+      <span class="editor-fname" id="editor-fname">main.ts</span>
+      <button class="btn-clear" id="btn-reset">↺ Reset</button>
+      <button class="btn-run" id="btn-run" disabled>▶ Run</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="py-loader" id="py-loader">
+        <div class="spinner"></div>
+        <div class="py-loader-text">Loading TypeScript compiler…</div>
+      </div>
+      <div class="line-nums" id="line-nums">1</div>
+      <textarea
+        class="editor-textarea" id="editor"
+        spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="// Write your TypeScript here..."></textarea>
+    </div>
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-label">▶ Output</span>
+        <span class="output-status os-idle" id="output-status">Idle</span>
+      </div>
+      <div class="output-body" id="output-body">
+        <span class="out-placeholder">Run your code to see output here.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── COMPLETION MODAL ────────────────────────────────── -->
+<canvas id="confetti-canvas"></canvas>
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-pip-wrap">
+      <svg width="72" height="82" viewBox="0 0 130 148" fill="none">
+        <defs>
+          <radialGradient id="mp-h" cx="42%" cy="30%" r="62%"><stop offset="0%" stop-color="#9A92FF"/><stop offset="100%" stop-color="#3B35C0"/></radialGradient>
+          <radialGradient id="mp-f" cx="50%" cy="38%" r="55%"><stop offset="0%" stop-color="#1E1E3C"/><stop offset="100%" stop-color="#0C0C1E"/></radialGradient>
+          <radialGradient id="mp-e" cx="30%" cy="28%" r="70%"><stop offset="0%" stop-color="#78F4FF"/><stop offset="100%" stop-color="#0088AA"/></radialGradient>
+          <linearGradient id="mp-ear" x1="0%" y1="0%" x2="80%" y2="100%"><stop offset="0%" stop-color="#7870E8"/><stop offset="100%" stop-color="#3830A8"/></linearGradient>
+          <filter id="mp-s"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#6366F1" flood-opacity="0.3"/></filter>
+        </defs>
+        <g filter="url(#mp-s)">
+          <circle cx="65" cy="58" r="44" fill="url(#mp-h)"/>
+          <path d="M30 26 C33 12 40 10 42 22 C40 30 33 36 26 34 C23 30 25 26 30 26Z" fill="url(#mp-ear)"/>
+          <path d="M100 26 C97 12 90 10 88 22 C90 30 97 36 104 34 C107 30 105 26 100 26Z" fill="url(#mp-ear)"/>
+          <circle cx="65" cy="60" r="32" fill="url(#mp-f)"/>
+          <circle cx="51" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="52.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="55" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <circle cx="79" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="80.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="83" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <path d="M65 64 C61.5 64 58 68.5 59.5 72 C61 74.5 63.5 75.5 65 75.5 C66.5 75.5 69 74.5 70.5 72 C72 68.5 68.5 64 65 64Z" fill="#FFB347"/>
+        </g>
+      </svg>
+    </div>
+    <div class="modal-title">Lesson Complete! 🎉</div>
+    <div class="modal-sub" id="modal-sub">Great work. Keep the streak going!</div>
+    <div class="modal-xp-wrap">⚡ +<span class="modal-xp-count" id="modal-xp-count">0</span> XP</div>
+    <div class="modal-actions">
+      <button class="btn-modal-next" id="modal-next">Next Lesson →</button>
+      <button class="btn-modal-dash" onclick="window.location.href='dashboard.html'">Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typescript/5.3.3/typescript.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// LESSON DATA — 15 TypeScript Fundamentals lessons
+// ═══════════════════════════════════════════════════════════
+const LESSONS = {
+
+  1: {
+    title: "Hello, World!", xp: 50, fname: "hello.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 1 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Hello, World! 🔷</h1>
+      <div class="lesson-body">
+        <p>TypeScript is a <strong>typed superset of JavaScript</strong>. Every valid JavaScript program is also valid TypeScript — but TypeScript adds a powerful type system on top.</p>
+        <p>Just like JavaScript, you use <code>console.log()</code> to print output:</p>
+        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Hello, TypeScript!"</span>)  <span class="cm">// Hello, TypeScript!</span></div>
+        <h3>Why TypeScript?</h3>
+        <ul>
+          <li>Catches bugs <em>before</em> you run your code</li>
+          <li>Better editor autocomplete and refactoring</li>
+          <li>Makes large codebases much easier to maintain</li>
+        </ul>
+        <div class="code-block"><span class="cm">// TypeScript knows this is a mistake:</span>
+<span class="kw">let</span> <span class="vr">age</span>: <span class="fn">number</span> = <span class="st">"twenty"</span>  <span class="cm">// ❌ Type error!</span>
+<span class="kw">let</span> <span class="vr">age</span>: <span class="fn">number</span> = <span class="nm">20</span>        <span class="cm">// ✅ Correct</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Print exactly two lines:<br><code>Hello, TypeScript!</code><br><code>Types keep me safe!</code></div>
+        </div>
+      </div>`,
+    hint: `<p>Call <code>console.log()</code> twice — once per line:</p>
+      <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"first line"</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"second line"</span>)</div>`,
+    solution: `<div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Hello, TypeScript!"</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Types keep me safe!"</span>)</div>`,
+    starter: `// Print two lines below\n`,
+    check: (out) => out.includes("Hello, TypeScript!") && out.includes("Types keep me safe!"),
+  },
+
+  2: {
+    title: "Type Annotations", xp: 75, fname: "annotations.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 2 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Type Annotations 🏷️</h1>
+      <div class="lesson-body">
+        <p>TypeScript lets you explicitly declare the type of a variable using a colon <code>:</code> after the name:</p>
+        <div class="code-block"><span class="kw">let</span> <span class="vr">name</span>: <span class="fn">string</span> = <span class="st">"Alice"</span>
+<span class="kw">let</span> <span class="vr">age</span>: <span class="fn">number</span> = <span class="nm">21</span>
+<span class="kw">let</span> <span class="vr">active</span>: <span class="fn">boolean</span> = <span class="kw">true</span></div>
+        <h3>The three primitive types</h3>
+        <ul>
+          <li><code>string</code> — text values like <code>"hello"</code></li>
+          <li><code>number</code> — integers and floats like <code>42</code> or <code>3.14</code></li>
+          <li><code>boolean</code> — <code>true</code> or <code>false</code></li>
+        </ul>
+        <p>TypeScript will warn you if you try to assign the wrong type:</p>
+        <div class="code-block"><span class="kw">let</span> <span class="vr">score</span>: <span class="fn">number</span> = <span class="nm">100</span>
+<span class="vr">score</span> = <span class="st">"high"</span>  <span class="cm">// ❌ Type 'string' is not assignable to type 'number'</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Declare three variables:<br>• <code>name: string = "Helix"</code><br>• <code>version: number = 2</code><br>• <code>isActive: boolean = true</code><br>Then log all three.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">let</span> <span class="vr">name</span>: <span class="fn">string</span> = <span class="st">"Helix"</span>
+<span class="kw">let</span> <span class="vr">version</span>: <span class="fn">number</span> = <span class="nm">2</span>
+<span class="kw">let</span> <span class="vr">isActive</span>: <span class="fn">boolean</span> = <span class="kw">true</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">version</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">isActive</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">let</span> <span class="vr">name</span>: <span class="fn">string</span> = <span class="st">"Helix"</span>
+<span class="kw">let</span> <span class="vr">version</span>: <span class="fn">number</span> = <span class="nm">2</span>
+<span class="kw">let</span> <span class="vr">isActive</span>: <span class="fn">boolean</span> = <span class="kw">true</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>)    <span class="cm">// Helix</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">version</span>) <span class="cm">// 2</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">isActive</span>)<span class="cm">// true</span></div>`,
+    starter: `// Declare name, version, and isActive with type annotations\n\n`,
+    check: (out) => out.includes("Helix") && out.includes("2"),
+  },
+
+  3: {
+    title: "Functions with Types", xp: 100, fname: "functions.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 3 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Functions with Types 🧩</h1>
+      <div class="lesson-body">
+        <p>TypeScript lets you annotate function <strong>parameters</strong> and <strong>return types</strong>. This prevents calling a function with the wrong kind of data.</p>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">add</span>(<span class="vr">a</span>: <span class="fn">number</span>, <span class="vr">b</span>: <span class="fn">number</span>): <span class="fn">number</span> {
+  <span class="kw">return</span> <span class="vr">a</span> + <span class="vr">b</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">4</span>))  <span class="cm">// 7</span></div>
+        <h3>Anatomy of a typed function</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">name</span>(<span class="vr">param</span>: <span class="fn">ParamType</span>): <span class="fn">ReturnType</span> {
+  <span class="kw">return</span> <span class="cm">/* value */</span>
+}</div>
+        <p>If a function returns nothing, use the special type <code>void</code>:</p>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">sayHi</span>(<span class="vr">name</span>: <span class="fn">string</span>): <span class="fn">void</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Hi, "</span> + <span class="vr">name</span>)
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write a function <code>greet(name: string): string</code> that returns <code>"Hello, " + name + "!"</code>. Then log <code>greet("World")</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">greet</span>(<span class="vr">name</span>: <span class="fn">string</span>): <span class="fn">string</span> {
+  <span class="kw">return</span> <span class="st">"Hello, "</span> + <span class="vr">name</span> + <span class="st">"!"</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="st">"World"</span>))</div>`,
+    solution: `<div class="code-block"><span class="kw">function</span> <span class="fn">greet</span>(<span class="vr">name</span>: <span class="fn">string</span>): <span class="fn">string</span> {
+  <span class="kw">return</span> <span class="st">"Hello, "</span> + <span class="vr">name</span> + <span class="st">"!"</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="st">"World"</span>))  <span class="cm">// Hello, World!</span></div>`,
+    starter: `// Write greet(name: string): string and call it\n\n`,
+    check: (out) => out.includes("Hello, World!"),
+  },
+
+  4: {
+    title: "Arrays & Tuples", xp: 100, fname: "arrays.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 4 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Arrays & Tuples 📋</h1>
+      <div class="lesson-body">
+        <p>TypeScript arrays are typed — you can't accidentally put a string into a number array.</p>
+        <div class="code-block"><span class="kw">let</span> <span class="vr">scores</span>: <span class="fn">number</span>[] = [<span class="nm">95</span>, <span class="nm">87</span>, <span class="nm">92</span>]
+<span class="kw">let</span> <span class="vr">names</span>: <span class="fn">string</span>[] = [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>]
+<span class="cm">// Also valid: Array&lt;number&gt;</span>
+<span class="kw">let</span> <span class="vr">ids</span>: <span class="fn">Array</span>&lt;<span class="fn">number</span>&gt; = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]</div>
+        <h3>Tuples — fixed-length typed arrays</h3>
+        <p>A <strong>tuple</strong> is an array with a known number of elements, each with a specific type:</p>
+        <div class="code-block"><span class="kw">let</span> <span class="vr">person</span>: [<span class="fn">string</span>, <span class="fn">number</span>] = [<span class="st">"Alex"</span>, <span class="nm">21</span>]
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">0</span>])  <span class="cm">// "Alex"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">1</span>])  <span class="cm">// 21</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Declare <code>scores: number[] = [95, 87, 92]</code>. Log its length and first element. Also declare tuple <code>person: [string, number] = ["Alex", 21]</code> and log both elements.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">let</span> <span class="vr">scores</span>: <span class="fn">number</span>[] = [<span class="nm">95</span>, <span class="nm">87</span>, <span class="nm">92</span>]
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">scores</span>.length)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">scores</span>[<span class="nm">0</span>])
+<span class="kw">let</span> <span class="vr">person</span>: [<span class="fn">string</span>, <span class="fn">number</span>] = [<span class="st">"Alex"</span>, <span class="nm">21</span>]
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">0</span>])
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">1</span>])</div>`,
+    solution: `<div class="code-block"><span class="kw">let</span> <span class="vr">scores</span>: <span class="fn">number</span>[] = [<span class="nm">95</span>, <span class="nm">87</span>, <span class="nm">92</span>]
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">scores</span>.length)  <span class="cm">// 3</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">scores</span>[<span class="nm">0</span>])      <span class="cm">// 95</span>
+<span class="kw">let</span> <span class="vr">person</span>: [<span class="fn">string</span>, <span class="fn">number</span>] = [<span class="st">"Alex"</span>, <span class="nm">21</span>]
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">0</span>])  <span class="cm">// Alex</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">1</span>])  <span class="cm">// 21</span></div>`,
+    starter: `// Declare scores array and person tuple, then log values\n\n`,
+    check: (out) => out.includes("3") && out.includes("95") && out.includes("Alex") && out.includes("21"),
+  },
+
+  5: {
+    title: "Interfaces", xp: 125, fname: "interfaces.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 5 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Interfaces 📐</h1>
+      <div class="lesson-body">
+        <p>An <strong>interface</strong> defines the <em>shape</em> of an object — what properties it must have and their types.</p>
+        <div class="code-block"><span class="kw">interface</span> <span class="fn">User</span> {
+  <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="vr">age</span>: <span class="fn">number</span>
+  <span class="vr">email</span>?: <span class="fn">string</span>  <span class="cm">// optional property</span>
+}</div>
+        <p>The <code>?</code> makes a property optional — it may or may not be present.</p>
+        <h3>Using an interface</h3>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">user</span>: <span class="fn">User</span> = {
+  <span class="vr">name</span>: <span class="st">"Alice"</span>,
+  <span class="vr">age</span>: <span class="nm">30</span>
+  <span class="cm">// email is optional, so we can omit it</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">user</span>.name)  <span class="cm">// Alice</span></div>
+        <h3>readonly properties</h3>
+        <div class="code-block"><span class="kw">interface</span> <span class="fn">Config</span> {
+  <span class="kw">readonly</span> <span class="vr">host</span>: <span class="fn">string</span>  <span class="cm">// cannot be changed after creation</span>
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Define <code>interface User &#123; name: string; age: number; email?: string; &#125;</code>. Create a user object, then log the name and age on separate lines.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">interface</span> <span class="fn">User</span> {
+  <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="vr">age</span>: <span class="fn">number</span>
+  <span class="vr">email</span>?: <span class="fn">string</span>
+}
+<span class="kw">const</span> <span class="vr">user</span>: <span class="fn">User</span> = { <span class="vr">name</span>: <span class="st">"Sam"</span>, <span class="vr">age</span>: <span class="nm">25</span> }
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">user</span>.name)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">user</span>.age)</div>`,
+    solution: `<div class="code-block"><span class="kw">interface</span> <span class="fn">User</span> {
+  <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="vr">age</span>: <span class="fn">number</span>
+  <span class="vr">email</span>?: <span class="fn">string</span>
+}
+<span class="kw">const</span> <span class="vr">user</span>: <span class="fn">User</span> = { <span class="vr">name</span>: <span class="st">"Sam"</span>, <span class="vr">age</span>: <span class="nm">25</span> }
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">user</span>.name)  <span class="cm">// Sam</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">user</span>.age)   <span class="cm">// 25</span></div>`,
+    starter: `// Define interface User and create a user object\n\n`,
+    check: (out, code) => code.includes("interface") && out.trim().split('\n').length >= 2,
+  },
+
+  6: {
+    title: "Type Aliases", xp: 125, fname: "types.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 6 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Type Aliases 🔖</h1>
+      <div class="lesson-body">
+        <p>The <code>type</code> keyword creates a <strong>type alias</strong> — a new name for any type, including complex ones.</p>
+        <div class="code-block"><span class="kw">type</span> <span class="fn">Name</span> = <span class="fn">string</span>
+<span class="kw">type</span> <span class="fn">Age</span>  = <span class="fn">number</span>
+
+<span class="kw">let</span> <span class="vr">userName</span>: <span class="fn">Name</span> = <span class="st">"Alice"</span></div>
+        <h3>Union types with |</h3>
+        <p>A <strong>union type</strong> means a value can be <em>one of several types</em>:</p>
+        <div class="code-block"><span class="kw">type</span> <span class="fn">ID</span> = <span class="fn">string</span> | <span class="fn">number</span>
+
+<span class="kw">let</span> <span class="vr">id</span>: <span class="fn">ID</span> = <span class="st">"abc-123"</span>  <span class="cm">// ok</span>
+<span class="vr">id</span> = <span class="nm">456</span>                   <span class="cm">// also ok!</span></div>
+        <h3>Intersection types with &</h3>
+        <div class="code-block"><span class="kw">type</span> <span class="fn">Named</span>  = { <span class="vr">name</span>: <span class="fn">string</span> }
+<span class="kw">type</span> <span class="fn">Aged</span>   = { <span class="vr">age</span>: <span class="fn">number</span> }
+<span class="kw">type</span> <span class="fn">Person</span> = <span class="fn">Named</span> & <span class="fn">Aged</span>  <span class="cm">// has both</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create <code>type ID = string | number</code>. Declare <code>let userId: ID = "abc-123"</code> and log it, then reassign it to <code>456</code> and log again.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">type</span> <span class="fn">ID</span> = <span class="fn">string</span> | <span class="fn">number</span>
+<span class="kw">let</span> <span class="vr">userId</span>: <span class="fn">ID</span> = <span class="st">"abc-123"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">userId</span>)
+<span class="vr">userId</span> = <span class="nm">456</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">userId</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">type</span> <span class="fn">ID</span> = <span class="fn">string</span> | <span class="fn">number</span>
+<span class="kw">let</span> <span class="vr">userId</span>: <span class="fn">ID</span> = <span class="st">"abc-123"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">userId</span>)  <span class="cm">// abc-123</span>
+<span class="vr">userId</span> = <span class="nm">456</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">userId</span>)  <span class="cm">// 456</span></div>`,
+    starter: `// Create type ID and demonstrate union types\n\n`,
+    check: (out) => out.includes("abc-123") && out.includes("456"),
+  },
+
+  7: {
+    title: "Enums", xp: 150, fname: "enums.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 7 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Enums 🎛️</h1>
+      <div class="lesson-body">
+        <p>An <strong>enum</strong> (enumeration) is a named set of constants. It makes your code more readable by giving meaningful names to numeric or string values.</p>
+        <h3>Numeric enum (default)</h3>
+        <div class="code-block"><span class="kw">enum</span> <span class="fn">Direction</span> {
+  Up,     <span class="cm">// 0</span>
+  Down,   <span class="cm">// 1</span>
+  Left,   <span class="cm">// 2</span>
+  Right   <span class="cm">// 3</span>
+}
+<span class="kw">let</span> <span class="vr">dir</span>: <span class="fn">Direction</span> = <span class="fn">Direction</span>.Up
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">dir</span>)  <span class="cm">// 0</span></div>
+        <h3>String enum</h3>
+        <div class="code-block"><span class="kw">enum</span> <span class="fn">Status</span> {
+  Active   = <span class="st">"ACTIVE"</span>,
+  Inactive = <span class="st">"INACTIVE"</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">Status</span>.Active)  <span class="cm">// "ACTIVE"</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create <code>enum Status &#123; Active = "ACTIVE", Inactive = "INACTIVE" &#125;</code>. Declare <code>let s: Status = Status.Active</code> and log it.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">enum</span> <span class="fn">Status</span> {
+  Active   = <span class="st">"ACTIVE"</span>,
+  Inactive = <span class="st">"INACTIVE"</span>
+}
+<span class="kw">let</span> <span class="vr">s</span>: <span class="fn">Status</span> = <span class="fn">Status</span>.Active
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">enum</span> <span class="fn">Status</span> {
+  Active   = <span class="st">"ACTIVE"</span>,
+  Inactive = <span class="st">"INACTIVE"</span>
+}
+<span class="kw">let</span> <span class="vr">s</span>: <span class="fn">Status</span> = <span class="fn">Status</span>.Active
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>)  <span class="cm">// ACTIVE</span></div>`,
+    starter: `// Create enum Status with string values and log Status.Active\n\n`,
+    check: (out, code) => code.includes("enum") && out.includes("ACTIVE"),
+  },
+
+  8: {
+    title: "Classes with Types", xp: 175, fname: "classes.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 8 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Classes with Types 🏗️</h1>
+      <div class="lesson-body">
+        <p>TypeScript classes support typed properties and <strong>access modifiers</strong> to control visibility.</p>
+        <div class="code-block"><span class="kw">class</span> <span class="fn">Person</span> {
+  <span class="kw">public</span>  <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="kw">private</span> <span class="vr">age</span>: <span class="fn">number</span>
+
+  <span class="fn">constructor</span>(<span class="vr">name</span>: <span class="fn">string</span>, <span class="vr">age</span>: <span class="fn">number</span>) {
+    <span class="kw">this</span>.name = <span class="vr">name</span>
+    <span class="kw">this</span>.age  = <span class="vr">age</span>
+  }
+
+  <span class="fn">greet</span>(): <span class="fn">string</span> {
+    <span class="kw">return</span> <span class="st">"Hi, I'm "</span> + <span class="kw">this</span>.name
+  }
+}
+<span class="kw">const</span> <span class="vr">p</span> = <span class="kw">new</span> <span class="fn">Person</span>(<span class="st">"Alice"</span>, <span class="nm">30</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">p</span>.<span class="fn">greet</span>())</div>
+        <h3>Access modifiers</h3>
+        <ul>
+          <li><code>public</code> — accessible everywhere (default)</li>
+          <li><code>private</code> — only accessible inside the class</li>
+          <li><code>protected</code> — accessible in the class and subclasses</li>
+        </ul>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a <code>class Animal</code> with a <code>private name: string</code>, a constructor that sets it, and a <code>public getName(): string</code> method. Instantiate with "Lion" and log <code>getName()</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Animal</span> {
+  <span class="kw">private</span> <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="fn">constructor</span>(<span class="vr">name</span>: <span class="fn">string</span>) {
+    <span class="kw">this</span>.name = <span class="vr">name</span>
+  }
+  <span class="kw">public</span> <span class="fn">getName</span>(): <span class="fn">string</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.name
+  }
+}
+<span class="kw">const</span> <span class="vr">a</span> = <span class="kw">new</span> <span class="fn">Animal</span>(<span class="st">"Lion"</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">a</span>.<span class="fn">getName</span>())</div>`,
+    solution: `<div class="code-block"><span class="kw">class</span> <span class="fn">Animal</span> {
+  <span class="kw">private</span> <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="fn">constructor</span>(<span class="vr">name</span>: <span class="fn">string</span>) {
+    <span class="kw">this</span>.name = <span class="vr">name</span>
+  }
+  <span class="kw">public</span> <span class="fn">getName</span>(): <span class="fn">string</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.name
+  }
+}
+<span class="kw">const</span> <span class="vr">a</span> = <span class="kw">new</span> <span class="fn">Animal</span>(<span class="st">"Lion"</span>)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">a</span>.<span class="fn">getName</span>())  <span class="cm">// Lion</span></div>`,
+    starter: `// Create class Animal with private name and public getName()\n\n`,
+    check: (out) => out.includes("Lion"),
+  },
+
+  9: {
+    title: "Generics", xp: 200, fname: "generics.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 9 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Generics 🧬</h1>
+      <div class="lesson-body">
+        <p><strong>Generics</strong> let you write functions and classes that work with <em>any type</em> while still being type-safe. Think of <code>T</code> as a placeholder for a real type.</p>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">identity</span>&lt;<span class="fn">T</span>&gt;(<span class="vr">arg</span>: <span class="fn">T</span>): <span class="fn">T</span> {
+  <span class="kw">return</span> <span class="vr">arg</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">identity</span>&lt;<span class="fn">string</span>&gt;(<span class="st">"hello"</span>))  <span class="cm">// hello</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">identity</span>&lt;<span class="fn">number</span>&gt;(<span class="nm">42</span>))      <span class="cm">// 42</span></div>
+        <h3>Generic with arrays</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">last</span>&lt;<span class="fn">T</span>&gt;(<span class="vr">arr</span>: <span class="fn">T</span>[]): <span class="fn">T</span> {
+  <span class="kw">return</span> <span class="vr">arr</span>[<span class="vr">arr</span>.length - <span class="nm">1</span>]
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">last</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]))       <span class="cm">// 3</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">last</span>([<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]))  <span class="cm">// c</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write a generic function <code>first&lt;T&gt;(arr: T[]): T</code> that returns <code>arr[0]</code>. Call it with <code>[10, 20, 30]</code> and <code>["a","b","c"]</code>, logging both results.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">first</span>&lt;<span class="fn">T</span>&gt;(<span class="vr">arr</span>: <span class="fn">T</span>[]): <span class="fn">T</span> {
+  <span class="kw">return</span> <span class="vr">arr</span>[<span class="nm">0</span>]
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">first</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>]))
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">first</span>([<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]))</div>`,
+    solution: `<div class="code-block"><span class="kw">function</span> <span class="fn">first</span>&lt;<span class="fn">T</span>&gt;(<span class="vr">arr</span>: <span class="fn">T</span>[]): <span class="fn">T</span> {
+  <span class="kw">return</span> <span class="vr">arr</span>[<span class="nm">0</span>]
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">first</span>([<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>]))       <span class="cm">// 10</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">first</span>([<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]))  <span class="cm">// a</span></div>`,
+    starter: `// Write generic function first<T> and call it\n\n`,
+    check: (out) => out.includes("10") && out.includes("a"),
+  },
+
+  10: {
+    title: "Optional & Default Parameters", xp: 175, fname: "params.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 10 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Optional & Default Parameters ⚙️</h1>
+      <div class="lesson-body">
+        <p>TypeScript lets you mark parameters as optional with <code>?</code> or give them default values.</p>
+        <h3>Optional parameters</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">greet</span>(<span class="vr">name</span>: <span class="fn">string</span>, <span class="vr">greeting</span>?: <span class="fn">string</span>): <span class="fn">string</span> {
+  <span class="kw">return</span> (<span class="vr">greeting</span> ?? <span class="st">"Hello"</span>) + <span class="st">", "</span> + <span class="vr">name</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="st">"Alice"</span>))           <span class="cm">// Hello, Alice</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="st">"Bob"</span>, <span class="st">"Hi"</span>))     <span class="cm">// Hi, Bob</span></div>
+        <h3>Default parameters</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">power</span>(<span class="vr">base</span>: <span class="fn">number</span>, <span class="vr">exp</span>: <span class="fn">number</span> = <span class="nm">2</span>): <span class="fn">number</span> {
+  <span class="kw">return</span> <span class="vr">base</span> ** <span class="vr">exp</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">power</span>(<span class="nm">3</span>))    <span class="cm">// 9  (exp defaults to 2)</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">power</span>(<span class="nm">2</span>, <span class="nm">8</span>)) <span class="cm">// 256</span></div>
+        <h3>Rest parameters</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">sum</span>(...<span class="vr">nums</span>: <span class="fn">number</span>[]): <span class="fn">number</span> {
+  <span class="kw">return</span> <span class="vr">nums</span>.reduce((<span class="vr">a</span>, <span class="vr">b</span>) =&gt; <span class="vr">a</span> + <span class="vr">b</span>, <span class="nm">0</span>)
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write <code>function introduce(name: string, title: string = "Developer"): string</code> returning <code>\`\${name} is a \${title}\`</code>. Call with just "Alice" and log the result.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">introduce</span>(<span class="vr">name</span>: <span class="fn">string</span>, <span class="vr">title</span>: <span class="fn">string</span> = <span class="st">"Developer"</span>): <span class="fn">string</span> {
+  <span class="kw">return</span> <span class="vr">name</span> + <span class="st">" is a "</span> + <span class="vr">title</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">introduce</span>(<span class="st">"Alice"</span>))</div>`,
+    solution: `<div class="code-block"><span class="kw">function</span> <span class="fn">introduce</span>(<span class="vr">name</span>: <span class="fn">string</span>, <span class="vr">title</span>: <span class="fn">string</span> = <span class="st">"Developer"</span>): <span class="fn">string</span> {
+  <span class="kw">return</span> <span class="vr">name</span> + <span class="st">" is a "</span> + <span class="vr">title</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">introduce</span>(<span class="st">"Alice"</span>))  <span class="cm">// Alice is a Developer</span></div>`,
+    starter: `// Write introduce(name, title = "Developer") and call it\n\n`,
+    check: (out) => out.includes("Alice") && out.includes("Developer"),
+  },
+
+  11: {
+    title: "Union & Intersection Types", xp: 200, fname: "union.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 11 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Union & Intersection Types 🔀</h1>
+      <div class="lesson-body">
+        <p>You've seen union types briefly — let's go deeper. Union types are perfect for functions that handle multiple input kinds.</p>
+        <h3>Union types in functions</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">printId</span>(<span class="vr">id</span>: <span class="fn">string</span> | <span class="fn">number</span>): <span class="fn">void</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"ID:"</span>, <span class="vr">id</span>)
+}
+<span class="fn">printId</span>(<span class="nm">101</span>)        <span class="cm">// ID: 101</span>
+<span class="fn">printId</span>(<span class="st">"abc"</span>)     <span class="cm">// ID: abc</span></div>
+        <h3>Narrowing with typeof</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">describe</span>(<span class="vr">x</span>: <span class="fn">string</span> | <span class="fn">number</span>) {
+  <span class="kw">if</span> (<span class="kw">typeof</span> <span class="vr">x</span> === <span class="st">"string"</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"String of length"</span>, <span class="vr">x</span>.length)
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Number times 2:"</span>, <span class="vr">x</span> * <span class="nm">2</span>)
+  }
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write <code>function format(val: string | number): string</code> — if val is a number, return <code>String(val)</code>; if string, return <code>val.toUpperCase()</code>. Call with <code>42</code> and <code>"hello"</code>, log both results.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">format</span>(<span class="vr">val</span>: <span class="fn">string</span> | <span class="fn">number</span>): <span class="fn">string</span> {
+  <span class="kw">if</span> (<span class="kw">typeof</span> <span class="vr">val</span> === <span class="st">"number"</span>) <span class="kw">return</span> <span class="fn">String</span>(<span class="vr">val</span>)
+  <span class="kw">return</span> <span class="vr">val</span>.toUpperCase()
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">format</span>(<span class="nm">42</span>))
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">format</span>(<span class="st">"hello"</span>))</div>`,
+    solution: `<div class="code-block"><span class="kw">function</span> <span class="fn">format</span>(<span class="vr">val</span>: <span class="fn">string</span> | <span class="fn">number</span>): <span class="fn">string</span> {
+  <span class="kw">if</span> (<span class="kw">typeof</span> <span class="vr">val</span> === <span class="st">"number"</span>) <span class="kw">return</span> <span class="fn">String</span>(<span class="vr">val</span>)
+  <span class="kw">return</span> <span class="vr">val</span>.toUpperCase()
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">format</span>(<span class="nm">42</span>))        <span class="cm">// 42</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">format</span>(<span class="st">"hello"</span>))  <span class="cm">// HELLO</span></div>`,
+    starter: `// Write format(val: string | number) and call it\n\n`,
+    check: (out) => out.includes("HELLO") && out.includes("42"),
+  },
+
+  12: {
+    title: "Type Narrowing", xp: 200, fname: "narrowing.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 12 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Type Narrowing 🔍</h1>
+      <div class="lesson-body">
+        <p><strong>Type narrowing</strong> is when TypeScript figures out a more specific type based on conditions in your code. It uses your control flow to track what type a variable could be.</p>
+        <h3>typeof narrowing</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">process</span>(<span class="vr">x</span>: <span class="fn">string</span> | <span class="fn">number</span>) {
+  <span class="kw">if</span> (<span class="kw">typeof</span> <span class="vr">x</span> === <span class="st">"string"</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">x</span>.toUpperCase())  <span class="cm">// x is string here</span>
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">x</span>.toFixed(<span class="nm">2</span>))    <span class="cm">// x is number here</span>
+  }
+}</div>
+        <h3>Array.isArray narrowing</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">handle</span>(<span class="vr">val</span>: <span class="fn">string</span> | <span class="fn">string</span>[]) {
+  <span class="kw">if</span> (<span class="fn">Array</span>.isArray(<span class="vr">val</span>)) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Array with"</span>, <span class="vr">val</span>.length, <span class="st">"items"</span>)
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"String:"</span>, <span class="vr">val</span>)
+  }
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write <code>function process(input: string | number[])</code> — if string, log its length; if array, log its length. Call with <code>"TypeScript"</code> and <code>[1,2,3,4,5]</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">process</span>(<span class="vr">input</span>: <span class="fn">string</span> | <span class="fn">number</span>[]) {
+  <span class="kw">if</span> (<span class="kw">typeof</span> <span class="vr">input</span> === <span class="st">"string"</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">input</span>.length)
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">input</span>.length)
+  }
+}
+<span class="fn">process</span>(<span class="st">"TypeScript"</span>)
+<span class="fn">process</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>])</div>`,
+    solution: `<div class="code-block"><span class="kw">function</span> <span class="fn">process</span>(<span class="vr">input</span>: <span class="fn">string</span> | <span class="fn">number</span>[]) {
+  <span class="kw">if</span> (<span class="kw">typeof</span> <span class="vr">input</span> === <span class="st">"string"</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">input</span>.length)  <span class="cm">// 10</span>
+  } <span class="kw">else</span> {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">input</span>.length)  <span class="cm">// 5</span>
+  }
+}
+<span class="fn">process</span>(<span class="st">"TypeScript"</span>)      <span class="cm">// 10</span>
+<span class="fn">process</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>])  <span class="cm">// 5</span></div>`,
+    starter: `// Write process(input: string | number[]) and call it twice\n\n`,
+    check: (out) => out.includes("10") && out.includes("5"),
+  },
+
+  13: {
+    title: "Readonly & Const Assertions", xp: 200, fname: "readonly.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 13 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Readonly & Const Assertions 🔒</h1>
+      <div class="lesson-body">
+        <p>TypeScript gives you tools to make values <strong>immutable</strong> at the type level.</p>
+        <h3>readonly in interfaces</h3>
+        <div class="code-block"><span class="kw">interface</span> <span class="fn">Point</span> {
+  <span class="kw">readonly</span> <span class="vr">x</span>: <span class="fn">number</span>
+  <span class="kw">readonly</span> <span class="vr">y</span>: <span class="fn">number</span>
+}
+<span class="kw">const</span> <span class="vr">p</span>: <span class="fn">Point</span> = { <span class="vr">x</span>: <span class="nm">10</span>, <span class="vr">y</span>: <span class="nm">20</span> }
+<span class="cm">// p.x = 5  ❌ Cannot assign to 'x' — it is read-only</span></div>
+        <h3>as const assertion</h3>
+        <p><code>as const</code> freezes an object literal's types to their exact literal values:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">colors</span> = [<span class="st">"red"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>] <span class="kw">as const</span>
+<span class="cm">// Type is readonly ["red", "green", "blue"]</span>
+<span class="cm">// colors.push("yellow") ❌ not allowed</span>
+
+<span class="kw">const</span> <span class="vr">config</span> = { <span class="vr">host</span>: <span class="st">"localhost"</span>, <span class="vr">port</span>: <span class="nm">3000</span> } <span class="kw">as const</span>
+<span class="cm">// config.port is type 3000, not just number</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create <code>const config = &#123; host: "localhost", port: 3000 &#125; as const</code>. Log <code>config.host</code> and <code>config.port</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">config</span> = { <span class="vr">host</span>: <span class="st">"localhost"</span>, <span class="vr">port</span>: <span class="nm">3000</span> } <span class="kw">as const</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">config</span>.host)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">config</span>.port)</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">config</span> = { <span class="vr">host</span>: <span class="st">"localhost"</span>, <span class="vr">port</span>: <span class="nm">3000</span> } <span class="kw">as const</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">config</span>.host)  <span class="cm">// localhost</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">config</span>.port)  <span class="cm">// 3000</span></div>`,
+    starter: `// Create config as const and log its properties\n\n`,
+    check: (out) => out.includes("localhost") && out.includes("3000"),
+  },
+
+  14: {
+    title: "Mapped Types", xp: 225, fname: "mapped.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 14 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Mapped Types 🗺️</h1>
+      <div class="lesson-body">
+        <p>TypeScript has powerful built-in <strong>mapped types</strong> that transform existing types. The most useful ones are <code>Partial&lt;T&gt;</code> and <code>Required&lt;T&gt;</code>.</p>
+        <h3>Partial&lt;T&gt;</h3>
+        <p>Makes <em>all properties optional</em> in a type:</p>
+        <div class="code-block"><span class="kw">interface</span> <span class="fn">User</span> {
+  <span class="vr">name</span>: <span class="fn">string</span>
+  <span class="vr">age</span>:  <span class="fn">number</span>
+  <span class="vr">email</span>: <span class="fn">string</span>
+}
+<span class="cm">// All properties become optional:</span>
+<span class="kw">const</span> <span class="vr">partial</span>: <span class="fn">Partial</span>&lt;<span class="fn">User</span>&gt; = { <span class="vr">name</span>: <span class="st">"Alice"</span> }  <span class="cm">// ok!</span></div>
+        <h3>Required&lt;T&gt;</h3>
+        <p>Makes <em>all properties required</em> (opposite of Partial):</p>
+        <div class="code-block"><span class="kw">interface</span> <span class="fn">Options</span> {
+  <span class="vr">debug</span>?: <span class="fn">boolean</span>
+  <span class="vr">verbose</span>?: <span class="fn">boolean</span>
+}
+<span class="cm">// Both properties now required:</span>
+<span class="kw">const</span> <span class="vr">opts</span>: <span class="fn">Required</span>&lt;<span class="fn">Options</span>&gt; = { <span class="vr">debug</span>: <span class="kw">true</span>, <span class="vr">verbose</span>: <span class="kw">false</span> }</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Define interface <code>Config &#123; host: string; port: number; debug: boolean; &#125;</code>. Use <code>Partial&lt;Config&gt;</code> to create a partial config with just <code>host: "api.example.com"</code>. Log <code>cfg.host ?? "no host"</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">interface</span> <span class="fn">Config</span> {
+  <span class="vr">host</span>: <span class="fn">string</span>
+  <span class="vr">port</span>: <span class="fn">number</span>
+  <span class="vr">debug</span>: <span class="fn">boolean</span>
+}
+<span class="kw">const</span> <span class="vr">cfg</span>: <span class="fn">Partial</span>&lt;<span class="fn">Config</span>&gt; = { <span class="vr">host</span>: <span class="st">"api.example.com"</span> }
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">cfg</span>.host ?? <span class="st">"no host"</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">interface</span> <span class="fn">Config</span> {
+  <span class="vr">host</span>: <span class="fn">string</span>
+  <span class="vr">port</span>: <span class="fn">number</span>
+  <span class="vr">debug</span>: <span class="fn">boolean</span>
+}
+<span class="kw">const</span> <span class="vr">cfg</span>: <span class="fn">Partial</span>&lt;<span class="fn">Config</span>&gt; = { <span class="vr">host</span>: <span class="st">"api.example.com"</span> }
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">cfg</span>.host ?? <span class="st">"no host"</span>)  <span class="cm">// api.example.com</span></div>`,
+    starter: `// Define Config interface and create a Partial<Config>\n\n`,
+    check: (out, code) => code.includes("Partial") && out.trim().length > 0,
+  },
+
+  15: {
+    title: "Utility Types", xp: 250, fname: "utility.ts",
+    content: `
+      <div class="lesson-num-tag">Lesson 15 · TypeScript Fundamentals</div>
+      <h1 class="lesson-title-h">Utility Types 🛠️</h1>
+      <div class="lesson-body">
+        <p>TypeScript ships with many <strong>utility types</strong> that transform other types. You've seen <code>Partial</code> and <code>Required</code> — here are more powerful ones:</p>
+        <h3>Pick&lt;T, K&gt;</h3>
+        <p>Creates a type with only the specified properties:</p>
+        <div class="code-block"><span class="kw">interface</span> <span class="fn">User</span> { <span class="vr">id</span>: <span class="fn">number</span>; <span class="vr">name</span>: <span class="fn">string</span>; <span class="vr">email</span>: <span class="fn">string</span>; <span class="vr">age</span>: <span class="fn">number</span> }
+<span class="kw">type</span> <span class="fn">Preview</span> = <span class="fn">Pick</span>&lt;<span class="fn">User</span>, <span class="st">"name"</span> | <span class="st">"email"</span>&gt;
+<span class="cm">// Only has name and email</span></div>
+        <h3>Omit&lt;T, K&gt;</h3>
+        <p>The opposite — creates a type <em>without</em> the specified properties:</p>
+        <div class="code-block"><span class="kw">type</span> <span class="fn">PublicUser</span> = <span class="fn">Omit</span>&lt;<span class="fn">User</span>, <span class="st">"email"</span>&gt;  <span class="cm">// removes email</span></div>
+        <h3>Record&lt;K, V&gt;</h3>
+        <div class="code-block"><span class="kw">type</span> <span class="fn">Scores</span> = <span class="fn">Record</span>&lt;<span class="fn">string</span>, <span class="fn">number</span>&gt;
+<span class="kw">const</span> <span class="vr">grades</span>: <span class="fn">Scores</span> = { <span class="vr">alice</span>: <span class="nm">95</span>, <span class="vr">bob</span>: <span class="nm">87</span> }</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Given <code>interface Product &#123; id: number; name: string; price: number; stock: number; &#125;</code>, use <code>Pick&lt;Product, "name" | "price"&gt;</code> as the type for a display object. Create one and log its name and price.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">interface</span> <span class="fn">Product</span> {
+  <span class="vr">id</span>: <span class="fn">number</span>; <span class="vr">name</span>: <span class="fn">string</span>; <span class="vr">price</span>: <span class="fn">number</span>; <span class="vr">stock</span>: <span class="fn">number</span>
+}
+<span class="kw">const</span> <span class="vr">display</span>: <span class="fn">Pick</span>&lt;<span class="fn">Product</span>, <span class="st">"name"</span> | <span class="st">"price"</span>&gt; = {
+  <span class="vr">name</span>: <span class="st">"Widget"</span>,
+  <span class="vr">price</span>: <span class="nm">9.99</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">display</span>.name)
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">display</span>.price)</div>`,
+    solution: `<div class="code-block"><span class="kw">interface</span> <span class="fn">Product</span> {
+  <span class="vr">id</span>: <span class="fn">number</span>; <span class="vr">name</span>: <span class="fn">string</span>; <span class="vr">price</span>: <span class="fn">number</span>; <span class="vr">stock</span>: <span class="fn">number</span>
+}
+<span class="kw">const</span> <span class="vr">display</span>: <span class="fn">Pick</span>&lt;<span class="fn">Product</span>, <span class="st">"name"</span> | <span class="st">"price"</span>&gt; = {
+  <span class="vr">name</span>: <span class="st">"Widget"</span>,
+  <span class="vr">price</span>: <span class="nm">9.99</span>
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">display</span>.name)   <span class="cm">// Widget</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">display</span>.price)  <span class="cm">// 9.99</span></div>`,
+    starter: `// Define Product interface and use Pick to create a display type\n\n`,
+    check: (out, code) => code.includes("Pick") && out.trim().split('\n').length >= 2,
+  },
+
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : {xp:0,streak:1,level:1,lessonsCompleted:0,completedIds:[]};
+}
+function loadLangProgress() {
+  const s = localStorage.getItem('helix_ts_progress');
+  return s ? JSON.parse(s) : {completedIds:[]};
+}
+function saveLangProgress(p) { localStorage.setItem('helix_ts_progress', JSON.stringify(p)); }
+function saveState(s) { localStorage.setItem('helix_progress', JSON.stringify(s)); }
+function getLevel(xp) {
+  const t=[0,100,250,500,900,1400,2000,3000];
+  for(let i=t.length-1;i>=0;i--) if(xp>=t[i]) return i+1;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT LESSON
+// ═══════════════════════════════════════════════════════════
+const params   = new URLSearchParams(location.search);
+const lessonId = parseInt(params.get('id')) || 1;
+const lesson   = LESSONS[lessonId] || LESSONS[1];
+
+// Auth check
+const __session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+if (!__session) { window.location.href = 'login.html'; }
+
+// Pro paywall — lessons 6-15 require Pro
+function showPaywall() {
+  document.querySelector('.split').innerHTML = `
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:3rem;text-align:center;">
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;">This lesson requires Pro</h2>
+      <p style="color:var(--text-2);max-width:440px;line-height:1.7;">Lessons 6–15 are available on the Pro plan. Unlock all 90 lessons across 6 languages for just $9/month — or $4.50/month billed annually.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+        <a href="pricing.html" style="background:var(--primary);color:white;padding:0.75rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(99,102,241,0.3);">Upgrade to Pro →</a>
+        <a href="dashboard.html" style="background:rgba(255,255,255,0.05);color:var(--text-2);padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.08);">Back to Dashboard</a>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-3);">First 5 lessons of every language are always free.</p>
+    </div>`;
+}
+
+try {
+  if (lessonId > 5) {
+    const __users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const __user = __users.find(u => u.id === __session.userId);
+    if (!__user || __user.plan !== 'pro') {
+      document.addEventListener('DOMContentLoaded', () => {
+        showPaywall();
+      });
+      if (document.readyState !== 'loading') showPaywall();
+    }
+  }
+} catch(e) {}
+
+const TOTAL    = Object.keys(LESSONS).length;
+
+document.getElementById('nav-lesson-title').textContent = lesson.title;
+document.getElementById('editor-fname').textContent      = lesson.fname;
+document.getElementById('lesson-content').innerHTML      = lesson.content;
+document.getElementById('hint-body').innerHTML           = lesson.hint;
+document.getElementById('solution-body').innerHTML       = lesson.solution;
+document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+const editor = document.getElementById('editor');
+editor.value = lesson.starter || '';
+updateLineNums();
+document.getElementById('nav-xp').textContent = loadState().xp;
+
+// ═══════════════════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════════════════
+function updateLineNums() {
+  const n = editor.value.split('\n').length;
+  document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+}
+editor.addEventListener('input', updateLineNums);
+editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart, end = editor.selectionEnd;
+    editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = s + 4;
+    updateLineNums();
+  }
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  editor.value = lesson.starter || '';
+  updateLineNums();
+  setOutput([{type:'placeholder',text:'Code reset.'}], 'idle');
+});
+
+// ═══════════════════════════════════════════════════════════
+// COLLAPSIBLES
+// ═══════════════════════════════════════════════════════════
+let hasRun = false;
+
+function unlockSolution() {
+  const wrap = document.getElementById('solution-collapsible');
+  const btn  = document.getElementById('solution-toggle');
+  wrap.classList.remove('locked');
+  btn.childNodes[0].textContent = '✅ Show Solution';
+  btn.querySelector('.sol-lock-msg').style.display = 'none';
+}
+
+const hintBtn  = document.getElementById('hint-toggle');
+const hintBody = document.getElementById('hint-body');
+hintBtn.addEventListener('click', () => {
+  const open = hintBody.classList.toggle('open');
+  hintBtn.classList.toggle('open', open);
+});
+
+const solBtn  = document.getElementById('solution-toggle');
+const solBody = document.getElementById('solution-body');
+solBtn.addEventListener('click', () => {
+  const wrap = document.getElementById('solution-collapsible');
+  if (wrap.classList.contains('locked')) {
+    solBtn.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-6px)' },
+      { transform: 'translateX(6px)' },
+      { transform: 'translateX(-4px)' },
+      { transform: 'translateX(0)' },
+    ], { duration: 280, easing: 'ease-out' });
+    return;
+  }
+  const open = solBody.classList.toggle('open');
+  solBtn.classList.toggle('open', open);
+});
+
+// ═══════════════════════════════════════════════════════════
+// OUTPUT
+// ═══════════════════════════════════════════════════════════
+function setOutput(lines, status) {
+  const ob = document.getElementById('output-body');
+  ob.innerHTML = lines.map(l => {
+    if (l.type === 'placeholder') return `<span class="out-placeholder">${l.text}</span>`;
+    if (l.type === 'error')       return `<span class="out-error">${escHtml(l.text)}</span>`;
+    return `<span class="out-line">${escHtml(l.text)}</span>`;
+  }).join('');
+  const st = document.getElementById('output-status');
+  st.className = 'output-status';
+  const map = {running:['os-running','Running…'], ok:['os-ok','Done'], error:['os-error','Error'], idle:['os-idle','Idle']};
+  const [cls, txt] = map[status] || map.idle;
+  st.classList.add(cls); st.textContent = txt;
+}
+const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ═══════════════════════════════════════════════════════════
+// TYPESCRIPT RUNNER
+// ═══════════════════════════════════════════════════════════
+let outputLines = [];
+let tsReady = false;
+
+function initTS() {
+  if (window.ts) {
+    tsReady = true;
+    document.getElementById('py-loader').classList.add('hidden');
+    document.getElementById('btn-run').disabled    = false;
+    document.getElementById('btn-submit').disabled = false;
+  } else {
+    setTimeout(initTS, 100);
+  }
+}
+initTS();
+
+async function runCode(forSubmit = false) {
+  if (!tsReady) return;
+  outputLines = [];
+  setOutput([{type:'placeholder',text:''}], 'running');
+  document.getElementById('btn-run').disabled    = true;
+  document.getElementById('btn-submit').disabled = true;
+
+  try {
+    // Transpile TypeScript to JavaScript
+    const result = ts.transpileModule(editor.value, {
+      compilerOptions: {
+        module: ts.ModuleKind.None,
+        target: ts.ScriptTarget.ES2017,
+        strict: false
+      }
+    });
+    const jsCode = result.outputText;
+
+    // Execute transpiled JavaScript
+    const origLog   = console.log;
+    const origWarn  = console.warn;
+    const origError = console.error;
+    console.log   = (...a) => outputLines.push({type:'ok',   text: a.map(x=>typeof x==='object'?JSON.stringify(x):String(x)).join(' ')});
+    console.warn  = (...a) => outputLines.push({type:'ok',   text: '[warn] '+a.join(' ')});
+    console.error = (...a) => outputLines.push({type:'error',text: a.join(' ')});
+
+    const AsyncFn = Object.getPrototypeOf(async function(){}).constructor;
+    await AsyncFn(jsCode)();
+
+    console.log   = origLog;
+    console.warn  = origWarn;
+    console.error = origError;
+  } catch(err) {
+    outputLines.push({type:'error', text: String(err)});
+  }
+
+  if (!outputLines.length) outputLines.push({type:'placeholder', text:'(no output)'});
+  const hasErr = outputLines.some(l=>l.type==='error');
+  setOutput(outputLines, hasErr ? 'error' : 'ok');
+  document.getElementById('btn-run').disabled    = false;
+  document.getElementById('btn-submit').disabled = false;
+
+  if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forSubmit) checkAnswer();
+}
+
+document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
+document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// CHECK & COMPLETE
+// ═══════════════════════════════════════════════════════════
+function checkAnswer() {
+  const out  = outputLines.map(l=>l.text).join('\n');
+  const code = editor.value;
+  if (lesson.check(out, code)) {
+    completeLesson();
+  } else {
+    const st = document.getElementById('output-status');
+    st.className = 'output-status os-error'; st.textContent = 'Not quite — check the hint!';
+    setTimeout(() => { st.className = 'output-status os-ok'; st.textContent = 'Done'; }, 2500);
+  }
+}
+
+function completeLesson() {
+  const state = loadState();
+  const langProgress = loadLangProgress();
+  const earned = !langProgress.completedIds.includes(lessonId);
+  if (earned) {
+    langProgress.completedIds.push(lessonId);
+    state.xp += lesson.xp;
+    state.lessonsCompleted = (state.completedIds||[]).length + langProgress.completedIds.length;
+    state.level = getLevel(state.xp);
+    saveState(state); saveLangProgress(langProgress);
+  }
+  document.getElementById('progress-fill').style.width = (lessonId/TOTAL*100)+'%';
+  showModal(earned ? lesson.xp : 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL + XP COUNTER ANIMATION
+// ═══════════════════════════════════════════════════════════
+function showModal(xpEarned) {
+  const nextId  = lessonId + 1;
+  const hasNext = !!LESSONS[nextId];
+  document.getElementById('modal-sub').textContent =
+    hasNext ? `Lesson ${lessonId} of ${TOTAL} complete. Keep going!`
+            : '🎓 You finished all TypeScript lessons!';
+  const btn = document.getElementById('modal-next');
+  btn.textContent = hasNext ? 'Next Lesson →' : 'Back to Dashboard';
+  btn.onclick = () => window.location.href = hasNext ? `lesson-ts.html?id=${nextId}` : 'dashboard.html';
+
+  // Animate XP counter tick up
+  const el = document.getElementById('modal-xp-count');
+  el.textContent = '0';
+  let current = 0;
+  const step  = Math.ceil(xpEarned / 30);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, xpEarned);
+    el.textContent = current;
+    if (current >= xpEarned) clearInterval(timer);
+  }, 28);
+
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('nav-xp').textContent = loadState().xp;
+
+  if (xpEarned > 0) launchConfetti();
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+
+  const COLORS = ['#6366F1','#F59E0B','#10B981','#EF4444','#22D3EE','#818CF8','#FDE68A'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height * 0.5,
+    w: 6 + Math.random() * 8,
+    h: 4 + Math.random() * 6,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: 2 + Math.random() * 4,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.15,
+    opacity: 1,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.vrot;
+      p.vy  += 0.06;
+      if (frame > 90) p.opacity = Math.max(0, p.opacity - 0.018);
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else { canvas.classList.remove('active'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>

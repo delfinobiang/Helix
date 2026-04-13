@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Settings — Helix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --red:      #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; animation-iteration-count: infinite; animation-direction: alternate; }
+    .orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(80px,120px) scale(1.08); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-70px,-100px) scale(0.96); } }
+
+    /* Navbar */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 60px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.7); backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .nav-back { display: flex; align-items: center; gap: 0.5rem; color: var(--text-2); font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: color 0.18s; }
+    .nav-back:hover { color: var(--text); }
+
+    /* Layout */
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: calc(100vh - 60px); position: relative; z-index: 1; }
+
+    /* Sidebar */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      display: flex; flex-direction: column; gap: 0.15rem;
+      background: rgba(255,255,255,0.01);
+      position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto;
+    }
+    .sidebar-label {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.18em; color: var(--text-3);
+      padding: 0 0.75rem; margin: 0.8rem 0 0.3rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      color: var(--text-2); font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-item-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    /* Main */
+    .main { padding: 2.5rem 2.5rem 4rem; max-width: 760px; }
+    .page-title { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 0.25rem; }
+    .page-sub { color: var(--text-2); font-size: 0.9rem; margin-bottom: 2.5rem; }
+
+    /* Settings sections */
+    .settings-section { margin-bottom: 2.5rem; }
+    .settings-section-title {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--text-3); margin-bottom: 1rem; padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .settings-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden;
+    }
+    .settings-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      gap: 1rem;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-left { flex: 1; }
+    .settings-row-label { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .settings-row-desc { font-size: 0.78rem; color: var(--text-2); }
+    .settings-row-value { font-size: 0.85rem; color: var(--text-2); font-family: 'JetBrains Mono', monospace; }
+
+    /* Form inputs */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-2); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .form-input {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 0.9rem; font-size: 0.9rem; color: var(--text);
+      font-family: inherit; outline: none; transition: border-color 0.18s;
+    }
+    .form-input:focus { border-color: rgba(99,102,241,0.5); }
+    .form-input.error-field { border-color: rgba(239,68,68,0.5); }
+    .field-error { font-size: 0.75rem; color: var(--red); margin-top: 0.3rem; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; border-radius: 10px; font-size: 0.85rem; font-weight: 600; font-family: inherit; cursor: pointer; border: none; transition: all 0.18s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-l); box-shadow: 0 0 18px rgba(99,102,241,0.4); }
+    .btn-ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .btn-red { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+    .btn-red:hover { background: rgba(239,68,68,0.18); }
+
+    /* Plan badge */
+    .plan-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 100px; }
+    .plan-free { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-2); }
+    .plan-pro  { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--bg-2); border: 1px solid var(--border); border-radius: 100px;
+      padding: 0.65rem 1.25rem; font-size: 0.85rem; font-weight: 500;
+      z-index: 9000; transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(16,185,129,0.3); color: var(--green); }
+    .toast.error { border-color: rgba(239,68,68,0.3); color: var(--red); }
+
+    /* Danger zone */
+    .danger-zone { background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.12); border-radius: 16px; padding: 1.4rem; }
+    .danger-title { font-size: 0.875rem; font-weight: 700; color: var(--red); margin-bottom: 0.4rem; }
+    .danger-desc  { font-size: 0.82rem; color: var(--text-2); margin-bottom: 1rem; }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- Navbar -->
+<nav>
+  <a class="nav-logo" href="dashboard.html">
+    <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+      <defs><clipPath id="dna-settings-c"><rect width="40" height="20"/></clipPath></defs>
+      <g clip-path="url(#dna-settings-c)">
+        <g>
+          <line x1="-16" y1="3" x2="-16" y2="17" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.28"/>
+          <line x1="-5" y1="3" x2="-5" y2="17" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.28"/>
+          <line x1="6" y1="3" x2="6" y2="17" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.28"/>
+          <line x1="17" y1="3" x2="17" y2="17" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.28"/>
+          <line x1="28" y1="3" x2="28" y2="17" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.28"/>
+          <line x1="39" y1="3" x2="39" y2="17" stroke="white" stroke-width="1.1" stroke-linecap="round" opacity="0.28"/>
+          <path d="M-22 10 Q-16 -4 -11 10 Q-5 24 0 10 Q6 -4 11 10 Q17 24 22 10 Q28 -4 33 10 Q39 24 44 10 Q50 -4 55 10" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <path d="M-22 10 Q-16 24 -11 10 Q-5 -4 0 10 Q6 24 11 10 Q17 -4 22 10 Q28 24 33 10 Q39 -4 44 10 Q50 24 55 10" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.45"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0; -22,0" dur="3s" repeatCount="indefinite"/>
+        </g>
+      </g>
+    </svg>
+    <span class="nav-logo-name">Helix</span>
+  </a>
+  <a class="nav-back" href="dashboard.html">← Dashboard</a>
+</nav>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <span class="sidebar-label">Learn</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="dashboard.html#courses-section"><span class="nav-item-icon">📚</span> Courses</a>
+    <span class="sidebar-label">Progress</span>
+    <a class="nav-item" href="leaderboard.html"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+    <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> Profile</a>
+    <span class="sidebar-label">Settings</span>
+    <a class="nav-item active" href="settings.html"><span class="nav-item-icon">⚙️</span> Personal Details</a>
+    <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;"><span class="nav-item-icon">🚪</span> Logout</button>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <div class="page-title">Account Settings</div>
+    <p class="page-sub">Manage your personal details, security, and subscription.</p>
+
+    <!-- Account Info -->
+    <div class="settings-section">
+      <div class="settings-section-title">Account Information</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Username</div>
+            <div class="settings-row-desc">Your display name across Helix</div>
+          </div>
+          <span class="settings-row-value" id="display-username">—</span>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Email Address</div>
+            <div class="settings-row-desc">Your sign-in email</div>
+          </div>
+          <span class="settings-row-value" id="display-email">—</span>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Plan</div>
+            <div class="settings-row-desc">Your current subscription tier</div>
+          </div>
+          <span id="display-plan">—</span>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Member since</div>
+            <div class="settings-row-desc">Account creation date</div>
+          </div>
+          <span class="settings-row-value" id="display-joined">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change Username -->
+    <div class="settings-section">
+      <div class="settings-section-title">Change Username</div>
+      <div class="settings-card" style="padding:1.4rem;">
+        <div class="form-group">
+          <label class="form-label" for="new-username">New Username</label>
+          <input class="form-input" type="text" id="new-username" placeholder="Enter new username…" maxlength="40">
+          <div class="field-error" id="username-error" style="display:none;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="changeUsername()">Update Username</button>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="settings-section">
+      <div class="settings-section-title">Change Password</div>
+      <div class="settings-card" style="padding:1.4rem;">
+        <div class="form-group">
+          <label class="form-label" for="current-pw">Current Password</label>
+          <input class="form-input" type="password" id="current-pw" placeholder="Enter current password…" autocomplete="current-password">
+          <div class="field-error" id="current-pw-error" style="display:none;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-pw">New Password</label>
+          <input class="form-input" type="password" id="new-pw" placeholder="8+ characters…" autocomplete="new-password">
+          <div class="field-error" id="new-pw-error" style="display:none;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirm-pw">Confirm New Password</label>
+          <input class="form-input" type="password" id="confirm-pw" placeholder="Repeat new password…" autocomplete="new-password">
+          <div class="field-error" id="confirm-pw-error" style="display:none;"></div>
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+
+    <!-- Subscription -->
+    <div class="settings-section">
+      <div class="settings-section-title">Subscription</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Current Plan</div>
+            <div class="settings-row-desc" id="plan-desc-text">You're on the Free plan — upgrade to unlock all 15 lessons per language.</div>
+          </div>
+          <a href="pricing.html" class="btn btn-primary" id="manage-plan-btn" style="flex-shrink:0;">Upgrade to Pro →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-section">
+      <div class="settings-section-title" style="color:var(--red);">Danger Zone</div>
+      <div class="danger-zone">
+        <div class="danger-title">Delete Account</div>
+        <div class="danger-desc">Once you delete your account, all progress, settings, and data will be permanently removed. This action cannot be undone.</div>
+        <button class="btn btn-red" onclick="confirmDeleteAccount()">Delete My Account</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ── Auth gate ─────────────────────────────────────────── */
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) window.location.href = 'login.html';
+
+  function getUsers() { return JSON.parse(localStorage.getItem('helix_users') || '[]'); }
+  function saveUsers(u) { localStorage.setItem('helix_users', JSON.stringify(u)); }
+  function getCurrentUser() {
+    const users = getUsers();
+    return users.find(u => u.id === session.userId) || null;
+  }
+
+  /* ── Populate UI ───────────────────────────────────────── */
+  function populateUI() {
+    const user = getCurrentUser();
+    if (!user) { window.location.href = 'login.html'; return; }
+
+    document.getElementById('display-username').textContent = user.username || '—';
+    document.getElementById('display-email').textContent    = user.email    || '—';
+
+    const planEl = document.getElementById('display-plan');
+    const descEl = document.getElementById('plan-desc-text');
+    const manageBtnEl = document.getElementById('manage-plan-btn');
+
+    if (user.plan === 'pro') {
+      planEl.innerHTML = '<span class="plan-badge plan-pro">⭐ Pro</span>';
+      descEl.textContent = 'You\'re on the Pro plan — full access to all 90 lessons across 6 languages.';
+      manageBtnEl.textContent = 'Manage Plan';
+    } else {
+      planEl.innerHTML = '<span class="plan-badge plan-free">Free</span>';
+    }
+
+    const joinedDate = user.joinedAt
+      ? new Date(user.joinedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : '—';
+    document.getElementById('display-joined').textContent = joinedDate;
+  }
+  populateUI();
+
+  /* ── Change Username ──────────────────────────────────── */
+  function changeUsername() {
+    const input = document.getElementById('new-username');
+    const errEl = document.getElementById('username-error');
+    const newName = input.value.trim();
+
+    input.classList.remove('error-field');
+    errEl.style.display = 'none';
+
+    if (newName.length < 3) {
+      input.classList.add('error-field');
+      errEl.textContent = 'Username must be at least 3 characters.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const users = getUsers();
+    const exists = users.some(u => u.username && u.username.toLowerCase() === newName.toLowerCase() && u.id !== session.userId);
+    if (exists) {
+      input.classList.add('error-field');
+      errEl.textContent = 'That username is already taken.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const idx = users.findIndex(u => u.id === session.userId);
+    if (idx === -1) return;
+    users[idx].username = newName;
+    saveUsers(users);
+
+    // Update session
+    const sess = JSON.parse(localStorage.getItem('helix_session') || 'null');
+    if (sess) { sess.username = newName; localStorage.setItem('helix_session', JSON.stringify(sess)); }
+
+    input.value = '';
+    populateUI();
+    showToast('success', '✓ Username updated successfully.');
+  }
+
+  /* ── Change Password ──────────────────────────────────── */
+  function changePassword() {
+    const curPwEl  = document.getElementById('current-pw');
+    const newPwEl  = document.getElementById('new-pw');
+    const confPwEl = document.getElementById('confirm-pw');
+    const curErr   = document.getElementById('current-pw-error');
+    const newErr   = document.getElementById('new-pw-error');
+    const confErr  = document.getElementById('confirm-pw-error');
+
+    [curPwEl, newPwEl, confPwEl].forEach(el => el.classList.remove('error-field'));
+    [curErr, newErr, confErr].forEach(el => { el.style.display = 'none'; });
+
+    let valid = true;
+    const user = getCurrentUser();
+    if (!user) return;
+
+    if (btoa(curPwEl.value) !== user.password) {
+      curPwEl.classList.add('error-field');
+      curErr.textContent = 'Current password is incorrect.';
+      curErr.style.display = 'block';
+      valid = false;
+    }
+    if (newPwEl.value.length < 8) {
+      newPwEl.classList.add('error-field');
+      newErr.textContent = 'New password must be at least 8 characters.';
+      newErr.style.display = 'block';
+      valid = false;
+    }
+    if (newPwEl.value !== confPwEl.value) {
+      confPwEl.classList.add('error-field');
+      confErr.textContent = 'Passwords do not match.';
+      confErr.style.display = 'block';
+      valid = false;
+    }
+    if (!valid) return;
+
+    const users = getUsers();
+    const idx = users.findIndex(u => u.id === session.userId);
+    users[idx].password = btoa(newPwEl.value);
+    saveUsers(users);
+
+    curPwEl.value = '';
+    newPwEl.value = '';
+    confPwEl.value = '';
+    showToast('success', '✓ Password changed successfully.');
+  }
+
+  /* ── Delete Account ───────────────────────────────────── */
+  function confirmDeleteAccount() {
+    if (!confirm('Are you sure you want to permanently delete your account? This cannot be undone.')) return;
+    const users = getUsers();
+    const filtered = users.filter(u => u.id !== session.userId);
+    saveUsers(filtered);
+    localStorage.removeItem('helix_session');
+    localStorage.removeItem('helix_progress');
+    window.location.href = 'index.html';
+  }
+
+  /* ── Logout ───────────────────────────────────────────── */
+  function helixLogout() {
+    localStorage.removeItem('helix_session');
+    window.location.href = 'login.html';
+  }
+
+  /* ── Toast ────────────────────────────────────────────── */
+  let _toastTimer;
+  function showToast(type, msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast ' + type + ' show';
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+</script>
+</body>
+</html>

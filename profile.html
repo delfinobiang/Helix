@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 65%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    .orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(34,211,238,0.2) 0%, transparent 65%); top: 40%; right: 15%; animation: drift3 18s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,60px) scale(1.08); } 100% { transform: translate(40px,120px) scale(0.95); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,-50px) scale(1.1); } 100% { transform: translate(-30px,-100px) scale(0.96); } }
+    @keyframes drift3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,70px) scale(1.12); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ── NAVBAR ───────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 60px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.88);
+      backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18);
+      color: var(--yellow); font-size: 0.8rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+    .streak-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      color: var(--red); font-size: 0.8rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .layout {
+      display: grid; grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 60px);
+      position: relative; z-index: 1;
+    }
+
+    /* ── SIDEBAR ──────────────────────────────────────────── */
+    .sidebar {
+      padding: 1.5rem 1rem; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.18em; color: var(--text-3);
+      padding: 0 0.75rem; margin: 1rem 0 0.4rem;
+    }
+    .sidebar-label:first-child { margin-top: 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      color: var(--text-2); font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; transition: background 0.18s, color 0.18s;
+      border: none; background: none; font-family: inherit; width: 100%; text-align: left; cursor: pointer;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active { background: rgba(99,102,241,0.1); color: var(--text); }
+
+    .nav-item.active .nav-item-icon { color: var(--primary); }
+    .nav-item-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .user-card {
+      margin-top: auto; padding: 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    }
+    .user-info { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+    .user-avatar-lg {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: white;
+    }
+    .user-name { font-size: 0.875rem; font-weight: 700; }
+    .user-level { font-size: 0.72rem; color: var(--text-3); }
+    .xp-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; margin-top: 0.5rem; }
+    .xp-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--primary), var(--cyan)); transition: width 0.6s ease; }
+    .xp-bar-top { display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+    .xp-bar-lbl { font-size: 0.7rem; color: var(--text-3); }
+    .xp-bar-val { font-size: 0.7rem; color: var(--yellow); font-weight: 700; }
+
+    /* ── MAIN ─────────────────────────────────────────────── */
+    .main { padding: 2.5rem 3rem; }
+
+    /* ── PROFILE HEADER ───────────────────────────────────── */
+    .profile-header {
+      display: flex; align-items: center; gap: 2rem;
+      margin-bottom: 3rem; padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .profile-avatar {
+      width: 88px; height: 88px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; font-weight: 800; color: white;
+      border: 3px solid rgba(99,102,241,0.3);
+      box-shadow: 0 0 0 6px rgba(99,102,241,0.08);
+    }
+    .profile-info { flex: 1; }
+    .profile-name { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.2rem; }
+    .profile-sub { font-size: 0.88rem; color: var(--text-2); }
+    .profile-badges-mini { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .mini-badge {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em;
+      padding: 0.2rem 0.6rem; border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .mb-blue { background: rgba(99,102,241,0.1); color: var(--primary); border: 1px solid rgba(99,102,241,0.2); }
+    .mb-amber { background: rgba(245,158,11,0.1); color: var(--accent); border: 1px solid rgba(245,158,11,0.2); }
+    .mb-green { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+
+    /* ── STATS GRID ───────────────────────────────────────── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 3rem;
+    }
+    .stat-tile {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.3rem; transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-tile:hover { border-color: rgba(99,102,241,0.2); transform: translateY(-2px); }
+    .stat-tile-val { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; }
+    .stat-tile-lbl { font-size: 0.72rem; color: var(--text-3); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .st-xp  .stat-tile-val { color: var(--yellow); }
+    .st-str .stat-tile-val { color: var(--red); }
+    .st-lvl .stat-tile-val { color: var(--primary); }
+    .st-les .stat-tile-val { color: var(--green); }
+
+    /* ── SECTION ──────────────────────────────────────────── */
+    .section-h {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 1.2rem;
+    }
+    .section-block { margin-bottom: 3rem; }
+
+    /* ── ACHIEVEMENTS ─────────────────────────────────────── */
+    .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.85rem; }
+    .badge-tile {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.2rem 1rem; text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .badge-tile:hover { transform: translateY(-3px); }
+    .badge-tile.earned { border-color: rgba(99,102,241,0.22); }
+    .badge-tile.earned:hover { border-color: rgba(99,102,241,0.38); }
+    .badge-tile.locked { opacity: 0.3; filter: grayscale(1); }
+    .badge-emoji { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .badge-name { font-size: 0.72rem; font-weight: 700; color: var(--text-2); }
+    .badge-cond { font-size: 0.65rem; color: var(--text-3); margin-top: 0.2rem; line-height: 1.3; }
+
+    /* ── SETTINGS FORM ────────────────────────────────────── */
+    .settings-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+    .settings-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); gap: 2rem;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-label { font-size: 0.9rem; font-weight: 600; }
+    .settings-desc  { font-size: 0.78rem; color: var(--text-2); margin-top: 0.18rem; }
+    .settings-control { flex-shrink: 0; }
+    .input-text {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 0.875rem;
+      padding: 0.5rem 0.9rem; border-radius: 8px; width: 200px;
+      outline: none; transition: border-color 0.18s;
+    }
+    .input-text:focus { border-color: rgba(99,102,241,0.5); }
+    .btn-save {
+      background: var(--primary); border: none; color: white;
+      font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; padding: 0.48rem 1.1rem; border-radius: 8px;
+      transition: background 0.18s, transform 0.18s;
+    }
+    .btn-save:hover { background: var(--primary-l); transform: translateY(-1px); }
+    .btn-save:active { transform: translateY(0); }
+    .btn-danger {
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+      color: var(--red); font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; padding: 0.48rem 1.1rem; border-radius: 8px;
+      transition: background 0.18s;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.15); }
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg-2); border: 1px solid var(--border);
+      color: var(--text); font-size: 0.85rem; font-weight: 600;
+      padding: 0.65rem 1.4rem; border-radius: 100px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      opacity: 0; transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none; z-index: 999; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── AVATAR UPLOAD ───────────────────────────────────────── */
+    .avatar-wrap {
+      position: relative; width: 88px; height: 88px; flex-shrink: 0; cursor: pointer;
+    }
+    .avatar-wrap .profile-avatar {
+      width: 100%; height: 100%;
+    }
+    .avatar-overlay {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .avatar-wrap:hover .avatar-overlay { opacity: 1; }
+    .avatar-overlay span { font-size: 1.3rem; line-height: 1; }
+    .avatar-overlay small { font-size: 0.55rem; font-weight: 700; color: #fff; letter-spacing: 0.03em; margin-top: 2px; text-align: center; line-height: 1.2; }
+
+    /* ── PLAN BADGE ───────────────────────────────────────── */
+    .plan-badge-free {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; font-weight: 600; color: var(--text-2);
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      padding: 0.18rem 0.65rem; border-radius: 100px; text-decoration: none;
+      transition: border-color 0.18s, color 0.18s;
+    }
+    .plan-badge-free:hover { border-color: rgba(99,102,241,0.35); color: var(--primary-l); }
+    .plan-badge-free .plan-upgrade { color: var(--primary-l); }
+    .plan-badge-pro {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.72rem; font-weight: 700; color: var(--green);
+      background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25);
+      padding: 0.18rem 0.65rem; border-radius: 100px;
+    }
+
+    /* ── BIO SECTION ─────────────────────────────────────── */
+    .bio-display {
+      font-size: 0.83rem; color: var(--text-2); margin-top: 0.5rem;
+      font-style: italic; max-width: 380px; line-height: 1.5;
+    }
+    .bio-textarea {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text); font-family: inherit; font-size: 0.875rem;
+      padding: 0.5rem 0.9rem; border-radius: 8px; width: 100%; max-width: 340px;
+      outline: none; transition: border-color 0.18s; resize: vertical; min-height: 72px;
+    }
+    .bio-textarea:focus { border-color: rgba(99,102,241,0.5); }
+    .bio-counter {
+      font-size: 0.7rem; color: var(--text-3); margin-top: 0.3rem;
+    }
+    .bio-counter.near { color: var(--yellow); }
+    .bio-counter.full { color: var(--red); }
+
+    /* ── HAMBURGER + MOBILE MENU ─────────────────────────────── */
+    .hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 36px; height: 36px; background: none; border: none;
+      cursor: pointer; padding: 4px; border-radius: 8px;
+      transition: background 0.18s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.07); }
+    .hamburger span {
+      display: block; width: 20px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: transform 0.28s, opacity 0.28s;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+    .mobile-drawer {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 201;
+      width: 260px; background: #08091A;
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem;
+      display: flex; flex-direction: column; gap: 0.3rem;
+      transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+    .mobile-drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0.25rem; margin-bottom: 1.2rem;
+    }
+    .mobile-drawer-logo { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; }
+    .mobile-drawer-logo-name { font-size: 1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .mobile-close {
+      background: none; border: none; cursor: pointer; color: var(--text-2);
+      font-size: 1.3rem; line-height: 1; padding: 0.2rem;
+      transition: color 0.15s;
+    }
+    .mobile-close:hover { color: var(--text); }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .main { padding: 1.5rem; }
+      .hamburger { display: flex; }
+      .mobile-overlay { display: block; }
+    }
+    @media (max-width: 600px) {
+      .profile-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .settings-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+      .input-text { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+      <defs><clipPath id="dna-prof-c"><rect width="40" height="20"/></clipPath></defs>
+      <g clip-path="url(#dna-prof-c)">
+        <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+          <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-width="1.1" stroke-linecap="round" fill="none">
+          <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </svg>
+    <span class="nav-logo-name">Helix</span>
+  </a>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── MOBILE DRAWER ──────────────────────────────────────── -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-drawer" id="mobile-drawer">
+  <div class="mobile-drawer-head">
+    <a class="mobile-drawer-logo" href="index.html">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-prof-mob-c"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-prof-mob-c)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-width="1.1" stroke-linecap="round" fill="none">
+            <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="mobile-drawer-logo-name">Helix</span>
+    </a>
+    <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+  </div>
+  <span class="sidebar-label" style="margin-top:0;">Learn</span>
+  <a class="nav-item" href="dashboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏠</span> Dashboard</a>
+  <a class="nav-item" href="dashboard.html#courses-section" onclick="closeMobileMenu()"><span class="nav-item-icon">📚</span> Courses</a>
+  <a class="nav-item" href="challenge.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+  <span class="sidebar-label">Progress</span>
+  <a class="nav-item" href="leaderboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+  <a class="nav-item active" href="profile.html" onclick="closeMobileMenu()"><span class="nav-item-icon">👤</span> Profile</a>
+  <span class="sidebar-label">Settings</span>
+  <a class="nav-item" href="settings.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚙️</span> Personal Details</a>
+  <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;color:var(--text-2);font-size:0.875rem;font-weight:500;"><span class="nav-item-icon">🚪</span> Logout</button>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <span class="sidebar-label">Learn</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="dashboard.html#courses-section"><span class="nav-item-icon">📚</span> Courses</a>
+    <a class="nav-item" href="challenge.html"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+
+    <span class="sidebar-label">Progress</span>
+    <a class="nav-item" href="leaderboard.html"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+    <a class="nav-item active" href="profile.html"><span class="nav-item-icon">👤</span> Profile</a>
+
+    <span class="sidebar-label">Settings</span>
+    <a class="nav-item" href="settings.html"><span class="nav-item-icon">⚙️</span> Personal Details</a>
+    <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;color:var(--text-2);font-size:0.875rem;font-weight:500;"><span class="nav-item-icon">🚪</span> Logout</button>
+
+    <div class="user-card" style="margin-top:auto;">
+      <div class="user-info">
+        <div class="user-avatar-lg" id="sidebar-avatar">Y</div>
+        <div>
+          <div class="user-name" id="sidebar-name">You</div>
+          <div class="user-level" id="sidebar-level">Level 1 · Novice</div>
+        </div>
+      </div>
+      <div class="xp-bar-top">
+        <span class="xp-bar-lbl">XP to next level</span>
+        <span class="xp-bar-val" id="sidebar-xp-label">0 / 500</span>
+      </div>
+      <div class="xp-bar"><div class="xp-bar-fill" id="sidebar-xp-bar" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- Profile header -->
+    <div class="profile-header">
+      <div class="avatar-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-file-input').click()" title="Change photo">
+        <div class="profile-avatar" id="profile-avatar">Y</div>
+        <div class="avatar-overlay">
+          <span>📷</span>
+          <small>Change<br>photo</small>
+        </div>
+      </div>
+      <input type="file" id="avatar-file-input" accept="image/*" style="display:none">
+      <div class="profile-info">
+        <div style="display:flex;align-items:center;gap:0.65rem;flex-wrap:wrap;">
+          <div class="profile-name" id="profile-name">You</div>
+          <span id="plan-badge"></span>
+        </div>
+        <div class="profile-sub" id="profile-sub">Level 1 Coder · Python Track</div>
+        <div class="bio-display" id="bio-display" style="display:none;"></div>
+        <div class="profile-badges-mini" id="profile-badges-mini"></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="section-block">
+      <div class="section-h">Stats</div>
+      <div class="stats-grid">
+        <div class="stat-tile st-xp">
+          <div class="stat-tile-val" id="stat-xp">0</div>
+          <div class="stat-tile-lbl">⚡ Total XP</div>
+        </div>
+        <div class="stat-tile st-str">
+          <div class="stat-tile-val" id="stat-streak">1</div>
+          <div class="stat-tile-lbl">🔥 Day Streak</div>
+        </div>
+        <div class="stat-tile st-lvl">
+          <div class="stat-tile-val" id="stat-level">1</div>
+          <div class="stat-tile-lbl">✨ Level</div>
+        </div>
+        <div class="stat-tile st-les">
+          <div class="stat-tile-val" id="stat-lessons">0</div>
+          <div class="stat-tile-lbl">📘 Lessons Done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="section-block">
+      <div class="section-h">Achievements</div>
+      <div class="badge-grid" id="badge-grid"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="section-block">
+      <div class="section-h">Settings</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Display name</div>
+            <div class="settings-desc">Shown on your profile and the leaderboard.</div>
+          </div>
+          <div class="settings-control" style="display:flex;gap:0.5rem;align-items:center;">
+            <input class="input-text" id="name-input" type="text" placeholder="Your name" maxlength="24"/>
+            <button class="btn-save" id="btn-save-name">Save</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Bio</div>
+            <div class="settings-desc">A short blurb shown on your profile (max 160 chars).</div>
+          </div>
+          <div class="settings-control" style="display:flex;flex-direction:column;gap:0.3rem;">
+            <textarea class="bio-textarea" id="bio-input" maxlength="160" placeholder="Tell the world something about yourself…"></textarea>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+              <span class="bio-counter" id="bio-counter">0 / 160</span>
+              <button class="btn-save" id="btn-save-bio">Save bio</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Python track</div>
+            <div class="settings-desc">Your current progress through the Python Fundamentals track.</div>
+          </div>
+          <div class="settings-control">
+            <span id="track-progress-label" style="font-size:0.82rem;color:var(--text-2);">0 / 15 lessons</span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" style="color:var(--red);">Reset progress</div>
+            <div class="settings-desc">Permanently clear all XP, lessons, and streak data.</div>
+          </div>
+          <div class="settings-control">
+            <button class="btn-danger" id="btn-reset">Reset all data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Auth gate ──────────────────────────────────────────────
+const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+if (!session) window.location.href = 'login.html';
+
+// ── User helpers ───────────────────────────────────────────
+function getCurrentUser() {
+  const sess = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!sess) return null;
+  const users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+  return users.find(u => u.id === sess.userId) || null;
+}
+function saveCurrentUser(updatedUser) {
+  const users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+  const idx = users.findIndex(u => u.id === updatedUser.id);
+  if (idx !== -1) { users[idx] = updatedUser; localStorage.setItem('helix_users', JSON.stringify(users)); }
+}
+
+const BADGES = [
+  { icon: "🎉", name: "First Step",   desc: "Complete 1 lesson",      condition: d => d.lessonsCompleted >= 1  },
+  { icon: "🔥", name: "On Fire",      desc: "3-day streak",            condition: d => d.streak >= 3            },
+  { icon: "⚡", name: "XP Hunter",    desc: "Earn 500 XP",             condition: d => d.xp >= 500              },
+  { icon: "🐍", name: "Pythonista",   desc: "Complete 5 lessons",      condition: d => d.lessonsCompleted >= 5  },
+  { icon: "🧠", name: "Deep Thinker", desc: "Complete 10 lessons",     condition: d => d.lessonsCompleted >= 10 },
+  { icon: "🏆", name: "Track Master", desc: "Complete all 15 lessons", condition: d => d.lessonsCompleted >= 15 },
+  { icon: "🌟", name: "Level 5",      desc: "Reach level 5",           condition: d => d.level >= 5             },
+  { icon: "💎", name: "XP Legend",    desc: "Earn 2000 XP",            condition: d => d.xp >= 2000             },
+];
+
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : { xp: 0, streak: 1, level: 1, lessonsCompleted: 0, completedIds: [], name: '' };
+}
+function saveState(state) { localStorage.setItem('helix_progress', JSON.stringify(state)); }
+
+function getLevel(xp) {
+  const t = [0,100,250,500,900,1400,2000];
+  for (let i = t.length - 1; i >= 0; i--) if (xp >= t[i]) return i + 1;
+  return 1;
+}
+function getLevelXP(level) {
+  const t = [0,100,250,500,900,1400,2000];
+  return { cur: t[level-1]||0, next: t[level]||2000 };
+}
+function getLevelTitle(level) {
+  return ['','Novice','Coder','Builder','Engineer','Architect','Master'][Math.min(level,6)]||'Legend';
+}
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? 'rgba(239,68,68,0.3)' : 'var(--border)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function getInitial(name) {
+  return (name || 'Y').trim().charAt(0).toUpperCase();
+}
+
+function renderAvatar(el, user) {
+  if (user && user.profilePic) {
+    el.style.background = 'none';
+    el.style.padding = '0';
+    el.style.overflow = 'hidden';
+    el.innerHTML = `<img src="${user.profilePic}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+    el.style.background = '';
+    el.style.padding = '';
+    el.style.overflow = '';
+    el.textContent = getInitial(user && user.username ? user.username : '');
+  }
+}
+
+function render() {
+  const state = loadState();
+  const user  = getCurrentUser();
+  const level = getLevel(state.xp);
+  const lxp   = getLevelXP(level);
+  const pct   = Math.round(((state.xp - lxp.cur) / (lxp.next - lxp.cur)) * 100);
+  const name  = (user && user.username) || state.name || 'You';
+  const init  = getInitial(name);
+
+  // Nav
+  document.getElementById('nav-xp').textContent     = state.xp;
+  document.getElementById('nav-streak').textContent  = state.streak;
+
+  // Sidebar
+  const sidebarAv = document.getElementById('sidebar-avatar');
+  if (user && user.profilePic) {
+    sidebarAv.style.background = 'none';
+    sidebarAv.style.overflow = 'hidden';
+    sidebarAv.innerHTML = `<img src="${user.profilePic}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+    sidebarAv.style.background = '';
+    sidebarAv.style.overflow = '';
+    sidebarAv.textContent = init;
+  }
+  document.getElementById('sidebar-name').textContent    = name;
+  document.getElementById('sidebar-level').textContent   = `Level ${level} · ${getLevelTitle(level)}`;
+  document.getElementById('sidebar-xp-label').textContent = `${state.xp} / ${lxp.next}`;
+  document.getElementById('sidebar-xp-bar').style.width  = pct + '%';
+
+  // Profile header — avatar
+  renderAvatar(document.getElementById('profile-avatar'), user);
+
+  // Profile header — name & plan badge
+  document.getElementById('profile-name').textContent   = name;
+  document.getElementById('profile-sub').textContent    = `Level ${level} ${getLevelTitle(level)} · Python Track`;
+
+  const planBadgeEl = document.getElementById('plan-badge');
+  const plan = (user && user.plan) || 'free';
+  if (plan === 'pro') {
+    planBadgeEl.innerHTML = `<span class="plan-badge-pro">Pro ✓</span>`;
+  } else {
+    planBadgeEl.innerHTML = `<a class="plan-badge-free" href="pricing.html">Free Plan <span class="plan-upgrade">— Upgrade to Pro →</span></a>`;
+  }
+
+  // Bio display
+  const bioDisplay = document.getElementById('bio-display');
+  if (user && user.bio) {
+    bioDisplay.textContent = user.bio;
+    bioDisplay.style.display = '';
+  } else {
+    bioDisplay.style.display = 'none';
+  }
+
+  // Mini badges
+  const earned = BADGES.filter(b => b.condition({ xp: state.xp, streak: state.streak, level, lessonsCompleted: state.lessonsCompleted }));
+  const miniEl = document.getElementById('profile-badges-mini');
+  miniEl.innerHTML = earned.slice(0,4).map(b =>
+    `<span class="mini-badge mb-blue">${b.icon} ${b.name}</span>`
+  ).join('');
+
+  // Stats
+  document.getElementById('stat-xp').textContent      = state.xp;
+  document.getElementById('stat-streak').textContent   = state.streak;
+  document.getElementById('stat-level').textContent    = level;
+  document.getElementById('stat-lessons').textContent  = state.lessonsCompleted;
+  document.getElementById('track-progress-label').textContent = `${state.lessonsCompleted} / 15 lessons`;
+
+  // Badge grid
+  const grid = document.getElementById('badge-grid');
+  grid.innerHTML = BADGES.map(b => {
+    const ok = b.condition({ xp: state.xp, streak: state.streak, level, lessonsCompleted: state.lessonsCompleted });
+    return `
+      <div class="badge-tile ${ok ? 'earned' : 'locked'}">
+        <div class="badge-emoji">${b.icon}</div>
+        <div class="badge-name">${b.name}</div>
+        <div class="badge-cond">${b.desc}</div>
+      </div>`;
+  }).join('');
+
+  // Name input
+  document.getElementById('name-input').value = state.name || '';
+
+  // Bio input
+  const bioInput = document.getElementById('bio-input');
+  bioInput.value = (user && user.bio) || '';
+  updateBioCounter();
+}
+
+// ── Avatar upload ──────────────────────────────────────────
+document.getElementById('avatar-file-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const user = getCurrentUser();
+    if (!user) return;
+    user.profilePic = dataUrl;
+    saveCurrentUser(user);
+    render();
+    showToast('✓ Profile photo updated');
+  };
+  reader.readAsDataURL(file);
+  this.value = ''; // reset so same file can be re-selected
+});
+
+// ── Bio counter ─────────────────────────────────────────────
+function updateBioCounter() {
+  const bio = document.getElementById('bio-input').value;
+  const counter = document.getElementById('bio-counter');
+  const len = bio.length;
+  counter.textContent = `${len} / 160`;
+  counter.className = 'bio-counter' + (len >= 160 ? ' full' : len >= 140 ? ' near' : '');
+}
+document.getElementById('bio-input').addEventListener('input', updateBioCounter);
+
+// ── Save bio ────────────────────────────────────────────────
+document.getElementById('btn-save-bio').addEventListener('click', () => {
+  const bio = document.getElementById('bio-input').value.trim();
+  const user = getCurrentUser();
+  if (!user) { showToast('Not logged in.', true); return; }
+  user.bio = bio;
+  saveCurrentUser(user);
+  render();
+  showToast('✓ Bio saved');
+});
+
+// Save name
+document.getElementById('btn-save-name').addEventListener('click', () => {
+  const val = document.getElementById('name-input').value.trim();
+  if (!val) { showToast('Enter a name first.', true); return; }
+  const state = loadState();
+  state.name = val;
+  saveState(state);
+  render();
+  showToast('✓ Name updated');
+});
+
+// Reset
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!confirm('Reset ALL progress? This cannot be undone.')) return;
+  localStorage.removeItem('helix_progress');
+  render();
+  showToast('Progress reset.');
+});
+
+render();
+
+// ── Mobile menu ────────────────────────────────────────────
+function openMobileMenu() {
+  document.getElementById('hamburger').classList.add('open');
+  document.getElementById('mobile-overlay').classList.add('open');
+  document.getElementById('mobile-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu() {
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+  document.getElementById('mobile-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('hamburger').addEventListener('click', function() {
+  this.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+});
+
+function helixLogout() {
+  localStorage.removeItem('helix_session');
+  window.location.href = 'login.html';
+}
+</script>
+</body>
+</html>

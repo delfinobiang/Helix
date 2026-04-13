@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Lesson</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%); top: -100px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,80px) scale(1.1); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,-60px) scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      height: 56px; padding: 0 1.5rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .nav-left  { display: flex; align-items: center; gap: 1rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .lesson-breadcrumb { font-size: 0.82rem; color: var(--text-3); }
+    .lesson-breadcrumb strong { color: var(--text-2); font-weight: 600; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; padding: 0.45rem 1.2rem; border-radius: 9px;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.28);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.38); }
+    .btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+
+    /* ─── PROGRESS ────────────────────────────────────────── */
+    .lesson-progress { height: 3px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .lesson-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.6s ease;
+    }
+
+    /* ─── SPLIT ───────────────────────────────────────────── */
+    .split {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+      overflow: hidden; min-height: 0; position: relative; z-index: 1;
+    }
+
+    /* ─── LEFT PANEL ──────────────────────────────────────── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel-left-inner {
+      flex: 1; overflow-y: auto; padding: 2rem 2rem 1rem;
+    }
+    .panel-left-inner::-webkit-scrollbar { width: 4px; }
+    .panel-left-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    .lesson-num-tag {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem;
+    }
+    .lesson-title-h {
+      font-size: 1.55rem; font-weight: 800; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 1.4rem;
+    }
+    .lesson-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.82; }
+    .lesson-body p  { margin-bottom: 1rem; }
+    .lesson-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 1.4rem 0 0.6rem; }
+    .lesson-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+    .lesson-body ul li { margin-bottom: 0.3rem; }
+    .lesson-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.1); color: #C4B5FD;
+      padding: 0.12em 0.38em; border-radius: 5px;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .lesson-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      line-height: 1.9; overflow-x: auto;
+    }
+    .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
+    .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
+
+    .challenge-box {
+      margin: 1.5rem 0 0;
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .challenge-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    /* Hint / solution */
+    .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .collapsible { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .collapsible-header {
+      width: 100%; display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; background: var(--bg-card);
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600; color: var(--text-2);
+      text-align: left; transition: background 0.18s, color 0.18s;
+    }
+    .collapsible-header:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .collapsible-header .chevron { margin-left: auto; font-size: 0.7rem; transition: transform 0.25s; }
+    .collapsible-header.open .chevron { transform: rotate(180deg); }
+    .collapsible-hint     { border-color: rgba(255,179,71,0.2); }
+    .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
+    .collapsible-solution { border-color: rgba(74,222,128,0.18); }
+    .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+
+    /* Locked solution state */
+    .collapsible-solution.locked {
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    .collapsible-solution.locked .collapsible-header {
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+    .collapsible-solution.locked .collapsible-header:hover {
+      background: var(--bg-card);
+      color: var(--text-3);
+    }
+    .sol-lock-msg {
+      font-size: 0.72rem; color: var(--text-3);
+      margin-left: auto; margin-right: 0.4rem;
+      font-style: italic; white-space: nowrap;
+    }
+    .collapsible-solution:not(.locked) .sol-lock-msg { display: none; }
+    .collapsible-body {
+      display: none; padding: 1rem;
+      font-size: 0.85rem; line-height: 1.72; color: var(--text-2);
+      background: rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+    }
+    .collapsible-body.open { display: block; }
+    .collapsible-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.08); color: #C4B5FD;
+      padding: 0.1em 0.35em; border-radius: 5px;
+    }
+    .collapsible-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
+      overflow-x: auto;
+    }
+
+    /* ─── RIGHT PANEL ─────────────────────────────────────── */
+    .panel-right { display: flex; flex-direction: column; overflow: hidden; }
+    .editor-toolbar {
+      padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(6,10,20,0.6); flex-shrink: 0;
+    }
+    .win-dots { display: flex; gap: 5px; }
+    .wd { width: 10px; height: 10px; border-radius: 50%; }
+    .wd.r { background: #FF5F57; } .wd.y { background: #FFBD2E; } .wd.g { background: #28C840; }
+    .editor-fname { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-3); margin-left: 0.4rem; flex: 1; }
+    .btn-run {
+      display: flex; align-items: center; gap: 0.45rem;
+      background: linear-gradient(135deg, #22C55E, #16A34A);
+      border: none; color: white; font-family: inherit;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(74,222,128,0.22);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-run:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(74,222,128,0.32); }
+    .btn-run:disabled { opacity: 0.4; pointer-events: none; }
+    .btn-clear {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-3); font-family: inherit; font-size: 0.78rem;
+      cursor: pointer; padding: 0.42rem 0.85rem; border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-clear:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
+
+    .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; min-height: 0; }
+    .line-nums {
+      padding: 1.1rem 0.75rem 1.1rem 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      color: var(--text-3); text-align: right; user-select: none;
+      background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
+      min-width: 44px; overflow: hidden; flex-shrink: 0;
+    }
+    .editor-textarea {
+      flex: 1; resize: none; border: none; outline: none;
+      background: #050C1A; color: #D4D4F8;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 4;
+      caret-color: var(--primary);
+      overflow-y: auto; overflow-x: auto;
+    }
+    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
+    .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    /* Output */
+    .output-panel {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; flex-direction: column; max-height: 38%;
+    }
+    .output-header {
+      padding: 0.55rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    .output-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); flex: 1; }
+    .output-status { font-size: 0.68rem; font-weight: 700; padding: 0.14rem 0.55rem; border-radius: 6px; }
+    .os-running { background: rgba(255,179,71,0.1);  color: var(--yellow); }
+    .os-ok      { background: rgba(74,222,128,0.1);  color: var(--green);  }
+    .os-error   { background: rgba(255,107,107,0.1); color: var(--red);    }
+    .os-idle    { background: rgba(255,255,255,0.04); color: var(--text-3); }
+    .output-body {
+      flex: 1; overflow-y: auto; padding: 0.9rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.85;
+      background: #040810;
+    }
+    .output-body::-webkit-scrollbar { width: 4px; }
+    .output-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
+    .out-line        { color: var(--green); white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-error       { color: var(--red);   white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-placeholder { color: var(--text-3); font-style: italic; }
+
+    /* Pyodide loader */
+    .py-loader {
+      position: absolute; inset: 0; background: rgba(6,10,20,0.88);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.75rem; z-index: 5; backdrop-filter: blur(6px);
+    }
+    .py-loader.hidden { display: none; }
+    .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid rgba(99,102,241,0.2); border-top-color: var(--primary);
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .py-loader-text { font-size: 0.82rem; color: var(--text-3); }
+
+    /* ─── COMPLETION MODAL ────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.28s;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #05091A; border: 1px solid rgba(99,102,241,0.28);
+      border-radius: 26px; padding: 2.5rem 2.5rem 2rem;
+      max-width: 420px; width: 90%; text-align: center;
+      transform: translateY(24px) scale(0.95);
+      transition: transform 0.32s cubic-bezier(0.34,1.55,0.64,1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,102,241,0.10);
+      position: relative; overflow: hidden;
+    }
+    .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+    /* Pip in modal */
+    .modal-pip-wrap { margin-bottom: 1rem; animation: pip-bounce 0.7s ease; }
+    @keyframes pip-bounce {
+      0%   { transform: translateY(-30px) scale(0.7); opacity: 0; }
+      60%  { transform: translateY(5px) scale(1.05); opacity: 1; }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .modal-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .modal-sub   { font-size: 0.88rem; color: var(--text-2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .modal-xp-wrap {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.22);
+      color: var(--yellow); font-size: 1.15rem; font-weight: 800;
+      padding: 0.55rem 1.6rem; border-radius: 100px; margin-bottom: 1.6rem;
+    }
+    .modal-xp-count { transition: all 0.1s; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-modal-next {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; padding: 0.7rem 1.8rem; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal-next:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,102,241,0.4); }
+    .btn-modal-dash {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; padding: 0.7rem 1.4rem; border-radius: 12px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-modal-dash:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+
+    /* ─── CONFETTI CANVAS ─────────────────────────────────── */
+    #confetti-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 199;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #confetti-canvas.active { opacity: 1; }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
+      .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
+      .panel-left-inner { overflow: visible; }
+      .panel-right { min-height: 520px; flex: none; height: 520px; }
+      .lesson-breadcrumb { display: none; }
+      .output-panel { max-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="dashboard.html">← Back</a>
+    <div class="lesson-breadcrumb">Python Fundamentals &nbsp;/&nbsp; <strong id="nav-lesson-title">Lesson</strong></div>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <button class="btn-primary" id="btn-submit" disabled>Submit →</button>
+  </div>
+</nav>
+
+<div class="lesson-progress">
+  <div class="lesson-progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<!-- ─── SPLIT ────────────────────────────────────────────── -->
+<div class="split">
+
+  <div class="panel-left">
+    <div class="panel-left-inner" id="lesson-content"></div>
+    <div class="extras">
+      <div class="collapsible collapsible-hint">
+        <button class="collapsible-header" id="hint-toggle">
+          💡 Show Hint <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="hint-body"></div>
+      </div>
+      <div class="collapsible collapsible-solution locked" id="solution-collapsible">
+        <button class="collapsible-header" id="solution-toggle">
+          🔒 Show Solution
+          <span class="sol-lock-msg">run your code first</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="solution-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="editor-toolbar">
+      <div class="win-dots">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+      </div>
+      <span class="editor-fname" id="editor-fname">main.py</span>
+      <button class="btn-clear" id="btn-reset">↺ Reset</button>
+      <button class="btn-run" id="btn-run" disabled>▶ Run</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="py-loader" id="py-loader">
+        <div class="spinner"></div>
+        <div class="py-loader-text">Loading Python engine…</div>
+      </div>
+      <div class="line-nums" id="line-nums">1</div>
+      <textarea
+        class="editor-textarea" id="editor"
+        spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="# Write your code here..."></textarea>
+    </div>
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-label">▶ Output</span>
+        <span class="output-status os-idle" id="output-status">Idle</span>
+      </div>
+      <div class="output-body" id="output-body">
+        <span class="out-placeholder">Run your code to see output here.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── COMPLETION MODAL ────────────────────────────────── -->
+<canvas id="confetti-canvas"></canvas>
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-pip-wrap">
+      <svg width="72" height="82" viewBox="0 0 130 148" fill="none">
+        <defs>
+          <radialGradient id="mp-h" cx="42%" cy="30%" r="62%"><stop offset="0%" stop-color="#9A92FF"/><stop offset="100%" stop-color="#3B35C0"/></radialGradient>
+          <radialGradient id="mp-f" cx="50%" cy="38%" r="55%"><stop offset="0%" stop-color="#1E1E3C"/><stop offset="100%" stop-color="#0C0C1E"/></radialGradient>
+          <radialGradient id="mp-e" cx="30%" cy="28%" r="70%"><stop offset="0%" stop-color="#78F4FF"/><stop offset="100%" stop-color="#0088AA"/></radialGradient>
+          <linearGradient id="mp-ear" x1="0%" y1="0%" x2="80%" y2="100%"><stop offset="0%" stop-color="#7870E8"/><stop offset="100%" stop-color="#3830A8"/></linearGradient>
+          <filter id="mp-s"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#6366F1" flood-opacity="0.3"/></filter>
+        </defs>
+        <g filter="url(#mp-s)">
+          <circle cx="65" cy="58" r="44" fill="url(#mp-h)"/>
+          <path d="M30 26 C33 12 40 10 42 22 C40 30 33 36 26 34 C23 30 25 26 30 26Z" fill="url(#mp-ear)"/>
+          <path d="M100 26 C97 12 90 10 88 22 C90 30 97 36 104 34 C107 30 105 26 100 26Z" fill="url(#mp-ear)"/>
+          <circle cx="65" cy="60" r="32" fill="url(#mp-f)"/>
+          <circle cx="51" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="52.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="55" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <circle cx="79" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="80.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="83" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <path d="M65 64 C61.5 64 58 68.5 59.5 72 C61 74.5 63.5 75.5 65 75.5 C66.5 75.5 69 74.5 70.5 72 C72 68.5 68.5 64 65 64Z" fill="#FFB347"/>
+        </g>
+      </svg>
+    </div>
+    <div class="modal-title">Lesson Complete! 🎉</div>
+    <div class="modal-sub" id="modal-sub">Great work. Keep the streak going!</div>
+    <div class="modal-xp-wrap">⚡ +<span class="modal-xp-count" id="modal-xp-count">0</span> XP</div>
+    <div class="modal-actions">
+      <button class="btn-modal-next" id="modal-next">Next Lesson →</button>
+      <button class="btn-modal-dash" onclick="window.location.href='dashboard.html'">Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// LESSON DATA — 15 Python Fundamentals lessons
+// ═══════════════════════════════════════════════════════════
+const LESSONS = {
+
+  1: {
+    title: "Hello, World!", xp: 50, fname: "hello.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 1 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Hello, World! 🐍</h1>
+      <div class="lesson-body">
+        <p>Every programmer's journey starts here. In Python, <code>print()</code> displays text on the screen.</p>
+        <div class="code-block"><span class="kw">print</span>(<span class="st">"Hello, World!"</span>)  <span class="cm"># Hello, World!</span></div>
+        <p>The text inside quotes is called a <strong>string</strong>. You can use single <code>'</code> or double <code>"</code> quotes.</p>
+        <h3>Multiple prints</h3>
+        <div class="code-block"><span class="kw">print</span>(<span class="st">"Line 1"</span>)
+<span class="kw">print</span>(<span class="st">"Line 2"</span>)</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Print exactly two lines:<br><code>Hello, World!</code><br><code>I am learning Python!</code></div>
+        </div>
+      </div>`,
+    hint: `<p>Call <code>print()</code> twice — once per line:</p>
+      <div class="code-block"><span class="kw">print</span>(<span class="st">"first line"</span>)
+<span class="kw">print</span>(<span class="st">"second line"</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">print</span>(<span class="st">"Hello, World!"</span>)
+<span class="kw">print</span>(<span class="st">"I am learning Python!"</span>)</div>`,
+    starter: `# Print two lines below\n`,
+    check: (out) => out.includes("Hello, World!") && out.includes("I am learning Python!"),
+  },
+
+  2: {
+    title: "Variables", xp: 75, fname: "variables.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 2 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Variables 📦</h1>
+      <div class="lesson-body">
+        <p>A <strong>variable</strong> is a labelled box that stores a value. Use <code>=</code> to assign:</p>
+        <div class="code-block"><span class="vr">name</span>  = <span class="st">"Alice"</span>
+<span class="vr">age</span>   = <span class="nm">21</span>
+<span class="kw">print</span>(<span class="vr">name</span>)   <span class="cm"># Alice</span>
+<span class="kw">print</span>(<span class="vr">age</span>)    <span class="cm"># 21</span></div>
+        <h3>Naming rules</h3>
+        <ul>
+          <li>Lowercase + underscores: <code>user_name</code></li>
+          <li>No spaces or special characters</li>
+          <li>Must start with a letter</li>
+        </ul>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a variable <code>name</code> with your name, and <code>level</code> = <code>1</code>. Print both on separate lines.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="vr">name</span>  = <span class="st">"Your Name"</span>
+<span class="vr">level</span> = <span class="nm">1</span>
+<span class="kw">print</span>(<span class="vr">name</span>)
+<span class="kw">print</span>(<span class="vr">level</span>)</div>`,
+    solution: `<div class="code-block"><span class="vr">name</span>  = <span class="st">"Alex"</span>
+<span class="vr">level</span> = <span class="nm">1</span>
+<span class="kw">print</span>(<span class="vr">name</span>)
+<span class="kw">print</span>(<span class="vr">level</span>)</div>`,
+    starter: `# Create your variables below\n\n`,
+    check: (out, code) => /name\s*=\s*["'].+["']/.test(code) && /level\s*=/.test(code) && out.trim().split('\n').length >= 2,
+  },
+
+  3: {
+    title: "User Input", xp: 75, fname: "input.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 3 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">User Input ⌨️</h1>
+      <div class="lesson-body">
+        <p><code>input()</code> pauses and waits for the user to type. It always returns a <strong>string</strong>.</p>
+        <div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"Your name: "</span>)
+<span class="kw">print</span>(<span class="st">"Hello, "</span> + <span class="vr">name</span>)</div>
+        <h3>f-strings — the clean way</h3>
+        <p>Put <code>f</code> before the quote and wrap variables in <code>{}</code>:</p>
+        <div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"Your name: "</span>)
+<span class="kw">print</span>(<span class="st">f"Welcome, <span class="vr">{name}</span>!"</span>)</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Ask for the user's name, then print: <code>Hello, [name]! Welcome to Helix.</code></div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"Enter your name: "</span>)
+<span class="kw">print</span>(<span class="st">f"Hello, <span class="vr">{name}</span>! Welcome to Helix."</span>)</div>`,
+    solution: `<div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"What is your name? "</span>)
+<span class="kw">print</span>(<span class="st">f"Hello, <span class="vr">{name}</span>! Welcome to Helix."</span>)</div>`,
+    starter: `# Ask for the user's name then greet them\n\n`,
+    check: (out) => out.toLowerCase().includes("hello") && out.toLowerCase().includes("welcome to helix"),
+  },
+
+  4: {
+    title: "Strings & Numbers", xp: 100, fname: "types.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 4 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Strings & Numbers 🔢</h1>
+      <div class="lesson-body">
+        <h3>String methods</h3>
+        <div class="code-block"><span class="vr">s</span> = <span class="st">"hello"</span>
+<span class="kw">print</span>(<span class="vr">s</span>.upper())          <span class="cm"># HELLO</span>
+<span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">s</span>))             <span class="cm"># 5</span>
+<span class="kw">print</span>(<span class="vr">s</span>.replace(<span class="st">"h"</span>,<span class="st">"j"</span>))  <span class="cm"># jello</span></div>
+        <h3>Math operators</h3>
+        <div class="code-block"><span class="kw">print</span>(<span class="nm">10</span> + <span class="nm">3</span>)   <span class="cm"># 13</span>
+<span class="kw">print</span>(<span class="nm">10</span> * <span class="nm">3</span>)   <span class="cm"># 30</span>
+<span class="kw">print</span>(<span class="nm">10</span> ** <span class="nm">2</span>)  <span class="cm"># 100  (power)</span>
+<span class="kw">print</span>(<span class="nm">10</span> % <span class="nm">3</span>)   <span class="cm"># 1    (remainder)</span>
+<span class="kw">print</span>(<span class="nm">10</span> // <span class="nm">3</span>)  <span class="cm"># 3    (floor div)</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Given <code>a = 8</code> and <code>b = 3</code>, print their <strong>sum</strong>, <strong>product</strong>, and <strong>remainder</strong> on separate lines.</div>
+        </div>
+      </div>`,
+    hint: `<p>Use +, *, and % operators:</p>
+      <div class="code-block"><span class="vr">a</span> = <span class="nm">8</span>
+<span class="vr">b</span> = <span class="nm">3</span>
+<span class="kw">print</span>(<span class="vr">a</span> + <span class="vr">b</span>)
+<span class="kw">print</span>(<span class="vr">a</span> * <span class="vr">b</span>)
+<span class="kw">print</span>(<span class="vr">a</span> % <span class="vr">b</span>)</div>`,
+    solution: `<div class="code-block"><span class="vr">a</span> = <span class="nm">8</span>
+<span class="vr">b</span> = <span class="nm">3</span>
+<span class="kw">print</span>(<span class="vr">a</span> + <span class="vr">b</span>)   <span class="cm"># 11</span>
+<span class="kw">print</span>(<span class="vr">a</span> * <span class="vr">b</span>)   <span class="cm"># 24</span>
+<span class="kw">print</span>(<span class="vr">a</span> % <span class="vr">b</span>)   <span class="cm"># 2</span></div>`,
+    starter: `a = 8\nb = 3\n# Print sum, product, remainder\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('11') && l.includes('24') && l.includes('2'); },
+  },
+
+  5: {
+    title: "Conditions (if/else)", xp: 125, fname: "conditions.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 5 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Conditions (if/else) 🔀</h1>
+      <div class="lesson-body">
+        <p>The <code>if</code> statement runs code only when a condition is <code>True</code>. Note the colon and 4-space indent.</p>
+        <div class="code-block"><span class="vr">age</span> = <span class="nm">18</span>
+<span class="kw">if</span> <span class="vr">age</span> >= <span class="nm">18</span>:
+    <span class="kw">print</span>(<span class="st">"Adult"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"Minor"</span>)</div>
+        <h3>elif — multiple branches</h3>
+        <div class="code-block"><span class="kw">if</span> <span class="vr">score</span> >= <span class="nm">90</span>:
+    <span class="kw">print</span>(<span class="st">"A"</span>)
+<span class="kw">elif</span> <span class="vr">score</span> >= <span class="nm">70</span>:
+    <span class="kw">print</span>(<span class="st">"B"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"C"</span>)</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Set <code>temperature = 35</code>. If it's above 30 print <code>It's hot!</code>, otherwise print <code>Nice weather.</code></div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="vr">temperature</span> = <span class="nm">35</span>
+<span class="kw">if</span> <span class="vr">temperature</span> > <span class="nm">30</span>:
+    <span class="kw">print</span>(<span class="st">"..."</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"..."</span>)</div>`,
+    solution: `<div class="code-block"><span class="vr">temperature</span> = <span class="nm">35</span>
+<span class="kw">if</span> <span class="vr">temperature</span> > <span class="nm">30</span>:
+    <span class="kw">print</span>(<span class="st">"It's hot!"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="st">"Nice weather."</span>)</div>`,
+    starter: `temperature = 35\n# Write your if/else below\n\n`,
+    check: (out) => out.includes("It's hot!"),
+  },
+
+  6: {
+    title: "Loops (for/while)", xp: 150, fname: "loops.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 6 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Loops (for/while) 🔁</h1>
+      <div class="lesson-body">
+        <h3>for loop</h3>
+        <div class="code-block"><span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>):
+    <span class="kw">print</span>(<span class="vr">i</span>)   <span class="cm"># 0 1 2 3 4</span></div>
+        <p>Loop over a list:</p>
+        <div class="code-block"><span class="kw">for</span> <span class="vr">item</span> <span class="kw">in</span> [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]:
+    <span class="kw">print</span>(<span class="vr">item</span>)</div>
+        <h3>while loop</h3>
+        <div class="code-block"><span class="vr">n</span> = <span class="nm">0</span>
+<span class="kw">while</span> <span class="vr">n</span> < <span class="nm">3</span>:
+    <span class="kw">print</span>(<span class="vr">n</span>)
+    <span class="vr">n</span> += <span class="nm">1</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Use a <code>for</code> loop to print numbers <strong>1 through 5</strong>.</div>
+        </div>
+      </div>`,
+    hint: `<p><code>range(1, 6)</code> gives 1, 2, 3, 4, 5:</p>
+      <div class="code-block"><span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="kw">print</span>(<span class="vr">i</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>):
+    <span class="kw">print</span>(<span class="vr">i</span>)</div>`,
+    starter: `# Print 1 through 5\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
+  },
+
+  7: {
+    title: "Lists", xp: 150, fname: "lists.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 7 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Lists 📋</h1>
+      <div class="lesson-body">
+        <p>A <strong>list</strong> stores multiple values in order. Index starts at 0.</p>
+        <div class="code-block"><span class="vr">fruits</span> = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]
+<span class="kw">print</span>(<span class="vr">fruits</span>[<span class="nm">0</span>])   <span class="cm"># apple</span>
+<span class="kw">print</span>(<span class="vr">fruits</span>[-<span class="nm">1</span>])  <span class="cm"># cherry (last)</span>
+<span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">fruits</span>)) <span class="cm"># 3</span></div>
+        <h3>Common methods</h3>
+        <div class="code-block"><span class="vr">fruits</span>.append(<span class="st">"mango"</span>)   <span class="cm"># add to end</span>
+<span class="vr">fruits</span>.remove(<span class="st">"banana"</span>)  <span class="cm"># remove by value</span>
+<span class="vr">fruits</span>.sort()              <span class="cm"># sort in place</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a list called <code>numbers</code> with values <code>[3, 1, 4, 1, 5, 9]</code>. Print its length, then print the first and last elements.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="vr">numbers</span> = [<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">9</span>]
+<span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">numbers</span>))
+<span class="kw">print</span>(<span class="vr">numbers</span>[<span class="nm">0</span>])
+<span class="kw">print</span>(<span class="vr">numbers</span>[-<span class="nm">1</span>])</div>`,
+    solution: `<div class="code-block"><span class="vr">numbers</span> = [<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">9</span>]
+<span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">numbers</span>))  <span class="cm"># 6</span>
+<span class="kw">print</span>(<span class="vr">numbers</span>[<span class="nm">0</span>])    <span class="cm"># 3</span>
+<span class="kw">print</span>(<span class="vr">numbers</span>[-<span class="nm">1</span>])   <span class="cm"># 9</span></div>`,
+    starter: `numbers = [3, 1, 4, 1, 5, 9]\n# Print length, first, and last element\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('6') && l.includes('3') && l.includes('9'); },
+  },
+
+  8: {
+    title: "Dictionaries", xp: 175, fname: "dicts.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 8 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Dictionaries 🗂️</h1>
+      <div class="lesson-body">
+        <p>A <strong>dictionary</strong> maps <em>keys</em> to <em>values</em> — like a real dictionary word → definition.</p>
+        <div class="code-block"><span class="vr">person</span> = {
+    <span class="st">"name"</span>: <span class="st">"Alex"</span>,
+    <span class="st">"age"</span>:  <span class="nm">21</span>,
+    <span class="st">"level"</span>: <span class="nm">3</span>
+}
+<span class="kw">print</span>(<span class="vr">person</span>[<span class="st">"name"</span>])   <span class="cm"># Alex</span>
+<span class="vr">person</span>[<span class="st">"age"</span>] = <span class="nm">22</span>     <span class="cm"># update</span></div>
+        <h3>Looping a dict</h3>
+        <div class="code-block"><span class="kw">for</span> <span class="vr">key</span>, <span class="vr">val</span> <span class="kw">in</span> <span class="vr">person</span>.items():
+    <span class="kw">print</span>(<span class="st">f"<span class="vr">{key}</span>: <span class="vr">{val}</span>"</span>)</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a <code>student</code> dict with keys <code>"name"</code> and <code>"grade"</code>. Print both values using the keys.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="vr">student</span> = {<span class="st">"name"</span>: <span class="st">"Sam"</span>, <span class="st">"grade"</span>: <span class="st">"A"</span>}
+<span class="kw">print</span>(<span class="vr">student</span>[<span class="st">"name"</span>])
+<span class="kw">print</span>(<span class="vr">student</span>[<span class="st">"grade"</span>])</div>`,
+    solution: `<div class="code-block"><span class="vr">student</span> = {<span class="st">"name"</span>: <span class="st">"Sam"</span>, <span class="st">"grade"</span>: <span class="st">"A"</span>}
+<span class="kw">print</span>(<span class="vr">student</span>[<span class="st">"name"</span>])
+<span class="kw">print</span>(<span class="vr">student</span>[<span class="st">"grade"</span>])</div>`,
+    starter: `# Create a student dict with "name" and "grade", then print both\n\n`,
+    check: (out, code) => /student\s*=\s*\{/.test(code) && out.trim().split('\n').length >= 2,
+  },
+
+  9: {
+    title: "Functions", xp: 200, fname: "functions.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 9 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Functions 🧩</h1>
+      <div class="lesson-body">
+        <p>A <strong>function</strong> is a reusable block of code. Define with <code>def</code>, call by name.</p>
+        <div class="code-block"><span class="kw">def</span> <span class="fn">greet</span>(<span class="vr">name</span>):
+    <span class="kw">print</span>(<span class="st">f"Hello, <span class="vr">{name}</span>!"</span>)
+
+<span class="fn">greet</span>(<span class="st">"Alice"</span>)  <span class="cm"># Hello, Alice!</span>
+<span class="fn">greet</span>(<span class="st">"Bob"</span>)    <span class="cm"># Hello, Bob!</span></div>
+        <h3>Returning values</h3>
+        <div class="code-block"><span class="kw">def</span> <span class="fn">add</span>(<span class="vr">a</span>, <span class="vr">b</span>):
+    <span class="kw">return</span> <span class="vr">a</span> + <span class="vr">b</span>
+
+<span class="vr">result</span> = <span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">4</span>)
+<span class="kw">print</span>(<span class="vr">result</span>)  <span class="cm"># 7</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Define a function <code>square(n)</code> that returns <code>n * n</code>. Then print <code>square(5)</code> and <code>square(9)</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">def</span> <span class="fn">square</span>(<span class="vr">n</span>):
+    <span class="kw">return</span> <span class="vr">n</span> * <span class="vr">n</span>
+
+<span class="kw">print</span>(<span class="fn">square</span>(<span class="nm">5</span>))
+<span class="kw">print</span>(<span class="fn">square</span>(<span class="nm">9</span>))</div>`,
+    solution: `<div class="code-block"><span class="kw">def</span> <span class="fn">square</span>(<span class="vr">n</span>):
+    <span class="kw">return</span> <span class="vr">n</span> * <span class="vr">n</span>
+
+<span class="kw">print</span>(<span class="fn">square</span>(<span class="nm">5</span>))  <span class="cm"># 25</span>
+<span class="kw">print</span>(<span class="fn">square</span>(<span class="nm">9</span>))  <span class="cm"># 81</span></div>`,
+    starter: `# Define square(n) and call it\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('25') && l.includes('81'); },
+  },
+
+  10: {
+    title: "String Methods", xp: 175, fname: "strings2.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 10 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">String Methods 🔤</h1>
+      <div class="lesson-body">
+        <p>Strings have many built-in methods for manipulation:</p>
+        <div class="code-block"><span class="vr">s</span> = <span class="st">"  Hello, Python!  "</span>
+<span class="kw">print</span>(<span class="vr">s</span>.strip())       <span class="cm"># "Hello, Python!"</span>
+<span class="kw">print</span>(<span class="vr">s</span>.lower())       <span class="cm"># "  hello, python!  "</span>
+<span class="kw">print</span>(<span class="vr">s</span>.upper())       <span class="cm"># "  HELLO, PYTHON!  "</span>
+<span class="kw">print</span>(<span class="vr">s</span>.count(<span class="st">"l"</span>))   <span class="cm"># 3</span>
+<span class="kw">print</span>(<span class="vr">s</span>.startswith(<span class="st">"  H"</span>))  <span class="cm"># True</span></div>
+        <h3>Split & Join</h3>
+        <div class="code-block"><span class="vr">words</span> = <span class="st">"one two three"</span>.split()
+<span class="cm"># ['one', 'two', 'three']</span>
+<span class="vr">joined</span> = <span class="st">"-"</span>.join(<span class="vr">words</span>)
+<span class="cm"># "one-two-three"</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Given <code>sentence = "the quick brown fox"</code>, print it in <strong>uppercase</strong> and print the number of <strong>words</strong> in it.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="vr">sentence</span> = <span class="st">"the quick brown fox"</span>
+<span class="kw">print</span>(<span class="vr">sentence</span>.upper())
+<span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">sentence</span>.split()))</div>`,
+    solution: `<div class="code-block"><span class="vr">sentence</span> = <span class="st">"the quick brown fox"</span>
+<span class="kw">print</span>(<span class="vr">sentence</span>.upper())
+<span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">sentence</span>.split()))  <span class="cm"># 4</span></div>`,
+    starter: `sentence = "the quick brown fox"\n# Print uppercase and word count\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('THE QUICK BROWN FOX') && l.includes('4'); },
+  },
+
+  11: {
+    title: "List Comprehensions", xp: 200, fname: "comprehensions.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 11 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">List Comprehensions ⚡</h1>
+      <div class="lesson-body">
+        <p>A <strong>list comprehension</strong> builds a new list in a single, readable line.</p>
+        <h3>The pattern</h3>
+        <div class="code-block"><span class="cm"># [expression  for  item  in  iterable]</span>
+<span class="vr">squares</span> = [<span class="vr">x</span>**<span class="nm">2</span> <span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>)]
+<span class="kw">print</span>(<span class="vr">squares</span>)  <span class="cm"># [0, 1, 4, 9, 16]</span></div>
+        <h3>With a condition</h3>
+        <div class="code-block"><span class="vr">evens</span> = [<span class="vr">x</span> <span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">10</span>) <span class="kw">if</span> <span class="vr">x</span> % <span class="nm">2</span> == <span class="nm">0</span>]
+<span class="kw">print</span>(<span class="vr">evens</span>)  <span class="cm"># [0, 2, 4, 6, 8]</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Use a list comprehension to create a list of <strong>cubes</strong> of numbers 1–5 (i.e. [1, 8, 27, 64, 125]) and print it.</div>
+        </div>
+      </div>`,
+    hint: `<p>Use <code>x**3</code> and <code>range(1, 6)</code>:</p>
+      <div class="code-block"><span class="vr">cubes</span> = [<span class="vr">x</span>**<span class="nm">3</span> <span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>)]
+<span class="kw">print</span>(<span class="vr">cubes</span>)</div>`,
+    solution: `<div class="code-block"><span class="vr">cubes</span> = [<span class="vr">x</span>**<span class="nm">3</span> <span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">1</span>, <span class="nm">6</span>)]
+<span class="kw">print</span>(<span class="vr">cubes</span>)  <span class="cm"># [1, 8, 27, 64, 125]</span></div>`,
+    starter: `# Create cubes list using a comprehension\n\n`,
+    check: (out) => out.includes('[1, 8, 27, 64, 125]'),
+  },
+
+  12: {
+    title: "Error Handling", xp: 200, fname: "errors.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 12 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Error Handling 🛡️</h1>
+      <div class="lesson-body">
+        <p>Errors crash your program. <code>try / except</code> lets you catch them gracefully.</p>
+        <div class="code-block"><span class="kw">try</span>:
+    <span class="vr">result</span> = <span class="nm">10</span> / <span class="nm">0</span>
+<span class="kw">except</span> ZeroDivisionError:
+    <span class="kw">print</span>(<span class="st">"Can't divide by zero!"</span>)</div>
+        <h3>Catching any error</h3>
+        <div class="code-block"><span class="kw">try</span>:
+    <span class="vr">x</span> = <span class="fn">int</span>(<span class="st">"hello"</span>)
+<span class="kw">except</span> ValueError <span class="kw">as</span> <span class="vr">e</span>:
+    <span class="kw">print</span>(<span class="st">f"Error: <span class="vr">{e}</span>"</span>)</div>
+        <h3>finally</h3>
+        <p><code>finally</code> always runs, error or not — useful for cleanup.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write a <code>try/except</code> that tries to convert the string <code>"abc"</code> to an int. Catch the <code>ValueError</code> and print <code>Invalid number!</code></div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">try</span>:
+    <span class="vr">x</span> = <span class="fn">int</span>(<span class="st">"abc"</span>)
+<span class="kw">except</span> ValueError:
+    <span class="kw">print</span>(<span class="st">"..."</span>)</div>`,
+    solution: `<div class="code-block"><span class="kw">try</span>:
+    <span class="vr">x</span> = <span class="fn">int</span>(<span class="st">"abc"</span>)
+<span class="kw">except</span> ValueError:
+    <span class="kw">print</span>(<span class="st">"Invalid number!"</span>)</div>`,
+    starter: `# Try to convert "abc" to int and catch the error\n\n`,
+    check: (out) => out.includes("Invalid number!"),
+  },
+
+  13: {
+    title: "Classes & Objects", xp: 225, fname: "classes.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 13 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Classes & Objects 🏗️</h1>
+      <div class="lesson-body">
+        <p>A <strong>class</strong> is a blueprint. An <strong>object</strong> is an instance created from it.</p>
+        <div class="code-block"><span class="kw">class</span> <span class="fn">Dog</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">name</span>):
+        <span class="vr">self</span>.name = <span class="vr">name</span>
+
+    <span class="kw">def</span> <span class="fn">bark</span>(<span class="vr">self</span>):
+        <span class="kw">print</span>(<span class="st">f"<span class="vr">{self.name}</span> says: Woof!"</span>)
+
+<span class="vr">d</span> = <span class="fn">Dog</span>(<span class="st">"Rex"</span>)
+<span class="vr">d</span>.<span class="fn">bark</span>()  <span class="cm"># Rex says: Woof!</span></div>
+        <p><code>__init__</code> runs when an object is created. <code>self</code> refers to the instance itself.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a class <code>Circle</code> with an <code>__init__</code> that takes <code>radius</code>. Add a method <code>area()</code> that prints the area (<code>3.14 * radius ** 2</code>). Create a Circle with radius 5 and call <code>area()</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Circle</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">radius</span>):
+        <span class="vr">self</span>.radius = <span class="vr">radius</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="vr">self</span>):
+        <span class="kw">print</span>(<span class="nm">3.14</span> * <span class="vr">self</span>.radius ** <span class="nm">2</span>)
+
+<span class="vr">c</span> = <span class="fn">Circle</span>(<span class="nm">5</span>)
+<span class="vr">c</span>.<span class="fn">area</span>()</div>`,
+    solution: `<div class="code-block"><span class="kw">class</span> <span class="fn">Circle</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">radius</span>):
+        <span class="vr">self</span>.radius = <span class="vr">radius</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="vr">self</span>):
+        <span class="kw">print</span>(<span class="nm">3.14</span> * <span class="vr">self</span>.radius ** <span class="nm">2</span>)
+
+<span class="vr">c</span> = <span class="fn">Circle</span>(<span class="nm">5</span>)
+<span class="vr">c</span>.<span class="fn">area</span>()  <span class="cm"># 78.5</span></div>`,
+    starter: `# Define class Circle with __init__(radius) and area()\n\n`,
+    check: (out) => out.includes('78.5'),
+  },
+
+  14: {
+    title: "Modules & Imports", xp: 200, fname: "modules.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 14 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">Modules & Imports 📦</h1>
+      <div class="lesson-body">
+        <p>Python's standard library has hundreds of ready-to-use modules. Import them with <code>import</code>.</p>
+        <div class="code-block"><span class="kw">import</span> math
+<span class="kw">print</span>(math.pi)           <span class="cm"># 3.14159…</span>
+<span class="kw">print</span>(math.sqrt(<span class="nm">16</span>))    <span class="cm"># 4.0</span>
+<span class="kw">print</span>(math.floor(<span class="nm">3.9</span>))  <span class="cm"># 3</span></div>
+        <h3>Import specific names</h3>
+        <div class="code-block"><span class="kw">from</span> math <span class="kw">import</span> sqrt, pi
+<span class="kw">print</span>(sqrt(<span class="nm">25</span>))   <span class="cm"># 5.0</span></div>
+        <h3>random module</h3>
+        <div class="code-block"><span class="kw">import</span> random
+<span class="kw">print</span>(random.randint(<span class="nm">1</span>, <span class="nm">10</span>))  <span class="cm"># random 1–10</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Import <code>math</code> and print the square root of 144, and the value of <code>math.pi</code> rounded to 2 decimal places.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">import</span> math
+<span class="kw">print</span>(math.sqrt(<span class="nm">144</span>))
+<span class="kw">print</span>(<span class="fn">round</span>(math.pi, <span class="nm">2</span>))</div>`,
+    solution: `<div class="code-block"><span class="kw">import</span> math
+<span class="kw">print</span>(math.sqrt(<span class="nm">144</span>))    <span class="cm"># 12.0</span>
+<span class="kw">print</span>(<span class="fn">round</span>(math.pi, <span class="nm">2</span>)) <span class="cm"># 3.14</span></div>`,
+    starter: `# Import math, print sqrt(144) and pi rounded to 2 decimals\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('12.0') && l.includes('3.14'); },
+  },
+
+  15: {
+    title: "File I/O", xp: 250, fname: "files.py",
+    content: `
+      <div class="lesson-num-tag">Lesson 15 · Python Fundamentals</div>
+      <h1 class="lesson-title-h">File I/O 📁</h1>
+      <div class="lesson-body">
+        <p>Python can read and write files using the built-in <code>open()</code> function.</p>
+        <h3>Writing to a file</h3>
+        <div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"note.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="vr">f</span>:
+    <span class="vr">f</span>.write(<span class="st">"Hello from Python!\n"</span>)
+    <span class="vr">f</span>.write(<span class="st">"Second line.\n"</span>)</div>
+        <h3>Reading from a file</h3>
+        <div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"note.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="vr">f</span>:
+    <span class="vr">content</span> = <span class="vr">f</span>.read()
+    <span class="kw">print</span>(<span class="vr">content</span>)</div>
+        <p>The <code>with</code> statement auto-closes the file when done. Mode <code>"w"</code> writes, <code>"r"</code> reads, <code>"a"</code> appends.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write <code>"Helix is awesome!\n"</code> to a file called <code>helix.txt</code>, then read it back and print its content.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"helix.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="vr">f</span>:
+    <span class="vr">f</span>.write(<span class="st">"Helix is awesome!\n"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"helix.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="vr">f</span>:
+    <span class="kw">print</span>(<span class="vr">f</span>.read())</div>`,
+    solution: `<div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"helix.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="vr">f</span>:
+    <span class="vr">f</span>.write(<span class="st">"Helix is awesome!\n"</span>)
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"helix.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="vr">f</span>:
+    <span class="kw">print</span>(<span class="vr">f</span>.read())</div>`,
+    starter: `# Write to helix.txt, then read and print it\n\n`,
+    check: (out) => out.includes("Helix is awesome!"),
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : { xp: 0, streak: 1, level: 1, lessonsCompleted: 0, completedIds: [] };
+}
+function saveState(s) { localStorage.setItem('helix_progress', JSON.stringify(s)); }
+function getLevel(xp) {
+  const t = [0, 100, 250, 500, 900, 1400, 2000, 3000];
+  for (let i = t.length - 1; i >= 0; i--) if (xp >= t[i]) return i + 1;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT LESSON
+// ═══════════════════════════════════════════════════════════
+const params   = new URLSearchParams(location.search);
+const lessonId = parseInt(params.get('id')) || 1;
+const lesson   = LESSONS[lessonId] || LESSONS[1];
+
+// Auth check
+const __session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+if (!__session) { window.location.href = 'login.html'; }
+
+// Pro paywall — lessons 6-15 require Pro
+function showPaywall() {
+  document.querySelector('.split').innerHTML = `
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:3rem;text-align:center;">
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;">This lesson requires Pro</h2>
+      <p style="color:var(--text-2);max-width:440px;line-height:1.7;">Lessons 6–15 are available on the Pro plan. Unlock all 90 lessons across 6 languages for just $9/month — or $4.50/month billed annually.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+        <a href="pricing.html" style="background:var(--primary);color:white;padding:0.75rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(99,102,241,0.3);">Upgrade to Pro →</a>
+        <a href="dashboard.html" style="background:rgba(255,255,255,0.05);color:var(--text-2);padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.08);">Back to Dashboard</a>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-3);">First 5 lessons of every language are always free.</p>
+    </div>`;
+}
+
+try {
+  if (lessonId > 5) {
+    const __users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const __user = __users.find(u => u.id === __session.userId);
+    if (!__user || __user.plan !== 'pro') {
+      document.addEventListener('DOMContentLoaded', () => {
+        showPaywall();
+      });
+      if (document.readyState !== 'loading') showPaywall();
+    }
+  }
+} catch(e) {}
+
+const TOTAL    = Object.keys(LESSONS).length;
+
+document.getElementById('nav-lesson-title').textContent = lesson.title;
+document.getElementById('editor-fname').textContent      = lesson.fname;
+document.getElementById('lesson-content').innerHTML      = lesson.content;
+document.getElementById('hint-body').innerHTML           = lesson.hint;
+document.getElementById('solution-body').innerHTML       = lesson.solution;
+document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+const editor = document.getElementById('editor');
+editor.value = lesson.starter || '';
+updateLineNums();
+document.getElementById('nav-xp').textContent = loadState().xp;
+
+// ═══════════════════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════════════════
+function updateLineNums() {
+  const n = editor.value.split('\n').length;
+  document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+}
+editor.addEventListener('input', updateLineNums);
+editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart, end = editor.selectionEnd;
+    editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = s + 4;
+    updateLineNums();
+  }
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  editor.value = lesson.starter || '';
+  updateLineNums();
+  setOutput([{type:'placeholder',text:'Code reset.'}], 'idle');
+});
+
+// ═══════════════════════════════════════════════════════════
+// COLLAPSIBLES
+// ═══════════════════════════════════════════════════════════
+let hasRun = false; // tracks whether the user has run code at least once
+
+function unlockSolution() {
+  const wrap = document.getElementById('solution-collapsible');
+  const btn  = document.getElementById('solution-toggle');
+  wrap.classList.remove('locked');
+  btn.childNodes[0].textContent = '✅ Show Solution'; // swap icon + text
+  btn.querySelector('.sol-lock-msg').style.display = 'none';
+}
+
+// Hint — always openable
+const hintBtn  = document.getElementById('hint-toggle');
+const hintBody = document.getElementById('hint-body');
+hintBtn.addEventListener('click', () => {
+  const open = hintBody.classList.toggle('open');
+  hintBtn.classList.toggle('open', open);
+});
+
+// Solution — locked until first run
+const solBtn  = document.getElementById('solution-toggle');
+const solBody = document.getElementById('solution-body');
+solBtn.addEventListener('click', () => {
+  const wrap = document.getElementById('solution-collapsible');
+  if (wrap.classList.contains('locked')) {
+    // Shake the button to signal it's blocked
+    solBtn.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-6px)' },
+      { transform: 'translateX(6px)' },
+      { transform: 'translateX(-4px)' },
+      { transform: 'translateX(0)' },
+    ], { duration: 280, easing: 'ease-out' });
+    return;
+  }
+  const open = solBody.classList.toggle('open');
+  solBtn.classList.toggle('open', open);
+});
+
+// ═══════════════════════════════════════════════════════════
+// OUTPUT
+// ═══════════════════════════════════════════════════════════
+function setOutput(lines, status) {
+  const ob = document.getElementById('output-body');
+  ob.innerHTML = lines.map(l => {
+    if (l.type === 'placeholder') return `<span class="out-placeholder">${l.text}</span>`;
+    if (l.type === 'error')       return `<span class="out-error">${escHtml(l.text)}</span>`;
+    return `<span class="out-line">${escHtml(l.text)}</span>`;
+  }).join('');
+  const st = document.getElementById('output-status');
+  st.className = 'output-status';
+  const map = {running:['os-running','Running…'], ok:['os-ok','Done'], error:['os-error','Error'], idle:['os-idle','Idle']};
+  const [cls, txt] = map[status] || map.idle;
+  st.classList.add(cls); st.textContent = txt;
+}
+const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ═══════════════════════════════════════════════════════════
+// PYODIDE
+// ═══════════════════════════════════════════════════════════
+let pyodide = null;
+let outputLines = [];
+
+async function loadPy() {
+  try {
+    pyodide = await loadPyodide();
+    pyodide.setStdout({ batched: s => outputLines.push({type:'ok', text:s}) });
+    pyodide.setStderr({ batched: s => outputLines.push({type:'error', text:s}) });
+    document.getElementById('py-loader').classList.add('hidden');
+    document.getElementById('btn-run').disabled    = false;
+    document.getElementById('btn-submit').disabled = false;
+  } catch(e) {
+    document.querySelector('.py-loader-text').textContent = 'Failed to load Python engine.';
+  }
+}
+loadPy();
+
+async function runCode(forSubmit = false) {
+  if (!pyodide) return;
+  outputLines = [];
+  setOutput([{type:'placeholder',text:''}], 'running');
+  document.getElementById('btn-run').disabled    = true;
+  document.getElementById('btn-submit').disabled = true;
+
+  const inputMocks = { 3: 'Alex' };
+  const mock = inputMocks[lessonId] || '';
+
+  try {
+    await pyodide.runPythonAsync(`
+import builtins
+_mock = ${JSON.stringify(mock)}
+_orig = builtins.input
+def _pi(prompt=''):
+    import sys; sys.stdout.write(prompt + _mock + '\\n'); return _mock
+builtins.input = _pi
+`);
+    await pyodide.runPythonAsync(editor.value);
+    await pyodide.runPythonAsync(`builtins.input = _orig`);
+  } catch(err) {
+    outputLines.push({type:'error', text: String(err)});
+  }
+
+  const hasErr = outputLines.some(l => l.type === 'error');
+  if (!outputLines.length) outputLines.push({type:'placeholder', text:'(no output)'});
+  setOutput(outputLines, hasErr ? 'error' : 'ok');
+  document.getElementById('btn-run').disabled    = false;
+  document.getElementById('btn-submit').disabled = false;
+
+  // Unlock solution after first attempt
+  if (!hasRun) { hasRun = true; unlockSolution(); }
+
+  if (forSubmit) checkAnswer();
+}
+
+document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
+document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// CHECK & COMPLETE
+// ═══════════════════════════════════════════════════════════
+function checkAnswer() {
+  const out  = outputLines.map(l=>l.text).join('\n');
+  const code = editor.value;
+  if (lesson.check(out, code)) {
+    completeLesson();
+  } else {
+    const st = document.getElementById('output-status');
+    st.className = 'output-status os-error'; st.textContent = 'Not quite — check the hint!';
+    setTimeout(() => { st.className = 'output-status os-ok'; st.textContent = 'Done'; }, 2500);
+  }
+}
+
+function completeLesson() {
+  const state  = loadState();
+  const earned = !state.completedIds.includes(lessonId);
+  if (earned) {
+    state.completedIds.push(lessonId);
+    state.xp             += lesson.xp;
+    state.lessonsCompleted = state.completedIds.length;
+    state.level            = getLevel(state.xp);
+    saveState(state);
+  }
+  document.getElementById('progress-fill').style.width = (lessonId / TOTAL * 100) + '%';
+  showModal(earned ? lesson.xp : 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL + XP COUNTER ANIMATION
+// ═══════════════════════════════════════════════════════════
+function showModal(xpEarned) {
+  const nextId  = lessonId + 1;
+  const hasNext = !!LESSONS[nextId];
+  document.getElementById('modal-sub').textContent =
+    hasNext ? `Lesson ${lessonId} of ${TOTAL} complete. Keep going!`
+            : '🎓 You finished all lessons in this track!';
+  const btn = document.getElementById('modal-next');
+  btn.textContent = hasNext ? 'Next Lesson →' : 'Back to Dashboard';
+  btn.onclick = () => window.location.href = hasNext ? `lesson.html?id=${nextId}` : 'dashboard.html';
+
+  // Animate XP counter tick up
+  const el = document.getElementById('modal-xp-count');
+  el.textContent = '0';
+  let current = 0;
+  const step  = Math.ceil(xpEarned / 30);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, xpEarned);
+    el.textContent = current;
+    if (current >= xpEarned) clearInterval(timer);
+  }, 28);
+
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('nav-xp').textContent = loadState().xp;
+
+  if (xpEarned > 0) launchConfetti();
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+
+  const COLORS = ['#6366F1','#F59E0B','#10B981','#EF4444','#22D3EE','#818CF8','#FDE68A'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height * 0.5,
+    w: 6 + Math.random() * 8,
+    h: 4 + Math.random() * 6,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: 2 + Math.random() * 4,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.15,
+    opacity: 1,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.vrot;
+      p.vy  += 0.06; // gravity
+      if (frame > 90) p.opacity = Math.max(0, p.opacity - 0.018);
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else { canvas.classList.remove('active'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>

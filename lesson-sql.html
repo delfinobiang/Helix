@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — SQL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%); top: -100px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,80px) scale(1.1); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,-60px) scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      height: 56px; padding: 0 1.5rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .nav-left  { display: flex; align-items: center; gap: 1rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .lesson-breadcrumb { font-size: 0.82rem; color: var(--text-3); }
+    .lesson-breadcrumb strong { color: var(--text-2); font-weight: 600; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; padding: 0.45rem 1.2rem; border-radius: 9px;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.28);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.38); }
+    .btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+
+    /* ─── PROGRESS ────────────────────────────────────────── */
+    .lesson-progress { height: 3px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .lesson-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.6s ease;
+    }
+
+    /* ─── SPLIT ───────────────────────────────────────────── */
+    .split {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+      overflow: hidden; min-height: 0; position: relative; z-index: 1;
+    }
+
+    /* ─── LEFT PANEL ──────────────────────────────────────── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel-left-inner {
+      flex: 1; overflow-y: auto; padding: 2rem 2rem 1rem;
+    }
+    .panel-left-inner::-webkit-scrollbar { width: 4px; }
+    .panel-left-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    .lesson-num-tag {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem;
+    }
+    .lesson-title-h {
+      font-size: 1.55rem; font-weight: 800; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 1.4rem;
+    }
+    .lesson-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.82; }
+    .lesson-body p  { margin-bottom: 1rem; }
+    .lesson-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 1.4rem 0 0.6rem; }
+    .lesson-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+    .lesson-body ul li { margin-bottom: 0.3rem; }
+    .lesson-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.1); color: #C4B5FD;
+      padding: 0.12em 0.38em; border-radius: 5px;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .lesson-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      line-height: 1.9; overflow-x: auto;
+    }
+    .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
+    .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
+
+    .challenge-box {
+      margin: 1.5rem 0 0;
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .challenge-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    /* Hint / solution */
+    .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .collapsible { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .collapsible-header {
+      width: 100%; display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; background: var(--bg-card);
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600; color: var(--text-2);
+      text-align: left; transition: background 0.18s, color 0.18s;
+    }
+    .collapsible-header:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .collapsible-header .chevron { margin-left: auto; font-size: 0.7rem; transition: transform 0.25s; }
+    .collapsible-header.open .chevron { transform: rotate(180deg); }
+    .collapsible-hint     { border-color: rgba(255,179,71,0.2); }
+    .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
+    .collapsible-solution { border-color: rgba(74,222,128,0.18); }
+    .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+
+    /* Locked solution state */
+    .collapsible-solution.locked {
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    .collapsible-solution.locked .collapsible-header {
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+    .collapsible-solution.locked .collapsible-header:hover {
+      background: var(--bg-card);
+      color: var(--text-3);
+    }
+    .sol-lock-msg {
+      font-size: 0.72rem; color: var(--text-3);
+      margin-left: auto; margin-right: 0.4rem;
+      font-style: italic; white-space: nowrap;
+    }
+    .collapsible-solution:not(.locked) .sol-lock-msg { display: none; }
+    .collapsible-body {
+      display: none; padding: 1rem;
+      font-size: 0.85rem; line-height: 1.72; color: var(--text-2);
+      background: rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+    }
+    .collapsible-body.open { display: block; }
+    .collapsible-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.08); color: #C4B5FD;
+      padding: 0.1em 0.35em; border-radius: 5px;
+    }
+    .collapsible-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
+      overflow-x: auto;
+    }
+
+    /* ─── RIGHT PANEL ─────────────────────────────────────── */
+    .panel-right { display: flex; flex-direction: column; overflow: hidden; }
+    .editor-toolbar {
+      padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(6,10,20,0.6); flex-shrink: 0;
+    }
+    .win-dots { display: flex; gap: 5px; }
+    .wd { width: 10px; height: 10px; border-radius: 50%; }
+    .wd.r { background: #FF5F57; } .wd.y { background: #FFBD2E; } .wd.g { background: #28C840; }
+    .editor-fname { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-3); margin-left: 0.4rem; flex: 1; }
+    .btn-run {
+      display: flex; align-items: center; gap: 0.45rem;
+      background: linear-gradient(135deg, #22C55E, #16A34A);
+      border: none; color: white; font-family: inherit;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(74,222,128,0.22);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-run:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(74,222,128,0.32); }
+    .btn-run:disabled { opacity: 0.4; pointer-events: none; }
+    .btn-clear {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-3); font-family: inherit; font-size: 0.78rem;
+      cursor: pointer; padding: 0.42rem 0.85rem; border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-clear:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
+
+    .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; min-height: 0; }
+    .line-nums {
+      padding: 1.1rem 0.75rem 1.1rem 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      color: var(--text-3); text-align: right; user-select: none;
+      background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
+      min-width: 44px; overflow: hidden; flex-shrink: 0;
+    }
+    .editor-textarea {
+      flex: 1; resize: none; border: none; outline: none;
+      background: #050C1A; color: #D4D4F8;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 4;
+      caret-color: var(--primary);
+      overflow-y: auto; overflow-x: auto;
+    }
+    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
+    .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    /* Output */
+    .output-panel {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; flex-direction: column; max-height: 38%;
+    }
+    .output-header {
+      padding: 0.55rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    .output-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); flex: 1; }
+    .output-status { font-size: 0.68rem; font-weight: 700; padding: 0.14rem 0.55rem; border-radius: 6px; }
+    .os-running { background: rgba(255,179,71,0.1);  color: var(--yellow); }
+    .os-ok      { background: rgba(74,222,128,0.1);  color: var(--green);  }
+    .os-error   { background: rgba(255,107,107,0.1); color: var(--red);    }
+    .os-idle    { background: rgba(255,255,255,0.04); color: var(--text-3); }
+    .output-body {
+      flex: 1; overflow-y: auto; padding: 0.9rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.85;
+      background: #040810;
+    }
+    .output-body::-webkit-scrollbar { width: 4px; }
+    .output-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
+    .out-line        { color: var(--green); white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-error       { color: var(--red);   white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-placeholder { color: var(--text-3); font-style: italic; }
+
+    /* SQL / engine loader */
+    .py-loader {
+      position: absolute; inset: 0; background: rgba(6,10,20,0.88);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.75rem; z-index: 5; backdrop-filter: blur(6px);
+    }
+    .py-loader.hidden { display: none; }
+    .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid rgba(99,102,241,0.2); border-top-color: var(--primary);
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .py-loader-text { font-size: 0.82rem; color: var(--text-3); }
+
+    /* ─── COMPLETION MODAL ────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.28s;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #05091A; border: 1px solid rgba(99,102,241,0.28);
+      border-radius: 26px; padding: 2.5rem 2.5rem 2rem;
+      max-width: 420px; width: 90%; text-align: center;
+      transform: translateY(24px) scale(0.95);
+      transition: transform 0.32s cubic-bezier(0.34,1.55,0.64,1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,102,241,0.10);
+      position: relative; overflow: hidden;
+    }
+    .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+    /* Pip in modal */
+    .modal-pip-wrap { margin-bottom: 1rem; animation: pip-bounce 0.7s ease; }
+    @keyframes pip-bounce {
+      0%   { transform: translateY(-30px) scale(0.7); opacity: 0; }
+      60%  { transform: translateY(5px) scale(1.05); opacity: 1; }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .modal-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .modal-sub   { font-size: 0.88rem; color: var(--text-2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .modal-xp-wrap {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.22);
+      color: var(--yellow); font-size: 1.15rem; font-weight: 800;
+      padding: 0.55rem 1.6rem; border-radius: 100px; margin-bottom: 1.6rem;
+    }
+    .modal-xp-count { transition: all 0.1s; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-modal-next {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; padding: 0.7rem 1.8rem; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal-next:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,102,241,0.4); }
+    .btn-modal-dash {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; padding: 0.7rem 1.4rem; border-radius: 12px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-modal-dash:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+
+    /* ─── CONFETTI CANVAS ─────────────────────────────────── */
+    #confetti-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 199;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #confetti-canvas.active { opacity: 1; }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
+      .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
+      .panel-left-inner { overflow: visible; }
+      .panel-right { min-height: 520px; flex: none; height: 520px; }
+      .lesson-breadcrumb { display: none; }
+      .output-panel { max-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="dashboard.html">← Back</a>
+    <div class="lesson-breadcrumb">SQL Fundamentals &nbsp;/&nbsp; <strong id="nav-lesson-title">Lesson</strong></div>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <button class="btn-primary" id="btn-submit" disabled>Submit →</button>
+  </div>
+</nav>
+
+<div class="lesson-progress">
+  <div class="lesson-progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<!-- ─── SPLIT ────────────────────────────────────────────── -->
+<div class="split">
+
+  <div class="panel-left">
+    <div class="panel-left-inner" id="lesson-content"></div>
+    <div class="extras">
+      <div class="collapsible collapsible-hint">
+        <button class="collapsible-header" id="hint-toggle">
+          💡 Show Hint <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="hint-body"></div>
+      </div>
+      <div class="collapsible collapsible-solution locked" id="solution-collapsible">
+        <button class="collapsible-header" id="solution-toggle">
+          🔒 Show Solution
+          <span class="sol-lock-msg">run your code first</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="solution-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="editor-toolbar">
+      <div class="win-dots">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+      </div>
+      <span class="editor-fname" id="editor-fname">query.sql</span>
+      <button class="btn-clear" id="btn-reset">↺ Reset</button>
+      <button class="btn-run" id="btn-run" disabled>▶ Run</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="py-loader" id="py-loader">
+        <div class="spinner"></div>
+        <div class="py-loader-text">Loading SQL engine…</div>
+      </div>
+      <div class="line-nums" id="line-nums">1</div>
+      <textarea
+        class="editor-textarea" id="editor"
+        spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="-- Write your SQL here..."></textarea>
+    </div>
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-label">▶ Output</span>
+        <span class="output-status os-idle" id="output-status">Idle</span>
+      </div>
+      <div class="output-body" id="output-body">
+        <span class="out-placeholder">Run your query to see results here.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── COMPLETION MODAL ────────────────────────────────── -->
+<canvas id="confetti-canvas"></canvas>
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-pip-wrap">
+      <svg width="72" height="82" viewBox="0 0 130 148" fill="none">
+        <defs>
+          <radialGradient id="mp-h" cx="42%" cy="30%" r="62%"><stop offset="0%" stop-color="#9A92FF"/><stop offset="100%" stop-color="#3B35C0"/></radialGradient>
+          <radialGradient id="mp-f" cx="50%" cy="38%" r="55%"><stop offset="0%" stop-color="#1E1E3C"/><stop offset="100%" stop-color="#0C0C1E"/></radialGradient>
+          <radialGradient id="mp-e" cx="30%" cy="28%" r="70%"><stop offset="0%" stop-color="#78F4FF"/><stop offset="100%" stop-color="#0088AA"/></radialGradient>
+          <linearGradient id="mp-ear" x1="0%" y1="0%" x2="80%" y2="100%"><stop offset="0%" stop-color="#7870E8"/><stop offset="100%" stop-color="#3830A8"/></linearGradient>
+          <filter id="mp-s"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#6366F1" flood-opacity="0.3"/></filter>
+        </defs>
+        <g filter="url(#mp-s)">
+          <circle cx="65" cy="58" r="44" fill="url(#mp-h)"/>
+          <path d="M30 26 C33 12 40 10 42 22 C40 30 33 36 26 34 C23 30 25 26 30 26Z" fill="url(#mp-ear)"/>
+          <path d="M100 26 C97 12 90 10 88 22 C90 30 97 36 104 34 C107 30 105 26 100 26Z" fill="url(#mp-ear)"/>
+          <circle cx="65" cy="60" r="32" fill="url(#mp-f)"/>
+          <circle cx="51" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="52.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="55" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <circle cx="79" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="80.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="83" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <path d="M65 64 C61.5 64 58 68.5 59.5 72 C61 74.5 63.5 75.5 65 75.5 C66.5 75.5 69 74.5 70.5 72 C72 68.5 68.5 64 65 64Z" fill="#FFB347"/>
+        </g>
+      </svg>
+    </div>
+    <div class="modal-title">Lesson Complete! 🎉</div>
+    <div class="modal-sub" id="modal-sub">Great work. Keep the streak going!</div>
+    <div class="modal-xp-wrap">⚡ +<span class="modal-xp-count" id="modal-xp-count">0</span> XP</div>
+    <div class="modal-actions">
+      <button class="btn-modal-next" id="modal-next">Next Lesson →</button>
+      <button class="btn-modal-dash" onclick="window.location.href='dashboard.html'">Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// LESSON DATA — 15 SQL Fundamentals lessons
+// ═══════════════════════════════════════════════════════════
+const LESSONS = {
+
+  1: {
+    title: "SELECT All", xp: 50, fname: "select_all.sql",
+    setup: `CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 1 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">SELECT All 🗄️</h1>
+      <div class="lesson-body">
+        <p>SQL (<strong>Structured Query Language</strong>) is the language for talking to databases. Every query starts with <code>SELECT</code>, which retrieves data.</p>
+        <p>To fetch <em>every</em> column from a table, use <code>*</code> (the wildcard):</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>;</div>
+        <p>This reads: "select all columns from the users table." The semicolon ends the statement.</p>
+        <h3>The users table</h3>
+        <p>For this lesson a table has already been created with three columns — <code>id</code>, <code>name</code>, and <code>age</code> — and three rows of data.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write a query that selects <strong>all rows and all columns</strong> from the <code>users</code> table.</div>
+        </div>
+      </div>`,
+    hint: `<p>Use the wildcard <code>*</code> to select every column:</p>
+      <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">table_name</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>;</div>`,
+    starter: `-- Select all rows from the users table\n`,
+    check: (out, code, lines) => {
+      const flat = lines.map(l => l.vals ? l.vals.join(' ') : (l.cols ? l.cols.join(' ') : '')).join(' ');
+      return flat.includes('Alice') && flat.includes('Bob');
+    },
+  },
+
+  2: {
+    title: "SELECT Columns", xp: 75, fname: "select_columns.sql",
+    setup: `CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 2 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">SELECT Columns 🎯</h1>
+      <div class="lesson-body">
+        <p>Instead of fetching every column with <code>*</code>, you can name specific columns separated by commas. This is more efficient and makes your intentions clear.</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">name</span>, <span class="vr">age</span> <span class="kw">FROM</span> <span class="vr">users</span>;</div>
+        <p>Only the listed columns appear in the result — <code>id</code> is excluded here.</p>
+        <h3>Column order</h3>
+        <p>You control the order columns appear in the output by changing the order in your SELECT list:</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">age</span>, <span class="vr">name</span> <span class="kw">FROM</span> <span class="vr">users</span>; <span class="cm">-- age column first</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select only the <code>name</code> and <code>age</code> columns from the <code>users</code> table (do <strong>not</strong> use <code>SELECT *</code>).</div>
+        </div>
+      </div>`,
+    hint: `<p>List the column names after SELECT, separated by a comma:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="vr">col1</span>, <span class="vr">col2</span> <span class="kw">FROM</span> <span class="vr">table_name</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> <span class="vr">name</span>, <span class="vr">age</span> <span class="kw">FROM</span> <span class="vr">users</span>;</div>`,
+    starter: `-- Select only name and age (not id)\n`,
+    check: (out, code, lines) => {
+      const flat = lines.map(l => l.vals ? l.vals.join(' ') : (l.cols ? l.cols.join(' ') : '')).join(' ');
+      return flat.includes('Alice') && /name/i.test(code) && !/SELECT\s+\*/i.test(code);
+    },
+  },
+
+  3: {
+    title: "WHERE Clause", xp: 75, fname: "where.sql",
+    setup: `CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 3 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">WHERE Clause 🔍</h1>
+      <div class="lesson-body">
+        <p>The <code>WHERE</code> clause filters rows. Only rows matching the condition are returned.</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">age</span> > <span class="nm">28</span>;</div>
+        <h3>Comparison operators</h3>
+        <ul>
+          <li><code>=</code> — equal to</li>
+          <li><code>!=</code> or <code>&lt;&gt;</code> — not equal</li>
+          <li><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code> — numeric comparisons</li>
+        </ul>
+        <h3>Text comparison</h3>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>; <span class="cm">-- single quotes for strings</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select all users where <code>age &gt; 28</code>. Alice (30) and Carol (35) should appear; Bob (25) should not.</div>
+        </div>
+      </div>`,
+    hint: `<p>Add a WHERE clause after the table name:</p>
+      <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">age</span> > <span class="nm">28</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">age</span> > <span class="nm">28</span>;</div>`,
+    starter: `-- Select users where age > 28\n`,
+    check: (out, code, lines) => {
+      const flat = lines.map(l => l.vals ? l.vals.join(' ') : '').join(' ');
+      return flat.includes('Alice') && flat.includes('Carol') && !flat.includes('Bob');
+    },
+  },
+
+  4: {
+    title: "ORDER BY", xp: 100, fname: "order_by.sql",
+    setup: `CREATE TABLE players (name TEXT, score INTEGER);
+INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 4 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">ORDER BY 📊</h1>
+      <div class="lesson-body">
+        <p><code>ORDER BY</code> sorts the result set. By default it sorts <strong>ASC</strong>ending (lowest first). Add <code>DESC</code> to reverse it.</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">ASC</span>;  <span class="cm">-- lowest score first</span>
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>; <span class="cm">-- highest score first (leaderboard)</span></div>
+        <h3>Sort by multiple columns</h3>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>, <span class="vr">name</span> <span class="kw">ASC</span>;</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select all players ordered by <code>score</code> descending (highest first). Bob (920) should come first.</div>
+        </div>
+      </div>`,
+    hint: `<p>Use <code>ORDER BY score DESC</code> at the end of your query:</p>
+      <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>;</div>`,
+    starter: `-- Select all players, highest score first\n`,
+    check: (out, code, lines) => {
+      const rows = lines.filter(l => l.type === 'row');
+      if (rows.length < 2) return false;
+      const firstRow = rows[0].vals.join(' ');
+      return firstRow.includes('Bob');
+    },
+  },
+
+  5: {
+    title: "LIMIT", xp: 100, fname: "limit.sql",
+    setup: `CREATE TABLE players (name TEXT, score INTEGER);
+INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 5 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">LIMIT 🔢</h1>
+      <div class="lesson-body">
+        <p><code>LIMIT</code> caps how many rows are returned. This is crucial for large tables — you don't want to accidentally pull millions of rows!</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>
+  <span class="kw">LIMIT</span> <span class="nm">3</span>; <span class="cm">-- top 3 players</span></div>
+        <h3>OFFSET — skip rows</h3>
+        <p>Combine <code>LIMIT</code> with <code>OFFSET</code> for pagination:</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>
+  <span class="kw">LIMIT</span> <span class="nm">2</span> <span class="kw">OFFSET</span> <span class="nm">1</span>; <span class="cm">-- rows 2 and 3</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select the <strong>top 2 players</strong> by score (highest first). Your result should have exactly 2 data rows.</div>
+        </div>
+      </div>`,
+    hint: `<p>Combine ORDER BY DESC with LIMIT:</p>
+      <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>
+  <span class="kw">LIMIT</span> <span class="nm">2</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
+  <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>
+  <span class="kw">LIMIT</span> <span class="nm">2</span>;</div>`,
+    starter: `-- Select top 2 players by score\n`,
+    check: (out, code, lines) => {
+      const rows = lines.filter(l => l.type === 'row');
+      return rows.length === 2 && /LIMIT/i.test(code);
+    },
+  },
+
+  6: {
+    title: "AND / OR", xp: 125, fname: "and_or.sql",
+    setup: `CREATE TABLE products (name TEXT, price REAL, in_stock INTEGER);
+INSERT INTO products VALUES ('Apple',0.99,1),('Banana',0.5,1),('Cherry',2.99,0),('Date',4.99,1);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 6 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">AND / OR ⚡</h1>
+      <div class="lesson-body">
+        <p>Combine multiple conditions in a <code>WHERE</code> clause using <code>AND</code> (both must be true) or <code>OR</code> (either must be true).</p>
+        <div class="code-block"><span class="cm">-- AND: both conditions must match</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
+  <span class="kw">WHERE</span> <span class="vr">price</span> < <span class="nm">1.00</span> <span class="kw">AND</span> <span class="vr">in_stock</span> = <span class="nm">1</span>;
+
+<span class="cm">-- OR: at least one condition must match</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Apple'</span> <span class="kw">OR</span> <span class="vr">name</span> = <span class="st">'Banana'</span>;</div>
+        <h3>Grouping with parentheses</h3>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
+  <span class="kw">WHERE</span> (<span class="vr">price</span> < <span class="nm">2</span> <span class="kw">OR</span> <span class="vr">price</span> > <span class="nm">4</span>) <span class="kw">AND</span> <span class="vr">in_stock</span> = <span class="nm">1</span>;</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select products where <code>price &lt; 2</code> <strong>AND</strong> <code>in_stock = 1</code>. Apple and Banana should appear.</div>
+        </div>
+      </div>`,
+    hint: `<p>Use AND to require both conditions:</p>
+      <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
+  <span class="kw">WHERE</span> <span class="vr">price</span> < <span class="nm">2</span> <span class="kw">AND</span> <span class="vr">in_stock</span> = <span class="nm">1</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
+  <span class="kw">WHERE</span> <span class="vr">price</span> < <span class="nm">2</span> <span class="kw">AND</span> <span class="vr">in_stock</span> = <span class="nm">1</span>;</div>`,
+    starter: `-- Select affordable in-stock products\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return flat.includes('Apple') && flat.includes('Banana');
+    },
+  },
+
+  7: {
+    title: "INSERT INTO", xp: 125, fname: "insert.sql",
+    setup: `CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 7 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">INSERT INTO ➕</h1>
+      <div class="lesson-body">
+        <p><code>INSERT INTO</code> adds new rows to a table. You list the column names, then the values.</p>
+        <div class="code-block"><span class="kw">INSERT INTO</span> <span class="vr">users</span> (<span class="vr">id</span>, <span class="vr">name</span>, <span class="vr">age</span>)
+  <span class="kw">VALUES</span> (<span class="nm">4</span>, <span class="st">'David'</span>, <span class="nm">28</span>);</div>
+        <p>You can also insert without naming columns — just make sure values are in the same order as the table definition:</p>
+        <div class="code-block"><span class="kw">INSERT INTO</span> <span class="vr">users</span> <span class="kw">VALUES</span> (<span class="nm">5</span>, <span class="st">'Eve'</span>, <span class="nm">22</span>);</div>
+        <h3>Insert multiple rows at once</h3>
+        <div class="code-block"><span class="kw">INSERT INTO</span> <span class="vr">users</span> <span class="kw">VALUES</span>
+  (<span class="nm">4</span>, <span class="st">'David'</span>, <span class="nm">28</span>),
+  (<span class="nm">5</span>, <span class="st">'Eve'</span>, <span class="nm">22</span>);</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Insert a new user: id <code>4</code>, name <code>'David'</code>, age <code>28</code>. Then <code>SELECT *</code> from users to see all rows including David.</div>
+        </div>
+      </div>`,
+    hint: `<p>Write the INSERT first, then a SELECT to verify:</p>
+      <div class="code-block"><span class="kw">INSERT INTO</span> <span class="vr">users</span> <span class="kw">VALUES</span> (<span class="nm">4</span>, <span class="st">'David'</span>, <span class="nm">28</span>);
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">INSERT INTO</span> <span class="vr">users</span> <span class="kw">VALUES</span> (<span class="nm">4</span>, <span class="st">'David'</span>, <span class="nm">28</span>);
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>;</div>`,
+    starter: `-- Insert David then SELECT all users\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return flat.includes('David');
+    },
+  },
+
+  8: {
+    title: "UPDATE", xp: 150, fname: "update.sql",
+    setup: `CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 8 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">UPDATE ✏️</h1>
+      <div class="lesson-body">
+        <p><code>UPDATE</code> modifies existing rows. <strong>Always</strong> include a <code>WHERE</code> clause — without it, every row gets updated!</p>
+        <div class="code-block"><span class="kw">UPDATE</span> <span class="vr">users</span>
+  <span class="kw">SET</span> <span class="vr">age</span> = <span class="nm">31</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>;</div>
+        <h3>Update multiple columns</h3>
+        <div class="code-block"><span class="kw">UPDATE</span> <span class="vr">users</span>
+  <span class="kw">SET</span> <span class="vr">age</span> = <span class="nm">31</span>, <span class="vr">name</span> = <span class="st">'Alicia'</span>
+  <span class="kw">WHERE</span> <span class="vr">id</span> = <span class="nm">1</span>;</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Update Alice's age to <code>31</code>, then <code>SELECT name, age FROM users WHERE name = 'Alice'</code> to confirm the change.</div>
+        </div>
+      </div>`,
+    hint: `<p>Run UPDATE then SELECT to verify:</p>
+      <div class="code-block"><span class="kw">UPDATE</span> <span class="vr">users</span>
+  <span class="kw">SET</span> <span class="vr">age</span> = <span class="nm">31</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>;
+
+<span class="kw">SELECT</span> <span class="vr">name</span>, <span class="vr">age</span> <span class="kw">FROM</span> <span class="vr">users</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">UPDATE</span> <span class="vr">users</span>
+  <span class="kw">SET</span> <span class="vr">age</span> = <span class="nm">31</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>;
+
+<span class="kw">SELECT</span> <span class="vr">name</span>, <span class="vr">age</span> <span class="kw">FROM</span> <span class="vr">users</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>;</div>`,
+    starter: `-- Update Alice's age to 31, then verify\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return flat.includes('31');
+    },
+  },
+
+  9: {
+    title: "DELETE", xp: 150, fname: "delete.sql",
+    setup: `CREATE TABLE users (id INTEGER, name TEXT, age INTEGER);
+INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 9 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">DELETE 🗑️</h1>
+      <div class="lesson-body">
+        <p><code>DELETE FROM</code> removes rows. Just like UPDATE, <strong>always</strong> use <code>WHERE</code> — a bare DELETE removes every row!</p>
+        <div class="code-block"><span class="kw">DELETE FROM</span> <span class="vr">users</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Bob'</span>;</div>
+        <p>After deleting, run a SELECT to confirm the row is gone:</p>
+        <div class="code-block"><span class="kw">DELETE FROM</span> <span class="vr">users</span>
+  <span class="kw">WHERE</span> <span class="vr">id</span> = <span class="nm">2</span>;
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>; <span class="cm">-- should show Alice and Carol only</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Delete the user where <code>name = 'Bob'</code>, then <code>SELECT *</code> to show the remaining rows. Bob should no longer appear.</div>
+        </div>
+      </div>`,
+    hint: `<p>DELETE then SELECT to confirm:</p>
+      <div class="code-block"><span class="kw">DELETE FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Bob'</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">DELETE FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Bob'</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>;</div>`,
+    starter: `-- Delete Bob, then SELECT remaining users\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return /DELETE/i.test(code) && !flat.includes('Bob');
+    },
+  },
+
+  10: {
+    title: "Aggregate Functions", xp: 175, fname: "aggregates.sql",
+    setup: `CREATE TABLE players (name TEXT, score INTEGER);
+INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 10 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">Aggregate Functions 🧮</h1>
+      <div class="lesson-body">
+        <p>Aggregate functions compute a single result from multiple rows. They're the backbone of data analysis.</p>
+        <div class="code-block"><span class="fn">COUNT</span>(*) <span class="cm">-- total number of rows</span>
+<span class="fn">SUM</span>(<span class="vr">col</span>)  <span class="cm">-- sum of all values</span>
+<span class="fn">AVG</span>(<span class="vr">col</span>)  <span class="cm">-- average (mean)</span>
+<span class="fn">MIN</span>(<span class="vr">col</span>)  <span class="cm">-- smallest value</span>
+<span class="fn">MAX</span>(<span class="vr">col</span>)  <span class="cm">-- largest value</span></div>
+        <h3>Example</h3>
+        <div class="code-block"><span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="vr">total_players</span>,
+  <span class="fn">AVG</span>(<span class="vr">score</span>) <span class="kw">AS</span> <span class="vr">avg_score</span>,
+  <span class="fn">MAX</span>(<span class="vr">score</span>) <span class="kw">AS</span> <span class="vr">top_score</span>
+<span class="kw">FROM</span> <span class="vr">players</span>;</div>
+        <p>The <code>AS</code> keyword renames the output column (an alias).</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select <code>COUNT(*)</code>, <code>AVG(score)</code>, and <code>MAX(score)</code> from the <code>players</code> table. The count should be 3 and the max should be 920.</div>
+        </div>
+      </div>`,
+    hint: `<p>Put all three aggregates in one SELECT:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="fn">COUNT</span>(*), <span class="fn">AVG</span>(<span class="vr">score</span>), <span class="fn">MAX</span>(<span class="vr">score</span>)
+<span class="kw">FROM</span> <span class="vr">players</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="vr">total</span>,
+  <span class="fn">AVG</span>(<span class="vr">score</span>) <span class="kw">AS</span> <span class="vr">avg_score</span>,
+  <span class="fn">MAX</span>(<span class="vr">score</span>) <span class="kw">AS</span> <span class="vr">top_score</span>
+<span class="kw">FROM</span> <span class="vr">players</span>;</div>`,
+    starter: `-- Select COUNT(*), AVG(score), MAX(score) from players\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return flat.includes('3') && flat.includes('920');
+    },
+  },
+
+  11: {
+    title: "GROUP BY", xp: 200, fname: "group_by.sql",
+    setup: `CREATE TABLE orders (customer TEXT, amount REAL);
+INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Carol',100);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 11 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">GROUP BY 📦</h1>
+      <div class="lesson-body">
+        <p><code>GROUP BY</code> groups rows that share a value, so you can aggregate per group. Classic use case: total sales per customer.</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>;</div>
+        <p>Every column in SELECT that isn't an aggregate <strong>must</strong> appear in GROUP BY.</p>
+        <h3>Combine with ORDER BY</h3>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>
+<span class="kw">ORDER BY</span> <span class="vr">total</span> <span class="kw">DESC</span>; <span class="cm">-- biggest spenders first</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select <code>customer</code> and <code>SUM(amount) AS total</code> from orders, grouped by customer, ordered by total descending. Alice's total should be 130 (50 + 80).</div>
+        </div>
+      </div>`,
+    hint: `<p>Group by customer, sum the amounts, then order:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>
+<span class="kw">ORDER BY</span> <span class="vr">total</span> <span class="kw">DESC</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>
+<span class="kw">ORDER BY</span> <span class="vr">total</span> <span class="kw">DESC</span>;</div>`,
+    starter: `-- Total spending per customer, highest first\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return flat.includes('Alice') && flat.includes('130');
+    },
+  },
+
+  12: {
+    title: "HAVING", xp: 200, fname: "having.sql",
+    setup: `CREATE TABLE orders (customer TEXT, amount REAL);
+INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Carol',100);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 12 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">HAVING 🎛️</h1>
+      <div class="lesson-body">
+        <p><code>WHERE</code> filters individual rows <em>before</em> grouping. <code>HAVING</code> filters groups <em>after</em> aggregation — it's the WHERE for aggregates.</p>
+        <div class="code-block"><span class="cm">-- WHERE filters rows first:</span>
+<span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">WHERE</span> <span class="vr">amount</span> > <span class="nm">20</span>          <span class="cm">-- drop rows where amount ≤ 20</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>
+<span class="kw">HAVING</span> <span class="fn">SUM</span>(<span class="vr">amount</span>) > <span class="nm">60</span>; <span class="cm">-- keep groups whose total > 60</span></div>
+        <h3>Common mistake</h3>
+        <p>You can't use aggregate functions in <code>WHERE</code> — that's what <code>HAVING</code> is for.</p>
+        <div class="code-block"><span class="cm">-- ❌ WRONG — can't use SUM in WHERE:</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">orders</span> <span class="kw">WHERE</span> <span class="fn">SUM</span>(<span class="vr">amount</span>) > <span class="nm">60</span>;
+
+<span class="cm">-- ✅ CORRECT — use HAVING after GROUP BY:</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span> <span class="kw">HAVING</span> <span class="fn">SUM</span>(<span class="vr">amount</span>) > <span class="nm">60</span>;</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Select customer and <code>SUM(amount) AS total</code>, grouped by customer, but only show groups where <code>total &gt; 60</code>. Alice (130) and Carol (100) should appear, not Bob (75).</div>
+        </div>
+      </div>`,
+    hint: `<p>Add HAVING after GROUP BY:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>
+<span class="kw">HAVING</span> <span class="vr">total</span> > <span class="nm">60</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>
+<span class="kw">HAVING</span> <span class="vr">total</span> > <span class="nm">60</span>;</div>`,
+    starter: `-- Show customers with total spending > 60\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return /HAVING/i.test(code) && flat.includes('Alice');
+    },
+  },
+
+  13: {
+    title: "INNER JOIN", xp: 225, fname: "inner_join.sql",
+    setup: `CREATE TABLE departments (id INTEGER, name TEXT);
+INSERT INTO departments VALUES (1,'Engineering'),(2,'Marketing');
+CREATE TABLE employees (name TEXT, dept_id INTEGER);
+INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 13 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">INNER JOIN 🔗</h1>
+      <div class="lesson-body">
+        <p>A <strong>JOIN</strong> combines rows from two tables based on a related column. <code>INNER JOIN</code> returns only rows that match in <em>both</em> tables.</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">employees</span>.<span class="vr">name</span>, <span class="vr">departments</span>.<span class="vr">name</span>
+<span class="kw">FROM</span> <span class="vr">employees</span>
+<span class="kw">INNER JOIN</span> <span class="vr">departments</span>
+  <span class="kw">ON</span> <span class="vr">employees</span>.<span class="vr">dept_id</span> = <span class="vr">departments</span>.<span class="vr">id</span>;</div>
+        <h3>Using aliases to keep it clean</h3>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">e</span>.<span class="vr">name</span>, <span class="vr">d</span>.<span class="vr">name</span> <span class="kw">AS</span> <span class="vr">department</span>
+<span class="kw">FROM</span> <span class="vr">employees</span> <span class="vr">e</span>
+<span class="kw">INNER JOIN</span> <span class="vr">departments</span> <span class="vr">d</span>
+  <span class="kw">ON</span> <span class="vr">e</span>.<span class="vr">dept_id</span> = <span class="vr">d</span>.<span class="vr">id</span>;</div>
+        <p>The <code>ON</code> clause specifies which columns link the two tables together — typically a primary key and a foreign key.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">INNER JOIN <code>employees</code> and <code>departments</code> on <code>dept_id = id</code>. Select each employee's name and their department name. Alice and Carol should show Engineering.</div>
+        </div>
+      </div>`,
+    hint: `<p>Prefix column names with the table name to avoid ambiguity:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="vr">employees</span>.<span class="vr">name</span>, <span class="vr">departments</span>.<span class="vr">name</span>
+<span class="kw">FROM</span> <span class="vr">employees</span>
+<span class="kw">INNER JOIN</span> <span class="vr">departments</span>
+  <span class="kw">ON</span> <span class="vr">employees</span>.<span class="vr">dept_id</span> = <span class="vr">departments</span>.<span class="vr">id</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> <span class="vr">employees</span>.<span class="vr">name</span>, <span class="vr">departments</span>.<span class="vr">name</span>
+<span class="kw">FROM</span> <span class="vr">employees</span>
+<span class="kw">INNER JOIN</span> <span class="vr">departments</span>
+  <span class="kw">ON</span> <span class="vr">employees</span>.<span class="vr">dept_id</span> = <span class="vr">departments</span>.<span class="vr">id</span>;</div>`,
+    starter: `-- Join employees with departments\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return flat.includes('Alice') && flat.includes('Engineering');
+    },
+  },
+
+  14: {
+    title: "LEFT JOIN", xp: 225, fname: "left_join.sql",
+    setup: `CREATE TABLE departments (id INTEGER, name TEXT);
+INSERT INTO departments VALUES (1,'Engineering'),(2,'Marketing');
+CREATE TABLE employees (name TEXT, dept_id INTEGER);
+INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1),('Dave',NULL);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 14 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">LEFT JOIN 🔀</h1>
+      <div class="lesson-body">
+        <p>A <code>LEFT JOIN</code> returns <em>all</em> rows from the left table, plus matching rows from the right table. Non-matching rows get <code>NULL</code> for right-table columns.</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">e</span>.<span class="vr">name</span>, <span class="vr">d</span>.<span class="vr">name</span> <span class="kw">AS</span> <span class="vr">department</span>
+<span class="kw">FROM</span> <span class="vr">employees</span> <span class="vr">e</span>
+<span class="kw">LEFT JOIN</span> <span class="vr">departments</span> <span class="vr">d</span>
+  <span class="kw">ON</span> <span class="vr">e</span>.<span class="vr">dept_id</span> = <span class="vr">d</span>.<span class="vr">id</span>;</div>
+        <h3>INNER vs LEFT</h3>
+        <ul>
+          <li><strong>INNER JOIN</strong> — only matched rows (Dave would be excluded)</li>
+          <li><strong>LEFT JOIN</strong> — all rows from left table (Dave appears with NULL department)</li>
+        </ul>
+        <p>A <code>NULL</code> department means the employee isn't assigned to any team yet — often important data to keep!</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">LEFT JOIN employees to departments. Dave (NULL dept_id) has no department — he should still appear in the results with NULL for the department name.</div>
+        </div>
+      </div>`,
+    hint: `<p>Change INNER JOIN to LEFT JOIN — everything else stays the same:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="vr">e</span>.<span class="vr">name</span>, <span class="vr">d</span>.<span class="vr">name</span>
+<span class="kw">FROM</span> <span class="vr">employees</span> <span class="vr">e</span>
+<span class="kw">LEFT JOIN</span> <span class="vr">departments</span> <span class="vr">d</span>
+  <span class="kw">ON</span> <span class="vr">e</span>.<span class="vr">dept_id</span> = <span class="vr">d</span>.<span class="vr">id</span>;</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> <span class="vr">e</span>.<span class="vr">name</span>, <span class="vr">d</span>.<span class="vr">name</span> <span class="kw">AS</span> <span class="vr">department</span>
+<span class="kw">FROM</span> <span class="vr">employees</span> <span class="vr">e</span>
+<span class="kw">LEFT JOIN</span> <span class="vr">departments</span> <span class="vr">d</span>
+  <span class="kw">ON</span> <span class="vr">e</span>.<span class="vr">dept_id</span> = <span class="vr">d</span>.<span class="vr">id</span>;</div>`,
+    starter: `-- LEFT JOIN: include Dave even with no department\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return /LEFT\s+JOIN/i.test(code) && flat.includes('Dave');
+    },
+  },
+
+  15: {
+    title: "Subqueries", xp: 250, fname: "subqueries.sql",
+    setup: `CREATE TABLE departments (id INTEGER, name TEXT);
+INSERT INTO departments VALUES (1,'Engineering'),(2,'Marketing');
+CREATE TABLE employees (name TEXT, dept_id INTEGER);
+INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1);`,
+    content: `
+      <div class="lesson-num-tag">Lesson 15 · SQL Fundamentals</div>
+      <h1 class="lesson-title-h">Subqueries 🪆</h1>
+      <div class="lesson-body">
+        <p>A <strong>subquery</strong> is a SELECT nested inside another SQL statement. The inner query runs first, and its result feeds the outer query.</p>
+        <div class="code-block"><span class="cm">-- Find all employees in the Engineering dept</span>
+<span class="kw">SELECT</span> <span class="vr">name</span> <span class="kw">FROM</span> <span class="vr">employees</span>
+<span class="kw">WHERE</span> <span class="vr">dept_id</span> = (
+  <span class="kw">SELECT</span> <span class="vr">id</span> <span class="kw">FROM</span> <span class="vr">departments</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Engineering'</span>
+);</div>
+        <p>The inner query <code>(SELECT id FROM departments WHERE name = 'Engineering')</code> returns <code>1</code>, so the outer query becomes <code>WHERE dept_id = 1</code>.</p>
+        <h3>Subqueries in FROM</h3>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> <span class="vr">name</span>, <span class="vr">dept_id</span> <span class="kw">FROM</span> <span class="vr">employees</span>
+) <span class="vr">sub</span>
+<span class="kw">WHERE</span> <span class="vr">sub</span>.<span class="vr">dept_id</span> = <span class="nm">1</span>;</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Use a subquery to select the names of all employees whose <code>dept_id</code> matches the <code>id</code> of the <code>'Engineering'</code> department. Alice and Carol should appear.</div>
+        </div>
+      </div>`,
+    hint: `<p>The inner SELECT finds the department's id; the outer SELECT uses it:</p>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="vr">name</span> <span class="kw">FROM</span> <span class="vr">employees</span>
+<span class="kw">WHERE</span> <span class="vr">dept_id</span> = (
+  <span class="kw">SELECT</span> <span class="vr">id</span> <span class="kw">FROM</span> <span class="vr">departments</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Engineering'</span>
+);</div>`,
+    solution: `<div class="code-block"><span class="kw">SELECT</span> <span class="vr">name</span> <span class="kw">FROM</span> <span class="vr">employees</span>
+<span class="kw">WHERE</span> <span class="vr">dept_id</span> = (
+  <span class="kw">SELECT</span> <span class="vr">id</span> <span class="kw">FROM</span> <span class="vr">departments</span>
+  <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Engineering'</span>
+);</div>`,
+    starter: `-- Use a subquery to find Engineering employees\n`,
+    check: (out, code, lines) => {
+      const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+      return /SELECT[\s\S]+SELECT/i.test(code) && flat.includes('Alice') && flat.includes('Carol');
+    },
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : { xp:0, streak:1, level:1, lessonsCompleted:0, completedIds:[] };
+}
+function loadLangProgress() {
+  const s = localStorage.getItem('helix_sql_progress');
+  return s ? JSON.parse(s) : { completedIds: [] };
+}
+function saveLangProgress(p) { localStorage.setItem('helix_sql_progress', JSON.stringify(p)); }
+function saveState(s) { localStorage.setItem('helix_progress', JSON.stringify(s)); }
+function getLevel(xp) {
+  const t=[0,100,250,500,900,1400,2000,3000];
+  for(let i=t.length-1;i>=0;i--) if(xp>=t[i]) return i+1;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT LESSON
+// ═══════════════════════════════════════════════════════════
+const params   = new URLSearchParams(location.search);
+const lessonId = parseInt(params.get('id')) || 1;
+const lesson   = LESSONS[lessonId] || LESSONS[1];
+
+// Auth check
+const __session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+if (!__session) { window.location.href = 'login.html'; }
+
+// Pro paywall — lessons 6-15 require Pro
+function showPaywall() {
+  document.querySelector('.split').innerHTML = `
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:3rem;text-align:center;">
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;">This lesson requires Pro</h2>
+      <p style="color:var(--text-2);max-width:440px;line-height:1.7;">Lessons 6–15 are available on the Pro plan. Unlock all 90 lessons across 6 languages for just $9/month — or $4.50/month billed annually.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+        <a href="pricing.html" style="background:var(--primary);color:white;padding:0.75rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(99,102,241,0.3);">Upgrade to Pro →</a>
+        <a href="dashboard.html" style="background:rgba(255,255,255,0.05);color:var(--text-2);padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.08);">Back to Dashboard</a>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-3);">First 5 lessons of every language are always free.</p>
+    </div>`;
+}
+
+try {
+  if (lessonId > 5) {
+    const __users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const __user = __users.find(u => u.id === __session.userId);
+    if (!__user || __user.plan !== 'pro') {
+      document.addEventListener('DOMContentLoaded', () => {
+        showPaywall();
+      });
+      if (document.readyState !== 'loading') showPaywall();
+    }
+  }
+} catch(e) {}
+
+const TOTAL    = Object.keys(LESSONS).length;
+
+document.getElementById('nav-lesson-title').textContent = lesson.title;
+document.getElementById('editor-fname').textContent      = lesson.fname;
+document.getElementById('lesson-content').innerHTML      = lesson.content;
+document.getElementById('hint-body').innerHTML           = lesson.hint;
+document.getElementById('solution-body').innerHTML       = lesson.solution;
+document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+const editor = document.getElementById('editor');
+editor.value = lesson.starter || '';
+updateLineNums();
+document.getElementById('nav-xp').textContent = loadState().xp;
+
+// ═══════════════════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════════════════
+function updateLineNums() {
+  const n = editor.value.split('\n').length;
+  document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+}
+editor.addEventListener('input', updateLineNums);
+editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart, end = editor.selectionEnd;
+    editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = s + 4;
+    updateLineNums();
+  }
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  editor.value = lesson.starter || '';
+  updateLineNums();
+  setOutput([{type:'placeholder',text:'Code reset.'}], 'idle');
+});
+
+// ═══════════════════════════════════════════════════════════
+// COLLAPSIBLES
+// ═══════════════════════════════════════════════════════════
+let hasRun = false;
+
+function unlockSolution() {
+  const wrap = document.getElementById('solution-collapsible');
+  const btn  = document.getElementById('solution-toggle');
+  wrap.classList.remove('locked');
+  btn.childNodes[0].textContent = '✅ Show Solution';
+  btn.querySelector('.sol-lock-msg').style.display = 'none';
+}
+
+const hintBtn  = document.getElementById('hint-toggle');
+const hintBody = document.getElementById('hint-body');
+hintBtn.addEventListener('click', () => {
+  const open = hintBody.classList.toggle('open');
+  hintBtn.classList.toggle('open', open);
+});
+
+const solBtn  = document.getElementById('solution-toggle');
+const solBody = document.getElementById('solution-body');
+solBtn.addEventListener('click', () => {
+  const wrap = document.getElementById('solution-collapsible');
+  if (wrap.classList.contains('locked')) {
+    solBtn.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-6px)' },
+      { transform: 'translateX(6px)' },
+      { transform: 'translateX(-4px)' },
+      { transform: 'translateX(0)' },
+    ], { duration: 280, easing: 'ease-out' });
+    return;
+  }
+  const open = solBody.classList.toggle('open');
+  solBtn.classList.toggle('open', open);
+});
+
+// ═══════════════════════════════════════════════════════════
+// OUTPUT
+// ═══════════════════════════════════════════════════════════
+const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function setOutput(lines, status) {
+  const ob = document.getElementById('output-body');
+  ob.innerHTML = lines.map(l => {
+    if (l.type==='placeholder') return `<span class="out-placeholder">${l.text}</span>`;
+    if (l.type==='error')       return `<span class="out-error">${escHtml(l.text)}</span>`;
+    if (l.type==='ok')          return `<span class="out-line">${escHtml(l.text)}</span>`;
+    if (l.type==='header') return `<div style="display:flex;gap:1rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0.3rem;margin-bottom:0.3rem;">${l.cols.map(c=>`<span style="font-weight:700;color:var(--primary-l);min-width:80px">${escHtml(String(c))}</span>`).join('')}</div>`;
+    if (l.type==='row')    return `<div style="display:flex;gap:1rem;padding:0.1rem 0;">${l.vals.map(v=>`<span style="color:var(--green);min-width:80px">${escHtml(String(v??'NULL'))}</span>`).join('')}</div>`;
+    return '';
+  }).join('');
+  const st = document.getElementById('output-status');
+  st.className = 'output-status';
+  const map = {running:['os-running','Running…'],ok:['os-ok','Done'],error:['os-error','Error'],idle:['os-idle','Idle']};
+  const [cls,txt] = map[status]||map.idle;
+  st.classList.add(cls); st.textContent = txt;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SQL RUNNER
+// ═══════════════════════════════════════════════════════════
+let SQL = null;
+let outputLines = [];
+
+async function loadSQL() {
+  try {
+    SQL = await window.initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+    document.getElementById('py-loader').classList.add('hidden');
+    document.getElementById('btn-run').disabled    = false;
+    document.getElementById('btn-submit').disabled = false;
+  } catch(e) {
+    document.querySelector('.py-loader-text').textContent = 'Failed to load SQL engine.';
+  }
+}
+loadSQL();
+
+function runCode(forSubmit = false) {
+  if (!SQL) return;
+  outputLines = [];
+  setOutput([{type:'placeholder',text:''}], 'running');
+
+  try {
+    const db = new SQL.Database();
+    if (lesson.setup) db.exec(lesson.setup);
+    const results = db.exec(editor.value.trim());
+    if (!results.length) {
+      outputLines.push({type:'ok', text:'Query OK. (no rows returned)'});
+    } else {
+      results.forEach(r => {
+        outputLines.push({type:'header', cols: r.columns});
+        r.values.forEach(row => outputLines.push({type:'row', vals: row}));
+      });
+    }
+    db.close();
+  } catch(err) {
+    outputLines.push({type:'error', text: err.message});
+  }
+
+  const hasErr = outputLines.some(l=>l.type==='error');
+  setOutput(outputLines, hasErr ? 'error' : 'ok');
+  if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forSubmit) checkAnswer();
+}
+
+document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
+document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// CHECK & COMPLETE
+// ═══════════════════════════════════════════════════════════
+function checkAnswer() {
+  const out  = outputLines.map(l=>l.text||'').join('\n');
+  const code = editor.value;
+  if (lesson.check(out, code, outputLines)) {
+    completeLesson();
+  } else {
+    const st = document.getElementById('output-status');
+    st.className = 'output-status os-error'; st.textContent = 'Not quite — check the hint!';
+    setTimeout(() => { st.className = 'output-status os-ok'; st.textContent = 'Done'; }, 2500);
+  }
+}
+
+function completeLesson() {
+  const state = loadState();
+  const langProgress = loadLangProgress();
+  const earned = !langProgress.completedIds.includes(lessonId);
+  if (earned) {
+    langProgress.completedIds.push(lessonId);
+    state.xp += lesson.xp;
+    state.lessonsCompleted = (state.completedIds||[]).length + langProgress.completedIds.length;
+    state.level = getLevel(state.xp);
+    saveState(state); saveLangProgress(langProgress);
+  }
+  document.getElementById('progress-fill').style.width = (lessonId/TOTAL*100)+'%';
+  showModal(earned ? lesson.xp : 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL + XP COUNTER ANIMATION
+// ═══════════════════════════════════════════════════════════
+function showModal(xpEarned) {
+  const nextId  = lessonId + 1;
+  const hasNext = !!LESSONS[nextId];
+  document.getElementById('modal-sub').textContent =
+    hasNext ? `Lesson ${lessonId} of ${TOTAL} complete. Keep going!`
+            : '🎓 You finished all lessons in this track!';
+  const btn = document.getElementById('modal-next');
+  btn.textContent = hasNext ? 'Next Lesson →' : 'Back to Dashboard';
+  btn.onclick = () => window.location.href = hasNext ? `lesson-sql.html?id=${nextId}` : 'dashboard.html';
+
+  const el = document.getElementById('modal-xp-count');
+  el.textContent = '0';
+  let current = 0;
+  const step  = Math.ceil(xpEarned / 30);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, xpEarned);
+    el.textContent = current;
+    if (current >= xpEarned) clearInterval(timer);
+  }, 28);
+
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('nav-xp').textContent = loadState().xp;
+
+  if (xpEarned > 0) launchConfetti();
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+
+  const COLORS = ['#6366F1','#F59E0B','#10B981','#EF4444','#22D3EE','#818CF8','#FDE68A'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height * 0.5,
+    w: 6 + Math.random() * 8,
+    h: 4 + Math.random() * 6,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: 2 + Math.random() * 4,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.15,
+    opacity: 1,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.vrot;
+      p.vy  += 0.06;
+      if (frame > 90) p.opacity = Math.max(0, p.opacity - 0.018);
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else { canvas.classList.remove('active'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>

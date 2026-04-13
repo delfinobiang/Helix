@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Dark background -->
+  <rect width="200" height="60" rx="10" fill="#050816"/>
+
+  <!-- DNA double helix -->
+  <defs>
+    <clipPath id="lc"><rect x="12" y="16" width="52" height="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#lc)">
+    <!-- Strand 1 -->
+    <path d="M0,30 Q6.5,16 13,30 Q19.5,44 26,30 Q32.5,16 39,30 Q45.5,44 52,30 Q58.5,16 65,30 Q71.5,44 78,30"
+          stroke="#6366F1" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <!-- Strand 2 -->
+    <path d="M0,30 Q6.5,44 13,30 Q19.5,16 26,30 Q32.5,44 39,30 Q45.5,16 52,30 Q58.5,44 65,30 Q71.5,16 78,30"
+          stroke="#22D3EE" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.85"/>
+    <!-- Rungs -->
+    <line x1="13" y1="19" x2="13" y2="41" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+    <line x1="26" y1="19" x2="26" y2="41" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+    <line x1="39" y1="19" x2="39" y2="41" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+    <line x1="52" y1="19" x2="52" y2="41" stroke="white" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="76" y="38"
+        font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif"
+        font-size="22" font-weight="800" letter-spacing="-0.5"
+        fill="white">Helix</text>
+</svg>

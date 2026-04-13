@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — JavaScript</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%); top: -100px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,80px) scale(1.1); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,-60px) scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      height: 56px; padding: 0 1.5rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .nav-left  { display: flex; align-items: center; gap: 1rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .lesson-breadcrumb { font-size: 0.82rem; color: var(--text-3); }
+    .lesson-breadcrumb strong { color: var(--text-2); font-weight: 600; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; padding: 0.45rem 1.2rem; border-radius: 9px;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.28);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.38); }
+    .btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+
+    /* ─── PROGRESS ────────────────────────────────────────── */
+    .lesson-progress { height: 3px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .lesson-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.6s ease;
+    }
+
+    /* ─── SPLIT ───────────────────────────────────────────── */
+    .split {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+      overflow: hidden; min-height: 0; position: relative; z-index: 1;
+    }
+
+    /* ─── LEFT PANEL ──────────────────────────────────────── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel-left-inner {
+      flex: 1; overflow-y: auto; padding: 2rem 2rem 1rem;
+    }
+    .panel-left-inner::-webkit-scrollbar { width: 4px; }
+    .panel-left-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    .lesson-num-tag {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem;
+    }
+    .lesson-title-h {
+      font-size: 1.55rem; font-weight: 800; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 1.4rem;
+    }
+    .lesson-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.82; }
+    .lesson-body p  { margin-bottom: 1rem; }
+    .lesson-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 1.4rem 0 0.6rem; }
+    .lesson-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+    .lesson-body ul li { margin-bottom: 0.3rem; }
+    .lesson-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.1); color: #C4B5FD;
+      padding: 0.12em 0.38em; border-radius: 5px;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .lesson-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      line-height: 1.9; overflow-x: auto;
+    }
+    .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
+    .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
+
+    .challenge-box {
+      margin: 1.5rem 0 0;
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .challenge-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    /* Hint / solution */
+    .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .collapsible { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .collapsible-header {
+      width: 100%; display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; background: var(--bg-card);
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600; color: var(--text-2);
+      text-align: left; transition: background 0.18s, color 0.18s;
+    }
+    .collapsible-header:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .collapsible-header .chevron { margin-left: auto; font-size: 0.7rem; transition: transform 0.25s; }
+    .collapsible-header.open .chevron { transform: rotate(180deg); }
+    .collapsible-hint     { border-color: rgba(255,179,71,0.2); }
+    .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
+    .collapsible-solution { border-color: rgba(74,222,128,0.18); }
+    .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+
+    /* Locked solution state */
+    .collapsible-solution.locked {
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    .collapsible-solution.locked .collapsible-header {
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+    .collapsible-solution.locked .collapsible-header:hover {
+      background: var(--bg-card);
+      color: var(--text-3);
+    }
+    .sol-lock-msg {
+      font-size: 0.72rem; color: var(--text-3);
+      margin-left: auto; margin-right: 0.4rem;
+      font-style: italic; white-space: nowrap;
+    }
+    .collapsible-solution:not(.locked) .sol-lock-msg { display: none; }
+    .collapsible-body {
+      display: none; padding: 1rem;
+      font-size: 0.85rem; line-height: 1.72; color: var(--text-2);
+      background: rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+    }
+    .collapsible-body.open { display: block; }
+    .collapsible-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.08); color: #C4B5FD;
+      padding: 0.1em 0.35em; border-radius: 5px;
+    }
+    .collapsible-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
+      overflow-x: auto;
+    }
+
+    /* ─── RIGHT PANEL ─────────────────────────────────────── */
+    .panel-right { display: flex; flex-direction: column; overflow: hidden; }
+    .editor-toolbar {
+      padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(6,10,20,0.6); flex-shrink: 0;
+    }
+    .win-dots { display: flex; gap: 5px; }
+    .wd { width: 10px; height: 10px; border-radius: 50%; }
+    .wd.r { background: #FF5F57; } .wd.y { background: #FFBD2E; } .wd.g { background: #28C840; }
+    .editor-fname { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-3); margin-left: 0.4rem; flex: 1; }
+    .btn-run {
+      display: flex; align-items: center; gap: 0.45rem;
+      background: linear-gradient(135deg, #22C55E, #16A34A);
+      border: none; color: white; font-family: inherit;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(74,222,128,0.22);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-run:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(74,222,128,0.32); }
+    .btn-run:disabled { opacity: 0.4; pointer-events: none; }
+    .btn-clear {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-3); font-family: inherit; font-size: 0.78rem;
+      cursor: pointer; padding: 0.42rem 0.85rem; border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-clear:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
+
+    .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; min-height: 0; }
+    .line-nums {
+      padding: 1.1rem 0.75rem 1.1rem 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      color: var(--text-3); text-align: right; user-select: none;
+      background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
+      min-width: 44px; overflow: hidden; flex-shrink: 0;
+    }
+    .editor-textarea {
+      flex: 1; resize: none; border: none; outline: none;
+      background: #050C1A; color: #D4D4F8;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 2;
+      caret-color: var(--primary);
+      overflow-y: auto; overflow-x: auto;
+    }
+    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
+    .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    /* Output */
+    .output-panel {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      display: flex; flex-direction: column; max-height: 38%;
+    }
+    .output-header {
+      padding: 0.55rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    .output-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); flex: 1; }
+    .output-status { font-size: 0.68rem; font-weight: 700; padding: 0.14rem 0.55rem; border-radius: 6px; }
+    .os-running { background: rgba(255,179,71,0.1);  color: var(--yellow); }
+    .os-ok      { background: rgba(74,222,128,0.1);  color: var(--green);  }
+    .os-error   { background: rgba(255,107,107,0.1); color: var(--red);    }
+    .os-idle    { background: rgba(255,255,255,0.04); color: var(--text-3); }
+    .output-body {
+      flex: 1; overflow-y: auto; padding: 0.9rem 1.2rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.85;
+      background: #040810;
+    }
+    .output-body::-webkit-scrollbar { width: 4px; }
+    .output-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
+    .out-line        { color: var(--green); white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-error       { color: var(--red);   white-space: pre-wrap; word-break: break-word; display: block; }
+    .out-placeholder { color: var(--text-3); font-style: italic; }
+
+    /* ─── COMPLETION MODAL ────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.28s;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #05091A; border: 1px solid rgba(99,102,241,0.28);
+      border-radius: 26px; padding: 2.5rem 2.5rem 2rem;
+      max-width: 420px; width: 90%; text-align: center;
+      transform: translateY(24px) scale(0.95);
+      transition: transform 0.32s cubic-bezier(0.34,1.55,0.64,1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,102,241,0.10);
+      position: relative; overflow: hidden;
+    }
+    .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+    /* Pip in modal */
+    .modal-pip-wrap { margin-bottom: 1rem; animation: pip-bounce 0.7s ease; }
+    @keyframes pip-bounce {
+      0%   { transform: translateY(-30px) scale(0.7); opacity: 0; }
+      60%  { transform: translateY(5px) scale(1.05); opacity: 1; }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .modal-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .modal-sub   { font-size: 0.88rem; color: var(--text-2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .modal-xp-wrap {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.22);
+      color: var(--yellow); font-size: 1.15rem; font-weight: 800;
+      padding: 0.55rem 1.6rem; border-radius: 100px; margin-bottom: 1.6rem;
+    }
+    .modal-xp-count { transition: all 0.1s; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-modal-next {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; padding: 0.7rem 1.8rem; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal-next:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,102,241,0.4); }
+    .btn-modal-dash {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; padding: 0.7rem 1.4rem; border-radius: 12px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-modal-dash:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+
+    /* ─── CONFETTI CANVAS ─────────────────────────────────── */
+    #confetti-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 199;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #confetti-canvas.active { opacity: 1; }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
+      .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
+      .panel-left-inner { overflow: visible; }
+      .panel-right { min-height: 520px; flex: none; height: 520px; }
+      .lesson-breadcrumb { display: none; }
+      .output-panel { max-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="dashboard.html">← Back</a>
+    <div class="lesson-breadcrumb">JavaScript Fundamentals &nbsp;/&nbsp; <strong id="nav-lesson-title">Lesson</strong></div>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <button class="btn-primary" id="btn-submit">Submit →</button>
+  </div>
+</nav>
+
+<div class="lesson-progress">
+  <div class="lesson-progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<!-- ─── SPLIT ────────────────────────────────────────────── -->
+<div class="split">
+
+  <div class="panel-left">
+    <div class="panel-left-inner" id="lesson-content"></div>
+    <div class="extras">
+      <div class="collapsible collapsible-hint">
+        <button class="collapsible-header" id="hint-toggle">
+          💡 Show Hint <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="hint-body"></div>
+      </div>
+      <div class="collapsible collapsible-solution locked" id="solution-collapsible">
+        <button class="collapsible-header" id="solution-toggle">
+          🔒 Show Solution
+          <span class="sol-lock-msg">run your code first</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="solution-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="editor-toolbar">
+      <div class="win-dots">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+      </div>
+      <span class="editor-fname" id="editor-fname">script.js</span>
+      <button class="btn-clear" id="btn-reset">↺ Reset</button>
+      <button class="btn-run" id="btn-run">▶ Run</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="line-nums" id="line-nums">1</div>
+      <textarea
+        class="editor-textarea" id="editor"
+        spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="// Write your JavaScript here..."></textarea>
+    </div>
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-label">▶ Output</span>
+        <span class="output-status os-idle" id="output-status">Idle</span>
+      </div>
+      <div class="output-body" id="output-body">
+        <span class="out-placeholder">Run your code to see output here.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── COMPLETION MODAL ────────────────────────────────── -->
+<canvas id="confetti-canvas"></canvas>
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-pip-wrap">
+      <svg width="72" height="82" viewBox="0 0 130 148" fill="none">
+        <defs>
+          <radialGradient id="mp-h" cx="42%" cy="30%" r="62%"><stop offset="0%" stop-color="#9A92FF"/><stop offset="100%" stop-color="#3B35C0"/></radialGradient>
+          <radialGradient id="mp-f" cx="50%" cy="38%" r="55%"><stop offset="0%" stop-color="#1E1E3C"/><stop offset="100%" stop-color="#0C0C1E"/></radialGradient>
+          <radialGradient id="mp-e" cx="30%" cy="28%" r="70%"><stop offset="0%" stop-color="#78F4FF"/><stop offset="100%" stop-color="#0088AA"/></radialGradient>
+          <linearGradient id="mp-ear" x1="0%" y1="0%" x2="80%" y2="100%"><stop offset="0%" stop-color="#7870E8"/><stop offset="100%" stop-color="#3830A8"/></linearGradient>
+          <filter id="mp-s"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#6366F1" flood-opacity="0.3"/></filter>
+        </defs>
+        <g filter="url(#mp-s)">
+          <circle cx="65" cy="58" r="44" fill="url(#mp-h)"/>
+          <path d="M30 26 C33 12 40 10 42 22 C40 30 33 36 26 34 C23 30 25 26 30 26Z" fill="url(#mp-ear)"/>
+          <path d="M100 26 C97 12 90 10 88 22 C90 30 97 36 104 34 C107 30 105 26 100 26Z" fill="url(#mp-ear)"/>
+          <circle cx="65" cy="60" r="32" fill="url(#mp-f)"/>
+          <circle cx="51" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="52.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="55" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <circle cx="79" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="80.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="83" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <path d="M65 64 C61.5 64 58 68.5 59.5 72 C61 74.5 63.5 75.5 65 75.5 C66.5 75.5 69 74.5 70.5 72 C72 68.5 68.5 64 65 64Z" fill="#FFB347"/>
+        </g>
+      </svg>
+    </div>
+    <div class="modal-title">Lesson Complete! 🎉</div>
+    <div class="modal-sub" id="modal-sub">Great work. Keep the streak going!</div>
+    <div class="modal-xp-wrap">⚡ +<span class="modal-xp-count" id="modal-xp-count">0</span> XP</div>
+    <div class="modal-actions">
+      <button class="btn-modal-next" id="modal-next">Next Lesson →</button>
+      <button class="btn-modal-dash" onclick="window.location.href='dashboard.html'">Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// LESSON DATA — 15 JavaScript Fundamentals lessons
+// ═══════════════════════════════════════════════════════════
+const LESSONS = {
+
+  1: {
+    title: "Hello, World!", xp: 50, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 1 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Hello, World! 🌍</h1>
+      <div class="lesson-body">
+        <p>Every programmer's first step is making the computer say something. In JavaScript, <code>console.log()</code> prints output to the console.</p>
+        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Hello, World!"</span>);  <span class="cm">// Hello, World!</span></div>
+        <p>The text inside quotes is a <strong>string</strong>. You can use single <code>'</code>, double <code>"</code>, or backtick quotes.</p>
+        <h3>Multiple outputs</h3>
+        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"First line"</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Second line"</span>);</div>
+        <p>Each <code>console.log()</code> call prints on its own line. The semicolons <code>;</code> are optional but considered good style.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Print exactly two lines:<br><code>Hello, World!</code><br><code>I am learning JavaScript!</code></div>
+        </div>
+      </div>`,
+    hint: `<p>Call <code>console.log()</code> twice — once per line:</p>
+      <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"first line"</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"second line"</span>);</div>`,
+    solution: `<div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Hello, World!"</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"I am learning JavaScript!"</span>);</div>`,
+    starter: `// Print two lines below\n`,
+    check: (out) => out.includes("Hello, World!") && out.includes("I am learning JavaScript!"),
+  },
+
+  2: {
+    title: "Variables", xp: 75, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 2 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Variables 📦</h1>
+      <div class="lesson-body">
+        <p>Variables store values. JavaScript has three declaration keywords:</p>
+        <ul>
+          <li><code>const</code> — value cannot be reassigned (preferred when possible)</li>
+          <li><code>let</code> — value can be reassigned, block-scoped</li>
+          <li><code>var</code> — old-style, function-scoped (avoid in modern code)</li>
+        </ul>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Alice"</span>;
+<span class="kw">let</span> <span class="vr">score</span> = <span class="nm">100</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>);   <span class="cm">// Alice</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">score</span>);  <span class="cm">// 100</span>
+<span class="vr">score</span> = <span class="nm">200</span>;         <span class="cm">// let can be reassigned</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">score</span>);  <span class="cm">// 200</span></div>
+        <h3>Naming conventions</h3>
+        <p>Use <strong>camelCase</strong>: <code>myVariable</code>, <code>firstName</code>, <code>totalScore</code>.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a <code>const</code> called <code>name</code> with your name, and a <code>let</code> called <code>year</code> set to <code>2026</code>. Log both on separate lines.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Your Name"</span>;
+<span class="kw">let</span> <span class="vr">year</span> = <span class="nm">2026</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">year</span>);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Alex"</span>;
+<span class="kw">let</span> <span class="vr">year</span> = <span class="nm">2026</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">year</span>);</div>`,
+    starter: `// Create your variables below\n\n`,
+    check: (out) => out.trim().split('\n').filter(l => l.trim()).length >= 2,
+  },
+
+  3: {
+    title: "Data Types", xp: 75, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 3 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Data Types 🔣</h1>
+      <div class="lesson-body">
+        <p>JavaScript has several primitive data types. Use <code>typeof</code> to inspect them:</p>
+        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="st">"hello"</span>);      <span class="cm">// "string"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="nm">42</span>);          <span class="cm">// "number"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="kw">true</span>);        <span class="cm">// "boolean"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="kw">null</span>);        <span class="cm">// "object" (quirk!)</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="kw">undefined</span>);   <span class="cm">// "undefined"</span></div>
+        <h3>Key types at a glance</h3>
+        <ul>
+          <li><strong>string</strong> — text: <code>"hello"</code>, <code>'world'</code></li>
+          <li><strong>number</strong> — integers and floats: <code>42</code>, <code>3.14</code></li>
+          <li><strong>boolean</strong> — <code>true</code> or <code>false</code></li>
+          <li><strong>null</strong> — intentional absence of value</li>
+          <li><strong>undefined</strong> — declared but not assigned</li>
+        </ul>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create 3 variables of different types (string, number, boolean). Log the <code>typeof</code> each one. Output must include <code>"string"</code> and <code>"number"</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">a</span> = <span class="st">"hello"</span>;
+<span class="kw">const</span> <span class="vr">b</span> = <span class="nm">99</span>;
+<span class="kw">const</span> <span class="vr">c</span> = <span class="kw">true</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">a</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">b</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">c</span>);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">a</span> = <span class="st">"hello"</span>;
+<span class="kw">const</span> <span class="vr">b</span> = <span class="nm">42</span>;
+<span class="kw">const</span> <span class="vr">c</span> = <span class="kw">true</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">a</span>);  <span class="cm">// string</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">b</span>);  <span class="cm">// number</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">c</span>);  <span class="cm">// boolean</span></div>`,
+    starter: `// Create 3 variables of different types and log their typeof\n\n`,
+    check: (out) => out.includes("string") && out.includes("number"),
+  },
+
+  4: {
+    title: "Template Literals", xp: 100, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 4 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Template Literals 📝</h1>
+      <div class="lesson-body">
+        <p><strong>Template literals</strong> use backtick quotes and let you embed expressions with <code>\${}</code>:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">city</span> = <span class="st">"Paris"</span>;
+<span class="kw">const</span> <span class="vr">temp</span> = <span class="nm">22</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`It's \${<span class="vr">temp</span>}°C in \${<span class="vr">city</span>}.\`</span>);
+<span class="cm">// It's 22°C in Paris.</span></div>
+        <h3>Multiline strings</h3>
+        <p>Backticks allow real line breaks — no more <code>\\n</code> juggling:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">msg</span> = <span class="st">\`Line one
+Line two
+Line three\`</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">msg</span>);</div>
+        <h3>Expressions inside <code>\${}</code></h3>
+        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`2 + 2 = \${<span class="nm">2</span> + <span class="nm">2</span>}\`</span>);  <span class="cm">// 2 + 2 = 4</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Given <code>name = "Alex"</code> and <code>score = 98</code>, use a template literal to print:<br><code>Alex scored 98 points!</code></div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Alex"</span>;
+<span class="kw">const</span> <span class="vr">score</span> = <span class="nm">98</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`\${<span class="vr">name</span>} scored \${<span class="vr">score</span>} points!\`</span>);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Alex"</span>;
+<span class="kw">const</span> <span class="vr">score</span> = <span class="nm">98</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`\${<span class="vr">name</span>} scored \${<span class="vr">score</span>} points!\`</span>);</div>`,
+    starter: `const name = "Alex";\nconst score = 98;\n// Use a template literal to print the message\n`,
+    check: (out) => out.includes("Alex") && out.includes("98"),
+  },
+
+  5: {
+    title: "Conditions (if/else)", xp: 125, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 5 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Conditions (if/else) 🔀</h1>
+      <div class="lesson-body">
+        <p>The <code>if</code> statement runs a block only when a condition is <strong>truthy</strong>. Use curly braces for the block:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">age</span> = <span class="nm">20</span>;
+<span class="kw">if</span> (<span class="vr">age</span> >= <span class="nm">18</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Adult"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Minor"</span>);
+}</div>
+        <h3>else if — multiple branches</h3>
+        <div class="code-block"><span class="kw">if</span> (<span class="vr">score</span> >= <span class="nm">90</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"A"</span>);
+} <span class="kw">else if</span> (<span class="vr">score</span> >= <span class="nm">70</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"B"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"C"</span>);
+}</div>
+        <h3>Comparison operators</h3>
+        <p>Use <code>===</code> (strict equality) instead of <code>==</code>. Avoid <code>==</code> in modern JS.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Set <code>speed = 85</code>. If speed is greater than 80, print <code>Too fast!</code>. Otherwise print <code>All good.</code></div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">speed</span> = <span class="nm">85</span>;
+<span class="kw">if</span> (<span class="vr">speed</span> > <span class="nm">80</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"..."</span>);
+} <span class="kw">else</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"..."</span>);
+}</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">speed</span> = <span class="nm">85</span>;
+<span class="kw">if</span> (<span class="vr">speed</span> > <span class="nm">80</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Too fast!"</span>);
+} <span class="kw">else</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"All good."</span>);
+}</div>`,
+    starter: `const speed = 85;\n// Write your if/else below\n\n`,
+    check: (out) => out.includes("Too fast!"),
+  },
+
+  6: {
+    title: "Loops (for/while)", xp: 150, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 6 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Loops (for/while) 🔁</h1>
+      <div class="lesson-body">
+        <h3>for loop</h3>
+        <div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> <span class="vr">i</span> = <span class="nm">0</span>; <span class="vr">i</span> < <span class="nm">5</span>; <span class="vr">i</span>++) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">i</span>);  <span class="cm">// 0 1 2 3 4</span>
+}</div>
+        <h3>while loop</h3>
+        <div class="code-block"><span class="kw">let</span> <span class="vr">n</span> = <span class="nm">0</span>;
+<span class="kw">while</span> (<span class="vr">n</span> < <span class="nm">3</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">n</span>);
+  <span class="vr">n</span>++;
+}</div>
+        <h3>for...of — loop over arrays</h3>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">fruits</span> = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>];
+<span class="kw">for</span> (<span class="kw">const</span> <span class="vr">fruit</span> <span class="kw">of</span> <span class="vr">fruits</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">fruit</span>);
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Use a <code>for</code> loop to print the numbers <strong>1 through 5</strong>, one per line.</div>
+        </div>
+      </div>`,
+    hint: `<p>Start at <code>i = 1</code> and loop while <code>i &lt;= 5</code>:</p>
+      <div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> <span class="vr">i</span> = <span class="nm">1</span>; <span class="vr">i</span> <= <span class="nm">5</span>; <span class="vr">i</span>++) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">i</span>);
+}</div>`,
+    solution: `<div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> <span class="vr">i</span> = <span class="nm">1</span>; <span class="vr">i</span> <= <span class="nm">5</span>; <span class="vr">i</span>++) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">i</span>);
+}</div>`,
+    starter: `// Print 1 through 5 using a for loop\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
+  },
+
+  7: {
+    title: "Arrays", xp: 150, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 7 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Arrays 📋</h1>
+      <div class="lesson-body">
+        <p>An <strong>array</strong> stores an ordered list of values. Index starts at 0.</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">fruits</span> = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>];
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">fruits</span>[<span class="nm">0</span>]);       <span class="cm">// "apple"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">fruits</span>[<span class="vr">fruits</span>.length - <span class="nm">1</span>]);  <span class="cm">// "cherry"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">fruits</span>.length);    <span class="cm">// 3</span></div>
+        <h3>Common methods</h3>
+        <div class="code-block"><span class="vr">fruits</span>.<span class="fn">push</span>(<span class="st">"mango"</span>);    <span class="cm">// add to end — length becomes 4</span>
+<span class="vr">fruits</span>.<span class="fn">pop</span>();             <span class="cm">// remove last</span>
+<span class="vr">fruits</span>.<span class="fn">includes</span>(<span class="st">"apple"</span>); <span class="cm">// true</span>
+<span class="vr">fruits</span>.<span class="fn">indexOf</span>(<span class="st">"banana"</span>); <span class="cm">// 1</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create <code>colors = ["red", "green", "blue"]</code>. Push <code>"yellow"</code> onto it. Log the new <code>length</code> (should be 4) and the first element (<code>"red"</code>).</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">colors</span> = [<span class="st">"red"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>];
+<span class="vr">colors</span>.<span class="fn">push</span>(<span class="st">"yellow"</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">colors</span>.length);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">colors</span>[<span class="nm">0</span>]);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">colors</span> = [<span class="st">"red"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>];
+<span class="vr">colors</span>.<span class="fn">push</span>(<span class="st">"yellow"</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">colors</span>.length);  <span class="cm">// 4</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">colors</span>[<span class="nm">0</span>]);       <span class="cm">// red</span></div>`,
+    starter: `const colors = ["red", "green", "blue"];\n// Push "yellow", then log length and first element\n\n`,
+    check: (out) => out.includes("4") && out.includes("red"),
+  },
+
+  8: {
+    title: "Objects", xp: 175, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 8 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Objects 🗂️</h1>
+      <div class="lesson-body">
+        <p>An <strong>object</strong> stores data as <em>key: value</em> pairs — like a record or dictionary.</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">person</span> = {
+  <span class="vr">name</span>: <span class="st">"Alex"</span>,
+  <span class="vr">age</span>:  <span class="nm">21</span>,
+  <span class="vr">active</span>: <span class="kw">true</span>
+};
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>.name);      <span class="cm">// "Alex"  (dot notation)</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="st">"age"</span>]);   <span class="cm">// 21 (bracket notation)</span></div>
+        <h3>Modifying & listing keys</h3>
+        <div class="code-block"><span class="vr">person</span>.age = <span class="nm">22</span>;                   <span class="cm">// update</span>
+<span class="vr">person</span>.city = <span class="st">"London"</span>;            <span class="cm">// add new key</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">Object</span>.<span class="fn">keys</span>(<span class="vr">person</span>));  <span class="cm">// ["name","age","active","city"]</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a <code>car</code> object with <code>brand</code>, <code>year</code>, and <code>electric</code> properties. Log all three values on separate lines.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">car</span> = {
+  <span class="vr">brand</span>: <span class="st">"Tesla"</span>,
+  <span class="vr">year</span>: <span class="nm">2024</span>,
+  <span class="vr">electric</span>: <span class="kw">true</span>
+};
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.brand);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.year);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.electric);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">car</span> = {
+  <span class="vr">brand</span>: <span class="st">"Tesla"</span>,
+  <span class="vr">year</span>: <span class="nm">2024</span>,
+  <span class="vr">electric</span>: <span class="kw">true</span>
+};
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.brand);    <span class="cm">// Tesla</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.year);     <span class="cm">// 2024</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.electric); <span class="cm">// true</span></div>`,
+    starter: `// Create a car object with brand, year, electric\n// Then log all three values\n\n`,
+    check: (out) => out.trim().split('\n').filter(l => l.trim()).length >= 3,
+  },
+
+  9: {
+    title: "Functions", xp: 200, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 9 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Functions 🧩</h1>
+      <div class="lesson-body">
+        <p>A <strong>function</strong> is a reusable block of code. JavaScript has three syntaxes:</p>
+        <h3>Function declaration</h3>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">greet</span>(<span class="vr">name</span>) {
+  <span class="kw">return</span> <span class="st">\`Hello, \${<span class="vr">name</span>}!\`</span>;
+}
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="st">"Alice"</span>));  <span class="cm">// Hello, Alice!</span></div>
+        <h3>Arrow function (modern, preferred)</h3>
+        <div class="code-block"><span class="kw">const</span> <span class="fn">add</span> = (<span class="vr">a</span>, <span class="vr">b</span>) => <span class="vr">a</span> + <span class="vr">b</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">4</span>));  <span class="cm">// 7</span></div>
+        <p>For multi-line arrow functions, add curly braces and an explicit <code>return</code>:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="fn">square</span> = (<span class="vr">n</span>) => {
+  <span class="kw">return</span> <span class="vr">n</span> * <span class="vr">n</span>;
+};</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write an arrow function <code>multiply(a, b)</code> that returns <code>a * b</code>. Log <code>multiply(6, 7)</code> — it should output <code>42</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="fn">multiply</span> = (<span class="vr">a</span>, <span class="vr">b</span>) => <span class="vr">a</span> * <span class="vr">b</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">multiply</span>(<span class="nm">6</span>, <span class="nm">7</span>));</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="fn">multiply</span> = (<span class="vr">a</span>, <span class="vr">b</span>) => <span class="vr">a</span> * <span class="vr">b</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">multiply</span>(<span class="nm">6</span>, <span class="nm">7</span>));  <span class="cm">// 42</span></div>`,
+    starter: `// Write your multiply arrow function here\n\n`,
+    check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('42'),
+  },
+
+  10: {
+    title: "Array Methods", xp: 175, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 10 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Array Methods ⚙️</h1>
+      <div class="lesson-body">
+        <p>JavaScript arrays have powerful built-in methods that use <strong>callback functions</strong>:</p>
+        <h3>.map() — transform every element</h3>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">nums</span> = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];
+<span class="kw">const</span> <span class="vr">doubled</span> = <span class="vr">nums</span>.<span class="fn">map</span>(<span class="vr">n</span> => <span class="vr">n</span> * <span class="nm">2</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">doubled</span>);  <span class="cm">// [2, 4, 6]</span></div>
+        <h3>.filter() — keep matching elements</h3>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">evens</span> = <span class="vr">nums</span>.<span class="fn">filter</span>(<span class="vr">n</span> => <span class="vr">n</span> % <span class="nm">2</span> === <span class="nm">0</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">evens</span>);    <span class="cm">// [2]</span></div>
+        <h3>.forEach() — run code for each element</h3>
+        <div class="code-block"><span class="vr">nums</span>.<span class="fn">forEach</span>(<span class="vr">n</span> => <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">n</span>));  <span class="cm">// 1, 2, 3</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Given <code>nums = [1, 2, 3, 4, 5]</code>, use <code>.filter()</code> to get the even numbers and log the result. Output must include <code>2</code> and <code>4</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">nums</span> = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>];
+<span class="kw">const</span> <span class="vr">evens</span> = <span class="vr">nums</span>.<span class="fn">filter</span>(<span class="vr">n</span> => <span class="vr">n</span> % <span class="nm">2</span> === <span class="nm">0</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">evens</span>);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">nums</span> = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>];
+<span class="kw">const</span> <span class="vr">evens</span> = <span class="vr">nums</span>.<span class="fn">filter</span>(<span class="vr">n</span> => <span class="vr">n</span> % <span class="nm">2</span> === <span class="nm">0</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">evens</span>);  <span class="cm">// [2, 4]</span></div>`,
+    starter: `const nums = [1, 2, 3, 4, 5];\n// Use .filter() to get even numbers and log the result\n\n`,
+    check: (out) => out.includes("2") && out.includes("4"),
+  },
+
+  11: {
+    title: "Destructuring & Spread", xp: 200, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 11 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Destructuring & Spread ✂️</h1>
+      <div class="lesson-body">
+        <h3>Object destructuring</h3>
+        <p>Extract named properties into variables in one line:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">user</span> = { <span class="vr">name</span>: <span class="st">"Sam"</span>, <span class="vr">age</span>: <span class="nm">30</span>, <span class="vr">city</span>: <span class="st">"Paris"</span> };
+<span class="kw">const</span> { <span class="vr">name</span>, <span class="vr">city</span> } = <span class="vr">user</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>);  <span class="cm">// "Sam"</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">city</span>);  <span class="cm">// "Paris"</span></div>
+        <h3>Array destructuring</h3>
+        <div class="code-block"><span class="kw">const</span> [<span class="vr">first</span>, <span class="vr">second</span>] = [<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>];
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">first</span>);   <span class="cm">// 10</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">second</span>);  <span class="cm">// 20</span></div>
+        <h3>Spread operator <code>...</code></h3>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">a</span> = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>];
+<span class="kw">const</span> <span class="vr">b</span> = [<span class="nm">0</span>, ...<span class="vr">a</span>, <span class="nm">4</span>];  <span class="cm">// [0, 1, 2, 3, 4]</span>
+
+<span class="kw">const</span> <span class="vr">orig</span> = { <span class="vr">x</span>: <span class="nm">1</span> };
+<span class="kw">const</span> <span class="vr">copy</span> = { ...<span class="vr">orig</span>, <span class="vr">y</span>: <span class="nm">2</span> };  <span class="cm">// { x: 1, y: 2 }</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Destructure <code>name</code> and <code>city</code> from <code>{name:"Sam", city:"Paris", age:30}</code> and log <code>name</code>. Output must include <code>"Sam"</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">obj</span> = { <span class="vr">name</span>: <span class="st">"Sam"</span>, <span class="vr">city</span>: <span class="st">"Paris"</span>, <span class="vr">age</span>: <span class="nm">30</span> };
+<span class="kw">const</span> { <span class="vr">name</span>, <span class="vr">city</span> } = <span class="vr">obj</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>);</div>`,
+    solution: `<div class="code-block"><span class="kw">const</span> <span class="vr">obj</span> = { <span class="vr">name</span>: <span class="st">"Sam"</span>, <span class="vr">city</span>: <span class="st">"Paris"</span>, <span class="vr">age</span>: <span class="nm">30</span> };
+<span class="kw">const</span> { <span class="vr">name</span>, <span class="vr">city</span> } = <span class="vr">obj</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">name</span>);  <span class="cm">// Sam</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">city</span>);  <span class="cm">// Paris</span></div>`,
+    starter: `const obj = { name: "Sam", city: "Paris", age: 30 };\n// Destructure name and city, then log name\n\n`,
+    check: (out) => out.includes("Sam"),
+  },
+
+  12: {
+    title: "Error Handling", xp: 200, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 12 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Error Handling 🛡️</h1>
+      <div class="lesson-body">
+        <p>Errors crash your program. <code>try / catch</code> lets you handle them gracefully:</p>
+        <div class="code-block"><span class="kw">try</span> {
+  <span class="kw">const</span> <span class="vr">result</span> = <span class="nm">10</span> / <span class="nm">0</span>;
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">result</span>);  <span class="cm">// Infinity (not an error in JS!)</span>
+} <span class="kw">catch</span> (<span class="vr">err</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Error:"</span>, <span class="vr">err</span>.message);
+}</div>
+        <h3>Catching thrown errors</h3>
+        <div class="code-block"><span class="kw">try</span> {
+  <span class="kw">const</span> <span class="vr">data</span> = <span class="fn">JSON</span>.<span class="fn">parse</span>(<span class="st">"invalid"</span>);
+} <span class="kw">catch</span> (<span class="vr">err</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Caught:"</span>, <span class="vr">err</span>.message);
+}</div>
+        <h3>finally — always runs</h3>
+        <div class="code-block"><span class="kw">try</span> {
+  <span class="cm">// risky code</span>
+} <span class="kw">catch</span> (<span class="vr">e</span>) {
+  <span class="cm">// handle error</span>
+} <span class="kw">finally</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Always runs"</span>);
+}</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Use <code>try/catch</code> to attempt <code>JSON.parse("not json")</code>. Catch the error and log <code>"Parse failed!"</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">try</span> {
+  <span class="fn">JSON</span>.<span class="fn">parse</span>(<span class="st">"not json"</span>);
+} <span class="kw">catch</span> (<span class="vr">err</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Parse failed!"</span>);
+}</div>`,
+    solution: `<div class="code-block"><span class="kw">try</span> {
+  <span class="fn">JSON</span>.<span class="fn">parse</span>(<span class="st">"not json"</span>);
+} <span class="kw">catch</span> (<span class="vr">err</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Parse failed!"</span>);
+}</div>`,
+    starter: `// Use try/catch to parse "not json" and handle the error\n\n`,
+    check: (out) => out.includes("Parse failed!"),
+  },
+
+  13: {
+    title: "Classes", xp: 225, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 13 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Classes 🏗️</h1>
+      <div class="lesson-body">
+        <p>A <strong>class</strong> is a blueprint for creating objects with shared structure and behaviour:</p>
+        <div class="code-block"><span class="kw">class</span> <span class="fn">Animal</span> {
+  <span class="fn">constructor</span>(<span class="vr">name</span>) {
+    <span class="kw">this</span>.name = <span class="vr">name</span>;
+  }
+  <span class="fn">speak</span>() {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`\${<span class="kw">this</span>.name} makes a sound.\`</span>);
+  }
+}
+<span class="kw">const</span> <span class="vr">dog</span> = <span class="kw">new</span> <span class="fn">Animal</span>(<span class="st">"Rex"</span>);
+<span class="vr">dog</span>.<span class="fn">speak</span>();  <span class="cm">// Rex makes a sound.</span></div>
+        <h3>Inheritance with extends</h3>
+        <div class="code-block"><span class="kw">class</span> <span class="fn">Dog</span> <span class="kw">extends</span> <span class="fn">Animal</span> {
+  <span class="fn">speak</span>() {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`\${<span class="kw">this</span>.name} barks!\`</span>);
+  }
+}
+<span class="kw">new</span> <span class="fn">Dog</span>(<span class="st">"Buddy"</span>).<span class="fn">speak</span>();  <span class="cm">// Buddy barks!</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a <code>class Rectangle</code> with a constructor taking <code>width</code> and <code>height</code>, and a method <code>area()</code> that returns <code>width * height</code>. Create an instance with width 4 and height 5, then log <code>area()</code> — should output <code>20</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Rectangle</span> {
+  <span class="fn">constructor</span>(<span class="vr">width</span>, <span class="vr">height</span>) {
+    <span class="kw">this</span>.width = <span class="vr">width</span>;
+    <span class="kw">this</span>.height = <span class="vr">height</span>;
+  }
+  <span class="fn">area</span>() {
+    <span class="kw">return</span> <span class="kw">this</span>.width * <span class="kw">this</span>.height;
+  }
+}
+<span class="kw">const</span> <span class="vr">r</span> = <span class="kw">new</span> <span class="fn">Rectangle</span>(<span class="nm">4</span>, <span class="nm">5</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">r</span>.<span class="fn">area</span>());</div>`,
+    solution: `<div class="code-block"><span class="kw">class</span> <span class="fn">Rectangle</span> {
+  <span class="fn">constructor</span>(<span class="vr">width</span>, <span class="vr">height</span>) {
+    <span class="kw">this</span>.width = <span class="vr">width</span>;
+    <span class="kw">this</span>.height = <span class="vr">height</span>;
+  }
+  <span class="fn">area</span>() {
+    <span class="kw">return</span> <span class="kw">this</span>.width * <span class="kw">this</span>.height;
+  }
+}
+<span class="kw">const</span> <span class="vr">r</span> = <span class="kw">new</span> <span class="fn">Rectangle</span>(<span class="nm">4</span>, <span class="nm">5</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">r</span>.<span class="fn">area</span>());  <span class="cm">// 20</span></div>`,
+    starter: `// Define class Rectangle with constructor and area()\n\n`,
+    check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('20'),
+  },
+
+  14: {
+    title: "Closures & Scope", xp: 200, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 14 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Closures & Scope 🔒</h1>
+      <div class="lesson-body">
+        <p>A <strong>closure</strong> is a function that "remembers" variables from its outer scope even after the outer function has returned.</p>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">outer</span>() {
+  <span class="kw">let</span> <span class="vr">count</span> = <span class="nm">0</span>;
+  <span class="kw">return</span> <span class="kw">function</span>() {
+    <span class="vr">count</span>++;
+    <span class="kw">return</span> <span class="vr">count</span>;
+  };
+}
+<span class="kw">const</span> <span class="vr">inc</span> = <span class="fn">outer</span>();
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">inc</span>());  <span class="cm">// 1</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">inc</span>());  <span class="cm">// 2</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">inc</span>());  <span class="cm">// 3</span></div>
+        <p>Each call to <code>inc()</code> increments the same <code>count</code> — it persists inside the closure.</p>
+        <h3>Lexical scope</h3>
+        <p>Inner functions can always read and write variables from their outer scope. This is called <strong>lexical scoping</strong>.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write a function <code>makeCounter()</code> that returns a function which increments and logs an internal counter. Call the returned function 3 times. Output must include <code>1</code>, <code>2</code>, and <code>3</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">makeCounter</span>() {
+  <span class="kw">let</span> <span class="vr">count</span> = <span class="nm">0</span>;
+  <span class="kw">return</span> <span class="kw">function</span>() {
+    <span class="vr">count</span>++;
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">count</span>);
+  };
+}
+<span class="kw">const</span> <span class="vr">counter</span> = <span class="fn">makeCounter</span>();
+<span class="fn">counter</span>();
+<span class="fn">counter</span>();
+<span class="fn">counter</span>();</div>`,
+    solution: `<div class="code-block"><span class="kw">function</span> <span class="fn">makeCounter</span>() {
+  <span class="kw">let</span> <span class="vr">count</span> = <span class="nm">0</span>;
+  <span class="kw">return</span> <span class="kw">function</span>() {
+    <span class="vr">count</span>++;
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">count</span>);
+  };
+}
+<span class="kw">const</span> <span class="vr">counter</span> = <span class="fn">makeCounter</span>();
+<span class="fn">counter</span>();  <span class="cm">// 1</span>
+<span class="fn">counter</span>();  <span class="cm">// 2</span>
+<span class="fn">counter</span>();  <span class="cm">// 3</span></div>`,
+    starter: `// Write makeCounter() that returns a counter function\n\n`,
+    check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('1') && l.includes('2') && l.includes('3'); },
+  },
+
+  15: {
+    title: "Async / Await", xp: 250, fname: "script.js",
+    content: `
+      <div class="lesson-num-tag">Lesson 15 · JavaScript Fundamentals</div>
+      <h1 class="lesson-title-h">Async / Await ⏳</h1>
+      <div class="lesson-body">
+        <p>JavaScript is <strong>asynchronous</strong> — it can start tasks and keep running while waiting for results. <code>async/await</code> makes this readable.</p>
+        <h3>Promises</h3>
+        <p>A <strong>Promise</strong> represents a value that will be available in the future:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">p</span> = <span class="kw">new</span> <span class="fn">Promise</span>((<span class="vr">resolve</span>) => {
+  <span class="fn">resolve</span>(<span class="st">"done"</span>);
+});
+<span class="vr">p</span>.<span class="fn">then</span>(<span class="vr">val</span> => <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">val</span>));  <span class="cm">// done</span></div>
+        <h3>async / await — cleaner syntax</h3>
+        <div class="code-block"><span class="kw">async function</span> <span class="fn">fetchData</span>() {
+  <span class="kw">const</span> <span class="vr">result</span> = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">resolve</span>(<span class="st">"data loaded"</span>);
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">result</span>);  <span class="cm">// data loaded</span>
+}
+<span class="fn">fetchData</span>();</div>
+        <p><code>await</code> pauses execution inside an <code>async</code> function until the Promise resolves. The rest of your code keeps running.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write an <code>async</code> function <code>getData()</code> that awaits <code>Promise.resolve("Helix data loaded")</code> and logs the result. Call it. Output must include <code>"Helix data loaded"</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">async function</span> <span class="fn">getData</span>() {
+  <span class="kw">const</span> <span class="vr">result</span> = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">resolve</span>(<span class="st">"Helix data loaded"</span>);
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">result</span>);
+}
+<span class="fn">getData</span>();</div>`,
+    solution: `<div class="code-block"><span class="kw">async function</span> <span class="fn">getData</span>() {
+  <span class="kw">const</span> <span class="vr">result</span> = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">resolve</span>(<span class="st">"Helix data loaded"</span>);
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">result</span>);
+}
+<span class="fn">getData</span>();  <span class="cm">// Helix data loaded</span></div>`,
+    starter: `// Write async function getData() that logs "Helix data loaded"\n\n`,
+    check: (out) => out.includes("Helix data loaded"),
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : { xp: 0, streak: 1, level: 1, lessonsCompleted: 0, completedIds: [] };
+}
+function loadLangProgress() {
+  const s = localStorage.getItem('helix_js_progress');
+  return s ? JSON.parse(s) : { completedIds: [] };
+}
+function saveLangProgress(p) { localStorage.setItem('helix_js_progress', JSON.stringify(p)); }
+function saveState(s) { localStorage.setItem('helix_progress', JSON.stringify(s)); }
+function getLevel(xp) {
+  const t = [0, 100, 250, 500, 900, 1400, 2000, 3000];
+  for (let i = t.length - 1; i >= 0; i--) if (xp >= t[i]) return i + 1;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT LESSON
+// ═══════════════════════════════════════════════════════════
+const params   = new URLSearchParams(location.search);
+const lessonId = parseInt(params.get('id')) || 1;
+const lesson   = LESSONS[lessonId] || LESSONS[1];
+
+// Auth check
+const __session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+if (!__session) { window.location.href = 'login.html'; }
+
+// Pro paywall — lessons 6-15 require Pro
+function showPaywall() {
+  document.querySelector('.split').innerHTML = `
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:3rem;text-align:center;">
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;">This lesson requires Pro</h2>
+      <p style="color:var(--text-2);max-width:440px;line-height:1.7;">Lessons 6–15 are available on the Pro plan. Unlock all 90 lessons across 6 languages for just $9/month — or $4.50/month billed annually.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+        <a href="pricing.html" style="background:var(--primary);color:white;padding:0.75rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(99,102,241,0.3);">Upgrade to Pro →</a>
+        <a href="dashboard.html" style="background:rgba(255,255,255,0.05);color:var(--text-2);padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.08);">Back to Dashboard</a>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-3);">First 5 lessons of every language are always free.</p>
+    </div>`;
+}
+
+try {
+  if (lessonId > 5) {
+    const __users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const __user = __users.find(u => u.id === __session.userId);
+    if (!__user || __user.plan !== 'pro') {
+      document.addEventListener('DOMContentLoaded', () => {
+        showPaywall();
+      });
+      if (document.readyState !== 'loading') showPaywall();
+    }
+  }
+} catch(e) {}
+
+const TOTAL    = Object.keys(LESSONS).length;
+
+document.getElementById('nav-lesson-title').textContent = lesson.title;
+document.getElementById('editor-fname').textContent      = lesson.fname;
+document.getElementById('lesson-content').innerHTML      = lesson.content;
+document.getElementById('hint-body').innerHTML           = lesson.hint;
+document.getElementById('solution-body').innerHTML       = lesson.solution;
+document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+const editor = document.getElementById('editor');
+editor.value = lesson.starter || '';
+updateLineNums();
+document.getElementById('nav-xp').textContent = loadState().xp;
+
+// ═══════════════════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════════════════
+function updateLineNums() {
+  const n = editor.value.split('\n').length;
+  document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+}
+editor.addEventListener('input', updateLineNums);
+editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart, end = editor.selectionEnd;
+    editor.value = editor.value.substring(0, s) + '  ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = s + 2;
+    updateLineNums();
+  }
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  editor.value = lesson.starter || '';
+  updateLineNums();
+  setOutput([{type:'placeholder', text:'Code reset.'}], 'idle');
+});
+
+// ═══════════════════════════════════════════════════════════
+// COLLAPSIBLES
+// ═══════════════════════════════════════════════════════════
+let hasRun = false;
+
+function unlockSolution() {
+  const wrap = document.getElementById('solution-collapsible');
+  const btn  = document.getElementById('solution-toggle');
+  wrap.classList.remove('locked');
+  btn.childNodes[0].textContent = '✅ Show Solution';
+  btn.querySelector('.sol-lock-msg').style.display = 'none';
+}
+
+const hintBtn  = document.getElementById('hint-toggle');
+const hintBody = document.getElementById('hint-body');
+hintBtn.addEventListener('click', () => {
+  const open = hintBody.classList.toggle('open');
+  hintBtn.classList.toggle('open', open);
+});
+
+const solBtn  = document.getElementById('solution-toggle');
+const solBody = document.getElementById('solution-body');
+solBtn.addEventListener('click', () => {
+  const wrap = document.getElementById('solution-collapsible');
+  if (wrap.classList.contains('locked')) {
+    solBtn.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-6px)' },
+      { transform: 'translateX(6px)' },
+      { transform: 'translateX(-4px)' },
+      { transform: 'translateX(0)' },
+    ], { duration: 280, easing: 'ease-out' });
+    return;
+  }
+  const open = solBody.classList.toggle('open');
+  solBtn.classList.toggle('open', open);
+});
+
+// ═══════════════════════════════════════════════════════════
+// OUTPUT
+// ═══════════════════════════════════════════════════════════
+function setOutput(lines, status) {
+  const ob = document.getElementById('output-body');
+  ob.innerHTML = lines.map(l => {
+    if (l.type === 'placeholder') return `<span class="out-placeholder">${l.text}</span>`;
+    if (l.type === 'error')       return `<span class="out-error">${escHtml(l.text)}</span>`;
+    return `<span class="out-line">${escHtml(l.text)}</span>`;
+  }).join('');
+  const st = document.getElementById('output-status');
+  st.className = 'output-status';
+  const map = {running:['os-running','Running…'], ok:['os-ok','Done'], error:['os-error','Error'], idle:['os-idle','Idle']};
+  const [cls, txt] = map[status] || map.idle;
+  st.classList.add(cls); st.textContent = txt;
+}
+const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ═══════════════════════════════════════════════════════════
+// JS RUNNER
+// ═══════════════════════════════════════════════════════════
+let outputLines = [];
+
+async function runCode(forSubmit = false) {
+  outputLines = [];
+  setOutput([{type:'placeholder', text:''}], 'running');
+  document.getElementById('btn-run').disabled    = true;
+  document.getElementById('btn-submit').disabled = true;
+
+  const origLog  = console.log;
+  const origWarn = console.warn;
+  const origErr  = console.error;
+
+  console.log   = (...a) => outputLines.push({type:'ok',    text: a.map(x => typeof x === 'object' ? JSON.stringify(x) : String(x)).join(' ')});
+  console.warn  = (...a) => outputLines.push({type:'ok',    text: '[warn] ' + a.join(' ')});
+  console.error = (...a) => outputLines.push({type:'error', text: a.join(' ')});
+
+  try {
+    const AsyncFn = Object.getPrototypeOf(async function(){}).constructor;
+    await AsyncFn(editor.value)();
+  } catch(err) {
+    outputLines.push({type:'error', text: String(err)});
+  }
+
+  console.log   = origLog;
+  console.warn  = origWarn;
+  console.error = origErr;
+
+  if (!outputLines.length) outputLines.push({type:'placeholder', text:'(no output)'});
+  const hasErr = outputLines.some(l => l.type === 'error');
+  setOutput(outputLines, hasErr ? 'error' : 'ok');
+  document.getElementById('btn-run').disabled    = false;
+  document.getElementById('btn-submit').disabled = false;
+
+  if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forSubmit) checkAnswer();
+}
+
+document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
+document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// CHECK & COMPLETE
+// ═══════════════════════════════════════════════════════════
+function checkAnswer() {
+  const out  = outputLines.map(l => l.text).join('\n');
+  const code = editor.value;
+  if (lesson.check(out, code)) {
+    completeLesson();
+  } else {
+    const st = document.getElementById('output-status');
+    st.className = 'output-status os-error'; st.textContent = 'Not quite — check the hint!';
+    setTimeout(() => { st.className = 'output-status os-ok'; st.textContent = 'Done'; }, 2500);
+  }
+}
+
+function completeLesson() {
+  const state = loadState();
+  const langProgress = loadLangProgress();
+  const earned = !langProgress.completedIds.includes(lessonId);
+  if (earned) {
+    langProgress.completedIds.push(lessonId);
+    state.xp += lesson.xp;
+    state.lessonsCompleted = (state.completedIds || []).length + langProgress.completedIds.length;
+    state.level = getLevel(state.xp);
+    saveState(state);
+    saveLangProgress(langProgress);
+  }
+  document.getElementById('progress-fill').style.width = (lessonId / TOTAL * 100) + '%';
+  showModal(earned ? lesson.xp : 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL + XP COUNTER ANIMATION
+// ═══════════════════════════════════════════════════════════
+function showModal(xpEarned) {
+  const nextId  = lessonId + 1;
+  const hasNext = !!LESSONS[nextId];
+  document.getElementById('modal-sub').textContent =
+    hasNext ? `Lesson ${lessonId} of ${TOTAL} complete. Keep going!`
+            : '🎓 You finished all JavaScript lessons!';
+  const btn = document.getElementById('modal-next');
+  btn.textContent = hasNext ? 'Next Lesson →' : 'Back to Dashboard';
+  btn.onclick = () => window.location.href = hasNext ? `lesson-js.html?id=${nextId}` : 'dashboard.html';
+
+  const el = document.getElementById('modal-xp-count');
+  el.textContent = '0';
+  let current = 0;
+  const step  = Math.ceil(xpEarned / 30);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, xpEarned);
+    el.textContent = current;
+    if (current >= xpEarned) clearInterval(timer);
+  }, 28);
+
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('nav-xp').textContent = loadState().xp;
+
+  if (xpEarned > 0) launchConfetti();
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+
+  const COLORS = ['#6366F1','#F59E0B','#10B981','#EF4444','#22D3EE','#818CF8','#FDE68A'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height * 0.5,
+    w: 6 + Math.random() * 8,
+    h: 4 + Math.random() * 6,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: 2 + Math.random() * 4,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.15,
+    opacity: 1,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.vrot;
+      p.vy  += 0.06;
+      if (frame > 90) p.opacity = Math.max(0, p.opacity - 0.018);
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else { canvas.classList.remove('active'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>

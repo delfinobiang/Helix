@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Always forward. Strand by strand.</title>
+  <meta name="description" content="Helix is where your code strand begins. Write real programs in your browser, earn XP, and keep the helix spinning. No setup. No ceiling. Always forward." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       DESIGN TOKENS
+    ========================================================= */
+    :root {
+      --bg:         #050816;
+      --bg-2:       #0C1022;
+      --bg-card:    rgba(255,255,255,0.04);
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(99,102,241,0.3);
+      --primary:    #6366F1;
+      --primary-l:  #818CF8;
+      --cyan:       #22D3EE;
+      --accent:     #F59E0B;
+      --text:       #EEF2F8;
+      --text-2:     #8892A4;
+      --text-3:     #2D3A4E;
+      --green:      #10B981;
+      --red:        #EF4444;
+      --violet:     #8B5CF6;
+      --radius:     16px;
+      --nav-h:      64px;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* =========================================================
+       AURORA — fixed, behind everything
+    ========================================================= */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      filter: blur(90px) saturate(130%);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .orb-1 {
+      width: 900px;
+      height: 900px;
+      background: radial-gradient(circle, rgba(99,102,241,0.55) 0%, transparent 65%);
+      top: -200px;
+      left: -200px;
+      animation: drift1 22s ease-in-out alternate infinite;
+    }
+
+    .orb-2 {
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 65%);
+      bottom: -100px;
+      right: -100px;
+      animation: drift2 17s ease-in-out alternate infinite;
+    }
+
+    .orb-3 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 65%);
+      top: 10%;
+      right: 15%;
+      animation: drift3 14s ease-in-out alternate infinite;
+    }
+
+    .orb-4 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%);
+      bottom: 20%;
+      left: 30%;
+      animation: drift4 28s ease-in-out alternate infinite;
+    }
+
+    .orb-5 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 65%);
+      top: 50%;
+      left: 60%;
+      animation: drift5 19s ease-in-out alternate infinite;
+    }
+
+    @keyframes drift1 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(80px, 120px) scale(1.08); }
+      66%  { transform: translate(-60px, 200px) scale(0.95); }
+      100% { transform: translate(140px, 60px) scale(1.05); }
+    }
+
+    @keyframes drift2 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(-100px, -80px) scale(1.1); }
+      66%  { transform: translate(60px, -150px) scale(0.9); }
+      100% { transform: translate(-80px, -40px) scale(1.05); }
+    }
+
+    @keyframes drift3 {
+      0%   { transform: translate(0, 0) scale(1); }
+      25%  { transform: translate(-120px, 60px) scale(1.15); }
+      75%  { transform: translate(80px, -100px) scale(0.88); }
+      100% { transform: translate(-40px, 80px) scale(1.06); }
+    }
+
+    @keyframes drift4 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(100px, -60px) scale(1.12); }
+      66%  { transform: translate(-80px, 100px) scale(0.93); }
+      100% { transform: translate(60px, -80px) scale(1.08); }
+    }
+
+    @keyframes drift5 {
+      0%   { transform: translate(0, 0) scale(1); }
+      40%  { transform: translate(-90px, 70px) scale(1.2); }
+      70%  { transform: translate(110px, -50px) scale(0.85); }
+      100% { transform: translate(-50px, 110px) scale(1.1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .orb { animation: none; }
+    }
+
+    /* =========================================================
+       LOADING SCREEN
+    ========================================================= */
+    .loading-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(5, 8, 22, 0.96);
+      backdrop-filter: blur(18px);
+      gap: 1.25rem;
+      transition: opacity 0.4s ease;
+    }
+    .loading-wordmark {
+      font-size: 1.7rem; font-weight: 900; letter-spacing: -0.06em;
+      color: white; font-family: 'Inter', sans-serif;
+    }
+    .loading-subtitle {
+      font-size: 0.72rem; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.14em; text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* =========================================================
+       GRAIN OVERLAY
+    ========================================================= */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    /* =========================================================
+       LAYOUT HELPERS
+    ========================================================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      position: relative;
+      z-index: 2;
+      padding: 96px 0;
+    }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-l);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      color: var(--text-2);
+      font-size: 1.05rem;
+      max-width: 520px;
+      line-height: 1.65;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =========================================================
+       NAV
+    ========================================================= */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(5,8,22,0.6);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 20px rgba(99,102,241,0.45);
+    }
+
+    /* =========================================================
+       HERO
+    ========================================================= */
+    .hero {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: var(--nav-h);
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 24px 64px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 64px;
+    }
+
+    .hero-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Eyebrow badge */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 100px;
+      padding: 7px 18px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary-l);
+      letter-spacing: 0.03em;
+      margin-bottom: 28px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      50%       { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+    }
+
+    .hero-h1 {
+      font-size: clamp(3rem, 6.5vw, 6.5rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1.0;
+      margin-bottom: 28px;
+    }
+
+    .hero-sub {
+      max-width: 520px;
+      color: var(--text-2);
+      font-size: clamp(1rem, 1.8vw, 1.15rem);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    /* CTA buttons */
+    .hero-btns {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 32px rgba(99,102,241,0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 48px rgba(99,102,241,0.55);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-hi);
+      background: var(--bg-card);
+      transform: translateY(-1px);
+    }
+
+    /* Stats strip */
+    .hero-stats {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-stat {
+      flex: 1;
+      padding: 16px 20px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .hero-stat:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-2);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* Floating code window */
+    .hero-code-wrap {
+      flex: 0 0 460px;
+      position: relative;
+    }
+
+    .code-window {
+      background: rgba(12,16,34,0.85);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.1);
+    }
+
+    .code-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .dot-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot-row span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .dot-row .dot-r { background: #FF5F57; }
+    .dot-row .dot-y { background: #FFBD2E; }
+    .dot-row .dot-g { background: #28C840; }
+
+    .code-filename {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-2);
+      margin-left: 4px;
+    }
+
+    .code-body {
+      padding: 20px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.75;
+      overflow-x: auto;
+    }
+
+    .code-body .ln  { color: var(--text-3); user-select: none; margin-right: 16px; display: inline-block; width: 18px; text-align: right; }
+    .code-body .kw  { color: #C084FC; }
+    .code-body .fn  { color: #60A5FA; }
+    .code-body .str { color: #86EFAC; }
+    .code-body .cm  { color: #4B5563; font-style: italic; }
+    .code-body .num { color: #FCA5A5; }
+    .code-body .op  { color: var(--cyan); }
+    .code-body .var { color: var(--text); }
+
+    .code-output {
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--green);
+      background: rgba(16,185,129,0.04);
+    }
+
+    .output-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+
+    /* Glow ring behind code window */
+    .hero-code-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -40px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(99,102,241,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* =========================================================
+       MARQUEE STRIP
+    ========================================================= */
+    .marquee-section {
+      position: relative;
+      z-index: 2;
+      padding: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.018);
+      overflow: hidden;
+    }
+
+    .marquee-section::before,
+    .marquee-section::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 120px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .marquee-section::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg), transparent);
+    }
+
+    .marquee-section::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg), transparent);
+    }
+
+    .marquee-track {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      gap: 0;
+      animation: marquee 30s linear infinite;
+      padding: 18px 0;
+    }
+
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 32px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .marquee-item::after {
+      content: '·';
+      margin-left: 10px;
+      color: var(--text-3);
+      font-size: 1.2rem;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* =========================================================
+       FEATURES
+    ========================================================= */
+    .features-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .features-header .section-sub {
+      margin: 0 auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(99,102,241,0.12);
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 0% 0%, rgba(99,102,241,0.06), transparent 60%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .feature-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-3);
+      font-weight: 700;
+    }
+
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    /* =========================================================
+       HOW IT WORKS
+    ========================================================= */
+    .how-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .how-header .section-sub { margin: 0 auto; }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+
+    .how-step {
+      padding: 40px 36px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .how-step:last-child { border-right: none; }
+
+    .how-big-num {
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      font-size: 8rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.025);
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+      user-select: none;
+      letter-spacing: -0.05em;
+    }
+
+    .how-step-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-l);
+      margin-bottom: 12px;
+    }
+
+    .how-step-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .how-step-desc {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    /* =========================================================
+       LANGUAGES
+    ========================================================= */
+    .lang-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .lang-header .section-sub { margin: 0 auto; }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .lang-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+
+    .lang-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-3px);
+    }
+
+    .lang-icon {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .lang-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .lang-desc {
+      font-size: 0.75rem;
+      color: var(--text-2);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .lang-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+
+    .badge-live {
+      background: rgba(16,185,129,0.12);
+      color: var(--green);
+      border: 1px solid rgba(16,185,129,0.25);
+    }
+
+    .badge-soon {
+      background: rgba(99,102,241,0.12);
+      color: var(--primary-l);
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+
+    .badge-planned {
+      background: rgba(99,102,241,0.07);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+
+    .lang-bar-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .lang-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--primary), var(--cyan));
+    }
+
+    /* =========================================================
+       CTA SECTION
+    ========================================================= */
+    .cta-section {
+      position: relative;
+      z-index: 2;
+      padding: 100px 0;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.07) 0%, transparent 70%);
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-h2 {
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+
+    .cta-sub {
+      color: var(--text-2);
+      font-size: 1.05rem;
+      max-width: 420px;
+      margin: 0 auto 36px;
+      line-height: 1.65;
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    .footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 48px 0 28px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-left { display: flex; flex-direction: column; gap: 8px; }
+
+    .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-col-title {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-2); margin-bottom: 10px;
+    }
+    .footer-col a {
+      display: block; font-size: 0.85rem; color: var(--text-3);
+      text-decoration: none; margin-bottom: 7px;
+      transition: color 0.18s;
+    }
+    .footer-col a:hover { color: var(--text); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 28px auto 0; padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .footer-tagline {
+      font-size: 0.85rem;
+      margin-left: 6px;
+      font-weight: 500;
+      /* Shimmer sweep animation */
+      background: linear-gradient(
+        90deg,
+        var(--text-3) 0%,
+        var(--text-2) 25%,
+        var(--primary-l) 50%,
+        var(--cyan) 65%,
+        var(--text-2) 80%,
+        var(--text-3) 100%
+      );
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-3);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+    }
+    .footer-copy.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer-brand {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .footer-brand.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Helix wave in footer pulses gently */
+    .footer-wave {
+      display: inline-block;
+      animation: breathe 4s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 0.8; transform: scale(1.06); }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    /* Tablet <=900px */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-grid { grid-template-columns: 1fr; }
+      .how-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .how-step:last-child { border-bottom: none; }
+      .hero-code-wrap { display: none; }
+      .hero-inner { justify-content: center; }
+      .hero-content { text-align: center; }
+      .hero-btns { justify-content: center; }
+      .hero-sub { margin: 0 auto 40px; }
+    }
+
+    /* Mobile <=600px */
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .hero-stats {
+        flex-direction: column;
+        border-radius: 12px;
+      }
+      .hero-stat {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 20px;
+      }
+      .hero-stat:last-child { border-bottom: none; }
+      .lang-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { flex-direction: column; gap: 24px; }
+      .footer-cols { gap: 24px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .section { padding: 64px 0; }
+    }
+
+    /* Desktop >=1200px */
+    @media (min-width: 1200px) {
+      .hero-inner { text-align: left; }
+      .hero-content { text-align: left; }
+      .hero-btns { justify-content: flex-start; }
+      .hero-sub { margin-left: 0; }
+      .hero-code-wrap { display: block; }
+    }
+
+    /* =========================================================
+       SVG ICON HELPER
+    ========================================================= */
+    .icon {
+      display: block;
+      flex-shrink: 0;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <svg width="200" height="52" viewBox="0 0 200 52" fill="none" aria-hidden="true" style="overflow:hidden; display:block;">
+      <defs><clipPath id="dna-load-index-c"><rect width="200" height="52"/></clipPath></defs>
+      <g clip-path="url(#dna-load-index-c)">
+        <path d="M-44,26 Q-38.5,6 -33,26 Q-27.5,46 -22,26 Q-16.5,6 -11,26 Q-5.5,46 0,26 Q5.5,6 11,26 Q16.5,46 22,26 Q27.5,6 33,26 Q38.5,46 44,26 Q49.5,6 55,26 Q60.5,46 66,26 Q71.5,6 77,26 Q82.5,46 88,26 Q93.5,6 99,26 Q104.5,46 110,26 Q115.5,6 121,26 Q126.5,46 132,26 Q137.5,6 143,26 Q148.5,46 154,26 Q159.5,6 165,26 Q170.5,46 176,26 Q181.5,6 187,26 Q192.5,46 198,26 Q203.5,6 209,26 Q214.5,46 220,26" stroke="white" stroke-linecap="round" fill="none">
+          <animate attributeName="stroke-width" values="2.5;1.2;2.5" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M-44,26 Q-38.5,46 -33,26 Q-27.5,6 -22,26 Q-16.5,46 -11,26 Q-5.5,6 0,26 Q5.5,46 11,26 Q16.5,6 22,26 Q27.5,46 33,26 Q38.5,6 44,26 Q49.5,46 55,26 Q60.5,6 66,26 Q71.5,46 77,26 Q82.5,6 88,26 Q93.5,46 99,26 Q104.5,6 110,26 Q115.5,46 121,26 Q126.5,6 132,26 Q137.5,46 143,26 Q148.5,6 154,26 Q159.5,46 165,26 Q170.5,6 176,26 Q181.5,46 187,26 Q192.5,6 198,26 Q203.5,46 209,26 Q214.5,6 220,26" stroke="white" stroke-linecap="round" fill="none">
+          <animate attributeName="stroke-width" values="1.2;2.5;1.2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </svg>
+    <span class="loading-wordmark">helix</span>
+    <span class="loading-subtitle">Spinning up your strand…</span>
+  </div>
+  <script>
+  // Loading screen: only show if page takes > 200ms
+  (function() {
+    var _ls = document.getElementById('loadingScreen');
+    var _lt = setTimeout(function() {
+      if (_ls) { _ls.style.display = 'flex'; _ls.style.opacity = '0'; setTimeout(function(){ _ls.style.opacity = '1'; }, 10); }
+    }, 200);
+    window.addEventListener('load', function() {
+      clearTimeout(_lt);
+      if (_ls) _ls.remove();
+    });
+  })();
+  </script>
+
+  <!-- =========================================================
+       AURORA BACKGROUND
+  ========================================================= -->
+  <div class="aurora" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
+
+  <!-- Grain overlay -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       NAV
+  ========================================================= -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <!-- Logo -->
+      <a href="index.html" class="nav-brand">
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+          <defs><clipPath id="dna-nav-c"><rect width="40" height="20"/></clipPath></defs>
+          <g clip-path="url(#dna-nav-c)">
+            <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+        Helix
+      </a>
+
+      <!-- Center links -->
+      <ul class="nav-links" role="list">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#languages">Languages</a></li>
+        <li><a href="pricing.html">Plans</a></li>
+      </ul>
+
+      <!-- CTA -->
+      <div id="nav-cta-area">
+        <a href="signup.html" class="nav-cta">Get started &#8594;</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================================================
+       HERO
+  ========================================================= -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-inner">
+      <!-- Left / center content -->
+      <div class="hero-content">
+        <!-- Eyebrow badge -->
+        <div class="hero-badge">
+          <span class="badge-dot" aria-hidden="true"></span>
+          Always evolving &middot; Run real code &middot; Free forever
+        </div>
+
+        <!-- Headline -->
+        <h1 class="hero-h1">
+          Code your helix.<br />
+          <span class="gradient-text">Strand by strand.</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="hero-sub">
+          We don't just teach code — we help you coil it into instinct. Write real programs in your browser, earn XP with every loop, and keep the helix spinning. No setup. No ceiling.
+        </p>
+
+        <!-- CTA buttons -->
+        <div class="hero-btns">
+          <a href="signup.html" class="btn-primary">
+            Spin up — it's free &#8594;
+          </a>
+          <a href="login.html" class="btn-ghost">
+            Sign in
+          </a>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="hero-stats" role="list" aria-label="Platform stats">
+          <div class="hero-stat" role="listitem">
+            <div class="stat-value">90</div>
+            <div class="stat-label">Lessons live</div>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <div class="stat-value">6</div>
+            <div class="stat-label">Language coils</div>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <div class="stat-value">Free</div>
+            <div class="stat-label">To start</div>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <div class="stat-value">∞</div>
+            <div class="stat-label">Room to grow</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating code window (desktop only) -->
+      <div class="hero-code-wrap" aria-hidden="true">
+        <div class="code-window">
+          <!-- Title bar -->
+          <div class="code-titlebar">
+            <div class="dot-row">
+              <span class="dot-r"></span>
+              <span class="dot-y"></span>
+              <span class="dot-g"></span>
+            </div>
+            <span class="code-filename">lesson_01.py</span>
+          </div>
+
+          <!-- Code body -->
+          <div class="code-body">
+<pre><span class="ln">1</span><span class="cm"># Helix &mdash; Lesson 01: Variables</span>
+<span class="ln">2</span>
+<span class="ln">3</span><span class="var">name</span> <span class="op">=</span> <span class="str">"Alex"</span>
+<span class="ln">4</span><span class="var">score</span> <span class="op">=</span> <span class="num">0</span>
+<span class="ln">5</span><span class="var">streak</span> <span class="op">=</span> <span class="num">3</span>
+<span class="ln">6</span>
+<span class="ln">7</span><span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>):
+<span class="ln">8</span>  <span class="kw">return</span> <span class="str">f"Hello, {name}!"</span>
+<span class="ln">9</span>
+<span class="ln">10</span><span class="var">xp</span> <span class="op">=</span> <span class="var">streak</span> <span class="op">*</span> <span class="num">50</span>
+<span class="ln">11</span><span class="fn">print</span>(<span class="fn">greet</span>(<span class="var">name</span>))
+<span class="ln">12</span><span class="fn">print</span>(<span class="str">f"XP earned: {xp}"</span>)</pre>
+          </div>
+
+          <!-- Output -->
+          <div class="code-output">
+            <div class="output-label">Output</div>
+            <div>Hello, Alex!</div>
+            <div>XP earned: 150</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       MARQUEE STRIP
+  ========================================================= -->
+  <div class="marquee-section" aria-hidden="true">
+    <div class="marquee-track">
+      <!-- Set 1 -->
+      <span class="marquee-item">Python Fundamentals</span>
+      <span class="marquee-item">Variables &amp; Types</span>
+      <span class="marquee-item">Control Flow</span>
+      <span class="marquee-item">Functions</span>
+      <span class="marquee-item">Lists &amp; Dicts</span>
+      <span class="marquee-item">OOP</span>
+      <span class="marquee-item">JavaScript</span>
+      <span class="marquee-item">HTML &amp; CSS</span>
+      <span class="marquee-item">Algorithms</span>
+      <span class="marquee-item">Data Structures</span>
+      <span class="marquee-item">Daily Challenges</span>
+      <span class="marquee-item">Leaderboards</span>
+      <!-- Set 2 (duplicate for seamless loop) -->
+      <span class="marquee-item">Python Fundamentals</span>
+      <span class="marquee-item">Variables &amp; Types</span>
+      <span class="marquee-item">Control Flow</span>
+      <span class="marquee-item">Functions</span>
+      <span class="marquee-item">Lists &amp; Dicts</span>
+      <span class="marquee-item">OOP</span>
+      <span class="marquee-item">JavaScript</span>
+      <span class="marquee-item">HTML &amp; CSS</span>
+      <span class="marquee-item">Algorithms</span>
+      <span class="marquee-item">Data Structures</span>
+      <span class="marquee-item">Daily Challenges</span>
+      <span class="marquee-item">Leaderboards</span>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       FEATURES
+  ========================================================= -->
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="container">
+      <div class="features-header">
+        <p class="section-label">The Stack</p>
+        <h2 class="section-title" id="features-title">
+          Engineered for how<br /><span class="gradient-text">the helix grows.</span>
+        </h2>
+        <p class="section-sub">No bloat. No shortcuts. Every strand in the stack exists to push your coil one rotation further.</p>
+      </div>
+
+      <div class="features-grid">
+
+        <!-- 01 -->
+        <article class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-box" style="background: rgba(99,102,241,0.15);">
+              <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <span class="feature-num">01</span>
+          </div>
+          <h3 class="feature-title">Run it. Right here.</h3>
+          <p class="feature-desc">Powered by Pyodide — a full Python runtime in your browser. The helix starts the moment you open the tab. Zero install, zero waiting.</p>
+        </article>
+
+        <!-- 02 -->
+        <article class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-box" style="background: rgba(34,211,238,0.1);">
+              <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <span class="feature-num">02</span>
+          </div>
+          <h3 class="feature-title">Momentum, measured.</h3>
+          <p class="feature-desc">Every solved loop earns XP. Your streak is proof the helix never stopped spinning. Let the numbers reflect the motion.</p>
+        </article>
+
+        <!-- 03 -->
+        <article class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-box" style="background: rgba(16,185,129,0.1);">
+              <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <span class="feature-num">03</span>
+          </div>
+          <h3 class="feature-title">One new loop. Every day.</h3>
+          <p class="feature-desc">A new challenge spins up each day. Solve it, earn bonus XP, extend your streak. The helix doesn't take days off — neither should you.</p>
+        </article>
+
+        <!-- 04 -->
+        <article class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-box" style="background: rgba(245,158,11,0.1);">
+              <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="6"></circle>
+                <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path>
+              </svg>
+            </div>
+            <span class="feature-num">04</span>
+          </div>
+          <h3 class="feature-title">Earned. Not given.</h3>
+          <p class="feature-desc">8 badges forged from real milestones — not participation trophies. You don't unlock them by showing up. You unlock them by pushing the coil forward.</p>
+        </article>
+
+        <!-- 05 -->
+        <article class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-box" style="background: rgba(139,92,246,0.12);">
+              <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <span class="feature-num">05</span>
+          </div>
+          <h3 class="feature-title">Where does your helix rank?</h3>
+          <p class="feature-desc">Weekly, monthly, and all-time standings. Every XP point is a rotation. See where your helix sits in the global spiral.</p>
+        </article>
+
+        <!-- 06 -->
+        <article class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon-box" style="background: rgba(99,102,241,0.15);">
+              <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <span class="feature-num">06</span>
+          </div>
+          <h3 class="feature-title">The nudge. Not the answer.</h3>
+          <p class="feature-desc">When the helix stalls, progressive hints restore your momentum — without shortcutting the learning. You solve it. You remember it. You own it.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       HOW IT WORKS
+  ========================================================= -->
+  <section class="section" id="how-it-works" aria-labelledby="how-title">
+    <div class="container">
+      <div class="how-header">
+        <p class="section-label">The Loop</p>
+        <h2 class="section-title" id="how-title">
+          Read. Write.<br /><span class="gradient-text">Evolve.</span>
+        </h2>
+        <p class="section-sub">Three rotations. Repeat until the helix is unbreakable.</p>
+      </div>
+
+      <div class="how-grid">
+
+        <div class="how-step">
+          <div class="how-big-num" aria-hidden="true">01</div>
+          <p class="how-step-label">Rotation 01</p>
+          <h3 class="how-step-title">Absorb the strand</h3>
+          <p class="how-step-desc">Each strand breaks down one concept with precision — no padding, no filler. We give you what you need, then step aside.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-big-num" aria-hidden="true">02</div>
+          <p class="how-step-label">Rotation 02</p>
+          <h3 class="how-step-title">Execute the loop</h3>
+          <p class="how-step-desc">A real engine runs in your browser. Write, run, read the output, iterate. The helix grows with every cycle — no fake consoles, no simulations.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-big-num" aria-hidden="true">03</div>
+          <p class="how-step-label">Rotation 03</p>
+          <h3 class="how-step-title">Spin forward</h3>
+          <p class="how-step-desc">XP earned. Badges forged. Helix extended. Every rotation makes you measurably better than the one before it. That's not motivation — that's physics.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       LANGUAGES
+  ========================================================= -->
+  <section class="section" id="languages" aria-labelledby="lang-title">
+    <div class="container">
+      <div class="lang-header">
+        <p class="section-label">Active Strands</p>
+        <h2 class="section-title" id="lang-title">
+          Start your first coil.<br /><span class="gradient-text">More strands incoming.</span>
+        </h2>
+        <p class="section-sub">Python is your first coil — 15 strands, live now. Each new language extends the helix further. Watch the spiral widen.</p>
+      </div>
+
+      <div class="lang-grid">
+
+        <!-- Python -->
+        <div class="lang-card">
+          <div class="lang-icon" style="color: #F59E0B;">Py</div>
+          <div class="lang-name">Python</div>
+          <div class="lang-desc">Your first coil. 15 strands, live and spinning.</div>
+          <div><span class="lang-badge badge-live">Live</span></div>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- JavaScript -->
+        <div class="lang-card">
+          <div class="lang-icon" style="color: #EAB308;">JS</div>
+          <div class="lang-name">JavaScript</div>
+          <div class="lang-desc">The web's coil. 15 strands, live and spinning.</div>
+          <div><span class="lang-badge badge-live">Live</span></div>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- HTML & CSS -->
+        <div class="lang-card">
+          <div class="lang-icon" style="color: #F97316;">Html</div>
+          <div class="lang-name">HTML &amp; CSS</div>
+          <div class="lang-desc">Structure and style. 15 strands, live and spinning.</div>
+          <div><span class="lang-badge badge-live">Live</span></div>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- SQL -->
+        <div class="lang-card">
+          <div class="lang-icon" style="color: #22D3EE;">SQL</div>
+          <div class="lang-name">SQL</div>
+          <div class="lang-desc">The data coil. 15 strands, live and spinning.</div>
+          <div><span class="lang-badge badge-live">Live</span></div>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- C++ -->
+        <div class="lang-card">
+          <div class="lang-icon" style="color: #818CF8;">C++</div>
+          <div class="lang-name">C++</div>
+          <div class="lang-desc">Performance at the metal. 15 strands, live and spinning.</div>
+          <div><span class="lang-badge badge-live">Live</span></div>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- TypeScript -->
+        <div class="lang-card">
+          <div class="lang-icon" style="color: #60A5FA;">TS</div>
+          <div class="lang-name">TypeScript</div>
+          <div class="lang-desc">JS, strengthened. 15 strands, live and spinning.</div>
+          <div><span class="lang-badge badge-live">Live</span></div>
+          <div class="lang-bar-track">
+            <div class="lang-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       CTA SECTION
+  ========================================================= -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <div class="container">
+      <h2 class="cta-h2" id="cta-title">
+        The helix is already<br />
+        <span class="gradient-text">spinning. Are you?</span>
+      </h2>
+      <p class="cta-sub">No account. No countdown. The helix doesn't wait for perfect conditions — and neither should you.</p>
+      <a href="dashboard.html" class="btn-primary" style="display: inline-flex;">
+        Start your helix &#8594;
+      </a>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       FOOTER
+  ========================================================= -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <!-- Brand -->
+      <div class="footer-left">
+        <a href="index.html" class="footer-brand" id="footer-brand">
+          <span class="footer-wave" aria-hidden="true">
+            <svg width="22" height="14" viewBox="0 0 44 28" fill="none">
+              <path d="M0,14 Q5.5,4 11,14 Q16.5,24 22,14 Q27.5,4 33,14 Q38.5,24 44,14" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M0,14 Q5.5,24 11,14 Q16.5,4 22,14 Q27.5,24 33,14 Q38.5,4 44,14" stroke="#EEF2F8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+            </svg>
+          </span>
+          Helix
+        </a>
+        <span class="footer-tagline">Always forward. Never still.</span>
+      </div>
+
+      <!-- Link columns -->
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-col-title">Learn</div>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="pricing.html">Plans</a>
+          <a href="challenge.html">Daily Challenge</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Company</div>
+          <a href="about.html">About Us</a>
+          <a href="faq.html">FAQ</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Account</div>
+          <a href="login.html">Sign In</a>
+          <a href="signup.html">Create Account</a>
+          <a href="profile.html">Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy" id="footer-copy">&copy; 2026 Helix &mdash; The helix never rests.</p>
+      <span class="footer-tagline" style="font-size:0.78rem;">Built with purpose.</span>
+    </div>
+  </footer>
+
+  <script>
+    /* Footer fade-in on scroll via IntersectionObserver */
+    const footerBrand = document.getElementById('footer-brand');
+    const footerCopy  = document.getElementById('footer-copy');
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Stagger: brand first, copy 200ms later
+          footerBrand.classList.add('visible');
+          setTimeout(() => footerCopy.classList.add('visible'), 200);
+          footerObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    footerObserver.observe(document.querySelector('.footer'));
+
+    /* Nav link smooth-scroll & active state */
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', e => {
+        const href = link.getAttribute('href');
+        if (href.startsWith('#')) {
+          e.preventDefault();
+          document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Session-aware nav
+    (function() {
+      const _sess = JSON.parse(localStorage.getItem('helix_session') || 'null');
+      if (_sess) {
+        const _users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+        const _u = _users.find(u => u.id === _sess.userId);
+        const _ctaArea = document.getElementById('nav-cta-area');
+        let html = `<a href="dashboard.html" class="nav-cta" style="background:transparent;border:1px solid rgba(99,102,241,0.4);">Dashboard →</a>`;
+        if (_u?.isAdmin) {
+          html += ` <a href="admin.html" class="nav-cta" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;margin-left:0.5rem;" title="Admin Panel">⚙ Admin</a>`;
+        }
+        if (_u?.profilePic) {
+          html += ` <a href="profile.html" style="display:inline-flex;align-items:center;margin-left:0.5rem;"><img src="${_u.profilePic}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(99,102,241,0.4);" alt="profile"></a>`;
+        } else {
+          const _init = (_sess.username || 'Y')[0].toUpperCase();
+          html += ` <a href="profile.html" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#22D3EE);font-size:0.75rem;font-weight:700;color:white;margin-left:0.5rem;text-decoration:none;">${_init}</a>`;
+        }
+        _ctaArea.innerHTML = html;
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+      --orange:   #F97316;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+
+    /* ── Aurora ── */
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-iteration-count: infinite; animation-direction: alternate; }
+    .orb-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%);
+      top: -150px; left: -100px;
+      animation: drift1 25s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%);
+      bottom: -100px; right: -100px;
+      animation: drift2 20s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(34,211,238,0.15) 0%, transparent 65%);
+      top: 40%; right: 15%;
+      animation: drift3 18s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,60px) scale(1.08); } 100% { transform: translate(40px,120px) scale(0.95); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,-50px) scale(1.1); } 100% { transform: translate(-30px,-100px) scale(0.96); } }
+    @keyframes drift3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,70px) scale(1.12); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── APP SHELL ───────────────────────────────────────── */
+    .app-shell {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      grid-template-rows: 60px 1fr;
+      grid-template-areas:
+        "sidebar topbar"
+        "sidebar main";
+      min-height: 100vh;
+      position: relative; z-index: 1;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────── */
+    .sidebar {
+      grid-area: sidebar;
+      position: fixed; top: 0; left: 0; bottom: 0; width: 240px;
+      display: flex; flex-direction: column;
+      background: rgba(255,255,255,0.02);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem 1.25rem;
+      z-index: 50; overflow-y: auto;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 0.65rem;
+      text-decoration: none; margin-bottom: 0.5rem; padding: 0 0.25rem;
+    }
+    .sidebar-logo-name {
+      font-size: 1.15rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text);
+    }
+    .admin-badge-sidebar {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25);
+      color: var(--red); padding: 0.15rem 0.5rem; border-radius: 6px;
+      margin-left: auto;
+    }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 0.75rem 0; }
+    .sidebar-label {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.18em; color: var(--text-3);
+      padding: 0 0.75rem; margin: 0.8rem 0 0.3rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      color: var(--text-2); font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      border: none; background: none; font-family: inherit; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-item.active .nav-icon { color: var(--primary); }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-item.back-link { color: var(--text-3); margin-top: auto; }
+    .nav-item.back-link:hover { color: var(--text-2); }
+    .sidebar-spacer { flex: 1; }
+
+    /* ─── TOPBAR ──────────────────────────────────────────── */
+    .topbar {
+      grid-area: topbar;
+      position: fixed; top: 0; left: 240px; right: 0; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(5,8,22,0.75);
+      backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+      z-index: 40;
+    }
+    .topbar-title {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .topbar-h { font-size: 0.95rem; font-weight: 700; }
+    .topbar-sep { color: var(--text-3); }
+    .topbar-section { font-size: 0.85rem; color: var(--text-2); font-weight: 500; }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .admin-name-pill {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2);
+      padding: 0.3rem 0.75rem; border-radius: 100px;
+      font-size: 0.8rem; font-weight: 600; color: var(--primary-l);
+    }
+    .admin-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800; color: white;
+      border: 2px solid rgba(239,68,68,0.35);
+      overflow: hidden;
+    }
+
+    /* ─── MAIN ────────────────────────────────────────────── */
+    .main {
+      grid-area: main;
+      margin-left: 240px; margin-top: 60px;
+      padding: 2rem 2.5rem;
+      min-height: calc(100vh - 60px);
+      position: relative; z-index: 1;
+    }
+
+    /* ─── SECTIONS (view switcher) ────────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ─── PAGE HEADER ─────────────────────────────────────── */
+    .page-header { margin-bottom: 2rem; }
+    .page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.25rem; }
+    .page-sub   { font-size: 0.875rem; color: var(--text-2); }
+
+    /* ─── STAT CARDS ──────────────────────────────────────── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.25rem 1.4rem;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--sc-accent, var(--primary)); opacity: 0.5;
+    }
+    .stat-card:hover { border-color: rgba(99,102,241,0.25); transform: translateY(-2px); }
+    .stat-card-icon { font-size: 1.3rem; margin-bottom: 0.75rem; }
+    .stat-card-val { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; color: var(--sc-color, var(--text)); }
+    .stat-card-lbl { font-size: 0.75rem; color: var(--text-2); margin-top: 0.2rem; font-weight: 500; }
+    .stat-card-trend { font-size: 0.72rem; color: var(--text-3); margin-top: 0.5rem; }
+
+    /* ─── SECTION TITLE ───────────────────────────────────── */
+    .section-title {
+      font-size: 1rem; font-weight: 700; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-title-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--primary); display: inline-block;
+    }
+
+    /* ─── TABLE ───────────────────────────────────────────── */
+    .table-wrap {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; margin-bottom: 2.5rem;
+    }
+    .table-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-header-title { font-size: 0.9rem; font-weight: 700; }
+    .table-count {
+      font-size: 0.75rem; color: var(--text-2);
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem; border-radius: 100px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    thead th {
+      padding: 0.75rem 1rem; text-align: left;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3);
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+    tbody tr:hover { background: rgba(99,102,241,0.05); }
+    tbody td { padding: 0.85rem 1rem; font-size: 0.85rem; vertical-align: middle; }
+
+    /* ─── USER AVATAR CELL ────────────────────────────────── */
+    .user-cell { display: flex; align-items: center; gap: 0.65rem; }
+    .u-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: white;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      border: 2px solid rgba(99,102,241,0.3);
+    }
+    .u-name { font-weight: 600; font-size: 0.875rem; }
+    .u-email { font-size: 0.75rem; color: var(--text-2); }
+
+    /* ─── BADGES ──────────────────────────────────────────── */
+    .plan-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 0.2rem 0.6rem; border-radius: 6px;
+    }
+    .plan-pro {
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);
+      color: var(--green);
+    }
+    .plan-free {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text-3);
+    }
+    .provider-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.72rem; font-weight: 500; color: var(--text-2);
+    }
+
+    /* ─── ACTION BUTTONS ──────────────────────────────────── */
+    .actions-cell { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.3rem 0.65rem; border-radius: 7px;
+      font-size: 0.72rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.18s; border: 1px solid;
+      white-space: nowrap;
+    }
+    .btn-ghost {
+      background: rgba(255,255,255,0.04); border-color: var(--border);
+      color: var(--text-2);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--text); border-color: rgba(255,255,255,0.12); }
+    .btn-green {
+      background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2);
+      color: var(--green);
+    }
+    .btn-green:hover { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.35); }
+    .btn-yellow {
+      background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2);
+      color: var(--yellow);
+    }
+    .btn-yellow:hover { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); }
+    .btn-red {
+      background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2);
+      color: var(--red);
+    }
+    .btn-red:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.35); }
+    .btn-primary {
+      background: var(--primary); border-color: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--primary-l); border-color: var(--primary-l); }
+    .btn:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* ─── MODALS ──────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(8px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0d1123; border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 20px; padding: 1.75rem 2rem;
+      width: 90%; max-width: 460px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      animation: modal-in 0.22s ease;
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(0.94) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-title {
+      font-size: 1.05rem; font-weight: 800; margin-bottom: 0.3rem;
+    }
+    .modal-sub { font-size: 0.82rem; color: var(--text-2); margin-bottom: 1.25rem; }
+    .modal-body { margin-bottom: 1.5rem; }
+    .modal-footer { display: flex; gap: 0.6rem; justify-content: flex-end; }
+    .modal-close-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--text-2); padding: 0.45rem 1.1rem; border-radius: 9px;
+      font-size: 0.83rem; font-weight: 600; font-family: inherit;
+      cursor: pointer; transition: all 0.16s;
+    }
+    .modal-close-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+    /* Password display box */
+    .pw-box {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.85rem 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+      color: var(--cyan); letter-spacing: 0.04em;
+      word-break: break-all; margin-bottom: 1rem;
+    }
+    .warning-box {
+      background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 10px; padding: 0.75rem 1rem;
+      font-size: 0.78rem; color: #c49a2a; line-height: 1.5;
+    }
+    .warning-box strong { color: var(--yellow); }
+
+    /* Form input */
+    .form-label { font-size: 0.78rem; font-weight: 600; color: var(--text-2); margin-bottom: 0.4rem; display: block; }
+    .form-input {
+      width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 0.9rem;
+      color: var(--text); font-family: inherit; font-size: 0.875rem;
+      outline: none; transition: border-color 0.18s;
+    }
+    .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+
+    /* ─── DELETE MODAL specific ───────────────────────────── */
+    .delete-warning {
+      background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 12px; padding: 1rem 1.1rem;
+      display: flex; gap: 0.75rem; align-items: flex-start;
+      margin-bottom: 1.25rem;
+    }
+    .delete-warning-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .delete-warning-text { font-size: 0.83rem; color: #d88; line-height: 1.55; }
+    .delete-target-name {
+      font-size: 0.9rem; font-weight: 700; color: var(--red); margin-bottom: 0.4rem;
+    }
+
+    /* ─── STATISTICS SECTION ──────────────────────────────── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .stats-panel {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.4rem 1.5rem;
+    }
+    .stats-panel-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; }
+
+    /* Horizontal bar chart */
+    .bar-chart { display: flex; flex-direction: column; gap: 0.9rem; }
+    .bar-row { display: flex; flex-direction: column; gap: 0.3rem; }
+    .bar-label-row { display: flex; justify-content: space-between; font-size: 0.78rem; }
+    .bar-lang { font-weight: 600; }
+    .bar-pct { color: var(--text-2); font-size: 0.72rem; }
+    .bar-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .bar-fill {
+      height: 100%; border-radius: 100px;
+      background: var(--bar-color, var(--primary));
+      transition: width 0.7s ease;
+    }
+
+    /* Plan distribution big numbers */
+    .plan-dist { display: flex; gap: 2rem; }
+    .plan-dist-item { text-align: center; }
+    .plan-dist-num { font-size: 3rem; font-weight: 900; letter-spacing: -0.05em; }
+    .plan-dist-lbl { font-size: 0.78rem; color: var(--text-2); margin-top: -0.25rem; }
+
+    /* Leaderboard */
+    .leaderboard { display: flex; flex-direction: column; gap: 0.6rem; }
+    .lb-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0.75rem; border-radius: 10px;
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .lb-row:hover { background: rgba(99,102,241,0.06); }
+    .lb-rank {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 800; flex-shrink: 0;
+      background: rgba(255,255,255,0.06); color: var(--text-2);
+    }
+    .lb-rank.gold   { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+    .lb-rank.silver { background: rgba(148,163,184,0.12); color: #94A3B8; border: 1px solid rgba(148,163,184,0.2); }
+    .lb-rank.bronze { background: rgba(180,100,50,0.12); color: #B46432; border: 1px solid rgba(180,100,50,0.2); }
+    .lb-info { flex: 1; }
+    .lb-name { font-size: 0.85rem; font-weight: 600; }
+    .lb-email { font-size: 0.72rem; color: var(--text-2); }
+    .lb-xp {
+      font-size: 0.75rem; font-weight: 700;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15);
+      color: var(--yellow); padding: 0.2rem 0.55rem; border-radius: 6px;
+    }
+
+    /* ─── DEMO NOTE ───────────────────────────────────────── */
+    .demo-note {
+      background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.15);
+      border-radius: 10px; padding: 0.7rem 1rem;
+      font-size: 0.77rem; color: var(--text-2); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    /* ─── EMPTY STATE ─────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 4rem 1rem;
+      color: var(--text-3);
+    }
+    .empty-state-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .empty-state-msg { font-size: 0.88rem; }
+
+    /* ─── TOAST ───────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 300;
+      background: #1a2035; border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 12px; padding: 0.75rem 1.1rem;
+      display: flex; align-items: center; gap: 0.65rem;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+      transform: translateY(100px); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none; max-width: 320px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .toast.success { border-color: rgba(16,185,129,0.3); }
+    .toast.error   { border-color: rgba(239,68,68,0.3); }
+
+    /* ─── FORM INPUTS (for profile edit) ─────────────────── */
+    .form-label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--text-2); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .form-input {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 0.9rem; font-size: 0.9rem; color: var(--text);
+      font-family: inherit; outline: none; transition: border-color 0.18s;
+      margin-bottom: 0;
+    }
+    .form-input:focus { border-color: rgba(99,102,241,0.5); }
+    .stats-panel {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;
+    }
+    .stats-panel-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 1.25rem; }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.28s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .app-shell { grid-template-columns: 1fr; }
+      .topbar { left: 0; }
+      .main { margin-left: 0; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Aurora background -->
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- App shell -->
+<div class="app-shell">
+
+  <!-- ─── SIDEBAR ─────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <!-- Logo -->
+    <a href="index.html" class="sidebar-logo">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-admin-c"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-admin-c)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-width="1.1" stroke-linecap="round" fill="none">
+            <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="sidebar-logo-name">Helix</span>
+      <span class="admin-badge-sidebar">Admin</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <span class="sidebar-label">Navigation</span>
+    <button class="nav-item active" onclick="switchView('overview', this)" data-view="overview">
+      <span class="nav-icon">⊞</span> Overview
+    </button>
+    <button class="nav-item" onclick="switchView('users', this)" data-view="users">
+      <span class="nav-icon">👥</span> Users
+    </button>
+    <button class="nav-item" onclick="switchView('statistics', this)" data-view="statistics">
+      <span class="nav-icon">📊</span> Statistics
+    </button>
+    <button class="nav-item" onclick="switchView('my-profile', this)" data-view="my-profile">
+      <span class="nav-icon">🧬</span> My Profile
+    </button>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-divider"></div>
+
+    <a href="dashboard.html" class="nav-item" style="color:var(--primary-l);">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a href="index.html" class="nav-item back-link">
+      <span class="nav-icon">←</span> Back to Site
+    </a>
+    <button class="nav-item" onclick="adminLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;color:var(--red);">
+      <span class="nav-icon">🚪</span> Logout
+    </button>
+  </aside>
+
+  <!-- ─── TOP BAR ─────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="topbar-h">Admin Panel</span>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-section" id="topbar-section">Overview</span>
+    </div>
+    <div class="topbar-right">
+      <div class="admin-name-pill">
+        <div class="admin-avatar" id="admin-avatar-top">A</div>
+        <span id="admin-username-top">Admin</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── MAIN ─────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- ═══════════════ VIEW: OVERVIEW ═══════════════════ -->
+    <section class="view active" id="view-overview">
+      <div class="page-header">
+        <h1 class="page-title">Overview</h1>
+        <p class="page-sub">Platform summary at a glance.</p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-row" id="overview-stats">
+        <div class="stat-card" style="--sc-accent:#6366F1; --sc-color: var(--primary-l)">
+          <div class="stat-card-icon">👥</div>
+          <div class="stat-card-val" id="stat-total-users">—</div>
+          <div class="stat-card-lbl">Total Users</div>
+        </div>
+        <div class="stat-card" style="--sc-accent:#22D3EE; --sc-color: var(--cyan)">
+          <div class="stat-card-icon">🟢</div>
+          <div class="stat-card-val" id="stat-active-today">—</div>
+          <div class="stat-card-lbl">Active Today (est.)</div>
+        </div>
+        <div class="stat-card" style="--sc-accent:#10B981; --sc-color: var(--green)">
+          <div class="stat-card-icon">⭐</div>
+          <div class="stat-card-val" id="stat-pro">—</div>
+          <div class="stat-card-lbl">Pro Subscribers</div>
+        </div>
+        <div class="stat-card" style="--sc-accent:#F59E0B; --sc-color: var(--yellow)">
+          <div class="stat-card-icon">🎓</div>
+          <div class="stat-card-val" id="stat-lessons">—</div>
+          <div class="stat-card-lbl">Lessons Completed</div>
+        </div>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="section-title">
+        <span class="section-title-dot"></span>
+        Recent Registrations
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-header-title">Last 5 Registered Users</span>
+          <span class="table-count" id="recent-count">0 users</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Plan</th>
+              <th>Provider</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody id="recent-users-tbody">
+            <tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-msg">No users registered yet.</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VIEW: USERS ═══════════════════════ -->
+    <section class="view" id="view-users">
+      <div class="page-header">
+        <h1 class="page-title">Users</h1>
+        <p class="page-sub">Manage all registered accounts.</p>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-header-title">All Users</span>
+          <span class="table-count" id="users-count">0 users</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Plan</th>
+              <th>Provider</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-msg">No users registered yet.</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VIEW: STATISTICS ════════════════ -->
+    <section class="view" id="view-statistics">
+      <div class="page-header">
+        <h1 class="page-title">Statistics</h1>
+        <p class="page-sub">Platform engagement and usage metrics.</p>
+      </div>
+
+      <div class="demo-note">
+        ℹ️ Progress data is stored per-session in this localStorage demo. Lesson completion stats are aggregated from all stored user records.
+      </div>
+
+      <div class="stats-grid">
+        <!-- Language bar chart -->
+        <div class="stats-panel">
+          <div class="stats-panel-title">Language Popularity</div>
+          <div class="bar-chart">
+            <div class="bar-row">
+              <div class="bar-label-row"><span class="bar-lang">🐍 Python</span><span class="bar-pct">42%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="--bar-color:#6366F1; width:42%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label-row"><span class="bar-lang">🟨 JavaScript</span><span class="bar-pct">28%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="--bar-color:#F59E0B; width:28%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label-row"><span class="bar-lang">🔵 TypeScript</span><span class="bar-pct">12%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="--bar-color:#22D3EE; width:12%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label-row"><span class="bar-lang">🟠 HTML/CSS</span><span class="bar-pct">9%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="--bar-color:#F97316; width:9%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label-row"><span class="bar-lang">🗃️ SQL</span><span class="bar-pct">6%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="--bar-color:#10B981; width:6%"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label-row"><span class="bar-lang">⚙️ C++</span><span class="bar-pct">3%</span></div>
+              <div class="bar-track"><div class="bar-fill" style="--bar-color:#EF4444; width:3%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plan distribution -->
+        <div class="stats-panel">
+          <div class="stats-panel-title">Plan Distribution</div>
+          <div class="plan-dist" id="plan-dist">
+            <div class="plan-dist-item">
+              <div class="plan-dist-num" id="dist-free" style="color: var(--text-2)">—</div>
+              <div class="plan-dist-lbl">Free Users</div>
+            </div>
+            <div class="plan-dist-item">
+              <div class="plan-dist-num" id="dist-pro" style="color: var(--green)">—</div>
+              <div class="plan-dist-lbl">Pro Subscribers</div>
+            </div>
+          </div>
+          <div style="margin-top: 1.5rem;">
+            <div class="bar-track" style="height:12px; border-radius:100px;">
+              <div class="bar-fill" id="pro-bar" style="--bar-color:var(--green); height:100%; width:0%"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:0.4rem; font-size:0.72rem; color:var(--text-3);">
+              <span>Free</span><span id="pro-pct-lbl">0% Pro</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="section-title">
+        <span class="section-title-dot"></span>
+        Top Learners — XP Leaderboard
+      </div>
+      <div class="stats-panel" style="margin-bottom:2rem;">
+        <div class="leaderboard" id="leaderboard-list">
+          <div class="empty-state" style="padding:2rem 0;">
+            <div class="empty-state-icon">🏆</div>
+            <div class="empty-state-msg">No learner data available yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ VIEW: MY PROFILE ══════════════════ -->
+    <section class="view" id="view-my-profile">
+      <div class="page-header">
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-sub">Customize your admin display name, photo, and bio.</p>
+      </div>
+
+      <div class="stats-panel" style="max-width:520px; padding:2rem;">
+        <!-- Avatar upload -->
+        <div style="display:flex; align-items:center; gap:1.5rem; margin-bottom:1.75rem;">
+          <div style="position:relative; cursor:pointer;" onclick="document.getElementById('adminPicInput').click()">
+            <div id="adminAvatarPreview" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:white;border:3px solid rgba(239,68,68,0.35);overflow:hidden;"></div>
+            <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;border:2px solid var(--bg);">📷</div>
+          </div>
+          <div>
+            <div style="font-weight:700;margin-bottom:0.3rem;">Profile Photo</div>
+            <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:0.6rem;">Click the avatar to upload a new photo</div>
+            <button class="btn btn-ghost" style="font-size:0.78rem;" onclick="document.getElementById('adminPicInput').click()">Upload Photo</button>
+          </div>
+        </div>
+        <input type="file" id="adminPicInput" accept="image/*" style="display:none" onchange="handleAdminPicUpload(event)">
+
+        <!-- Display name -->
+        <div style="margin-bottom:1.25rem;">
+          <label class="form-label" for="adminNameInput">Display Name</label>
+          <input class="form-input" type="text" id="adminNameInput" placeholder="Admin display name…" maxlength="40">
+        </div>
+
+        <!-- Bio -->
+        <div style="margin-bottom:1.5rem;">
+          <label class="form-label" for="adminBioInput">Bio <span style="color:var(--text-3);font-weight:400;">(160 characters)</span></label>
+          <textarea class="form-input" id="adminBioInput" rows="3" placeholder="A short bio about yourself…" maxlength="160" style="resize:vertical;"></textarea>
+          <div style="text-align:right;font-size:0.72rem;color:var(--text-3);margin-top:4px;"><span id="adminBioCount">0</span>/160</div>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveAdminProfile()">Save Changes</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════════════ -->
+
+<!-- View Password Modal -->
+<div class="modal-overlay" id="modal-viewpw">
+  <div class="modal">
+    <div class="modal-title">🔑 View Password</div>
+    <div class="modal-sub" id="viewpw-sub">Decoded password for this account.</div>
+    <div class="modal-body">
+      <div class="pw-box" id="viewpw-value">—</div>
+      <div class="warning-box">
+        <strong>⚠️ Security Notice:</strong> Passwords are stored as <code>base64</code> encoding for demo purposes only.
+        This is <strong>not secure</strong> — use proper password hashing (e.g. bcrypt, argon2) in any production system.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-close-btn" onclick="closeModal('modal-viewpw')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal-overlay" id="modal-resetpw">
+  <div class="modal">
+    <div class="modal-title">🔄 Reset Password</div>
+    <div class="modal-sub" id="resetpw-sub">Set a new password for this account.</div>
+    <div class="modal-body">
+      <label class="form-label" for="resetpw-input">New Password</label>
+      <input class="form-input" type="text" id="resetpw-input" placeholder="Enter new password…" autocomplete="off">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-close-btn" onclick="closeModal('modal-resetpw')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmResetPassword()">Set Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="modal-delete">
+  <div class="modal">
+    <div class="modal-title">🗑️ Delete User</div>
+    <div class="modal-sub">This action is permanent and cannot be undone.</div>
+    <div class="modal-body">
+      <div class="delete-warning">
+        <div class="delete-warning-icon">⚠️</div>
+        <div class="delete-warning-text">
+          <div class="delete-target-name" id="delete-target-name">Username</div>
+          All data associated with this account will be removed from localStorage, including progress and settings. <strong>This cannot be undone.</strong>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-close-btn" onclick="closeModal('modal-delete')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmDelete()">Delete Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Profile Modal -->
+<div class="modal-overlay" id="modal-editprofile">
+  <div class="modal">
+    <div class="modal-title">✏️ Edit User Profile</div>
+    <div class="modal-sub" id="editprofile-sub">Moderate this user's display info.</div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+        <div id="editprofile-avatar-preview" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:white;overflow:hidden;cursor:pointer;" onclick="document.getElementById('editprofilePicInput').click()"></div>
+        <div>
+          <button class="btn btn-ghost" style="font-size:0.78rem;" onclick="document.getElementById('editprofilePicInput').click()">Change Photo</button>
+          <button class="btn btn-red" style="font-size:0.78rem;margin-left:0.5rem;" onclick="removeUserPic()">Remove Photo</button>
+        </div>
+      </div>
+      <input type="file" id="editprofilePicInput" accept="image/*" style="display:none" onchange="handleEditProfilePic(event)">
+      <label class="form-label" for="editprofile-username">Username</label>
+      <input class="form-input" type="text" id="editprofile-username" placeholder="Username…" maxlength="40" style="margin-bottom:1rem;">
+      <label class="form-label" for="editprofile-bio">Bio</label>
+      <textarea class="form-input" id="editprofile-bio" rows="3" placeholder="User bio…" maxlength="160" style="resize:vertical;margin-bottom:0.25rem;"></textarea>
+      <div style="text-align:right;font-size:0.72rem;color:var(--text-3);"><span id="editprofile-bio-count">0</span>/160</div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-close-btn" onclick="closeModal('modal-editprofile')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmEditProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✓</span>
+  <span id="toast-msg">Done.</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script>
+  /* ── Auth gate ───────────────────────────────────────── */
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session || !session.isAdmin) {
+    window.location.href = 'login.html';
+  }
+
+  /* ── Helpers ─────────────────────────────────────────── */
+  function getUsers() {
+    return JSON.parse(localStorage.getItem('helix_users') || '[]');
+  }
+  function saveUsers(users) {
+    localStorage.setItem('helix_users', JSON.stringify(users));
+  }
+  function getProgress() {
+    return JSON.parse(localStorage.getItem('helix_progress') || '{}');
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch { return '—'; }
+  }
+  function avatarColor(str) {
+    const colors = [
+      'linear-gradient(135deg,#6366F1,#22D3EE)',
+      'linear-gradient(135deg,#8B5CF6,#EC4899)',
+      'linear-gradient(135deg,#10B981,#22D3EE)',
+      'linear-gradient(135deg,#F59E0B,#EF4444)',
+      'linear-gradient(135deg,#6366F1,#F59E0B)',
+      'linear-gradient(135deg,#14B8A6,#6366F1)',
+    ];
+    let h = 0;
+    for (let i = 0; i < (str||'').length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffff;
+    return colors[h % colors.length];
+  }
+
+  /* ── Topbar admin info ───────────────────────────────── */
+  if (session) {
+    const uname = session.username || session.email || 'Admin';
+    document.getElementById('admin-username-top').textContent = uname;
+    document.getElementById('admin-avatar-top').textContent = uname[0].toUpperCase();
+    const __adminUsers = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const __adminUser = __adminUsers.find(u => u.id === session.userId || u.email === session.email);
+    const topAv = document.getElementById('admin-avatar-top');
+    if (__adminUser?.profilePic) {
+      topAv.style.backgroundImage = `url(${__adminUser.profilePic})`;
+      topAv.style.backgroundSize = 'cover';
+      topAv.style.backgroundPosition = 'center';
+      topAv.style.fontSize = '0';
+    }
+  }
+
+  /* ── Logout ─────────────────────────────────────────── */
+  function adminLogout() {
+    localStorage.removeItem('helix_session');
+    window.location.href = 'login.html';
+  }
+
+  /* ── View switching ──────────────────────────────────── */
+  const sectionNames = { overview: 'Overview', users: 'Users', statistics: 'Statistics', 'my-profile': 'My Profile' };
+  function switchView(id, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item[data-view]').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('topbar-section').textContent = sectionNames[id] || id;
+    if (id === 'overview')    renderOverview();
+    if (id === 'users')       renderUsers();
+    if (id === 'statistics')  renderStatistics();
+    if (id === 'my-profile')  renderMyProfile();
+  }
+
+  /* ── OVERVIEW ────────────────────────────────────────── */
+  function renderOverview() {
+    const users = getUsers();
+    const total = users.length;
+    const active = Math.floor(total * 0.3);
+    const pro = users.filter(u => u.plan === 'pro').length;
+
+    // Count lessons completed from per-user progress keys
+    let lessonsTotal = 0;
+    users.forEach(u => {
+      if (!u.id) return;
+      const prog = JSON.parse(localStorage.getItem('helix_' + u.id + '_progress') || 'null');
+      if (prog && typeof prog.lessonsCompleted === 'number') {
+        lessonsTotal += prog.lessonsCompleted;
+      }
+    });
+    // Fallback: shared helix_progress store
+    const sharedProg = getProgress();
+    if (lessonsTotal === 0 && sharedProg.completedLessons) {
+      lessonsTotal = Array.isArray(sharedProg.completedLessons)
+        ? sharedProg.completedLessons.length
+        : (typeof sharedProg.lessonsCompleted === 'number' ? sharedProg.lessonsCompleted : 0);
+    }
+
+    document.getElementById('stat-total-users').textContent = total;
+    document.getElementById('stat-active-today').textContent = active;
+    document.getElementById('stat-pro').textContent = pro;
+    document.getElementById('stat-lessons').textContent = lessonsTotal;
+
+    // Recent users (last 5 by joinedAt)
+    const sorted = [...users].sort((a,b) => new Date(b.joinedAt||0) - new Date(a.joinedAt||0)).slice(0,5);
+    document.getElementById('recent-count').textContent = total + ' user' + (total !== 1 ? 's' : '');
+    const tbody = document.getElementById('recent-users-tbody');
+    if (sorted.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-msg">No users registered yet.</div></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = sorted.map(u => `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="u-avatar" style="background:${avatarColor(u.username||u.email)}">${(u.username||u.email||'?')[0].toUpperCase()}</div>
+            <div>
+              <div class="u-name">${esc(u.username||'—')}</div>
+              <div class="u-email">${esc(u.email||'—')}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="plan-badge ${u.plan==='pro'?'plan-pro':'plan-free'}">${u.plan==='pro'?'⭐ Pro':'Free'}</span></td>
+        <td><span class="provider-badge">${providerIcon(u.provider)} ${esc(u.provider||'Email')}</span></td>
+        <td style="color:var(--text-2); font-size:0.8rem;">${fmtDate(u.joinedAt)}</td>
+      </tr>
+    `).join('');
+  }
+
+  /* ── USERS ───────────────────────────────────────────── */
+  let _pendingDeleteId = null;
+  let _pendingResetId  = null;
+
+  function renderUsers() {
+    const users = getUsers();
+    document.getElementById('users-count').textContent = users.length + ' user' + (users.length !== 1 ? 's' : '');
+    const tbody = document.getElementById('users-tbody');
+    if (users.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-msg">No users registered yet.</div></div></td></tr>';
+      return;
+    }
+
+    const adminId = session?.id || session?.userId || null;
+    // Identify admin user: by isAdmin flag or email
+    tbody.innerHTML = users.map(u => {
+      const isMe = (u.email === 'admin@helix.dev') || (u.isAdmin === true);
+      const upBtn = u.plan === 'pro'
+        ? `<button class="btn btn-yellow" onclick="togglePlan('${u.id}', 'free')">↓ Free</button>`
+        : `<button class="btn btn-green" onclick="togglePlan('${u.id}', 'pro')">↑ Pro</button>`;
+      return `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="u-avatar" style="background:${avatarColor(u.username||u.email)}">${(u.username||u.email||'?')[0].toUpperCase()}</div>
+              <div>
+                <div class="u-name">${esc(u.username||'—')}${isMe ? ' <span style="font-size:0.62rem;color:var(--red);background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);padding:0.1rem 0.4rem;border-radius:5px;font-weight:700;">ADMIN</span>' : ''}</div>
+                <div class="u-email">${esc(u.email||'—')}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="plan-badge ${u.plan==='pro'?'plan-pro':'plan-free'}">${u.plan==='pro'?'⭐ Pro':'Free'}</span></td>
+          <td><span class="provider-badge">${providerIcon(u.provider)} ${esc(u.provider||'Email')}</span></td>
+          <td style="color:var(--text-2); font-size:0.8rem;">${fmtDate(u.joinedAt)}</td>
+          <td>
+            <div class="actions-cell">
+              <button class="btn btn-ghost" onclick="openViewPw('${u.id}')">🔑 Password</button>
+              <button class="btn btn-ghost" onclick="openResetPw('${u.id}')">🔄 Reset</button>
+              <button class="btn btn-ghost" onclick="openEditProfile('${u.id}')">✏️ Profile</button>
+              ${upBtn}
+              <button class="btn btn-red" onclick="openDelete('${u.id}')" ${isMe ? 'disabled title="Cannot delete the admin account"' : ''}>🗑️ Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  /* ── STATISTICS ──────────────────────────────────────── */
+  function renderStatistics() {
+    const users = getUsers();
+    const pro  = users.filter(u => u.plan === 'pro').length;
+    const free = users.length - pro;
+    const pct  = users.length > 0 ? Math.round((pro / users.length) * 100) : 0;
+
+    document.getElementById('dist-free').textContent = free;
+    document.getElementById('dist-pro').textContent = pro;
+    document.getElementById('pro-bar').style.width = pct + '%';
+    document.getElementById('pro-pct-lbl').textContent = pct + '% Pro';
+
+    // Leaderboard: top 5 by XP
+    const withXP = users.map(u => {
+      const prog = JSON.parse(localStorage.getItem('helix_' + (u.id||'') + '_progress') || 'null');
+      const xp = (prog && prog.xp) || u.xp || 0;
+      return { ...u, _xp: xp };
+    }).sort((a,b) => b._xp - a._xp).slice(0,5);
+
+    const lbEl = document.getElementById('leaderboard-list');
+    if (withXP.length === 0 || withXP.every(u => u._xp === 0)) {
+      lbEl.innerHTML = '<div class="empty-state" style="padding:2rem 0;"><div class="empty-state-icon">🏆</div><div class="empty-state-msg">No learner data available yet.</div></div>';
+      return;
+    }
+    const rankClass = i => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const medals = ['🥇','🥈','🥉','4','5'];
+    lbEl.innerHTML = withXP.map((u,i) => `
+      <div class="lb-row">
+        <div class="lb-rank ${rankClass(i)}">${i < 3 ? medals[i] : i+1}</div>
+        <div class="u-avatar" style="background:${avatarColor(u.username||u.email)}">${(u.username||u.email||'?')[0].toUpperCase()}</div>
+        <div class="lb-info">
+          <div class="lb-name">${esc(u.username||'—')}</div>
+          <div class="lb-email">${esc(u.email||'—')}</div>
+        </div>
+        <div class="lb-xp">⚡ ${u._xp.toLocaleString()} XP</div>
+      </div>
+    `).join('');
+  }
+
+  /* ── Modal helpers ───────────────────────────────────── */
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // Close modal when clicking overlay background
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  /* ── View Password ───────────────────────────────────── */
+  function openViewPw(userId) {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+    let decoded = '(no password stored)';
+    if (u.password) {
+      try { decoded = atob(u.password); } catch { decoded = '(could not decode)'; }
+    }
+    document.getElementById('viewpw-sub').textContent = 'Decoded password for: ' + (u.username || u.email || userId);
+    document.getElementById('viewpw-value').textContent = decoded;
+    openModal('modal-viewpw');
+  }
+
+  /* ── Reset Password ──────────────────────────────────── */
+  function openResetPw(userId) {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+    _pendingResetId = userId;
+    document.getElementById('resetpw-sub').textContent = 'Set a new password for: ' + (u.username || u.email || userId);
+    document.getElementById('resetpw-input').value = '';
+    openModal('modal-resetpw');
+  }
+  function confirmResetPassword() {
+    if (!_pendingResetId) return;
+    const newPw = document.getElementById('resetpw-input').value.trim();
+    if (!newPw) { showToast('error', '✗ Please enter a password.'); return; }
+    const users = getUsers();
+    const idx = users.findIndex(x => x.id === _pendingResetId);
+    if (idx === -1) { showToast('error', '✗ User not found.'); return; }
+    users[idx].password = btoa(newPw);
+    saveUsers(users);
+    closeModal('modal-resetpw');
+    _pendingResetId = null;
+    showToast('success', '✓ Password updated successfully.');
+  }
+
+  /* ── Toggle Plan ─────────────────────────────────────── */
+  function togglePlan(userId, newPlan) {
+    const users = getUsers();
+    const idx = users.findIndex(x => x.id === userId);
+    if (idx === -1) return;
+    users[idx].plan = newPlan;
+    saveUsers(users);
+    renderUsers();
+    renderOverview();
+    showToast('success', `✓ User upgraded to ${newPlan === 'pro' ? 'Pro' : 'Free'} plan.`);
+  }
+
+  /* ── Delete User ─────────────────────────────────────── */
+  function openDelete(userId) {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+    _pendingDeleteId = userId;
+    document.getElementById('delete-target-name').textContent = (u.username || u.email || userId);
+    openModal('modal-delete');
+  }
+  function confirmDelete() {
+    if (!_pendingDeleteId) return;
+    let users = getUsers();
+    const u = users.find(x => x.id === _pendingDeleteId);
+    users = users.filter(x => x.id !== _pendingDeleteId);
+    saveUsers(users);
+    // Clean up per-user progress
+    if (u && u.id) {
+      localStorage.removeItem('helix_' + u.id + '_progress');
+    }
+    _pendingDeleteId = null;
+    closeModal('modal-delete');
+    renderUsers();
+    renderOverview();
+    showToast('success', '✓ User deleted.');
+  }
+
+  /* ── Toast ───────────────────────────────────────────── */
+  let _toastTimer = null;
+  function showToast(type, msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast ' + type + ' show';
+    if (_toastTimer) clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => { el.classList.remove('show'); }, 3200);
+  }
+
+  /* ── Utility ─────────────────────────────────────────── */
+  function esc(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function providerIcon(p) {
+    if (!p) return '📧';
+    const lp = p.toLowerCase();
+    if (lp === 'google') return '🔵';
+    if (lp === 'apple')  return '🍎';
+    return '📧';
+  }
+
+  /* ── Edit User Profile ───────────────────────────────── */
+  let _pendingEditProfileId = null;
+  let _editProfileNewPic = null;
+
+  function openEditProfile(userId) {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+    _pendingEditProfileId = userId;
+    _editProfileNewPic = null;
+
+    const previewEl = document.getElementById('editprofile-avatar-preview');
+    if (u.profilePic) {
+      previewEl.innerHTML = `<img src="${u.profilePic}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+    } else {
+      previewEl.textContent = (u.username || u.email || '?')[0].toUpperCase();
+      previewEl.style.background = avatarColor(u.username || u.email);
+    }
+
+    document.getElementById('editprofile-sub').textContent = 'Editing profile for: ' + (u.username || u.email || userId);
+    document.getElementById('editprofile-username').value = u.username || '';
+    const bioEl = document.getElementById('editprofile-bio');
+    bioEl.value = u.bio || '';
+    document.getElementById('editprofile-bio-count').textContent = (u.bio || '').length;
+    bioEl.oninput = () => {
+      document.getElementById('editprofile-bio-count').textContent = bioEl.value.length;
+    };
+    openModal('modal-editprofile');
+  }
+
+  function handleEditProfilePic(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      _editProfileNewPic = e.target.result;
+      const previewEl = document.getElementById('editprofile-avatar-preview');
+      previewEl.innerHTML = `<img src="${_editProfileNewPic}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function removeUserPic() {
+    _editProfileNewPic = '__remove__';
+    const users = getUsers();
+    const u = users.find(x => x.id === _pendingEditProfileId);
+    const previewEl = document.getElementById('editprofile-avatar-preview');
+    previewEl.innerHTML = '';
+    previewEl.textContent = (u?.username || '?')[0].toUpperCase();
+    previewEl.style.background = avatarColor(u?.username || '');
+  }
+
+  function confirmEditProfile() {
+    if (!_pendingEditProfileId) return;
+    const users = getUsers();
+    const idx = users.findIndex(x => x.id === _pendingEditProfileId);
+    if (idx === -1) { showToast('error', '✗ User not found.'); return; }
+
+    const newUsername = document.getElementById('editprofile-username').value.trim();
+    const newBio = document.getElementById('editprofile-bio').value.trim();
+
+    if (newUsername) users[idx].username = newUsername;
+    users[idx].bio = newBio;
+
+    if (_editProfileNewPic === '__remove__') {
+      delete users[idx].profilePic;
+    } else if (_editProfileNewPic) {
+      users[idx].profilePic = _editProfileNewPic;
+    }
+
+    saveUsers(users);
+    _pendingEditProfileId = null;
+    _editProfileNewPic = null;
+    closeModal('modal-editprofile');
+    renderUsers();
+    showToast('success', '✓ User profile updated.');
+  }
+
+  /* ── My Profile (Admin) ──────────────────────────────── */
+  function renderMyProfile() {
+    const users = getUsers();
+    const adminUser = users.find(u => u.isAdmin === true || u.email === 'admin@helix.dev');
+    if (!adminUser) return;
+
+    const previewEl = document.getElementById('adminAvatarPreview');
+    if (adminUser.profilePic) {
+      previewEl.innerHTML = `<img src="${adminUser.profilePic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+      previewEl.style.fontSize = '0';
+    } else {
+      previewEl.textContent = (adminUser.username || 'A')[0].toUpperCase();
+    }
+
+    document.getElementById('adminNameInput').value = adminUser.username || '';
+    const bioEl = document.getElementById('adminBioInput');
+    bioEl.value = adminUser.bio || '';
+    document.getElementById('adminBioCount').textContent = (adminUser.bio || '').length;
+    bioEl.oninput = () => {
+      document.getElementById('adminBioCount').textContent = bioEl.value.length;
+    };
+  }
+
+  function handleAdminPicUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const previewEl = document.getElementById('adminAvatarPreview');
+      previewEl.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+      previewEl.dataset.pic = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function saveAdminProfile() {
+    const users = getUsers();
+    const idx = users.findIndex(u => u.isAdmin === true || u.email === 'admin@helix.dev');
+    if (idx === -1) { showToast('error', '✗ Admin user not found.'); return; }
+
+    const newName = document.getElementById('adminNameInput').value.trim();
+    const newBio  = document.getElementById('adminBioInput').value.trim();
+    const previewEl = document.getElementById('adminAvatarPreview');
+    const newPic  = previewEl.dataset.pic || null;
+
+    if (newName) {
+      users[idx].username = newName;
+      // Update session display
+      const sess = JSON.parse(localStorage.getItem('helix_session') || 'null');
+      if (sess) { sess.username = newName; localStorage.setItem('helix_session', JSON.stringify(sess)); }
+      document.getElementById('admin-username-top').textContent = newName;
+    }
+    users[idx].bio = newBio;
+    if (newPic) users[idx].profilePic = newPic;
+
+    saveUsers(users);
+    showToast('success', '✓ Profile saved successfully.');
+  }
+
+  /* ── Initial render ──────────────────────────────────── */
+  renderOverview();
+</script>
+</body>
+</html>

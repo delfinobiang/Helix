@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Terms of Service — Helix</title>
+  <meta name="description" content="Helix Terms of Service — written in plain English, no legalese." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       DESIGN TOKENS
+    ========================================================= */
+    :root {
+      --bg:         #050816;
+      --bg-2:       #0C1022;
+      --bg-card:    rgba(255,255,255,0.04);
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(99,102,241,0.3);
+      --primary:    #6366F1;
+      --primary-l:  #818CF8;
+      --cyan:       #22D3EE;
+      --accent:     #F59E0B;
+      --text:       #EEF2F8;
+      --text-2:     #8892A4;
+      --text-3:     #2D3A4E;
+      --green:      #10B981;
+      --red:        #EF4444;
+      --violet:     #8B5CF6;
+      --radius:     16px;
+      --nav-h:      64px;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* =========================================================
+       AURORA
+    ========================================================= */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      filter: blur(90px) saturate(130%);
+    }
+
+    .orb { position: absolute; border-radius: 50%; }
+
+    .orb-1 {
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(99,102,241,0.55) 0%, transparent 65%);
+      top: -200px; left: -200px;
+      animation: drift1 22s ease-in-out alternate infinite;
+    }
+    .orb-2 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 65%);
+      bottom: -100px; right: -100px;
+      animation: drift2 17s ease-in-out alternate infinite;
+    }
+    .orb-3 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 65%);
+      top: 10%; right: 15%;
+      animation: drift3 14s ease-in-out alternate infinite;
+    }
+    .orb-4 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%);
+      bottom: 20%; left: 30%;
+      animation: drift4 28s ease-in-out alternate infinite;
+    }
+    .orb-5 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 65%);
+      top: 50%; left: 60%;
+      animation: drift5 19s ease-in-out alternate infinite;
+    }
+
+    @keyframes drift1 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(80px, 120px) scale(1.08); }
+      66%  { transform: translate(-60px, 200px) scale(0.95); }
+      100% { transform: translate(140px, 60px) scale(1.05); }
+    }
+    @keyframes drift2 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(-100px, -80px) scale(1.1); }
+      66%  { transform: translate(60px, -150px) scale(0.9); }
+      100% { transform: translate(-80px, -40px) scale(1.05); }
+    }
+    @keyframes drift3 {
+      0%   { transform: translate(0, 0) scale(1); }
+      25%  { transform: translate(-120px, 60px) scale(1.15); }
+      75%  { transform: translate(80px, -100px) scale(0.88); }
+      100% { transform: translate(-40px, 80px) scale(1.06); }
+    }
+    @keyframes drift4 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(100px, -60px) scale(1.12); }
+      66%  { transform: translate(-80px, 100px) scale(0.93); }
+      100% { transform: translate(60px, -80px) scale(1.08); }
+    }
+    @keyframes drift5 {
+      0%   { transform: translate(0, 0) scale(1); }
+      40%  { transform: translate(-90px, 70px) scale(1.2); }
+      70%  { transform: translate(110px, -50px) scale(0.85); }
+      100% { transform: translate(-50px, 110px) scale(1.1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* =========================================================
+       GRAIN OVERLAY
+    ========================================================= */
+    .grain {
+      position: fixed; inset: 0; z-index: 1; opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    /* =========================================================
+       LAYOUT HELPERS
+    ========================================================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =========================================================
+       NAV
+    ========================================================= */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(5,8,22,0.6);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 20px rgba(99,102,241,0.45);
+    }
+
+    /* =========================================================
+       PAGE HERO
+    ========================================================= */
+    .page-hero {
+      position: relative;
+      z-index: 2;
+      padding: calc(var(--nav-h) + 88px) 0 72px;
+      text-align: center;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--primary-l);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .page-hero-h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+      margin-bottom: 24px;
+    }
+
+    .page-hero-sub {
+      color: var(--text-2);
+      font-size: 1.1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* =========================================================
+       SECTION DIVIDER
+    ========================================================= */
+    .section-divider {
+      position: relative;
+      z-index: 2;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 24px;
+    }
+
+    /* =========================================================
+       LEGAL CONTENT LAYOUT
+    ========================================================= */
+    .legal-outer {
+      position: relative;
+      z-index: 2;
+      padding: 72px 0 112px;
+    }
+
+    .legal-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+
+    /* Sticky sidebar TOC */
+    .legal-toc {
+      position: sticky;
+      top: calc(var(--nav-h) + 24px);
+    }
+
+    .legal-toc-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 16px;
+    }
+
+    .legal-toc ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .legal-toc a {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-3);
+      padding: 5px 10px;
+      border-radius: 6px;
+      border-left: 2px solid transparent;
+      transition: color 0.18s, border-color 0.18s, background 0.18s;
+      line-height: 1.45;
+    }
+
+    .legal-toc a:hover,
+    .legal-toc a.active {
+      color: var(--primary-l);
+      border-left-color: var(--primary);
+      background: rgba(99,102,241,0.06);
+    }
+
+    /* Main content column */
+    .legal-content {
+      max-width: 760px;
+    }
+
+    .legal-content h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--primary);
+      padding-left: 16px;
+      scroll-margin-top: calc(var(--nav-h) + 24px);
+    }
+
+    .legal-content h2:first-child {
+      margin-top: 0;
+    }
+
+    .legal-content p {
+      color: var(--text-2);
+      line-height: 1.8;
+      margin-bottom: 14px;
+      font-size: 0.97rem;
+    }
+
+    .legal-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .legal-content ul {
+      list-style: none;
+      margin: 0 0 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .legal-content ul li {
+      color: var(--text-2);
+      font-size: 0.97rem;
+      line-height: 1.75;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .legal-content ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--primary-l);
+      font-weight: 700;
+    }
+
+    .legal-content a {
+      color: var(--primary-l);
+      text-decoration: underline;
+      text-decoration-color: rgba(129,140,248,0.35);
+      text-underline-offset: 3px;
+      transition: color 0.18s, text-decoration-color 0.18s;
+    }
+
+    .legal-content a:hover {
+      color: var(--cyan);
+      text-decoration-color: rgba(34,211,238,0.5);
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    .footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 48px 0 28px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-left { display: flex; flex-direction: column; gap: 8px; }
+
+    .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-col-title {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-2); margin-bottom: 10px;
+    }
+    .footer-col a {
+      display: block; font-size: 0.85rem; color: var(--text-3);
+      text-decoration: none; margin-bottom: 7px;
+      transition: color 0.18s;
+    }
+    .footer-col a:hover { color: var(--text); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 28px auto 0; padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .footer-brand.visible { opacity: 1; transform: translateY(0); }
+
+    .footer-tagline {
+      font-size: 0.85rem;
+      margin-left: 6px;
+      font-weight: 500;
+      background: linear-gradient(
+        90deg,
+        var(--text-3) 0%, var(--text-2) 25%, var(--primary-l) 50%,
+        var(--cyan) 65%, var(--text-2) 80%, var(--text-3) 100%
+      );
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-3);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+    }
+    .footer-copy.visible { opacity: 1; transform: translateY(0); }
+
+    .footer-wave {
+      display: inline-block;
+      animation: breathe 4s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 0.8; transform: scale(1.06); }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .legal-layout {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .legal-toc { display: none; }
+      .legal-content { max-width: 100%; }
+      .footer-inner { flex-direction: column; gap: 24px; }
+      .footer-cols { gap: 24px; }
+    }
+
+    @media (max-width: 600px) {
+      .page-hero { padding: calc(var(--nav-h) + 60px) 0 48px; }
+      .legal-outer { padding: 48px 0 80px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- AURORA -->
+  <div class="aurora" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
+
+  <!-- GRAIN -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+          <defs><clipPath id="dna-terms-c"><rect width="40" height="20"/></clipPath></defs>
+          <g clip-path="url(#dna-terms-c)">
+            <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+        Helix
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#how-it-works">How it works</a></li>
+        <li><a href="index.html#languages">Languages</a></li>
+        <li><a href="pricing.html">Plans</a></li>
+      </ul>
+
+      <div id="nav-cta-area"><a href="signup.html" class="nav-cta">Get started free</a></div>
+    </div>
+  </nav>
+<script>
+(function() {
+  var _sess = null;
+  try { _sess = JSON.parse(localStorage.getItem('helix_session') || 'null'); } catch(e) {}
+  var _ctaArea = document.getElementById('nav-cta-area');
+  if (!_ctaArea || !_sess) return;
+  var _users = [];
+  try { _users = JSON.parse(localStorage.getItem('helix_users') || '[]'); } catch(e) {}
+  var _u = _users.find(function(u) { return u.id === _sess.userId; });
+  var _html = '<div style="display:flex;align-items:center;gap:0.5rem;">';
+  _html += '<a href="dashboard.html" class="nav-cta" style="background:transparent;border:1px solid rgba(99,102,241,0.4);color:var(--text);">Dashboard</a>';
+  if (_u && _u.isAdmin) {
+    _html += '<a href="admin.html" class="nav-cta" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#EF4444;padding:8px 12px;" title="Admin Panel">&#9881; Admin</a>';
+  }
+  if (_u && _u.profilePic) {
+    _html += '<a href="profile.html"><img src="' + _u.profilePic + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(99,102,241,0.4);display:block;" alt="Profile"></a>';
+  } else {
+    var _init = (_sess.username || 'Y')[0].toUpperCase();
+    _html += '<a href="profile.html" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#22D3EE);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;text-decoration:none;flex-shrink:0;">' + _init + '</a>';
+  }
+  _html += '</div>';
+  _ctaArea.innerHTML = _html;
+})();
+</script>
+
+  <!-- HERO -->
+  <section class="page-hero" aria-label="Terms of Service hero">
+    <div class="container">
+      <div class="page-badge">Last updated April 2026</div>
+      <h1 class="page-hero-h1">
+        Terms of <span class="gradient-text">Service.</span>
+      </h1>
+      <p class="page-hero-sub">
+        By using Helix, you agree to these terms. They're written in plain English &mdash; no legalese.
+      </p>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"></div>
+
+  <!-- LEGAL CONTENT -->
+  <div class="legal-outer">
+    <div class="legal-layout">
+
+      <!-- Sticky TOC sidebar -->
+      <aside class="legal-toc" aria-label="Table of contents">
+        <p class="legal-toc-title">On this page</p>
+        <ul>
+          <li><a href="#acceptance">Acceptance</a></li>
+          <li><a href="#service">The Service</a></li>
+          <li><a href="#account">Your Account</a></li>
+          <li><a href="#plans">Free &amp; Pro Plans</a></li>
+          <li><a href="#acceptable-use">Acceptable Use</a></li>
+          <li><a href="#ip">Intellectual Property</a></li>
+          <li><a href="#disclaimers">Disclaimers</a></li>
+          <li><a href="#liability">Liability</a></li>
+          <li><a href="#changes">Changes to Terms</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main content -->
+      <main class="legal-content" id="legal-main">
+
+        <h2 id="acceptance">1. Acceptance of Terms</h2>
+        <p>By accessing or using Helix ("the Platform"), you agree to be bound by these Terms of Service. If you don't agree, don't use Helix.</p>
+        <p>These terms apply to all visitors, users, and others who access the service.</p>
+
+        <h2 id="service">2. The Service</h2>
+        <p>Helix is a browser-based coding education platform. We provide interactive lessons, coding challenges, progress tracking, and community features.</p>
+        <p>Helix runs entirely in your browser &mdash; no installation required. Features and content may change at any time.</p>
+
+        <h2 id="account">3. Your Account</h2>
+        <ul>
+          <li>You're responsible for maintaining the confidentiality of your account credentials.</li>
+          <li>You must provide accurate information when creating an account.</li>
+          <li>You're responsible for all activity that occurs under your account.</li>
+          <li>You must be at least 13 years old to create an account.</li>
+          <li>Helix accounts are personal and non-transferable.</li>
+        </ul>
+
+        <h2 id="plans">4. Free and Pro Plans</h2>
+        <p>Helix offers a free Starter plan (first 5 lessons per language) and a paid Pro plan (all 15 lessons per language).</p>
+        <ul>
+          <li>Pro subscriptions are billed monthly or annually.</li>
+          <li>Payments are processed by third-party providers.</li>
+          <li>Cancel any time &mdash; your access continues until the end of the billing period.</li>
+          <li>We reserve the right to change pricing with 30 days' notice.</li>
+        </ul>
+
+        <h2 id="acceptable-use">5. Acceptable Use</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Attempt to reverse-engineer or scrape the platform.</li>
+          <li>Use automated tools to create accounts or complete lessons.</li>
+          <li>Share Pro account credentials with others.</li>
+          <li>Harass other users on the leaderboard or community features.</li>
+          <li>Use the platform for any unlawful purpose.</li>
+        </ul>
+
+        <h2 id="ip">6. Intellectual Property</h2>
+        <p>All lesson content, code examples, branding, and platform design are owned by Helix.</p>
+        <p>You retain ownership of any code you write during lessons. You grant Helix a non-exclusive license to store and display your profile information and progress data.</p>
+
+        <h2 id="disclaimers">7. Disclaimers</h2>
+        <p>Helix is provided "as is" without warranties of any kind. We don't guarantee uninterrupted service.</p>
+        <p>We're not responsible for any losses arising from platform downtime, bugs, or errors in lesson content. Learning outcomes depend on your effort &mdash; we can't guarantee employment or skill outcomes.</p>
+
+        <h2 id="liability">8. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, Helix's total liability to you for any claims shall not exceed the amount you paid in the last 12 months (or $10 if you've never paid).</p>
+
+        <h2 id="changes">9. Changes to Terms</h2>
+        <p>We may update these terms at any time. Continued use of Helix after changes means you accept the new terms.</p>
+        <p>We'll make reasonable efforts to notify users of material changes.</p>
+
+        <h2 id="contact">10. Contact</h2>
+        <p>Questions about these terms? Email us at <a href="mailto:support@learnhelix.org">support@learnhelix.org</a></p>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-brand" id="footer-brand">
+          <span class="footer-wave" aria-hidden="true">
+            <svg width="22" height="14" viewBox="0 0 44 28" fill="none">
+              <path d="M0,14 Q5.5,4 11,14 Q16.5,24 22,14 Q27.5,4 33,14 Q38.5,24 44,14" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M0,14 Q5.5,24 11,14 Q16.5,4 22,14 Q27.5,24 33,14 Q38.5,4 44,14" stroke="#EEF2F8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+            </svg>
+          </span>
+          Helix
+        </a>
+        <span class="footer-tagline">Always forward. Never still.</span>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-col-title">Company</div>
+          <a href="about.html">About Us</a>
+          <a href="faq.html">FAQ</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Learn</div>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="pricing.html">Plans</a>
+          <a href="challenge.html">Daily Challenge</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Account</div>
+          <a href="login.html">Sign In</a>
+          <a href="signup.html">Create Account</a>
+          <a href="profile.html">Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy" id="footer-copy">&copy; 2026 Helix &mdash; The helix never rests.</p>
+      <span class="footer-tagline" style="font-size:0.78rem;">Built with purpose.</span>
+    </div>
+  </footer>
+
+  <script>
+    /* Footer fade-in */
+    const footerBrand = document.getElementById('footer-brand');
+    const footerCopy  = document.getElementById('footer-copy');
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          footerBrand.classList.add('visible');
+          setTimeout(() => footerCopy.classList.add('visible'), 200);
+          footerObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    footerObserver.observe(document.querySelector('.footer'));
+
+    /* TOC active link highlight on scroll */
+    (function() {
+      const headings = document.querySelectorAll('.legal-content h2[id]');
+      const tocLinks = document.querySelectorAll('.legal-toc a');
+      if (!headings.length || !tocLinks.length) return;
+
+      function setActive() {
+        const scrollY = window.scrollY + 100;
+        let current = null;
+        headings.forEach(h => {
+          if (h.offsetTop <= scrollY) current = h.id;
+        });
+        tocLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+        });
+      }
+
+      window.addEventListener('scroll', setActive, { passive: true });
+      setActive();
+    })();
+  </script>
+
+</body>
+</html>

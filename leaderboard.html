@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 65%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    .orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(34,211,238,0.2) 0%, transparent 65%); top: 40%; right: 15%; animation: drift3 18s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,60px) scale(1.08); } 100% { transform: translate(40px,120px) scale(0.95); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,-50px) scale(1.1); } 100% { transform: translate(-30px,-100px) scale(0.96); } }
+    @keyframes drift3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,70px) scale(1.12); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ── NAVBAR ───────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 60px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.88);
+      backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18);
+      color: var(--yellow); font-size: 0.8rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+    .streak-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      color: var(--red); font-size: 0.8rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .layout {
+      display: grid; grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 60px);
+      position: relative; z-index: 1;
+    }
+
+    /* ── SIDEBAR ──────────────────────────────────────────── */
+    .sidebar {
+      padding: 1.5rem 1rem; border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.18em; color: var(--text-3);
+      padding: 0 0.75rem; margin: 1rem 0 0.4rem;
+    }
+    .sidebar-label:first-child { margin-top: 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      color: var(--text-2); font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; transition: background 0.18s, color 0.18s;
+      border: none; background: none; font-family: inherit; width: 100%; text-align: left; cursor: pointer;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-item.active .nav-item-icon { color: var(--primary); }
+    .nav-item-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .user-card {
+      margin-top: auto; padding: 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    }
+    .user-info { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+    .user-avatar-lg {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: white;
+    }
+    .user-name { font-size: 0.875rem; font-weight: 700; }
+    .user-level { font-size: 0.72rem; color: var(--text-3); }
+    .xp-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; margin-top: 0.5rem; }
+    .xp-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--primary), var(--cyan)); transition: width 0.6s ease; }
+    .xp-bar-top { display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+    .xp-bar-lbl { font-size: 0.7rem; color: var(--text-3); }
+    .xp-bar-val { font-size: 0.7rem; color: var(--yellow); font-weight: 700; }
+
+    /* ── MAIN ─────────────────────────────────────────────── */
+    .main { padding: 2.5rem 3rem; }
+    .page-title { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 0.35rem; }
+    .page-sub { font-size: 0.9rem; color: var(--text-2); margin-bottom: 2.5rem; }
+
+    /* ── PERIOD TABS ──────────────────────────────────────── */
+    .period-tabs {
+      display: flex; gap: 0.5rem; margin-bottom: 2rem;
+    }
+    .period-tab {
+      padding: 0.45rem 1.1rem; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600;
+      border: 1px solid var(--border);
+      background: none; color: var(--text-2);
+      cursor: pointer; font-family: inherit;
+      transition: background 0.18s, color 0.18s, border-color 0.18s;
+    }
+    .period-tab:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .period-tab.active {
+      background: rgba(99,102,241,0.1); color: var(--text);
+      border-color: rgba(99,102,241,0.3);
+    }
+
+
+    /* ── PODIUM ───────────────────────────────────────────── */
+    .podium {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 1rem; margin-bottom: 2.5rem;
+    }
+    .podium-slot {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      flex: 1; max-width: 160px;
+    }
+    .podium-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 800; color: white;
+      flex-shrink: 0; position: relative;
+    }
+    .podium-avatar .crown {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      font-size: 1rem;
+    }
+    .podium-name { font-size: 0.82rem; font-weight: 700; text-align: center; }
+    .podium-xp { font-size: 0.72rem; color: var(--text-2); }
+    .podium-block {
+      width: 100%; border-radius: 10px 10px 0 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 900; color: rgba(255,255,255,0.15);
+    }
+    .p1 .podium-avatar { background: linear-gradient(135deg, #F5A623, #F5D623); box-shadow: 0 0 20px rgba(245,158,11,0.35); }
+    .p1 .podium-block  { height: 100px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-bottom: none; }
+    .p2 .podium-avatar { background: linear-gradient(135deg, #94A3B8, #CBD5E1); box-shadow: 0 0 16px rgba(148,163,184,0.25); }
+    .p2 .podium-block  { height: 72px; background: rgba(148,163,184,0.06); border: 1px solid rgba(148,163,184,0.14); border-bottom: none; }
+    .p3 .podium-avatar { background: linear-gradient(135deg, #CD7F32, #D4956A); box-shadow: 0 0 14px rgba(205,127,50,0.2); }
+    .p3 .podium-block  { height: 52px; background: rgba(205,127,50,0.06); border: 1px solid rgba(205,127,50,0.14); border-bottom: none; }
+
+    /* ── RANK TABLE ───────────────────────────────────────── */
+    .rank-table { width: 100%; border-collapse: collapse; }
+    .rank-table th {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-3);
+      padding: 0 1rem 0.75rem; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .rank-table th:last-child { text-align: right; }
+    .rank-table tr.separator td {
+      height: 0; padding: 0; border: none;
+    }
+
+    .rank-row {
+      transition: background 0.15s;
+      cursor: default;
+    }
+    .rank-row:hover td { background: rgba(255,255,255,0.025); }
+    .rank-row.is-me td { background: rgba(99,102,241,0.06); }
+    .rank-row.is-me:hover td { background: rgba(99,102,241,0.1); }
+    .rank-row td {
+      padding: 0.85rem 1rem; border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .rank-row:last-child td { border-bottom: none; }
+
+    .rank-num {
+      font-size: 0.82rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+      color: var(--text-3); width: 2.5rem;
+    }
+    .rank-num.gold   { color: #F59E0B; }
+    .rank-num.silver { color: #94A3B8; }
+    .rank-num.bronze { color: #CD7F32; }
+
+    .rank-user { display: flex; align-items: center; gap: 0.75rem; }
+    .rank-avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: white;
+    }
+    .rank-uname { font-size: 0.88rem; font-weight: 600; }
+    .rank-ulevel { font-size: 0.7rem; color: var(--text-2); }
+
+    .you-badge {
+      display: inline-block; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
+      background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.35);
+      color: var(--primary-l); padding: 0.1rem 0.45rem; border-radius: 4px;
+      text-transform: uppercase; margin-left: 0.45rem; vertical-align: middle;
+    }
+
+    .rank-streak {
+      font-size: 0.82rem; color: var(--text-2);
+    }
+    .rank-streak span { color: var(--red); font-weight: 700; }
+
+    .rank-xp {
+      font-size: 0.88rem; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--yellow); text-align: right;
+    }
+
+    /* rank-gap divider row */
+    .rank-gap td {
+      padding: 0.4rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .gap-dots {
+      display: flex; gap: 3px; align-items: center;
+    }
+    .gap-dots span {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-3);
+    }
+
+    /* ── MY RANK CARD ─────────────────────────────────────── */
+    .my-rank-card {
+      margin-bottom: 2rem; padding: 1.25rem 1.5rem;
+      background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; display: flex; align-items: center; gap: 1.5rem;
+    }
+
+    .my-rank-num {
+      font-size: 2.8rem; font-weight: 900; letter-spacing: -0.05em;
+      color: var(--primary); min-width: 3rem; text-align: center; line-height: 1;
+    }
+    .my-rank-num sup { font-size: 1rem; font-weight: 700; vertical-align: super; }
+    .my-rank-info { flex: 1; }
+    .my-rank-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .my-rank-sub { font-size: 0.8rem; color: var(--text-2); }
+    .my-rank-xp {
+      font-size: 1.6rem; font-weight: 900; color: var(--yellow);
+      font-family: 'JetBrains Mono', monospace; letter-spacing: -0.03em;
+    }
+    .my-rank-xp-lbl { font-size: 0.7rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; text-align: right; }
+
+    /* ── HAMBURGER + MOBILE MENU ─────────────────────────────── */
+    .hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 36px; height: 36px; background: none; border: none;
+      cursor: pointer; padding: 4px; border-radius: 8px;
+      transition: background 0.18s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.07); }
+    .hamburger span {
+      display: block; width: 20px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: transform 0.28s, opacity 0.28s;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+    .mobile-drawer {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 201;
+      width: 260px; background: #08091A;
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem;
+      display: flex; flex-direction: column; gap: 0.3rem;
+      transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+    .mobile-drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0.25rem; margin-bottom: 1.2rem;
+    }
+    .mobile-drawer-logo { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; }
+    .mobile-drawer-logo-name { font-size: 1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .mobile-close {
+      background: none; border: none; cursor: pointer; color: var(--text-2);
+      font-size: 1.3rem; line-height: 1; padding: 0.2rem;
+      transition: color 0.15s;
+    }
+    .mobile-close:hover { color: var(--text); }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 1.5rem; }
+      .podium { gap: 0.5rem; }
+      .hamburger { display: flex; }
+      .mobile-overlay { display: block; }
+    }
+    @media (max-width: 600px) {
+      .podium-slot { max-width: 100px; }
+      .rank-table th:nth-child(3),
+      .rank-row td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <svg width="24" height="20" viewBox="0 0 24 20" fill="none" style="overflow:hidden">
+      <path d="M-21 4 Q-15 1 -10 4 Q-4 7 1 4 Q6 1 12 4 Q18 7 23 4 Q28 1 34 4 Q40 7 45 4" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none"><animateTransform attributeName="transform" type="translate" values="0,0; -22,0" dur="2.5s" repeatCount="indefinite"/></path>
+      <line x1="0" y1="10" x2="24" y2="10" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
+      <path d="M-21 16 Q-15 19 -10 16 Q-4 13 1 16 Q6 19 12 16 Q18 13 23 16 Q28 19 34 16 Q40 13 45 16" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.25"><animateTransform attributeName="transform" type="translate" values="0,0; -22,0" dur="3s" repeatCount="indefinite"/></path>
+    </svg>
+    <span class="nav-logo-name">Helix</span>
+  </a>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── MOBILE DRAWER ──────────────────────────────────────── -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-drawer" id="mobile-drawer">
+  <div class="mobile-drawer-head">
+    <a class="mobile-drawer-logo" href="index.html">
+      <svg width="20" height="17" viewBox="0 0 24 20" fill="none">
+        <path d="M-21 4 Q-15 1 -10 4 Q-4 7 1 4 Q6 1 12 4 Q18 7 23 4 Q28 1 34 4 Q40 7 45 4" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none"><animateTransform attributeName="transform" type="translate" values="0,0; -22,0" dur="2.5s" repeatCount="indefinite"/></path>
+        <line x1="0" y1="10" x2="24" y2="10" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" opacity="0.45"/>
+        <path d="M-21 16 Q-15 19 -10 16 Q-4 13 1 16 Q6 19 12 16 Q18 13 23 16 Q28 19 34 16 Q40 13 45 16" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.25"><animateTransform attributeName="transform" type="translate" values="0,0; -22,0" dur="3s" repeatCount="indefinite"/></path>
+      </svg>
+      <span class="mobile-drawer-logo-name">Helix</span>
+    </a>
+    <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+  </div>
+  <span class="sidebar-label" style="margin-top:0;">Learn</span>
+  <a class="nav-item" href="dashboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏠</span> Dashboard</a>
+  <a class="nav-item" href="dashboard.html#courses-section" onclick="closeMobileMenu()"><span class="nav-item-icon">📚</span> Courses</a>
+  <a class="nav-item" href="challenge.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+  <span class="sidebar-label">Progress</span>
+  <a class="nav-item active" href="leaderboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+  <a class="nav-item" href="profile.html" onclick="closeMobileMenu()"><span class="nav-item-icon">👤</span> Profile</a>
+</div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <span class="sidebar-label">Learn</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="dashboard.html#courses-section"><span class="nav-item-icon">📚</span> Courses</a>
+    <a class="nav-item" href="challenge.html"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+
+    <span class="sidebar-label">Progress</span>
+    <a class="nav-item active" href="leaderboard.html"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+    <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> Profile</a>
+
+    <div class="user-card" style="margin-top:auto;">
+      <div class="user-info">
+        <div class="user-avatar-lg" id="sidebar-avatar">Y</div>
+        <div>
+          <div class="user-name" id="sidebar-name">You</div>
+          <div class="user-level" id="sidebar-level">Level 1 · Novice</div>
+        </div>
+      </div>
+      <div class="xp-bar-top">
+        <span class="xp-bar-lbl">XP to next level</span>
+        <span class="xp-bar-val" id="sidebar-xp-label">0 / 500</span>
+      </div>
+      <div class="xp-bar"><div class="xp-bar-fill" id="sidebar-xp-bar" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-title">Leaderboard 🏆</div>
+    <div class="page-sub">Weekly rankings reset every Monday. Keep your streak going.</div>
+
+    <!-- Period tabs -->
+    <div class="period-tabs">
+      <button class="period-tab active" onclick="setPeriod(this,'weekly')">This Week</button>
+      <button class="period-tab" onclick="setPeriod(this,'monthly')">This Month</button>
+      <button class="period-tab" onclick="setPeriod(this,'alltime')">All Time</button>
+    </div>
+
+    <!-- My rank card -->
+    <div class="my-rank-card">
+      <div class="my-rank-num" id="my-rank-num"><sup>#</sup>—</div>
+      <div class="my-rank-info">
+        <div class="my-rank-title" id="my-rank-title">Your rank</div>
+        <div class="my-rank-sub" id="my-rank-sub">Keep earning XP to climb the leaderboard</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="my-rank-xp" id="my-rank-xp">0</div>
+        <div class="my-rank-xp-lbl">XP</div>
+      </div>
+    </div>
+
+    <!-- Podium -->
+    <div class="podium" id="podium"></div>
+
+    <!-- Rank table -->
+    <table class="rank-table" id="rank-table">
+      <thead>
+        <tr>
+          <th style="width:3.5rem;">#</th>
+          <th>Player</th>
+          <th>Streak</th>
+          <th style="text-align:right;">XP</th>
+        </tr>
+      </thead>
+      <tbody id="rank-tbody"></tbody>
+    </table>
+
+  </main>
+</div>
+
+<script>
+// ── State helpers ──────────────────────────────────────────
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : { xp: 0, streak: 1, level: 1, lessonsCompleted: 0, name: '' };
+}
+function getLevel(xp) {
+  const t = [0,100,250,500,900,1400,2000];
+  for (let i = t.length - 1; i >= 0; i--) if (xp >= t[i]) return i + 1;
+  return 1;
+}
+function getLevelXP(level) {
+  const t = [0,100,250,500,900,1400,2000];
+  return { cur: t[level-1]||0, next: t[level]||2000 };
+}
+function getLevelTitle(level) {
+  return ['','Novice','Coder','Builder','Engineer','Architect','Master'][Math.min(level,6)]||'Legend';
+}
+function getInitial(name) {
+  return (name || 'Y').trim().charAt(0).toUpperCase();
+}
+function ordinal(n) {
+  const s = ['th','st','nd','rd'], v = n % 100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+
+// ── Mock players ───────────────────────────────────────────
+const AVATAR_COLORS = [
+  ['#6366F1','#818CF8'], ['#10B981','#6EE7B7'], ['#F59E0B','#FDE68A'],
+  ['#EF4444','#FCA5A5'], ['#A78BFA','#C4B5FD'], ['#38BDF8','#7DD3FC'],
+  ['#FB7185','#FCA5A5'], ['#4ADE80','#86EFAC'],
+];
+
+const MOCK_BASE = [
+  { name: 'alexdev',     xpW: 1840, xpM: 7200,  xpA: 24100, streak: 21 },
+  { name: 'zara.codes',  xpW: 1650, xpM: 6800,  xpA: 19400, streak: 14 },
+  { name: 'jmora',       xpW: 1420, xpM: 5950,  xpA: 15600, streak: 9  },
+  { name: 'bytebender',  xpW: 1290, xpM: 5400,  xpA: 13800, streak: 11 },
+  { name: 'nadia_l',     xpW: 1100, xpM: 4700,  xpA: 12300, streak: 7  },
+  { name: 'pythonpilot', xpW:  940, xpM: 4100,  xpA: 10700, streak: 6  },
+  { name: 'loopbreaker', xpW:  880, xpM: 3500,  xpA:  9200, streak: 5  },
+  { name: 'devhunter99', xpW:  750, xpM: 3100,  xpA:  8000, streak: 4  },
+  { name: 'kr1sten',     xpW:  700, xpM: 2900,  xpA:  7100, streak: 3  },
+  { name: 'snipervs',    xpW:  620, xpM: 2500,  xpA:  6300, streak: 4  },
+  { name: 'waveform',    xpW:  580, xpM: 2200,  xpA:  5800, streak: 2  },
+  { name: 'tac0s4ever',  xpW:  500, xpM: 1900,  xpA:  5100, streak: 3  },
+  { name: 'pixelgrind',  xpW:  440, xpM: 1700,  xpA:  4500, streak: 2  },
+  { name: 'staticflow',  xpW:  380, xpM: 1500,  xpA:  4000, streak: 1  },
+  { name: 'zeroxcool',   xpW:  320, xpM: 1250,  xpA:  3400, streak: 2  },
+];
+
+function getXPForPeriod(p, mock) {
+  if (p === 'weekly')  return mock.xpW;
+  if (p === 'monthly') return mock.xpM;
+  return mock.xpA;
+}
+
+let currentPeriod = 'weekly';
+
+function buildRows(period) {
+  const state = loadState();
+  const myXP  = period === 'weekly'  ? Math.round(state.xp * 0.6)  // simulate weekly slice
+               : period === 'monthly' ? Math.round(state.xp * 0.9)
+               : state.xp;
+  const myName   = state.name || 'You';
+  const myStreak = state.streak;
+
+  // Build full list including user
+  const list = MOCK_BASE.map((m, i) => ({
+    ...m, xp: getXPForPeriod(period, m), isMe: false,
+    color: AVATAR_COLORS[i % AVATAR_COLORS.length],
+  }));
+  list.push({
+    name: myName, xp: myXP, streak: myStreak, isMe: true,
+    color: [getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(), '#60A5FA'],
+  });
+  list.sort((a,b) => b.xp - a.xp);
+
+  return list;
+}
+
+function renderPodium(list) {
+  const top3 = list.slice(0,3);
+  // order: 2nd, 1st, 3rd
+  const slots = [top3[1], top3[0], top3[2]];
+  const classes = ['p2','p1','p3'];
+  const crowns  = ['🥈','👑','🥉'];
+  const heights = [72, 100, 52];
+  const labels  = ['2','1','3'];
+
+  const el = document.getElementById('podium');
+  el.innerHTML = slots.map((p, i) => {
+    if (!p) return '';
+    const init = getInitial(p.name);
+    const youBadge = p.isMe ? '<span class="you-badge">You</span>' : '';
+    return `
+      <div class="podium-slot ${classes[i]}">
+        <div class="podium-avatar" style="background:linear-gradient(135deg,${p.color[0]},${p.color[1]})">
+          <span class="crown">${crowns[i]}</span>
+          ${init}
+        </div>
+        <div class="podium-name">${p.name}${youBadge}</div>
+        <div class="podium-xp">${p.xp.toLocaleString()} XP</div>
+        <div class="podium-block" style="height:${heights[i]}px">${labels[i]}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderTable(list) {
+  const tbody = document.getElementById('rank-tbody');
+  // Show top 4–15, then gap, then user's row (if > 15)
+  const state = loadState();
+  const myName = state.name || 'You';
+  const myIndex = list.findIndex(r => r.isMe);
+
+  let rows = '';
+  const showCount = Math.min(15, list.length);
+  for (let i = 3; i < showCount; i++) {
+    const p = list[i];
+    const rank = i + 1;
+    const numClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+    const init = getInitial(p.name);
+    const youBadge = p.isMe ? '<span class="you-badge">You</span>' : '';
+    const lvl = getLevel(p.xp);
+    rows += `
+      <tr class="rank-row${p.isMe ? ' is-me' : ''}">
+        <td><span class="rank-num ${numClass}">${rank}</span></td>
+        <td>
+          <div class="rank-user">
+            <div class="rank-avatar" style="background:linear-gradient(135deg,${p.color[0]},${p.color[1]})">${init}</div>
+            <div>
+              <div class="rank-uname">${p.name}${youBadge}</div>
+              <div class="rank-ulevel">Level ${lvl} · ${getLevelTitle(lvl)}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="rank-streak">🔥 <span>${p.streak}</span> days</span></td>
+        <td><div class="rank-xp">${p.xp.toLocaleString()}</div></td>
+      </tr>`;
+  }
+
+  // If user is outside top 15, add gap + user row
+  if (myIndex >= 15) {
+    rows += `
+      <tr class="rank-gap">
+        <td colspan="4">
+          <div class="gap-dots"><span></span><span></span><span></span></div>
+        </td>
+      </tr>`;
+    const p = list[myIndex];
+    const rank = myIndex + 1;
+    const init = getInitial(p.name);
+    const lvl = getLevel(p.xp);
+    rows += `
+      <tr class="rank-row is-me">
+        <td><span class="rank-num">${rank}</span></td>
+        <td>
+          <div class="rank-user">
+            <div class="rank-avatar" style="background:linear-gradient(135deg,${p.color[0]},${p.color[1]})">${init}</div>
+            <div>
+              <div class="rank-uname">${p.name}<span class="you-badge">You</span></div>
+              <div class="rank-ulevel">Level ${lvl} · ${getLevelTitle(lvl)}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="rank-streak">🔥 <span>${p.streak}</span> days</span></td>
+        <td><div class="rank-xp">${p.xp.toLocaleString()}</div></td>
+      </tr>`;
+  }
+
+  tbody.innerHTML = rows;
+}
+
+function renderMyCard(list) {
+  const myIndex = list.findIndex(r => r.isMe);
+  const rank    = myIndex + 1;
+  const p       = list[myIndex];
+
+  document.getElementById('my-rank-num').innerHTML = `<sup>#</sup>${rank}`;
+  document.getElementById('my-rank-title').textContent = ordinal(rank) + ' place';
+  document.getElementById('my-rank-sub').textContent =
+    myIndex === 0 ? '🏆 You\'re at the top! Keep it up.'
+    : `${myIndex} player${myIndex > 1 ? 's' : ''} ahead of you — keep grinding!`;
+  document.getElementById('my-rank-xp').textContent = p.xp.toLocaleString();
+}
+
+function render(period) {
+  const list = buildRows(period);
+  renderPodium(list);
+  renderTable(list);
+  renderMyCard(list);
+
+  // Nav
+  const state = loadState();
+  document.getElementById('nav-xp').textContent     = state.xp;
+  document.getElementById('nav-streak').textContent  = state.streak;
+
+  // Sidebar
+  const level = getLevel(state.xp);
+  const lxp   = getLevelXP(level);
+  const pct   = Math.round(((state.xp - lxp.cur) / (lxp.next - lxp.cur)) * 100);
+  const name  = state.name || 'You';
+  document.getElementById('sidebar-avatar').textContent  = getInitial(name);
+  document.getElementById('sidebar-name').textContent    = name;
+  document.getElementById('sidebar-level').textContent   = `Level ${level} · ${getLevelTitle(level)}`;
+  document.getElementById('sidebar-xp-label').textContent = `${state.xp} / ${lxp.next}`;
+  document.getElementById('sidebar-xp-bar').style.width  = pct + '%';
+}
+
+function setPeriod(btn, period) {
+  currentPeriod = period;
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render(period);
+}
+
+render('weekly');
+
+// ── Mobile menu ────────────────────────────────────────────
+function openMobileMenu() {
+  document.getElementById('hamburger').classList.add('open');
+  document.getElementById('mobile-overlay').classList.add('open');
+  document.getElementById('mobile-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu() {
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+  document.getElementById('mobile-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('hamburger').addEventListener('click', function() {
+  this.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+});
+</script>
+</body>
+</html>

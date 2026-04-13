@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "helix",
+      "runtimeExecutable": "/usr/bin/ruby",
+      "runtimeArgs": ["-run", "-e", "httpd", "/Users/delfinobiang/Documents/Claude Code/helix", "--", "-p", "3456"],
+      "port": 3456
+    }
+  ]
+}

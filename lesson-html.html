@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — HTML &amp; CSS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; animation-direction: alternate; animation-iteration-count: infinite; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%); top: -100px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(60px,80px) scale(1.1); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,-60px) scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      height: 56px; padding: 0 1.5rem; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    .nav-left  { display: flex; align-items: center; gap: 1rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .lesson-breadcrumb { font-size: 0.82rem; color: var(--text-3); }
+    .lesson-breadcrumb strong { color: var(--text-2); font-weight: 600; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(255,179,71,0.08); border: 1px solid rgba(255,179,71,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; padding: 0.45rem 1.2rem; border-radius: 9px;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.28);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.38); }
+    .btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+
+    /* ─── PROGRESS ────────────────────────────────────────── */
+    .lesson-progress { height: 3px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+    .lesson-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.6s ease;
+    }
+
+    /* ─── SPLIT ───────────────────────────────────────────── */
+    .split {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+      overflow: hidden; min-height: 0; position: relative; z-index: 1;
+    }
+
+    /* ─── LEFT PANEL ──────────────────────────────────────── */
+    .panel-left {
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel-left-inner {
+      flex: 1; overflow-y: auto; padding: 2rem 2rem 1rem;
+    }
+    .panel-left-inner::-webkit-scrollbar { width: 4px; }
+    .panel-left-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    .lesson-num-tag {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--primary); margin-bottom: 0.5rem;
+    }
+    .lesson-title-h {
+      font-size: 1.55rem; font-weight: 800; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 1.4rem;
+    }
+    .lesson-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.82; }
+    .lesson-body p  { margin-bottom: 1rem; }
+    .lesson-body h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 1.4rem 0 0.6rem; }
+    .lesson-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+    .lesson-body ul li { margin-bottom: 0.3rem; }
+    .lesson-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.1); color: #C4B5FD;
+      padding: 0.12em 0.38em; border-radius: 5px;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .lesson-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      line-height: 1.9; overflow-x: auto;
+    }
+    .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
+    .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
+
+    .challenge-box {
+      margin: 1.5rem 0 0;
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .challenge-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    /* Hint / solution */
+    .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .collapsible { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .collapsible-header {
+      width: 100%; display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; background: var(--bg-card);
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600; color: var(--text-2);
+      text-align: left; transition: background 0.18s, color 0.18s;
+    }
+    .collapsible-header:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .collapsible-header .chevron { margin-left: auto; font-size: 0.7rem; transition: transform 0.25s; }
+    .collapsible-header.open .chevron { transform: rotate(180deg); }
+    .collapsible-hint     { border-color: rgba(255,179,71,0.2); }
+    .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
+    .collapsible-solution { border-color: rgba(74,222,128,0.18); }
+    .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+
+    .collapsible-solution.locked {
+      border-color: var(--border);
+      opacity: 0.5;
+    }
+    .collapsible-solution.locked .collapsible-header {
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+    .collapsible-solution.locked .collapsible-header:hover {
+      background: var(--bg-card);
+      color: var(--text-3);
+    }
+    .sol-lock-msg {
+      font-size: 0.72rem; color: var(--text-3);
+      margin-left: auto; margin-right: 0.4rem;
+      font-style: italic; white-space: nowrap;
+    }
+    .collapsible-solution:not(.locked) .sol-lock-msg { display: none; }
+    .collapsible-body {
+      display: none; padding: 1rem;
+      font-size: 0.85rem; line-height: 1.72; color: var(--text-2);
+      background: rgba(0,0,0,0.15); border-top: 1px solid var(--border);
+    }
+    .collapsible-body.open { display: block; }
+    .collapsible-body code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+      background: rgba(99,102,241,0.08); color: #C4B5FD;
+      padding: 0.1em 0.35em; border-radius: 5px;
+    }
+    .collapsible-body .code-block {
+      background: #05091A; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
+      overflow-x: auto;
+    }
+
+    /* ─── RIGHT PANEL ─────────────────────────────────────── */
+    .panel-right { display: flex; flex-direction: column; overflow: hidden; }
+    .editor-toolbar {
+      padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(6,10,20,0.6); flex-shrink: 0;
+    }
+    .win-dots { display: flex; gap: 5px; }
+    .wd { width: 10px; height: 10px; border-radius: 50%; }
+    .wd.r { background: #FF5F57; } .wd.y { background: #FFBD2E; } .wd.g { background: #28C840; }
+    .editor-fname { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-3); margin-left: 0.4rem; flex: 1; }
+    .btn-run {
+      display: flex; align-items: center; gap: 0.45rem;
+      background: linear-gradient(135deg, #22C55E, #16A34A);
+      border: none; color: white; font-family: inherit;
+      font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(74,222,128,0.22);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-run:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(74,222,128,0.32); }
+    .btn-run:disabled { opacity: 0.4; pointer-events: none; }
+    .btn-clear {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-3); font-family: inherit; font-size: 0.78rem;
+      cursor: pointer; padding: 0.42rem 0.85rem; border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-clear:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
+
+    .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; min-height: 0; }
+    .line-nums {
+      padding: 1.1rem 0.75rem 1.1rem 1rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      color: var(--text-3); text-align: right; user-select: none;
+      background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
+      min-width: 44px; overflow: hidden; flex-shrink: 0;
+    }
+    .editor-textarea {
+      flex: 1; resize: none; border: none; outline: none;
+      background: #050C1A; color: #D4D4F8;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 2;
+      caret-color: var(--primary);
+      overflow-y: auto; overflow-x: auto;
+    }
+    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
+    .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    /* Output / Preview */
+    .output-panel {
+      border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; flex: 1; max-height: none;
+    }
+    .output-header {
+      padding: 0.55rem 1.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    .output-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); flex: 1; }
+    .output-status { font-size: 0.68rem; font-weight: 700; padding: 0.14rem 0.55rem; border-radius: 6px; }
+    .os-running { background: rgba(255,179,71,0.1);  color: var(--yellow); }
+    .os-ok      { background: rgba(74,222,128,0.1);  color: var(--green);  }
+    .os-error   { background: rgba(255,107,107,0.1); color: var(--red);    }
+    .os-idle    { background: rgba(255,255,255,0.04); color: var(--text-3); }
+
+    /* ─── COMPLETION MODAL ────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.28s;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #05091A; border: 1px solid rgba(99,102,241,0.28);
+      border-radius: 26px; padding: 2.5rem 2.5rem 2rem;
+      max-width: 420px; width: 90%; text-align: center;
+      transform: translateY(24px) scale(0.95);
+      transition: transform 0.32s cubic-bezier(0.34,1.55,0.64,1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,102,241,0.10);
+      position: relative; overflow: hidden;
+    }
+    .modal-backdrop.show .modal { transform: translateY(0) scale(1); }
+
+    .modal-pip-wrap { margin-bottom: 1rem; animation: pip-bounce 0.7s ease; }
+    @keyframes pip-bounce {
+      0%   { transform: translateY(-30px) scale(0.7); opacity: 0; }
+      60%  { transform: translateY(5px) scale(1.05); opacity: 1; }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .modal-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .modal-sub   { font-size: 0.88rem; color: var(--text-2); margin-bottom: 1.5rem; line-height: 1.6; }
+    .modal-xp-wrap {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.22);
+      color: var(--yellow); font-size: 1.15rem; font-weight: 800;
+      padding: 0.55rem 1.6rem; border-radius: 100px; margin-bottom: 1.6rem;
+    }
+    .modal-xp-count { transition: all 0.1s; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: center; }
+    .btn-modal-next {
+      background: var(--primary);
+      border: 1px solid rgba(255,255,255,0.1); color: white;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; padding: 0.7rem 1.8rem; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-modal-next:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(99,102,241,0.4); }
+    .btn-modal-dash {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-family: inherit; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; padding: 0.7rem 1.4rem; border-radius: 12px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-modal-dash:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+
+    /* ─── CONFETTI CANVAS ─────────────────────────────────── */
+    #confetti-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 199;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    #confetti-canvas.active { opacity: 1; }
+
+    /* ─── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
+      .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
+      .panel-left-inner { overflow: visible; }
+      .panel-right { min-height: 520px; flex: none; height: 520px; }
+      .lesson-breadcrumb { display: none; }
+      .output-panel { max-height: 280px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="dashboard.html">← Back</a>
+    <div class="lesson-breadcrumb">HTML &amp; CSS Essentials &nbsp;/&nbsp; <strong id="nav-lesson-title">Lesson</strong></div>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <button class="btn-primary" id="btn-submit">Submit →</button>
+  </div>
+</nav>
+
+<div class="lesson-progress">
+  <div class="lesson-progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<!-- ─── SPLIT ────────────────────────────────────────────── -->
+<div class="split">
+
+  <div class="panel-left">
+    <div class="panel-left-inner" id="lesson-content"></div>
+    <div class="extras">
+      <div class="collapsible collapsible-hint">
+        <button class="collapsible-header" id="hint-toggle">
+          💡 Show Hint <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="hint-body"></div>
+      </div>
+      <div class="collapsible collapsible-solution locked" id="solution-collapsible">
+        <button class="collapsible-header" id="solution-toggle">
+          🔒 Show Solution
+          <span class="sol-lock-msg">run your code first</span>
+          <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="solution-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="editor-toolbar">
+      <div class="win-dots">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+      </div>
+      <span class="editor-fname" id="editor-fname">index.html</span>
+      <button class="btn-clear" id="btn-reset">↺ Reset</button>
+      <button class="btn-run" id="btn-run">▶ Run</button>
+    </div>
+    <div class="editor-wrap">
+      <div class="line-nums" id="line-nums">1</div>
+      <textarea
+        class="editor-textarea" id="editor"
+        spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="&lt;!-- Write your HTML &amp; CSS here --&gt;"></textarea>
+    </div>
+    <div class="output-panel" style="flex:1;max-height:none;">
+      <div class="output-header">
+        <span class="output-label">▶ Preview</span>
+        <span class="output-status os-idle" id="output-status">Ready</span>
+      </div>
+      <iframe id="preview-frame" style="flex:1;width:100%;border:none;background:#fff;min-height:200px;" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ─── COMPLETION MODAL ────────────────────────────────── -->
+<canvas id="confetti-canvas"></canvas>
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-pip-wrap">
+      <svg width="72" height="82" viewBox="0 0 130 148" fill="none">
+        <defs>
+          <radialGradient id="mp-h" cx="42%" cy="30%" r="62%"><stop offset="0%" stop-color="#9A92FF"/><stop offset="100%" stop-color="#3B35C0"/></radialGradient>
+          <radialGradient id="mp-f" cx="50%" cy="38%" r="55%"><stop offset="0%" stop-color="#1E1E3C"/><stop offset="100%" stop-color="#0C0C1E"/></radialGradient>
+          <radialGradient id="mp-e" cx="30%" cy="28%" r="70%"><stop offset="0%" stop-color="#78F4FF"/><stop offset="100%" stop-color="#0088AA"/></radialGradient>
+          <linearGradient id="mp-ear" x1="0%" y1="0%" x2="80%" y2="100%"><stop offset="0%" stop-color="#7870E8"/><stop offset="100%" stop-color="#3830A8"/></linearGradient>
+          <filter id="mp-s"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#6366F1" flood-opacity="0.3"/></filter>
+        </defs>
+        <g filter="url(#mp-s)">
+          <circle cx="65" cy="58" r="44" fill="url(#mp-h)"/>
+          <path d="M30 26 C33 12 40 10 42 22 C40 30 33 36 26 34 C23 30 25 26 30 26Z" fill="url(#mp-ear)"/>
+          <path d="M100 26 C97 12 90 10 88 22 C90 30 97 36 104 34 C107 30 105 26 100 26Z" fill="url(#mp-ear)"/>
+          <circle cx="65" cy="60" r="32" fill="url(#mp-f)"/>
+          <circle cx="51" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="52.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="55" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <circle cx="79" cy="57" r="11.5" fill="url(#mp-e)"/>
+          <circle cx="80.5" cy="57" r="6" fill="#060616"/>
+          <circle cx="83" cy="53.5" r="2.8" fill="white" opacity="0.95"/>
+          <path d="M65 64 C61.5 64 58 68.5 59.5 72 C61 74.5 63.5 75.5 65 75.5 C66.5 75.5 69 74.5 70.5 72 C72 68.5 68.5 64 65 64Z" fill="#FFB347"/>
+        </g>
+      </svg>
+    </div>
+    <div class="modal-title">Lesson Complete! 🎉</div>
+    <div class="modal-sub" id="modal-sub">Great work. Keep the streak going!</div>
+    <div class="modal-xp-wrap">⚡ +<span class="modal-xp-count" id="modal-xp-count">0</span> XP</div>
+    <div class="modal-actions">
+      <button class="btn-modal-next" id="modal-next">Next Lesson →</button>
+      <button class="btn-modal-dash" onclick="window.location.href='dashboard.html'">Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// LESSON DATA — 15 HTML & CSS Essentials lessons
+// ═══════════════════════════════════════════════════════════
+const LESSONS = {
+
+  1: {
+    title: "HTML Structure", xp: 50, fname: "index.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 1 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">HTML Structure 🏗️</h1>
+      <div class="lesson-body">
+        <p>Every web page starts with a standard HTML skeleton. These tags tell the browser what kind of document it is and how to display it.</p>
+        <h3>The four required parts</h3>
+        <div class="code-block"><span class="kw">&lt;!DOCTYPE html&gt;</span>
+<span class="kw">&lt;html&gt;</span>
+  <span class="kw">&lt;head&gt;</span>
+    <span class="kw">&lt;title&gt;</span><span class="st">My Page</span><span class="kw">&lt;/title&gt;</span>
+  <span class="kw">&lt;/head&gt;</span>
+  <span class="kw">&lt;body&gt;</span>
+    <span class="kw">&lt;p&gt;</span><span class="st">Hello!</span><span class="kw">&lt;/p&gt;</span>
+  <span class="kw">&lt;/body&gt;</span>
+<span class="kw">&lt;/html&gt;</span></div>
+        <ul>
+          <li><code>&lt;!DOCTYPE html&gt;</code> — tells browsers this is HTML5</li>
+          <li><code>&lt;html&gt;</code> — the root element wrapping everything</li>
+          <li><code>&lt;head&gt;</code> — metadata: title, links, styles (not visible)</li>
+          <li><code>&lt;body&gt;</code> — visible page content goes here</li>
+        </ul>
+        <p>The <code>&lt;title&gt;</code> tag sets the text shown in the browser tab.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Write a complete HTML page with <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, a <code>&lt;head&gt;</code> containing <code>&lt;title&gt;My Page&lt;/title&gt;</code>, and a <code>&lt;body&gt;</code> containing <code>&lt;p&gt;Hello, Helix!&lt;/p&gt;</code>.</div>
+        </div>
+      </div>`,
+    hint: `<p>Build the full skeleton step by step:</p>
+      <div class="code-block"><span class="kw">&lt;!DOCTYPE html&gt;</span>
+<span class="kw">&lt;html&gt;</span>
+  <span class="kw">&lt;head&gt;</span>
+    <span class="kw">&lt;title&gt;</span><span class="st">My Page</span><span class="kw">&lt;/title&gt;</span>
+  <span class="kw">&lt;/head&gt;</span>
+  <span class="kw">&lt;body&gt;</span>
+    <span class="cm">&lt;!-- your content here --&gt;</span>
+  <span class="kw">&lt;/body&gt;</span>
+<span class="kw">&lt;/html&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;!DOCTYPE html&gt;</span>
+<span class="kw">&lt;html&gt;</span>
+  <span class="kw">&lt;head&gt;</span>
+    <span class="kw">&lt;title&gt;</span><span class="st">My Page</span><span class="kw">&lt;/title&gt;</span>
+  <span class="kw">&lt;/head&gt;</span>
+  <span class="kw">&lt;body&gt;</span>
+    <span class="kw">&lt;p&gt;</span><span class="st">Hello, Helix!</span><span class="kw">&lt;/p&gt;</span>
+  <span class="kw">&lt;/body&gt;</span>
+<span class="kw">&lt;/html&gt;</span></div>`,
+    starter: `<!DOCTYPE html>\n<html>\n  <head>\n    \n  </head>\n  <body>\n    \n  </body>\n</html>`,
+    check: (code) => /<!DOCTYPE\s+html>/i.test(code) && /<title>/i.test(code) && /Hello,\s*Helix!/i.test(code),
+  },
+
+  2: {
+    title: "Headings & Paragraphs", xp: 75, fname: "headings.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 2 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Headings &amp; Paragraphs 📝</h1>
+      <div class="lesson-body">
+        <p>HTML has six heading levels (<code>&lt;h1&gt;</code> to <code>&lt;h6&gt;</code>) and the paragraph tag <code>&lt;p&gt;</code> for body text.</p>
+        <div class="code-block"><span class="kw">&lt;h1&gt;</span><span class="st">Big Heading</span><span class="kw">&lt;/h1&gt;</span>
+<span class="kw">&lt;h2&gt;</span><span class="st">Sub Heading</span><span class="kw">&lt;/h2&gt;</span>
+<span class="kw">&lt;h3&gt;</span><span class="st">Smaller</span><span class="kw">&lt;/h3&gt;</span>
+<span class="kw">&lt;p&gt;</span><span class="st">A paragraph of text.</span><span class="kw">&lt;/p&gt;</span></div>
+        <h3>Line break</h3>
+        <p>Use <code>&lt;br&gt;</code> to force a line break inside text without starting a new paragraph.</p>
+        <div class="code-block"><span class="kw">&lt;p&gt;</span><span class="st">Line one.</span><span class="kw">&lt;br&gt;</span><span class="st">Line two.</span><span class="kw">&lt;/p&gt;</span></div>
+        <p>Use <code>&lt;h1&gt;</code> for the main page title — only one per page. Use <code>&lt;h2&gt;</code>–<code>&lt;h6&gt;</code> for sections.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a page with an <code>&lt;h1&gt;</code> saying "Welcome", an <code>&lt;h2&gt;</code> saying "About", and a <code>&lt;p&gt;</code> saying "Learning HTML is fun!".</div>
+        </div>
+      </div>`,
+    hint: `<p>Put all three tags inside the <code>&lt;body&gt;</code>:</p>
+      <div class="code-block"><span class="kw">&lt;h1&gt;</span><span class="st">Welcome</span><span class="kw">&lt;/h1&gt;</span>
+<span class="kw">&lt;h2&gt;</span><span class="st">About</span><span class="kw">&lt;/h2&gt;</span>
+<span class="kw">&lt;p&gt;</span><span class="st">Learning HTML is fun!</span><span class="kw">&lt;/p&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;!DOCTYPE html&gt;</span>
+<span class="kw">&lt;html&gt;</span><span class="kw">&lt;body&gt;</span>
+  <span class="kw">&lt;h1&gt;</span><span class="st">Welcome</span><span class="kw">&lt;/h1&gt;</span>
+  <span class="kw">&lt;h2&gt;</span><span class="st">About</span><span class="kw">&lt;/h2&gt;</span>
+  <span class="kw">&lt;p&gt;</span><span class="st">Learning HTML is fun!</span><span class="kw">&lt;/p&gt;</span>
+<span class="kw">&lt;/body&gt;&lt;/html&gt;</span></div>`,
+    starter: `<!-- Add your headings and paragraph below -->\n`,
+    check: (code) => /<h1>/i.test(code) && /<h2>/i.test(code) && /Learning HTML is fun!/i.test(code),
+  },
+
+  3: {
+    title: "Links & Images", xp: 75, fname: "links.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 3 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Links &amp; Images 🔗</h1>
+      <div class="lesson-body">
+        <p>The anchor tag <code>&lt;a&gt;</code> creates clickable links. The <code>href</code> attribute sets the destination URL.</p>
+        <div class="code-block"><span class="kw">&lt;a</span> <span class="vr">href</span>=<span class="st">"https://example.com"</span><span class="kw">&gt;</span><span class="st">Visit Example</span><span class="kw">&lt;/a&gt;</span></div>
+        <h3>Images</h3>
+        <p>The <code>&lt;img&gt;</code> tag embeds an image. It is a <em>self-closing</em> tag — no closing tag needed.</p>
+        <div class="code-block"><span class="kw">&lt;img</span> <span class="vr">src</span>=<span class="st">"photo.jpg"</span> <span class="vr">alt</span>=<span class="st">"A description"</span><span class="kw">&gt;</span></div>
+        <ul>
+          <li><code>src</code> — path or URL to the image file</li>
+          <li><code>alt</code> — text shown if image fails; required for accessibility</li>
+        </ul>
+        <h3>Open in a new tab</h3>
+        <div class="code-block"><span class="kw">&lt;a</span> <span class="vr">href</span>=<span class="st">"https://helix.dev"</span> <span class="vr">target</span>=<span class="st">"_blank"</span><span class="kw">&gt;</span><span class="st">Open</span><span class="kw">&lt;/a&gt;</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a link to <code>https://helix.dev</code> with text "Visit Helix", and an <code>&lt;img&gt;</code> tag with <code>alt="logo"</code>.</div>
+        </div>
+      </div>`,
+    hint: `<p>Use <code>href</code> for the link and <code>alt</code> for the image:</p>
+      <div class="code-block"><span class="kw">&lt;a</span> <span class="vr">href</span>=<span class="st">"https://helix.dev"</span><span class="kw">&gt;</span><span class="st">Visit Helix</span><span class="kw">&lt;/a&gt;</span>
+<span class="kw">&lt;img</span> <span class="vr">src</span>=<span class="st">"logo.png"</span> <span class="vr">alt</span>=<span class="st">"logo"</span><span class="kw">&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;a</span> <span class="vr">href</span>=<span class="st">"https://helix.dev"</span><span class="kw">&gt;</span><span class="st">Visit Helix</span><span class="kw">&lt;/a&gt;</span>
+<span class="kw">&lt;img</span> <span class="vr">src</span>=<span class="st">"https://via.placeholder.com/100"</span> <span class="vr">alt</span>=<span class="st">"logo"</span><span class="kw">&gt;</span></div>`,
+    starter: `<!-- Create a link and an image below -->\n`,
+    check: (code) => /href=/i.test(code) && /alt=/i.test(code),
+  },
+
+  4: {
+    title: "Lists", xp: 100, fname: "lists.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 4 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Lists 📋</h1>
+      <div class="lesson-body">
+        <p>HTML has two main list types. Both use <code>&lt;li&gt;</code> for each item.</p>
+        <h3>Unordered list — bullet points</h3>
+        <div class="code-block"><span class="kw">&lt;ul&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">Apples</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">Bananas</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">Cherries</span><span class="kw">&lt;/li&gt;</span>
+<span class="kw">&lt;/ul&gt;</span></div>
+        <h3>Ordered list — numbered</h3>
+        <div class="code-block"><span class="kw">&lt;ol&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">First step</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">Second step</span><span class="kw">&lt;/li&gt;</span>
+<span class="kw">&lt;/ol&gt;</span></div>
+        <h3>Nested lists</h3>
+        <p>You can nest a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code> inside any <code>&lt;li&gt;</code> to create sub-lists.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create an unordered list with 3 items: "HTML", "CSS", "JavaScript".</div>
+        </div>
+      </div>`,
+    hint: `<p>Use <code>&lt;ul&gt;</code> with three <code>&lt;li&gt;</code> items:</p>
+      <div class="code-block"><span class="kw">&lt;ul&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">HTML</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">...</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">...</span><span class="kw">&lt;/li&gt;</span>
+<span class="kw">&lt;/ul&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;ul&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">HTML</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">CSS</span><span class="kw">&lt;/li&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">JavaScript</span><span class="kw">&lt;/li&gt;</span>
+<span class="kw">&lt;/ul&gt;</span></div>`,
+    starter: `<!-- Create an unordered list with 3 items -->\n`,
+    check: (code) => /<ul>/i.test(code) && /<li>/i.test(code) && /HTML/i.test(code) && /JavaScript/i.test(code),
+  },
+
+  5: {
+    title: "Forms", xp: 125, fname: "form.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 5 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Forms 📬</h1>
+      <div class="lesson-body">
+        <p>Forms let users send data to a server. The <code>&lt;form&gt;</code> tag wraps all form controls.</p>
+        <div class="code-block"><span class="kw">&lt;form&gt;</span>
+  <span class="kw">&lt;label</span> <span class="vr">for</span>=<span class="st">"email"</span><span class="kw">&gt;</span><span class="st">Email:</span><span class="kw">&lt;/label&gt;</span>
+  <span class="kw">&lt;input</span> <span class="vr">type</span>=<span class="st">"email"</span> <span class="vr">id</span>=<span class="st">"email"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;button</span> <span class="vr">type</span>=<span class="st">"submit"</span><span class="kw">&gt;</span><span class="st">Send</span><span class="kw">&lt;/button&gt;</span>
+<span class="kw">&lt;/form&gt;</span></div>
+        <h3>Common input types</h3>
+        <ul>
+          <li><code>type="text"</code> — single-line text</li>
+          <li><code>type="email"</code> — validates email format</li>
+          <li><code>type="password"</code> — hides characters</li>
+          <li><code>type="checkbox"</code> — tick box</li>
+        </ul>
+        <h3>Linking labels to inputs</h3>
+        <p>The <code>for</code> attribute on <code>&lt;label&gt;</code> should match the <code>id</code> of the input. This makes the label clickable and helps screen readers.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a form with a text input (<code>id="name"</code>) labelled "Your Name:", and a submit button labelled "Send".</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;form&gt;</span>
+  <span class="kw">&lt;label</span> <span class="vr">for</span>=<span class="st">"name"</span><span class="kw">&gt;</span><span class="st">Your Name:</span><span class="kw">&lt;/label&gt;</span>
+  <span class="kw">&lt;input</span> <span class="vr">type</span>=<span class="st">"text"</span> <span class="vr">id</span>=<span class="st">"name"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;button&gt;</span><span class="st">Send</span><span class="kw">&lt;/button&gt;</span>
+<span class="kw">&lt;/form&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;form&gt;</span>
+  <span class="kw">&lt;label</span> <span class="vr">for</span>=<span class="st">"name"</span><span class="kw">&gt;</span><span class="st">Your Name:</span><span class="kw">&lt;/label&gt;</span>
+  <span class="kw">&lt;input</span> <span class="vr">type</span>=<span class="st">"text"</span> <span class="vr">id</span>=<span class="st">"name"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;button</span> <span class="vr">type</span>=<span class="st">"submit"</span><span class="kw">&gt;</span><span class="st">Send</span><span class="kw">&lt;/button&gt;</span>
+<span class="kw">&lt;/form&gt;</span></div>`,
+    starter: `<!-- Build your form below -->\n`,
+    check: (code) => /<form/i.test(code) && /<input/i.test(code) && /<button/i.test(code),
+  },
+
+  6: {
+    title: "CSS Basics", xp: 125, fname: "style.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 6 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">CSS Basics 🎨</h1>
+      <div class="lesson-body">
+        <p>CSS (Cascading Style Sheets) controls how HTML elements look. Add styles inside a <code>&lt;style&gt;</code> tag in your <code>&lt;head&gt;</code>.</p>
+        <div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">body</span> {
+    <span class="vr">background-color</span>: <span class="st">#1a1a2e</span>;
+    <span class="vr">color</span>: <span class="st">white</span>;
+  }
+  <span class="fn">h1</span> {
+    <span class="vr">color</span>: <span class="st">#6366f1</span>;
+    <span class="vr">font-size</span>: <span class="nm">2rem</span>;
+  }
+<span class="kw">&lt;/style&gt;</span></div>
+        <h3>Selectors</h3>
+        <ul>
+          <li><code>p</code> — selects all <code>&lt;p&gt;</code> elements</li>
+          <li><code>.classname</code> — selects elements with that class</li>
+          <li><code>#idname</code> — selects the element with that id</li>
+        </ul>
+        <div class="code-block"><span class="fn">.highlight</span> { <span class="vr">background</span>: <span class="st">yellow</span>; }
+<span class="fn">#title</span>     { <span class="vr">font-weight</span>: <span class="st">bold</span>; }</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Add a <code>&lt;style&gt;</code> block that sets the body <code>background</code> to <code>#1a1a2e</code> and makes <code>h1</code> color <code>#6366f1</code>. Include an <code>&lt;h1&gt;</code> in the body to preview it.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">body</span> { <span class="vr">background</span>: <span class="st">#1a1a2e</span>; }
+  <span class="fn">h1</span>   { <span class="vr">color</span>: <span class="st">#6366f1</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;h1&gt;</span><span class="st">Hello CSS!</span><span class="kw">&lt;/h1&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">body</span> { <span class="vr">background</span>: <span class="st">#1a1a2e</span>; <span class="vr">color</span>: <span class="st">white</span>; }
+  <span class="fn">h1</span>   { <span class="vr">color</span>: <span class="st">#6366f1</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;h1&gt;</span><span class="st">Hello CSS!</span><span class="kw">&lt;/h1&gt;</span></div>`,
+    starter: `<!-- Add your <style> tag and HTML below -->\n`,
+    check: (code) => /<style>/i.test(code) && /background/i.test(code) && /color/i.test(code),
+  },
+
+  7: {
+    title: "Box Model", xp: 150, fname: "boxmodel.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 7 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Box Model 📦</h1>
+      <div class="lesson-body">
+        <p>Every HTML element is a rectangular box. The box model has four layers from inside out:</p>
+        <ul>
+          <li><strong>Content</strong> — the actual text or image</li>
+          <li><strong>Padding</strong> — space inside the border</li>
+          <li><strong>Border</strong> — the visible outline</li>
+          <li><strong>Margin</strong> — space outside the border</li>
+        </ul>
+        <div class="code-block"><span class="fn">.card</span> {
+  <span class="vr">width</span>:   <span class="nm">200px</span>;
+  <span class="vr">padding</span>: <span class="nm">20px</span>;
+  <span class="vr">margin</span>:  <span class="nm">10px</span>;
+  <span class="vr">border</span>:  <span class="nm">2px</span> <span class="st">solid</span> <span class="st">#6366f1</span>;
+}</div>
+        <p>Use <code>box-sizing: border-box</code> so padding and border are included in the total width — avoids surprises!</p>
+        <div class="code-block">* { <span class="vr">box-sizing</span>: <span class="st">border-box</span>; }</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a <code>&lt;div&gt;</code> with class <code>"box"</code>, and style it with <code>padding: 20px</code>, <code>margin: 10px</code>, <code>border: 2px solid #6366f1</code>, and <code>width: 200px</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.box</span> {
+    <span class="vr">width</span>: <span class="nm">200px</span>;
+    <span class="vr">padding</span>: <span class="nm">20px</span>;
+    <span class="vr">margin</span>: <span class="nm">10px</span>;
+    <span class="vr">border</span>: <span class="nm">2px</span> <span class="st">solid #6366f1</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;</span><span class="st">Box content</span><span class="kw">&lt;/div&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.box</span> {
+    <span class="vr">width</span>: <span class="nm">200px</span>;
+    <span class="vr">padding</span>: <span class="nm">20px</span>;
+    <span class="vr">margin</span>: <span class="nm">10px</span>;
+    <span class="vr">border</span>: <span class="nm">2px</span> <span class="st">solid #6366f1</span>;
+    <span class="vr">background</span>: <span class="st">#1a1a2e</span>;
+    <span class="vr">color</span>: <span class="st">white</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;</span><span class="st">I am a box!</span><span class="kw">&lt;/div&gt;</span></div>`,
+    starter: `<!-- Style a .box div with the box model properties -->\n`,
+    check: (code) => /padding/i.test(code) && /border/i.test(code) && /box/i.test(code),
+  },
+
+  8: {
+    title: "Colors & Backgrounds", xp: 150, fname: "colors.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 8 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Colors &amp; Backgrounds 🌈</h1>
+      <div class="lesson-body">
+        <p>CSS supports multiple color formats. All of these set the same purple:</p>
+        <div class="code-block"><span class="vr">color</span>: <span class="st">#6366f1</span>;           <span class="cm">/* hex */</span>
+<span class="vr">color</span>: <span class="st">rgb(99, 102, 241)</span>;  <span class="cm">/* RGB */</span>
+<span class="vr">color</span>: <span class="st">hsl(239, 84%, 67%)</span>; <span class="cm">/* HSL */</span></div>
+        <h3>Gradients</h3>
+        <p>Gradients are set on <code>background</code> using <code>linear-gradient()</code>:</p>
+        <div class="code-block"><span class="fn">.hero</span> {
+  <span class="vr">background</span>: <span class="st">linear-gradient(</span>
+    <span class="nm">135deg</span>,
+    <span class="st">#6366f1</span>,
+    <span class="st">#22d3ee</span>
+  <span class="st">)</span>;
+}</div>
+        <h3>Background image</h3>
+        <div class="code-block"><span class="vr">background-image</span>: <span class="st">url("bg.jpg")</span>;
+<span class="vr">background-size</span>:  <span class="st">cover</span>;</div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a div with a <code>linear-gradient</code> background going from <code>#6366f1</code> to <code>#22d3ee</code>. Give it some height so it's visible.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.grad</span> {
+    <span class="vr">background</span>: <span class="st">linear-gradient(135deg, #6366f1, #22d3ee)</span>;
+    <span class="vr">height</span>: <span class="nm">150px</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"grad"</span><span class="kw">&gt;&lt;/div&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.grad</span> {
+    <span class="vr">background</span>: <span class="st">linear-gradient(135deg, #6366f1, #22d3ee)</span>;
+    <span class="vr">height</span>: <span class="nm">150px</span>;
+    <span class="vr">border-radius</span>: <span class="nm">12px</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"grad"</span><span class="kw">&gt;&lt;/div&gt;</span></div>`,
+    starter: `<!-- Create a gradient div -->\n`,
+    check: (code) => /linear-gradient/i.test(code) && /#6366f1/i.test(code),
+  },
+
+  9: {
+    title: "Typography", xp: 150, fname: "typography.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 9 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Typography ✍️</h1>
+      <div class="lesson-body">
+        <p>CSS gives you precise control over how text looks.</p>
+        <div class="code-block"><span class="fn">p</span> {
+  <span class="vr">font-family</span>:  <span class="st">'Georgia', serif</span>;
+  <span class="vr">font-size</span>:    <span class="nm">18px</span>;
+  <span class="vr">font-weight</span>:  <span class="st">bold</span>;      <span class="cm">/* or 400, 700 */</span>
+  <span class="vr">line-height</span>:  <span class="nm">1.6</span>;
+  <span class="vr">text-align</span>:   <span class="st">center</span>;
+  <span class="vr">color</span>:        <span class="st">#333</span>;
+  <span class="vr">letter-spacing</span>: <span class="nm">0.05em</span>;
+}</div>
+        <h3>Web fonts</h3>
+        <p>Import free fonts from Google Fonts using a <code>&lt;link&gt;</code> tag:</p>
+        <div class="code-block"><span class="kw">&lt;link</span> <span class="vr">href</span>=<span class="st">"https://fonts.googleapis.com/css2?family=Inter&amp;display=swap"</span> <span class="vr">rel</span>=<span class="st">"stylesheet"</span><span class="kw">&gt;</span></div>
+        <h3>text-decoration</h3>
+        <div class="code-block"><span class="vr">text-decoration</span>: <span class="st">underline</span>;
+<span class="vr">text-decoration</span>: <span class="st">none</span>;    <span class="cm">/* removes link underline */</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Style a <code>&lt;p&gt;</code> element with <code>font-size: 18px</code>, <code>font-weight: bold</code>, <code>text-align: center</code>, and <code>color: #333</code>.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">p</span> {
+    <span class="vr">font-size</span>: <span class="nm">18px</span>;
+    <span class="vr">font-weight</span>: <span class="st">bold</span>;
+    <span class="vr">text-align</span>: <span class="st">center</span>;
+    <span class="vr">color</span>: <span class="st">#333</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;p&gt;</span><span class="st">Styled text!</span><span class="kw">&lt;/p&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">p</span> {
+    <span class="vr">font-size</span>: <span class="nm">18px</span>;
+    <span class="vr">font-weight</span>: <span class="st">bold</span>;
+    <span class="vr">text-align</span>: <span class="st">center</span>;
+    <span class="vr">color</span>: <span class="st">#333</span>;
+    <span class="vr">line-height</span>: <span class="nm">1.6</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;p&gt;</span><span class="st">Beautiful typography!</span><span class="kw">&lt;/p&gt;</span></div>`,
+    starter: `<!-- Style a paragraph with typography properties -->\n`,
+    check: (code) => /font-size/i.test(code) && /text-align/i.test(code) && /center/i.test(code),
+  },
+
+  10: {
+    title: "Flexbox", xp: 200, fname: "flexbox.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 10 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Flexbox 📐</h1>
+      <div class="lesson-body">
+        <p>Flexbox is a CSS layout system that makes aligning and distributing items easy. Apply <code>display: flex</code> to a container.</p>
+        <div class="code-block"><span class="fn">.container</span> {
+  <span class="vr">display</span>:          <span class="st">flex</span>;
+  <span class="vr">justify-content</span>: <span class="st">center</span>;   <span class="cm">/* main axis */</span>
+  <span class="vr">align-items</span>:     <span class="st">center</span>;   <span class="cm">/* cross axis */</span>
+  <span class="vr">gap</span>:             <span class="nm">16px</span>;
+  <span class="vr">flex-direction</span>:  <span class="st">row</span>;       <span class="cm">/* row | column */</span>
+}</div>
+        <h3>justify-content values</h3>
+        <ul>
+          <li><code>flex-start</code> — pack items to the start</li>
+          <li><code>flex-end</code> — pack items to the end</li>
+          <li><code>center</code> — center items</li>
+          <li><code>space-between</code> — spread with gaps</li>
+          <li><code>space-around</code> — equal space around each</li>
+        </ul>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a div with <code>display: flex</code>, <code>justify-content: center</code>, <code>align-items: center</code>, <code>gap: 16px</code> containing 3 child divs.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.row</span> { <span class="vr">display</span>: <span class="st">flex</span>; <span class="vr">justify-content</span>: <span class="st">center</span>; <span class="vr">align-items</span>: <span class="st">center</span>; <span class="vr">gap</span>: <span class="nm">16px</span>; }
+  <span class="fn">.box</span> { <span class="vr">width</span>: <span class="nm">60px</span>; <span class="vr">height</span>: <span class="nm">60px</span>; <span class="vr">background</span>: <span class="st">#6366f1</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"row"</span><span class="kw">&gt;&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;&lt;/div&gt;</span>...<span class="kw">&lt;/div&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.row</span> {
+    <span class="vr">display</span>: <span class="st">flex</span>;
+    <span class="vr">justify-content</span>: <span class="st">center</span>;
+    <span class="vr">align-items</span>: <span class="st">center</span>;
+    <span class="vr">gap</span>: <span class="nm">16px</span>;
+    <span class="vr">padding</span>: <span class="nm">20px</span>;
+  }
+  <span class="fn">.box</span> { <span class="vr">width</span>:<span class="nm">60px</span>; <span class="vr">height</span>:<span class="nm">60px</span>; <span class="vr">background</span>:<span class="st">#6366f1</span>; <span class="vr">border-radius</span>:<span class="nm">8px</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"row"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;&lt;/div&gt;</span>
+<span class="kw">&lt;/div&gt;</span></div>`,
+    starter: `<!-- Create a flex container with 3 children -->\n`,
+    check: (code) => /display\s*:\s*flex/i.test(code) && /justify-content/i.test(code),
+  },
+
+  11: {
+    title: "CSS Grid", xp: 200, fname: "grid.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 11 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">CSS Grid 🗂️</h1>
+      <div class="lesson-body">
+        <p>CSS Grid is a two-dimensional layout system — great for page layouts and card grids.</p>
+        <div class="code-block"><span class="fn">.grid</span> {
+  <span class="vr">display</span>:                <span class="st">grid</span>;
+  <span class="vr">grid-template-columns</span>: <span class="st">repeat(</span><span class="nm">3</span><span class="st">, 1fr)</span>;
+  <span class="vr">gap</span>:                   <span class="nm">16px</span>;
+}</div>
+        <h3>Key concepts</h3>
+        <ul>
+          <li><code>repeat(3, 1fr)</code> — 3 equal-width columns</li>
+          <li><code>1fr</code> — one fraction of available space</li>
+          <li><code>gap</code> — space between rows and columns</li>
+          <li><code>grid-column: span 2</code> — item spans 2 columns</li>
+        </ul>
+        <div class="code-block"><span class="fn">.wide</span> { <span class="vr">grid-column</span>: <span class="st">span 2</span>; }</div>
+        <p>Grid items automatically place themselves in the next available cell.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a container with <code>display: grid</code>, <code>grid-template-columns: repeat(3, 1fr)</code>, <code>gap: 16px</code>, containing 6 item divs.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.grid</span> { <span class="vr">display</span>: <span class="st">grid</span>; <span class="vr">grid-template-columns</span>: <span class="st">repeat(3, 1fr)</span>; <span class="vr">gap</span>: <span class="nm">16px</span>; }
+  <span class="fn">.item</span> { <span class="vr">background</span>: <span class="st">#6366f1</span>; <span class="vr">height</span>: <span class="nm">60px</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"grid"</span><span class="kw">&gt;</span><span class="cm">...6 items...</span><span class="kw">&lt;/div&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.grid</span> {
+    <span class="vr">display</span>: <span class="st">grid</span>;
+    <span class="vr">grid-template-columns</span>: <span class="st">repeat(3, 1fr)</span>;
+    <span class="vr">gap</span>: <span class="nm">16px</span>;
+    <span class="vr">padding</span>: <span class="nm">16px</span>;
+  }
+  <span class="fn">.item</span> { <span class="vr">background</span>: <span class="st">#6366f1</span>; <span class="vr">height</span>: <span class="nm">60px</span>; <span class="vr">border-radius</span>: <span class="nm">8px</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"grid"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"item"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"item"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"item"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"item"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"item"</span><span class="kw">&gt;&lt;/div&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"item"</span><span class="kw">&gt;&lt;/div&gt;</span>
+<span class="kw">&lt;/div&gt;</span></div>`,
+    starter: `<!-- Create a 3-column grid with 6 items -->\n`,
+    check: (code) => /display\s*:\s*grid/i.test(code) && /grid-template-columns/i.test(code),
+  },
+
+  12: {
+    title: "Positioning", xp: 200, fname: "position.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 12 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Positioning 📍</h1>
+      <div class="lesson-body">
+        <p>CSS <code>position</code> controls where elements are placed relative to the page or their parent.</p>
+        <h3>position values</h3>
+        <ul>
+          <li><code>static</code> — default, normal flow</li>
+          <li><code>relative</code> — offset from its normal position</li>
+          <li><code>absolute</code> — removed from flow, positioned relative to nearest positioned ancestor</li>
+          <li><code>fixed</code> — stays in place as you scroll (e.g. navbars)</li>
+          <li><code>sticky</code> — scrolls with page until it hits a threshold</li>
+        </ul>
+        <div class="code-block"><span class="fn">.parent</span> { <span class="vr">position</span>: <span class="st">relative</span>; <span class="vr">height</span>: <span class="nm">200px</span>; }
+<span class="fn">.badge</span>  {
+  <span class="vr">position</span>: <span class="st">absolute</span>;
+  <span class="vr">top</span>:    <span class="nm">10px</span>;
+  <span class="vr">right</span>:  <span class="nm">10px</span>;
+  <span class="vr">z-index</span>: <span class="nm">10</span>;
+}</div>
+        <p><code>z-index</code> controls the stacking order — higher values appear on top.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a parent div with <code>position: relative</code> and a child div with <code>position: absolute</code>, <code>top: 10px</code>, <code>right: 10px</code> inside it.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.parent</span> { <span class="vr">position</span>: <span class="st">relative</span>; <span class="vr">height</span>: <span class="nm">150px</span>; <span class="vr">background</span>: <span class="st">#eee</span>; }
+  <span class="fn">.child</span>  { <span class="vr">position</span>: <span class="st">absolute</span>; <span class="vr">top</span>: <span class="nm">10px</span>; <span class="vr">right</span>: <span class="nm">10px</span>; <span class="vr">background</span>: <span class="st">#6366f1</span>; <span class="vr">padding</span>: <span class="nm">8px</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"parent"</span><span class="kw">&gt;&lt;div</span> <span class="vr">class</span>=<span class="st">"child"</span><span class="kw">&gt;</span><span class="st">Badge</span><span class="kw">&lt;/div&gt;&lt;/div&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.parent</span> {
+    <span class="vr">position</span>: <span class="st">relative</span>;
+    <span class="vr">height</span>: <span class="nm">150px</span>;
+    <span class="vr">background</span>: <span class="st">#f0f0f0</span>;
+    <span class="vr">border-radius</span>: <span class="nm">8px</span>;
+  }
+  <span class="fn">.child</span> {
+    <span class="vr">position</span>: <span class="st">absolute</span>;
+    <span class="vr">top</span>: <span class="nm">10px</span>;
+    <span class="vr">right</span>: <span class="nm">10px</span>;
+    <span class="vr">background</span>: <span class="st">#6366f1</span>;
+    <span class="vr">color</span>: <span class="st">white</span>;
+    <span class="vr">padding</span>: <span class="nm">6px 12px</span>;
+    <span class="vr">border-radius</span>: <span class="nm">20px</span>;
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"parent"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"child"</span><span class="kw">&gt;</span><span class="st">Badge</span><span class="kw">&lt;/div&gt;</span>
+<span class="kw">&lt;/div&gt;</span></div>`,
+    starter: `<!-- Create a relatively-positioned parent with an absolute child -->\n`,
+    check: (code) => /position\s*:\s*absolute/i.test(code),
+  },
+
+  13: {
+    title: "Transitions & Animations", xp: 225, fname: "animations.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 13 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Transitions &amp; Animations ✨</h1>
+      <div class="lesson-body">
+        <p>CSS can animate elements without JavaScript. Two key tools: <code>transition</code> and <code>@keyframes</code>.</p>
+        <h3>transition — smooth state changes</h3>
+        <div class="code-block"><span class="fn">.btn</span> {
+  <span class="vr">background</span>: <span class="st">#6366f1</span>;
+  <span class="vr">transition</span>: <span class="st">background 0.3s ease</span>;
+}
+<span class="fn">.btn:hover</span> {
+  <span class="vr">background</span>: <span class="st">#22d3ee</span>;
+}</div>
+        <h3>@keyframes — full animations</h3>
+        <div class="code-block"><span class="fn">@keyframes</span> <span class="vr">fadeIn</span> {
+  <span class="nm">from</span> { <span class="vr">opacity</span>: <span class="nm">0</span>; }
+  <span class="nm">to</span>   { <span class="vr">opacity</span>: <span class="nm">1</span>; }
+}
+<span class="fn">.box</span> {
+  <span class="vr">animation</span>: <span class="st">fadeIn 1s ease</span>;
+}</div>
+        <p>You can also add keyframe stops: <code>0%, 50%, 100%</code>.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a button that changes <code>background-color</code> on <code>:hover</code> with a <code>transition</code> of <code>0.3s</code>, and a div that uses <code>@keyframes</code> to fade in.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="fn">@keyframes</span> <span class="vr">fadeIn</span> { <span class="nm">from</span> { <span class="vr">opacity</span>:<span class="nm">0</span> } <span class="nm">to</span> { <span class="vr">opacity</span>:<span class="nm">1</span> } }
+<span class="fn">.box</span> { <span class="vr">animation</span>: <span class="st">fadeIn 1s ease</span>; }
+<span class="fn">.btn</span> { <span class="vr">transition</span>: <span class="st">background 0.3s</span>; }
+<span class="fn">.btn:hover</span> { <span class="vr">background</span>: <span class="st">#22d3ee</span>; }</div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">@keyframes</span> <span class="vr">fadeIn</span> {
+    <span class="nm">from</span> { <span class="vr">opacity</span>: <span class="nm">0</span>; <span class="vr">transform</span>: <span class="st">translateY(10px)</span>; }
+    <span class="nm">to</span>   { <span class="vr">opacity</span>: <span class="nm">1</span>; <span class="vr">transform</span>: <span class="st">translateY(0)</span>; }
+  }
+  <span class="fn">.box</span> { <span class="vr">animation</span>: <span class="st">fadeIn 0.8s ease</span>; <span class="vr">padding</span>: <span class="nm">20px</span>; <span class="vr">background</span>: <span class="st">#6366f1</span>; <span class="vr">color</span>: <span class="st">white</span>; }
+  <span class="fn">.btn</span> { <span class="vr">background</span>: <span class="st">#6366f1</span>; <span class="vr">color</span>: <span class="st">white</span>; <span class="vr">border</span>: <span class="st">none</span>; <span class="vr">padding</span>: <span class="nm">10px 20px</span>; <span class="vr">transition</span>: <span class="st">background 0.3s</span>; <span class="vr">cursor</span>: <span class="st">pointer</span>; }
+  <span class="fn">.btn:hover</span> { <span class="vr">background</span>: <span class="st">#22d3ee</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;</span><span class="st">I faded in!</span><span class="kw">&lt;/div&gt;</span>
+<span class="kw">&lt;button</span> <span class="vr">class</span>=<span class="st">"btn"</span><span class="kw">&gt;</span><span class="st">Hover me</span><span class="kw">&lt;/button&gt;</span></div>`,
+    starter: `<!-- Add transitions and @keyframes animation -->\n`,
+    check: (code) => /@keyframes/i.test(code) && /transition/i.test(code),
+  },
+
+  14: {
+    title: "Responsive Design", xp: 200, fname: "responsive.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 14 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Responsive Design 📱</h1>
+      <div class="lesson-body">
+        <p>Responsive design makes your page look good on all screen sizes — from phones to desktops.</p>
+        <h3>Step 1: Meta viewport tag</h3>
+        <p>Always include this in your <code>&lt;head&gt;</code> — without it, mobile browsers zoom out:</p>
+        <div class="code-block"><span class="kw">&lt;meta</span> <span class="vr">name</span>=<span class="st">"viewport"</span> <span class="vr">content</span>=<span class="st">"width=device-width, initial-scale=1"</span><span class="kw">&gt;</span></div>
+        <h3>Step 2: Media queries</h3>
+        <p>Media queries apply CSS only when a condition is true, like screen width:</p>
+        <div class="code-block"><span class="fn">.container</span> { <span class="vr">width</span>: <span class="nm">600px</span>; }
+
+<span class="fn">@media</span> (<span class="vr">max-width</span>: <span class="nm">600px</span>) {
+  <span class="fn">.container</span> { <span class="vr">width</span>: <span class="st">100%</span>; }
+}</div>
+        <h3>Mobile-first approach</h3>
+        <p>Write base styles for mobile first, then use <code>min-width</code> media queries to add desktop styles.</p>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a div that is <code>600px</code> wide on desktop but <code>100%</code> wide on screens narrower than <code>600px</code> using a <code>@media</code> query.</div>
+        </div>
+      </div>`,
+    hint: `<div class="code-block"><span class="fn">.box</span> { <span class="vr">width</span>: <span class="nm">600px</span>; <span class="vr">background</span>: <span class="st">#6366f1</span>; }
+
+<span class="fn">@media</span> (<span class="vr">max-width</span>: <span class="nm">600px</span>) {
+  <span class="fn">.box</span> { <span class="vr">width</span>: <span class="st">100%</span>; }
+}</div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">.box</span> {
+    <span class="vr">width</span>: <span class="nm">600px</span>;
+    <span class="vr">background</span>: <span class="st">#6366f1</span>;
+    <span class="vr">color</span>: <span class="st">white</span>;
+    <span class="vr">padding</span>: <span class="nm">20px</span>;
+  }
+  <span class="fn">@media</span> (<span class="vr">max-width</span>: <span class="nm">600px</span>) {
+    <span class="fn">.box</span> { <span class="vr">width</span>: <span class="st">100%</span>; }
+  }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;</span><span class="st">Resize the preview!</span><span class="kw">&lt;/div&gt;</span></div>`,
+    starter: `<!-- Create a responsive div with a media query -->\n`,
+    check: (code) => /@media/i.test(code) && /max-width/i.test(code),
+  },
+
+  15: {
+    title: "Semantic HTML & Tables", xp: 250, fname: "semantic.html",
+    content: `
+      <div class="lesson-num-tag">Lesson 15 · HTML &amp; CSS Essentials</div>
+      <h1 class="lesson-title-h">Semantic HTML &amp; Tables 🏛️</h1>
+      <div class="lesson-body">
+        <p><strong>Semantic HTML</strong> uses tags that describe their meaning, not just their appearance. This helps search engines, screen readers, and your future self.</p>
+        <div class="code-block"><span class="kw">&lt;header&gt;</span><span class="st">Site name / nav</span><span class="kw">&lt;/header&gt;</span>
+<span class="kw">&lt;nav&gt;</span><span class="st">Navigation links</span><span class="kw">&lt;/nav&gt;</span>
+<span class="kw">&lt;main&gt;</span>
+  <span class="kw">&lt;article&gt;</span><span class="st">Main blog post</span><span class="kw">&lt;/article&gt;</span>
+  <span class="kw">&lt;section&gt;</span><span class="st">A section</span><span class="kw">&lt;/section&gt;</span>
+<span class="kw">&lt;/main&gt;</span>
+<span class="kw">&lt;footer&gt;</span><span class="st">Copyright info</span><span class="kw">&lt;/footer&gt;</span></div>
+        <h3>Tables</h3>
+        <div class="code-block"><span class="kw">&lt;table&gt;</span>
+  <span class="kw">&lt;thead&gt;</span>
+    <span class="kw">&lt;tr&gt;&lt;th&gt;</span><span class="st">Name</span><span class="kw">&lt;/th&gt;&lt;th&gt;</span><span class="st">Score</span><span class="kw">&lt;/th&gt;&lt;/tr&gt;</span>
+  <span class="kw">&lt;/thead&gt;</span>
+  <span class="kw">&lt;tbody&gt;</span>
+    <span class="kw">&lt;tr&gt;&lt;td&gt;</span><span class="st">Alice</span><span class="kw">&lt;/td&gt;&lt;td&gt;</span><span class="st">95</span><span class="kw">&lt;/td&gt;&lt;/tr&gt;</span>
+  <span class="kw">&lt;/tbody&gt;</span>
+<span class="kw">&lt;/table&gt;</span></div>
+        <div class="challenge-box">
+          <div class="challenge-label">🎯 Challenge</div>
+          <div class="challenge-text">Create a page with <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code>, plus a <code>&lt;table&gt;</code> inside main with a header row and 2 data rows.</div>
+        </div>
+      </div>`,
+    hint: `<p>Structure: semantic wrapper tags, then a complete table inside <code>&lt;main&gt;</code>.</p>
+      <div class="code-block"><span class="kw">&lt;header&gt;</span><span class="st">My Site</span><span class="kw">&lt;/header&gt;</span>
+<span class="kw">&lt;main&gt;</span>
+  <span class="kw">&lt;table&gt;</span>
+    <span class="kw">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span><span class="st">Col1</span><span class="kw">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>
+    <span class="kw">&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;</span><span class="st">Row1</span><span class="kw">&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;</span>
+  <span class="kw">&lt;/table&gt;</span>
+<span class="kw">&lt;/main&gt;</span>
+<span class="kw">&lt;footer&gt;</span><span class="st">Footer</span><span class="kw">&lt;/footer&gt;</span></div>`,
+    solution: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
+  <span class="fn">table</span> { <span class="vr">border-collapse</span>: <span class="st">collapse</span>; <span class="vr">width</span>: <span class="st">100%</span>; }
+  <span class="fn">th, td</span> { <span class="vr">border</span>: <span class="nm">1px</span> <span class="st">solid #ccc</span>; <span class="vr">padding</span>: <span class="nm">8px</span>; <span class="vr">text-align</span>: <span class="st">left</span>; }
+  <span class="fn">th</span> { <span class="vr">background</span>: <span class="st">#6366f1</span>; <span class="vr">color</span>: <span class="st">white</span>; }
+<span class="kw">&lt;/style&gt;</span>
+<span class="kw">&lt;header&gt;&lt;h1&gt;</span><span class="st">My Site</span><span class="kw">&lt;/h1&gt;&lt;/header&gt;</span>
+<span class="kw">&lt;main&gt;</span>
+  <span class="kw">&lt;table&gt;</span>
+    <span class="kw">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span><span class="st">Name</span><span class="kw">&lt;/th&gt;&lt;th&gt;</span><span class="st">Score</span><span class="kw">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>
+    <span class="kw">&lt;tbody&gt;</span>
+      <span class="kw">&lt;tr&gt;&lt;td&gt;</span><span class="st">Alice</span><span class="kw">&lt;/td&gt;&lt;td&gt;</span><span class="st">95</span><span class="kw">&lt;/td&gt;&lt;/tr&gt;</span>
+      <span class="kw">&lt;tr&gt;&lt;td&gt;</span><span class="st">Bob</span><span class="kw">&lt;/td&gt;&lt;td&gt;</span><span class="st">88</span><span class="kw">&lt;/td&gt;&lt;/tr&gt;</span>
+    <span class="kw">&lt;/tbody&gt;</span>
+  <span class="kw">&lt;/table&gt;</span>
+<span class="kw">&lt;/main&gt;</span>
+<span class="kw">&lt;footer&gt;</span><span class="st">&amp;copy; 2025 My Site</span><span class="kw">&lt;/footer&gt;</span></div>`,
+    starter: `<!-- Build a semantic page with header, main, footer, and a table -->\n`,
+    check: (code) => /<header/i.test(code) && /<footer/i.test(code) && /<table/i.test(code) && /<tbody/i.test(code),
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+function loadState() {
+  const s = localStorage.getItem('helix_progress');
+  return s ? JSON.parse(s) : {xp:0,streak:1,level:1,lessonsCompleted:0,completedIds:[]};
+}
+function loadLangProgress() {
+  const s = localStorage.getItem('helix_html_progress');
+  return s ? JSON.parse(s) : {completedIds:[]};
+}
+function saveLangProgress(p) { localStorage.setItem('helix_html_progress', JSON.stringify(p)); }
+function saveState(s) { localStorage.setItem('helix_progress', JSON.stringify(s)); }
+function getLevel(xp) {
+  const t=[0,100,250,500,900,1400,2000,3000];
+  for(let i=t.length-1;i>=0;i--) if(xp>=t[i]) return i+1;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT LESSON
+// ═══════════════════════════════════════════════════════════
+const params   = new URLSearchParams(location.search);
+const lessonId = parseInt(params.get('id')) || 1;
+const lesson   = LESSONS[lessonId] || LESSONS[1];
+
+// Auth check
+const __session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+if (!__session) { window.location.href = 'login.html'; }
+
+// Pro paywall — lessons 6-15 require Pro
+function showPaywall() {
+  document.querySelector('.split').innerHTML = `
+    <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:3rem;text-align:center;">
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;">This lesson requires Pro</h2>
+      <p style="color:var(--text-2);max-width:440px;line-height:1.7;">Lessons 6–15 are available on the Pro plan. Unlock all 90 lessons across 6 languages for just $9/month — or $4.50/month billed annually.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+        <a href="pricing.html" style="background:var(--primary);color:white;padding:0.75rem 2rem;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(99,102,241,0.3);">Upgrade to Pro →</a>
+        <a href="dashboard.html" style="background:rgba(255,255,255,0.05);color:var(--text-2);padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.08);">Back to Dashboard</a>
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-3);">First 5 lessons of every language are always free.</p>
+    </div>`;
+}
+
+try {
+  if (lessonId > 5) {
+    const __users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const __user = __users.find(u => u.id === __session.userId);
+    if (!__user || __user.plan !== 'pro') {
+      document.addEventListener('DOMContentLoaded', () => {
+        showPaywall();
+      });
+      if (document.readyState !== 'loading') showPaywall();
+    }
+  }
+} catch(e) {}
+
+const TOTAL    = Object.keys(LESSONS).length;
+
+document.getElementById('nav-lesson-title').textContent = lesson.title;
+document.getElementById('editor-fname').textContent      = lesson.fname;
+document.getElementById('lesson-content').innerHTML      = lesson.content;
+document.getElementById('hint-body').innerHTML           = lesson.hint;
+document.getElementById('solution-body').innerHTML       = lesson.solution;
+document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+const editor = document.getElementById('editor');
+editor.value = lesson.starter || '';
+updateLineNums();
+document.getElementById('nav-xp').textContent = loadState().xp;
+
+// ═══════════════════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════════════════
+function updateLineNums() {
+  const n = editor.value.split('\n').length;
+  document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
+}
+editor.addEventListener('input', updateLineNums);
+editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = editor.selectionStart, end = editor.selectionEnd;
+    editor.value = editor.value.substring(0,s) + '  ' + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = s + 2;
+    updateLineNums();
+  }
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  editor.value = lesson.starter || '';
+  updateLineNums();
+  document.getElementById('preview-frame').srcdoc = '';
+  const st = document.getElementById('output-status');
+  st.className = 'output-status os-idle'; st.textContent = 'Ready';
+});
+
+// ═══════════════════════════════════════════════════════════
+// COLLAPSIBLES
+// ═══════════════════════════════════════════════════════════
+let hasRun = false;
+
+function unlockSolution() {
+  const wrap = document.getElementById('solution-collapsible');
+  const btn  = document.getElementById('solution-toggle');
+  wrap.classList.remove('locked');
+  btn.childNodes[0].textContent = '✅ Show Solution';
+  btn.querySelector('.sol-lock-msg').style.display = 'none';
+}
+
+const hintBtn  = document.getElementById('hint-toggle');
+const hintBody = document.getElementById('hint-body');
+hintBtn.addEventListener('click', () => {
+  const open = hintBody.classList.toggle('open');
+  hintBtn.classList.toggle('open', open);
+});
+
+const solBtn  = document.getElementById('solution-toggle');
+const solBody = document.getElementById('solution-body');
+solBtn.addEventListener('click', () => {
+  const wrap = document.getElementById('solution-collapsible');
+  if (wrap.classList.contains('locked')) {
+    solBtn.animate([
+      { transform: 'translateX(0)' },
+      { transform: 'translateX(-6px)' },
+      { transform: 'translateX(6px)' },
+      { transform: 'translateX(-4px)' },
+      { transform: 'translateX(0)' },
+    ], { duration: 280, easing: 'ease-out' });
+    return;
+  }
+  const open = solBody.classList.toggle('open');
+  solBtn.classList.toggle('open', open);
+});
+
+// ═══════════════════════════════════════════════════════════
+// RUNNER — iframe preview
+// ═══════════════════════════════════════════════════════════
+let outputLines = [];
+
+function runCode(forSubmit = false) {
+  outputLines = [];
+  const code = editor.value;
+  const frame = document.getElementById('preview-frame');
+  frame.srcdoc = code;
+
+  const st = document.getElementById('output-status');
+  st.className = 'output-status os-ok';
+  st.textContent = 'Previewing';
+
+  if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forSubmit) {
+    setTimeout(() => checkAnswerHTML(code), 300);
+  }
+}
+
+function checkAnswerHTML(code) {
+  if (lesson.check(code)) {
+    completeLesson();
+  } else {
+    const st = document.getElementById('output-status');
+    st.className = 'output-status os-error'; st.textContent = 'Not quite — check the hint!';
+    setTimeout(() => { st.className = 'output-status os-ok'; st.textContent = 'Previewing'; }, 2500);
+  }
+}
+
+document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
+document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// CHECK & COMPLETE
+// ═══════════════════════════════════════════════════════════
+function completeLesson() {
+  const state = loadState();
+  const langProgress = loadLangProgress();
+  const earned = !langProgress.completedIds.includes(lessonId);
+  if (earned) {
+    langProgress.completedIds.push(lessonId);
+    state.xp += lesson.xp;
+    state.lessonsCompleted = (state.completedIds||[]).length + langProgress.completedIds.length;
+    state.level = getLevel(state.xp);
+    saveState(state); saveLangProgress(langProgress);
+  }
+  document.getElementById('progress-fill').style.width = (lessonId/TOTAL*100)+'%';
+  showModal(earned ? lesson.xp : 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL + XP COUNTER ANIMATION
+// ═══════════════════════════════════════════════════════════
+function showModal(xpEarned) {
+  const nextId  = lessonId + 1;
+  const hasNext = !!LESSONS[nextId];
+  document.getElementById('modal-sub').textContent =
+    hasNext ? `Lesson ${lessonId} of ${TOTAL} complete. Keep going!`
+            : '🎓 You finished all HTML & CSS lessons!';
+  const btn = document.getElementById('modal-next');
+  btn.textContent = hasNext ? 'Next Lesson →' : 'Back to Dashboard';
+  btn.onclick = () => window.location.href = hasNext ? `lesson-html.html?id=${nextId}` : 'dashboard.html';
+
+  const el = document.getElementById('modal-xp-count');
+  el.textContent = '0';
+  let current = 0;
+  const step  = Math.ceil(xpEarned / 30);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, xpEarned);
+    el.textContent = current;
+    if (current >= xpEarned) clearInterval(timer);
+  }, 28);
+
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('nav-xp').textContent = loadState().xp;
+
+  if (xpEarned > 0) launchConfetti();
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('active');
+
+  const COLORS = ['#6366F1','#F59E0B','#10B981','#EF4444','#22D3EE','#818CF8','#FDE68A'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height * 0.5,
+    w: 6 + Math.random() * 8,
+    h: 4 + Math.random() * 6,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    vx: (Math.random() - 0.5) * 3,
+    vy: 2 + Math.random() * 4,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.15,
+    opacity: 1,
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.vrot;
+      p.vy  += 0.06;
+      if (frame > 90) p.opacity = Math.max(0, p.opacity - 0.018);
+      ctx.save();
+      ctx.globalAlpha = p.opacity;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else { canvas.classList.remove('active'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+  }
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Plans &amp; Pricing</title>
+  <meta name="description" content="Start free. Coil deeper when you're ready. Helix offers a free forever plan and Pro for the full experience." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       DESIGN TOKENS
+    ========================================================= */
+    :root {
+      --bg:         #050816;
+      --bg-2:       #0C1022;
+      --bg-card:    rgba(255,255,255,0.04);
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(99,102,241,0.3);
+      --primary:    #6366F1;
+      --primary-l:  #818CF8;
+      --cyan:       #22D3EE;
+      --accent:     #F59E0B;
+      --text:       #EEF2F8;
+      --text-2:     #8892A4;
+      --text-3:     #2D3A4E;
+      --green:      #10B981;
+      --red:        #EF4444;
+      --violet:     #8B5CF6;
+      --radius:     16px;
+      --nav-h:      64px;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* =========================================================
+       AURORA
+    ========================================================= */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      filter: blur(90px) saturate(130%);
+    }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 {
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(99,102,241,0.55) 0%, transparent 65%);
+      top: -200px; left: -200px;
+      animation: drift1 22s ease-in-out alternate infinite;
+    }
+    .orb-2 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 65%);
+      bottom: -100px; right: -100px;
+      animation: drift2 17s ease-in-out alternate infinite;
+    }
+    .orb-3 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 65%);
+      top: 10%; right: 15%;
+      animation: drift3 14s ease-in-out alternate infinite;
+    }
+    .orb-4 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%);
+      bottom: 20%; left: 30%;
+      animation: drift4 28s ease-in-out alternate infinite;
+    }
+    .orb-5 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 65%);
+      top: 50%; left: 60%;
+      animation: drift5 19s ease-in-out alternate infinite;
+    }
+    @keyframes drift1 {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(80px,120px) scale(1.08); }
+      66%  { transform: translate(-60px,200px) scale(0.95); }
+      100% { transform: translate(140px,60px) scale(1.05); }
+    }
+    @keyframes drift2 {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(-100px,-80px) scale(1.1); }
+      66%  { transform: translate(60px,-150px) scale(0.9); }
+      100% { transform: translate(-80px,-40px) scale(1.05); }
+    }
+    @keyframes drift3 {
+      0%   { transform: translate(0,0) scale(1); }
+      25%  { transform: translate(-120px,60px) scale(1.15); }
+      75%  { transform: translate(80px,-100px) scale(0.88); }
+      100% { transform: translate(-40px,80px) scale(1.06); }
+    }
+    @keyframes drift4 {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(100px,-60px) scale(1.12); }
+      66%  { transform: translate(-80px,100px) scale(0.93); }
+      100% { transform: translate(60px,-80px) scale(1.08); }
+    }
+    @keyframes drift5 {
+      0%   { transform: translate(0,0) scale(1); }
+      40%  { transform: translate(-90px,70px) scale(1.2); }
+      70%  { transform: translate(110px,-50px) scale(0.85); }
+      100% { transform: translate(-50px,110px) scale(1.1); }
+    }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* =========================================================
+       GRAIN
+    ========================================================= */
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    /* =========================================================
+       LAYOUT HELPERS
+    ========================================================= */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =========================================================
+       NAV
+    ========================================================= */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(5,8,22,0.6);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active {
+      color: var(--text);
+    }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .nav-cta:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 20px rgba(99,102,241,0.45);
+    }
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .nav-username {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-2);
+    }
+    .nav-dashboard {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border-hi);
+      transition: background 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .nav-dashboard:hover {
+      background: rgba(99,102,241,0.1);
+      box-shadow: 0 0 16px rgba(99,102,241,0.2);
+    }
+
+    /* =========================================================
+       PAGE WRAPPER
+    ========================================================= */
+    .page {
+      position: relative;
+      z-index: 2;
+      padding-top: var(--nav-h);
+    }
+
+    /* =========================================================
+       HERO SECTION
+    ========================================================= */
+    .pricing-hero {
+      padding: 80px 0 56px;
+      text-align: center;
+    }
+    .pricing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.22);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary-l);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .pricing-h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .pricing-sub {
+      color: var(--text-2);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto 40px;
+    }
+
+    /* =========================================================
+       BILLING TOGGLE
+    ========================================================= */
+    .billing-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .billing-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .billing-btn.active {
+      background: rgba(99,102,241,0.14);
+      border-color: rgba(99,102,241,0.3);
+      color: var(--text);
+    }
+    .save-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-left: -6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* =========================================================
+       PRICING CARDS
+    ========================================================= */
+    .pricing-cards {
+      padding: 24px 0 80px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 820px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    /* --- Free Card --- */
+    .plan-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      position: relative;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      overflow: hidden;
+    }
+    .plan-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* --- Pro Card --- */
+    .plan-card.plan-pro {
+      border-color: rgba(99,102,241,0.4);
+      background: linear-gradient(160deg, rgba(99,102,241,0.07) 0%, rgba(139,92,246,0.05) 50%, rgba(5,8,22,0.0) 100%), var(--bg-card);
+      box-shadow: 0 0 0 1px rgba(99,102,241,0.2), 0 8px 40px rgba(99,102,241,0.12);
+      transform: scale(1.02);
+    }
+    .plan-card.plan-pro:hover {
+      border-color: rgba(99,102,241,0.65);
+      transform: scale(1.02) translateY(-4px);
+      box-shadow: 0 0 0 1px rgba(99,102,241,0.3), 0 24px 64px rgba(99,102,241,0.2);
+    }
+
+    /* Radial glow behind pro card */
+    .plan-card.plan-pro::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12), transparent 65%);
+      pointer-events: none;
+    }
+
+    /* Most popular badge */
+    .popular-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, var(--primary), var(--violet));
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .plan-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 16px;
+    }
+    .plan-card.plan-pro .plan-name {
+      color: var(--primary-l);
+    }
+
+    .plan-price-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .plan-price {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .plan-price-period {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .plan-price-original {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-3);
+      text-decoration: line-through;
+      margin-bottom: 6px;
+      display: none;
+    }
+    .plan-price-annual-badge {
+      display: none;
+      align-items: center;
+      background: rgba(16,185,129,0.15);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 6px;
+    }
+    .plan-billed-note {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      margin-bottom: 6px;
+      min-height: 18px;
+    }
+
+    .plan-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.55;
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .plan-features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .plan-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .plan-feature-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      font-size: 0.65rem;
+    }
+    .feat-yes .plan-feature-icon {
+      background: rgba(16,185,129,0.15);
+      color: var(--green);
+    }
+    .feat-no .plan-feature-icon {
+      background: rgba(239,68,68,0.1);
+      color: rgba(239,68,68,0.5);
+    }
+    .feat-no span:last-child { color: var(--text-2); opacity: 0.5; }
+
+    /* CTA buttons */
+    .btn-outline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 13px 24px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      text-align: center;
+    }
+    .btn-outline:hover {
+      border-color: var(--border-hi);
+      background: rgba(99,102,241,0.06);
+      transform: translateY(-1px);
+    }
+
+    .btn-pro {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--violet));
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 13px 24px;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 0 28px rgba(99,102,241,0.4);
+      transition: box-shadow 0.2s, transform 0.15s, opacity 0.2s;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-pro:hover {
+      box-shadow: 0 0 44px rgba(99,102,241,0.6);
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    /* =========================================================
+       FAQ SECTION
+    ========================================================= */
+    .faq-section {
+      padding: 20px 0 80px;
+    }
+    .faq-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .faq-heading {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .faq-sub {
+      color: var(--text-2);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .faq-item {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 0.925rem;
+      font-weight: 600;
+      padding: 20px 24px;
+      text-align: left;
+      cursor: pointer;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+    .faq-question:hover { background: rgba(255,255,255,0.03); }
+    .faq-question[aria-expanded="true"] { color: var(--primary-l); }
+    .faq-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--text-2);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), color 0.2s;
+    }
+    .faq-question[aria-expanded="true"] .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--primary-l);
+    }
+    .faq-answer {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .faq-answer.open { grid-template-rows: 1fr; }
+    .faq-answer-inner {
+      overflow: hidden;
+    }
+    .faq-answer-text {
+      padding: 0 24px 20px;
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.7;
+    }
+
+    /* =========================================================
+       BOTTOM CTA
+    ========================================================= */
+    .cta-section {
+      padding: 80px 0 100px;
+      text-align: center;
+      position: relative;
+    }
+    .cta-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at 50% 100%, rgba(99,102,241,0.15), transparent 60%);
+    }
+    .cta-inner { position: relative; z-index: 1; }
+    .cta-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-l);
+      margin-bottom: 16px;
+    }
+    .cta-heading {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .cta-body {
+      color: var(--text-2);
+      font-size: 1rem;
+      line-height: 1.65;
+      margin-bottom: 36px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--violet));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 32px;
+      border-radius: 10px;
+      box-shadow: 0 0 32px rgba(99,102,241,0.4);
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .btn-cta:hover {
+      box-shadow: 0 0 52px rgba(99,102,241,0.6);
+      transform: translateY(-2px);
+    }
+
+    /* =========================================================
+       MODAL
+    ========================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(5,8,22,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: #0d1120;
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 80px rgba(99,102,241,0.2);
+      transform: scale(0.95) translateY(12px);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-overlay.visible .modal {
+      transform: scale(1) translateY(0);
+    }
+    .modal-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .modal-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .modal-body {
+      color: var(--text-2);
+      font-size: 0.9rem;
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+    .modal-close {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--violet));
+      color: #fff;
+      font-size: 0.925rem;
+      font-weight: 700;
+      padding: 12px 28px;
+      border-radius: 9px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(99,102,241,0.4);
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .modal-close:hover {
+      box-shadow: 0 0 40px rgba(99,102,241,0.6);
+      transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       STATS BAR
+    ========================================================= */
+    .stats-bar {
+      padding: 0 0 60px;
+    }
+    .stats-bar-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .stat-item {
+      background: rgba(255,255,255,0.03);
+      padding: 28px 24px;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .stat-item:hover {
+      background: rgba(99,102,241,0.06);
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-2);
+      letter-spacing: 0.02em;
+    }
+
+    /* =========================================================
+       PRO CARD ENHANCED ANIMATIONS
+    ========================================================= */
+    @keyframes glow-cycle {
+      0%   { box-shadow: 0 0 0 1px rgba(99,102,241,0.5), 0 0 32px rgba(99,102,241,0.25), 0 8px 40px rgba(99,102,241,0.15); }
+      33%  { box-shadow: 0 0 0 1px rgba(139,92,246,0.6), 0 0 40px rgba(139,92,246,0.3), 0 8px 50px rgba(139,92,246,0.18); }
+      66%  { box-shadow: 0 0 0 1px rgba(34,211,238,0.5), 0 0 36px rgba(34,211,238,0.25), 0 8px 45px rgba(34,211,238,0.15); }
+      100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.5), 0 0 32px rgba(99,102,241,0.25), 0 8px 40px rgba(99,102,241,0.15); }
+    }
+    @keyframes shimmer-sweep {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes border-glow-cycle {
+      0%   { border-color: rgba(99,102,241,0.5); }
+      33%  { border-color: rgba(139,92,246,0.6); }
+      66%  { border-color: rgba(34,211,238,0.5); }
+      100% { border-color: rgba(99,102,241,0.5); }
+    }
+    .plan-card.plan-pro {
+      animation: glow-cycle 6s ease-in-out infinite, border-glow-cycle 6s ease-in-out infinite;
+    }
+    .plan-card.plan-pro:hover {
+      animation: none;
+      border-color: rgba(99,102,241,0.7);
+      box-shadow: 0 0 0 1px rgba(99,102,241,0.4), 0 24px 64px rgba(99,102,241,0.25);
+    }
+    .pro-shimmer {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
+      background-size: 200% 100%;
+      animation: shimmer-sweep 4s linear infinite;
+      pointer-events: none;
+      border-radius: 20px;
+    }
+    .plan-card.plan-pro .plan-price {
+      font-size: 3.8rem;
+    }
+    .pro-tagline {
+      font-size: 0.72rem;
+      color: rgba(129,140,248,0.7);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* =========================================================
+       COMPARISON TABLE
+    ========================================================= */
+    .comparison-section {
+      padding: 20px 0 60px;
+    }
+    .comparison-heading {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .comparison-sub {
+      color: var(--text-2);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .comparison-wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .comparison-table thead tr {
+      background: rgba(99,102,241,0.06);
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-table th {
+      padding: 18px 24px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: left;
+    }
+    .comparison-table th:first-child {
+      color: var(--text-2);
+    }
+    .comparison-table th.col-starter {
+      color: var(--text-2);
+      text-align: center;
+    }
+    .comparison-table th.col-pro {
+      color: var(--primary-l);
+      text-align: center;
+    }
+    .comparison-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .comparison-table tbody tr:last-child {
+      border-bottom: none;
+    }
+    .comparison-table tbody tr:nth-child(odd) {
+      background: rgba(255,255,255,0.015);
+    }
+    .comparison-table tbody tr:nth-child(even) {
+      background: transparent;
+    }
+    .comparison-table tbody tr:hover {
+      background: rgba(99,102,241,0.05);
+    }
+    .comparison-table td {
+      padding: 15px 24px;
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+    .comparison-table td:first-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .comparison-table td.check-cell {
+      text-align: center;
+    }
+    .check-yes {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(16,185,129,0.12);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .check-no {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(239,68,68,0.08);
+      color: rgba(239,68,68,0.45);
+      font-size: 0.75rem;
+    }
+    .check-pro-yes {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
+      font-size: 0.75rem;
+      font-weight: 700;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .check-pro-yes-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    .check-text {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary-l);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .comparison-section-label {
+      background: rgba(99,102,241,0.04);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-section-label td {
+      padding: 10px 24px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* =========================================================
+       ENTERPRISE TEASER
+    ========================================================= */
+    .enterprise-section {
+      padding: 0 0 60px;
+    }
+    .enterprise-card {
+      max-width: 820px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 48px;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .enterprise-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 0% 50%, rgba(99,102,241,0.07), transparent 60%);
+      pointer-events: none;
+    }
+    .enterprise-card:hover {
+      border-color: rgba(99,102,241,0.2);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    }
+    .enterprise-icon-wrap {
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+      border: 1px solid rgba(99,102,241,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+    .enterprise-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .enterprise-coming-soon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 100px;
+      padding: 3px 12px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 12px;
+    }
+    .enterprise-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+    .enterprise-body {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .enterprise-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .enterprise-input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: var(--text);
+      font-size: 0.875rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .enterprise-input::placeholder { color: var(--text-2); opacity: 0.6; }
+    .enterprise-input:focus { border-color: var(--border-hi); }
+    .enterprise-btn {
+      background: transparent;
+      border: 1px solid var(--border-hi);
+      border-radius: 8px;
+      padding: 10px 20px;
+      color: var(--primary-l);
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .enterprise-btn:hover {
+      background: rgba(99,102,241,0.1);
+      box-shadow: 0 0 16px rgba(99,102,241,0.2);
+    }
+
+    /* =========================================================
+       TESTIMONIALS
+    ========================================================= */
+    .testimonials-section {
+      padding: 20px 0 60px;
+    }
+    .testimonials-heading {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .testimonials-sub {
+      color: var(--text-2);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      position: relative;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+    .testimonial-card:hover {
+      border-color: rgba(99,102,241,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    }
+    .testimonial-quote-mark {
+      font-size: 3rem;
+      line-height: 1;
+      color: rgba(99,102,241,0.25);
+      font-family: Georgia, serif;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .testimonial-text {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .testimonial-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .testimonial-name {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .testimonial-location {
+      font-size: 0.75rem;
+      color: var(--text-2);
+    }
+    .testimonial-stars {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: var(--accent);
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+    }
+
+    /* =========================================================
+       ENHANCED CTA
+    ========================================================= */
+    .cta-dna-wrap {
+      margin: 0 auto 28px;
+      width: 80px;
+      height: 40px;
+      opacity: 0.6;
+    }
+    .cta-social-proof {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .cta-avatars {
+      display: flex;
+      align-items: center;
+    }
+    .cta-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-left: -8px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cta-avatars .cta-avatar:first-child { margin-left: 0; }
+    .cta-social-text {
+      font-size: 0.85rem;
+      color: var(--text-2);
+    }
+    .cta-social-text strong {
+      color: var(--text);
+    }
+
+    /* =========================================================
+       FOOTER STRIP
+    ========================================================= */
+    .footer-strip {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      text-align: center;
+    }
+    .footer-strip p {
+      font-size: 0.8rem;
+      color: var(--text-3);
+    }
+    .footer-strip a {
+      color: var(--text-2);
+      transition: color 0.2s;
+    }
+    .footer-strip a:hover { color: var(--text); }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .cards-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+      }
+      .plan-card.plan-pro { transform: scale(1); }
+      .plan-card.plan-pro:hover { transform: translateY(-3px); }
+      .pricing-h1 { font-size: 2rem; }
+      .stats-bar-inner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+      }
+      .enterprise-card {
+        flex-direction: column;
+        padding: 32px 28px;
+        gap: 24px;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 14px;
+        font-size: 0.8rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .modal { padding: 36px 24px; }
+      .stats-bar-inner { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Aurora -->
+  <div class="aurora" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       NAV
+  ========================================================= -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <!-- Logo -->
+      <a href="index.html" class="nav-brand">
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+          <defs><clipPath id="dna-pricing-c"><rect width="40" height="20"/></clipPath></defs>
+          <g clip-path="url(#dna-pricing-c)">
+            <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+        Helix
+      </a>
+
+      <!-- Center links -->
+      <ul class="nav-links" role="list">
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#how-it-works">How it works</a></li>
+        <li><a href="index.html#languages">Languages</a></li>
+        <li><a href="pricing.html" class="active">Plans</a></li>
+      </ul>
+
+      <!-- CTA: login or dashboard -->
+      <div id="nav-cta-area">
+        <a href="login.html" class="nav-cta">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================================================
+       PAGE BODY
+  ========================================================= -->
+  <main class="page">
+
+    <!-- HERO -->
+    <section class="pricing-hero">
+      <div class="container">
+        <div class="pricing-badge">Simple, transparent pricing</div>
+
+        <h1 class="pricing-h1">
+          The right coil for<br />
+          <span class="gradient-text">your journey.</span>
+        </h1>
+
+        <p class="pricing-sub">
+          Start free. Coil deeper when you're ready.<br />
+          The helix never stops spinning — neither should you.
+        </p>
+
+        <!-- Billing toggle -->
+        <div class="billing-toggle" role="group" aria-label="Billing frequency">
+          <button class="billing-btn active" id="label-monthly" aria-pressed="true">Monthly</button>
+          <button class="billing-btn" id="label-annual" aria-pressed="false">Annual <span class="save-badge">Save 50%</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS BAR -->
+    <section class="stats-bar" aria-label="Platform statistics">
+      <div class="container">
+        <div class="stats-bar-inner">
+          <div class="stat-item">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Learners worldwide</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Language tracks</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">90</div>
+            <div class="stat-label">Interactive lessons</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Browser-based</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING CARDS -->
+    <section class="pricing-cards" aria-label="Pricing plans">
+      <div class="container">
+        <div class="cards-grid">
+
+          <!-- FREE / STARTER -->
+          <div class="plan-card plan-free" role="article" aria-label="Starter plan">
+            <div class="plan-name">Starter</div>
+
+            <div class="plan-price-wrap">
+              <div class="plan-price">$0</div>
+              <div class="plan-price-period">/ month</div>
+            </div>
+            <div class="plan-billed-note">Free forever. No card required.</div>
+
+            <p class="plan-subtitle">Begin your helix. No card required.</p>
+
+            <ul class="plan-features" aria-label="Starter features">
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>First 5 lessons per language (30 lessons total)</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>All 6 language tracks</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Code runs in your browser</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Progress tracking &amp; XP</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Daily Challenge access</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Leaderboard access</span>
+              </li>
+              <li class="plan-feature feat-no">
+                <span class="plan-feature-icon" aria-hidden="true">&#10005;</span>
+                <span>Full lesson access (lessons 6&#x2013;15)</span>
+              </li>
+              <li class="plan-feature feat-no">
+                <span class="plan-feature-icon" aria-hidden="true">&#10005;</span>
+                <span>Priority support</span>
+              </li>
+            </ul>
+
+            <a href="signup.html" class="btn-outline">
+              Start for free
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+
+          <!-- PRO -->
+          <div class="plan-card plan-pro" role="article" aria-label="Pro plan, most popular">
+            <!-- shimmer sweep overlay -->
+            <div class="pro-shimmer" aria-hidden="true"></div>
+
+            <span class="popular-badge" aria-label="Most popular">&#9733; Most popular</span>
+
+            <div class="plan-name">Pro</div>
+
+            <div class="plan-price-wrap" id="pro-price-wrap">
+              <div class="plan-price gradient-text" id="pro-price">$9</div>
+              <div class="plan-price-period" id="pro-period">/ month</div>
+            </div>
+            <div class="plan-price-original" id="pro-original">$9 / month</div>
+            <div class="plan-price-annual-badge" id="pro-annual-badge">50% off</div>
+            <div class="plan-billed-note" id="pro-billed-note">&nbsp;</div>
+            <div class="pro-tagline">Most chosen by learners</div>
+
+            <p class="plan-subtitle" style="margin-top: 12px;">The full helix. Unlock every strand.</p>
+
+            <ul class="plan-features" aria-label="Pro features">
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Everything in Starter</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>All 15 lessons per language (90 total)</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Early access to new languages</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Download lesson code</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Priority support</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Ad-free experience</span>
+              </li>
+              <li class="plan-feature feat-yes">
+                <span class="plan-feature-icon" aria-hidden="true">&#10003;</span>
+                <span>Exclusive Pro badge on leaderboard</span>
+              </li>
+            </ul>
+
+            <button class="btn-pro" id="btn-upgrade" aria-label="Upgrade to Pro">
+              Upgrade to Pro
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2l1.5 3 3.5.5-2.5 2.4.6 3.6L8 10l-3.1 1.5.6-3.6L3 5.5l3.5-.5z" fill="currentColor"/></svg>
+            </button>
+          </div>
+
+        </div><!-- /cards-grid -->
+      </div>
+    </section>
+
+    <!-- COMPARISON TABLE -->
+    <section class="comparison-section" aria-label="Feature comparison">
+      <div class="container">
+        <h2 class="comparison-heading">Compare plans</h2>
+        <p class="comparison-sub">See exactly what you get at each level.</p>
+        <div class="comparison-wrap">
+          <table class="comparison-table" role="table" aria-label="Plan feature comparison">
+            <thead>
+              <tr>
+                <th scope="col">Feature</th>
+                <th scope="col" class="col-starter">Starter</th>
+                <th scope="col" class="col-pro">Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="comparison-section-label">
+                <td colspan="3">Access &amp; Content</td>
+              </tr>
+              <tr>
+                <td>Lessons per language</td>
+                <td class="check-cell"><span class="check-text">5 / 15</span></td>
+                <td class="check-cell"><span class="check-text">15 / 15</span></td>
+              </tr>
+              <tr>
+                <td>All 6 language tracks</td>
+                <td class="check-cell"><span class="check-yes">&#10003;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Full lesson access (lessons 6–15)</td>
+                <td class="check-cell"><span class="check-no">&#10005;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Early access to new languages</td>
+                <td class="check-cell"><span class="check-no">&#10005;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr class="comparison-section-label">
+                <td colspan="3">Learning Tools</td>
+              </tr>
+              <tr>
+                <td>Browser-based code execution</td>
+                <td class="check-cell"><span class="check-yes">&#10003;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Progress tracking &amp; XP</td>
+                <td class="check-cell"><span class="check-yes">&#10003;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Daily Challenges</td>
+                <td class="check-cell"><span class="check-yes">&#10003;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Leaderboard</td>
+                <td class="check-cell"><span class="check-yes">&#10003;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Download lesson code</td>
+                <td class="check-cell"><span class="check-no">&#10005;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr class="comparison-section-label">
+                <td colspan="3">Experience &amp; Support</td>
+              </tr>
+              <tr>
+                <td>Ad-free experience</td>
+                <td class="check-cell"><span class="check-no">&#10005;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Priority support</td>
+                <td class="check-cell"><span class="check-no">&#10005;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Exclusive Pro badge on leaderboard</td>
+                <td class="check-cell"><span class="check-no">&#10005;</span></td>
+                <td class="check-cell"><span class="check-pro-yes-wrap"><span class="check-pro-yes">&#10003;</span></span></td>
+              </tr>
+              <tr>
+                <td>Price</td>
+                <td class="check-cell"><span class="check-text" style="color:var(--green);">Free</span></td>
+                <td class="check-cell"><span class="check-text">$9 / mo</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENTERPRISE TEASER -->
+    <section class="enterprise-section" aria-label="Enterprise plan coming soon">
+      <div class="container">
+        <div class="enterprise-card">
+          <div class="enterprise-icon-wrap" aria-hidden="true">&#x1F3DB;</div>
+          <div class="enterprise-content">
+            <div class="enterprise-coming-soon">&#x23F3; Coming Soon</div>
+            <h2 class="enterprise-title">Helix for Teams</h2>
+            <p class="enterprise-body">Manage your entire team's progress, build custom learning tracks, and unlock admin analytics — all in one place. Perfect for bootcamps, universities, and engineering teams.</p>
+            <div class="enterprise-form">
+              <input type="email" class="enterprise-input" placeholder="you@company.com" aria-label="Email address for waitlist" />
+              <button type="button" class="enterprise-btn">Join the waitlist</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section" aria-label="Frequently asked questions">
+      <div class="container">
+        <div class="faq-inner">
+          <h2 class="faq-heading">Have questions?</h2>
+          <p class="faq-sub">Everything you need to know about Helix plans.</p>
+
+          <div class="faq-list" role="list">
+
+            <div class="faq-item" role="listitem">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq-1">
+                Can I cancel anytime?
+                <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-1" role="region">
+                <div class="faq-answer-inner">
+                  <p class="faq-answer-text">Yes, cancel any time from your profile settings. Your Pro access continues until the end of your current billing period — no surprises, no hidden fees.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item" role="listitem">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq-2">
+                Is my payment secure?
+                <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-2" role="region">
+                <div class="faq-answer-inner">
+                  <p class="faq-answer-text">Absolutely. Payments are processed through industry-standard secure infrastructure. We never store your card details on our servers — your financial data stays encrypted and safe.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item" role="listitem">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq-3">
+                What happens to my progress if I downgrade?
+                <svg class="faq-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-3" role="region">
+                <div class="faq-answer-inner">
+                  <p class="faq-answer-text">All your progress and XP stay with you forever — the helix never unravels. You simply lose access to lessons 6&#x2013;15 until you resubscribe to Pro. Your coil picks up right where you left off.</p>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /faq-list -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials-section" aria-label="Student testimonials">
+      <div class="container">
+        <h2 class="testimonials-heading">Learners love it.</h2>
+        <p class="testimonials-sub">Real students, real results — no embellishment needed.</p>
+        <div class="testimonials-grid">
+
+          <div class="testimonial-card">
+            <div class="testimonial-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
+            <p class="testimonial-text">Started with zero experience. 6 weeks later I landed my first freelance gig. The structured tracks kept me on course when I would've given up elsewhere.</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg, #6366F1, #22D3EE);">SK</div>
+              <div>
+                <div class="testimonial-name">Sarah K.</div>
+                <div class="testimonial-location">London, UK</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="testimonial-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
+            <p class="testimonial-text">The daily challenges kept me addicted. Helix is the only platform that actually got me to finish what I started. Three languages down, three to go.</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg, #8B5CF6, #F59E0B);">MT</div>
+              <div>
+                <div class="testimonial-name">Marcus T.</div>
+                <div class="testimonial-location">Toronto, Canada</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="testimonial-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
+            <p class="testimonial-text">Clean, fast, no BS. I've tried 7 other platforms. Helix is the one I stuck with. Runs right in the browser — no setup, no excuses.</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar" style="background: linear-gradient(135deg, #10B981, #6366F1);">PR</div>
+              <div>
+                <div class="testimonial-name">Priya R.</div>
+                <div class="testimonial-location">Bangalore, India</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM CTA -->
+    <section class="cta-section" aria-label="Get started">
+      <div class="cta-glow" aria-hidden="true"></div>
+      <div class="container cta-inner">
+
+        <!-- DNA helix visual -->
+        <div class="cta-dna-wrap" aria-hidden="true">
+          <svg width="80" height="40" viewBox="0 0 80 40" fill="none" style="overflow:hidden">
+            <defs><clipPath id="dna-cta-c"><rect width="80" height="40"/></clipPath></defs>
+            <g clip-path="url(#dna-cta-c)">
+              <path d="M-44,20 Q-33,4 -22,20 Q-11,36 0,20 Q11,4 22,20 Q33,36 44,20 Q55,4 66,20 Q77,36 88,20 Q99,4 110,20 Q121,36 132,20" stroke="url(#cta-grad1)" stroke-width="2.5" stroke-linecap="round" fill="none">
+                <animateTransform attributeName="transform" type="translate" values="0,0;-44,0" dur="3s" repeatCount="indefinite"/>
+              </path>
+              <path d="M-44,20 Q-33,36 -22,20 Q-11,4 0,20 Q11,36 22,20 Q33,4 44,20 Q55,36 66,20 Q77,4 88,20 Q99,36 110,20 Q121,4 132,20" stroke="url(#cta-grad2)" stroke-width="2.5" stroke-linecap="round" fill="none">
+                <animateTransform attributeName="transform" type="translate" values="0,0;-44,0" dur="3s" repeatCount="indefinite"/>
+              </path>
+              <defs>
+                <linearGradient id="cta-grad1" x1="0" y1="0" x2="80" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#818CF8"/>
+                  <stop offset="100%" stop-color="#22D3EE"/>
+                </linearGradient>
+                <linearGradient id="cta-grad2" x1="0" y1="0" x2="80" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#22D3EE"/>
+                  <stop offset="100%" stop-color="#8B5CF6"/>
+                </linearGradient>
+              </defs>
+            </g>
+          </svg>
+        </div>
+
+        <p class="cta-eyebrow">No credit card needed</p>
+        <h2 class="cta-heading">
+          Still on the fence?<br />
+          <span class="gradient-text">The first 5 strands are on us.</span>
+        </h2>
+        <p class="cta-body">Start free today. No card, no pressure — just code.</p>
+
+        <!-- Social proof row -->
+        <div class="cta-social-proof">
+          <div class="cta-avatars" aria-hidden="true">
+            <div class="cta-avatar" style="background:linear-gradient(135deg,#6366F1,#22D3EE);">S</div>
+            <div class="cta-avatar" style="background:linear-gradient(135deg,#8B5CF6,#F59E0B);">M</div>
+            <div class="cta-avatar" style="background:linear-gradient(135deg,#10B981,#6366F1);">P</div>
+            <div class="cta-avatar" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">J</div>
+            <div class="cta-avatar" style="background:linear-gradient(135deg,#22D3EE,#8B5CF6);">A</div>
+          </div>
+          <span class="cta-social-text">Join <strong>10,000+ learners</strong> already spinning their helix</span>
+        </div>
+
+        <a href="signup.html" class="btn-cta">
+          Get started free
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer-strip" role="contentinfo">
+    <div class="container">
+      <p>&copy; 2026 Helix &mdash; <a href="index.html">Home</a> &middot; <a href="pricing.html">Plans</a> &middot; <a href="login.html">Sign in</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="privacy.html">Privacy</a></p>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       MOCK PAYMENT MODAL
+  ========================================================= -->
+  <div class="modal-overlay" id="payment-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-icon" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 3l2.5 5.5 6 .9-4.3 4.2 1 6L14 17l-5.2 2.6 1-6L5.5 9.4l6-.9z" fill="url(#star-grad)" stroke="none"/>
+          <defs>
+            <linearGradient id="star-grad" x1="0" y1="0" x2="28" y2="28">
+              <stop offset="0%" stop-color="#6366F1"/>
+              <stop offset="100%" stop-color="#8B5CF6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="modal-title" id="modal-title">You're going Pro! &#x1F300;</h2>
+      <p class="modal-body" id="modal-body">
+        Payment processing is coming soon. For now, your plan has been upgraded to <strong>Pro</strong> — welcome to the full helix. All 15 strands per language are yours.
+      </p>
+      <button class="modal-close" id="modal-close-btn">
+        Go to Dashboard
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       JAVASCRIPT
+  ========================================================= -->
+  <script>
+  (function () {
+    'use strict';
+
+    /* -----------------------------------------------------------
+       Auth — check helix_session
+    ----------------------------------------------------------- */
+    (function() {
+      var _sess = null;
+      try { _sess = JSON.parse(localStorage.getItem('helix_session') || 'null'); } catch(e) {}
+      var _ctaArea = document.getElementById('nav-cta-area');
+      if (!_ctaArea || !_sess) return;
+      var _users = [];
+      try { _users = JSON.parse(localStorage.getItem('helix_users') || '[]'); } catch(e) {}
+      var _u = _users.find(function(u) { return u.id === _sess.userId; });
+      var _html = '<div style="display:flex;align-items:center;gap:0.5rem;">';
+      _html += '<a href="dashboard.html" class="nav-cta" style="background:transparent;border:1px solid rgba(99,102,241,0.4);color:var(--text);">Dashboard</a>';
+      if (_u && _u.isAdmin) {
+        _html += '<a href="admin.html" class="nav-cta" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#EF4444;padding:8px 12px;" title="Admin Panel">⚙ Admin</a>';
+      }
+      if (_u && _u.profilePic) {
+        _html += '<a href="profile.html"><img src="' + _u.profilePic + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(99,102,241,0.4);display:block;" alt="Profile"></a>';
+      } else {
+        var _init = (_sess.username || 'Y')[0].toUpperCase();
+        _html += '<a href="profile.html" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#22D3EE);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;text-decoration:none;flex-shrink:0;">' + _init + '</a>';
+      }
+      _html += '</div>';
+      _ctaArea.innerHTML = _html;
+    })();
+
+    /* -----------------------------------------------------------
+       Billing toggle
+    ----------------------------------------------------------- */
+    var isAnnual = false;
+
+    var labelMonthly = document.getElementById('label-monthly');
+    var labelAnnual  = document.getElementById('label-annual');
+
+    var proPrice        = document.getElementById('pro-price');
+    var proPeriod       = document.getElementById('pro-period');
+    var proOriginal     = document.getElementById('pro-original');
+    var proAnnualBadge  = document.getElementById('pro-annual-badge');
+    var proBilledNote   = document.getElementById('pro-billed-note');
+    var btnUpgrade      = document.getElementById('btn-upgrade');
+
+    function setAnnual(annual) {
+      isAnnual = annual;
+
+      labelMonthly.classList.toggle('active', !annual);
+      labelAnnual.classList.toggle('active',  annual);
+      labelMonthly.setAttribute('aria-pressed', String(!annual));
+      labelAnnual.setAttribute('aria-pressed',  String(annual));
+
+      if (annual) {
+        proPrice.textContent      = '$4.50';
+        proPeriod.textContent     = '/ month';
+        proOriginal.style.display = 'block';
+        proAnnualBadge.style.display = 'inline-flex';
+        proBilledNote.textContent = 'Billed $54 / year';
+        btnUpgrade.setAttribute('data-href', 'https://buy.stripe.com/28E7sKbok1ObaSZ1lubsc01');
+      } else {
+        proPrice.textContent      = '$9';
+        proPeriod.textContent     = '/ month';
+        proOriginal.style.display = 'none';
+        proAnnualBadge.style.display = 'none';
+        proBilledNote.innerHTML   = '&nbsp;';
+        btnUpgrade.setAttribute('data-href', 'https://buy.stripe.com/8x2aEW9gc50n1ipfckbsc00');
+      }
+    }
+
+    // Set initial data-href on page load (monthly by default)
+    btnUpgrade.setAttribute('data-href', 'https://buy.stripe.com/8x2aEW9gc50n1ipfckbsc00');
+
+    labelMonthly.addEventListener('click', function () { setAnnual(false); });
+    labelAnnual.addEventListener('click',  function () { setAnnual(true);  });
+
+    /* -----------------------------------------------------------
+       Pro upgrade button
+    ----------------------------------------------------------- */
+    var modal       = document.getElementById('payment-modal');
+    var modalClose  = document.getElementById('modal-close-btn');
+
+    btnUpgrade.addEventListener('click', function () {
+      var stripeUrl = btnUpgrade.getAttribute('data-href');
+      // Read session fresh at click time
+      var _session = null;
+      try { _session = JSON.parse(localStorage.getItem('helix_session') || 'null'); } catch(e) {}
+      if (_session && _session.userId) {
+        // Logged in — go straight to Stripe
+        window.location.href = stripeUrl;
+      } else {
+        // Not logged in — send to signup first
+        window.location.href = 'signup.html?redirect=pricing.html';
+      }
+    });
+
+    modalClose.addEventListener('click', function () {
+      closeModal();
+      window.location.href = 'dashboard.html';
+    });
+
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('visible')) closeModal();
+    });
+
+    function openModal() {
+      modal.classList.add('visible');
+      modal.setAttribute('aria-hidden', 'false');
+      modalClose.focus();
+    }
+    function closeModal() {
+      modal.classList.remove('visible');
+      modal.setAttribute('aria-hidden', 'true');
+      btnUpgrade.focus();
+    }
+
+    /* -----------------------------------------------------------
+       FAQ accordion
+    ----------------------------------------------------------- */
+    document.querySelectorAll('.faq-question').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        // Collapse all
+        document.querySelectorAll('.faq-question').forEach(function (b) {
+          b.setAttribute('aria-expanded', 'false');
+          var id = b.getAttribute('aria-controls');
+          var answer = document.getElementById(id);
+          if (answer) answer.classList.remove('open');
+        });
+        // Open clicked unless it was already open
+        if (!expanded) {
+          btn.setAttribute('aria-expanded', 'true');
+          var targetId = btn.getAttribute('aria-controls');
+          var target = document.getElementById(targetId);
+          if (target) target.classList.add('open');
+        }
+      });
+    });
+
+    /* -----------------------------------------------------------
+       Utility
+    ----------------------------------------------------------- */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>Helix — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --border-hi: rgba(99,102,241,0.3);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --accent:   #F59E0B;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+    /* ── Aurora ── */
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+    .orb-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 65%);
+      top: -150px; left: -100px;
+      animation: drift1 25s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%);
+      bottom: -100px; right: -100px;
+      animation: drift2 20s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(34,211,238,0.2) 0%, transparent 65%);
+      top: 40%; right: 15%;
+      animation: drift3 18s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 {
+      0%   { transform: translate(0,0) scale(1); }
+      50%  { transform: translate(80px,60px) scale(1.08); }
+      100% { transform: translate(40px,120px) scale(0.95); }
+    }
+    @keyframes drift2 {
+      0%   { transform: translate(0,0) scale(1); }
+      50%  { transform: translate(-70px,-50px) scale(1.1); }
+      100% { transform: translate(-30px,-100px) scale(0.96); }
+    }
+    @keyframes drift3 {
+      0%   { transform: translate(0,0) scale(1); }
+      100% { transform: translate(-60px,70px) scale(1.12); }
+    }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ─── LOADING SCREEN ─────────────────────────────────── */
+    .loading-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(5,8,22,0.96); backdrop-filter: blur(18px);
+      gap: 1.25rem; transition: opacity 0.4s ease;
+    }
+    .loading-wordmark { font-size: 1.7rem; font-weight: 900; letter-spacing: -0.06em; color: white; }
+    .loading-subtitle { font-size: 0.72rem; color: rgba(255,255,255,0.35); letter-spacing: 0.14em; text-transform: uppercase; }
+
+    /* ─── NAVBAR ──────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 60px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.7);
+      backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-name {
+      font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18);
+      color: var(--yellow); font-size: 0.8rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+    .streak-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      color: var(--red); font-size: 0.8rem; font-weight: 700;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: white; cursor: pointer;
+      border: 2px solid rgba(99,102,241,0.35);
+    }
+
+    /* ─── LAYOUT ──────────────────────────────────────────── */
+    .layout {
+      display: grid; grid-template-columns: 240px 1fr;
+      gap: 0; min-height: calc(100vh - 60px);
+      position: relative; z-index: 1;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────────────── */
+    .sidebar {
+      padding: 1.5rem 1rem;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .sidebar-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.18em; color: var(--text-3);
+      padding: 0 0.75rem; margin: 1rem 0 0.4rem;
+    }
+    .sidebar-label:first-child { margin-top: 0; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.6rem 0.75rem; border-radius: 10px;
+      color: var(--text-2); font-size: 0.875rem; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      border: none; background: none; font-family: inherit; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-item.active .nav-item-icon { color: var(--primary); }
+    .nav-item-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    /* user card */
+    .user-card {
+      margin-top: auto; padding: 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+    }
+    .user-info { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+    .user-avatar-lg {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: white;
+      border: 2px solid rgba(99,102,241,0.35);
+    }
+    .user-name { font-size: 0.875rem; font-weight: 700; }
+    .user-level { font-size: 0.72rem; color: var(--text-3); }
+    .xp-bar-wrap { }
+    .xp-bar-top { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+    .xp-bar-lbl { font-size: 0.7rem; color: var(--text-3); }
+    .xp-bar-val { font-size: 0.7rem; color: var(--yellow); font-weight: 700; }
+    .xp-bar {
+      height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden;
+    }
+    .xp-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, var(--primary), var(--cyan));
+      transition: width 0.6s ease;
+    }
+
+    /* ─── MAIN ────────────────────────────────────────────── */
+    .main { padding: 2rem 2.5rem; overflow-y: auto; position: relative; z-index: 1; }
+
+    .page-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.3rem; }
+    .page-sub   { font-size: 0.875rem; color: var(--text-2); margin-bottom: 2rem; }
+
+    /* ─── STAT CARDS ──────────────────────────────────────── */
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2.5rem; }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.2rem 1.3rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-card:hover { border-color: rgba(99,102,241,0.25); transform: translateY(-2px); }
+    .stat-card-val { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; }
+    .stat-card-lbl { font-size: 0.75rem; color: var(--text-3); margin-top: 0.2rem; }
+    .sc-xp  .stat-card-val { color: var(--yellow); }
+    .sc-str .stat-card-val { color: var(--red); }
+    .sc-lvl .stat-card-val {
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sc-les .stat-card-val { color: var(--green); }
+
+    /* ─── COURSE SECTION ──────────────────────────────────── */
+    .section-title-row {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 1.1rem;
+    }
+    .section-h { font-size: 1rem; font-weight: 700; }
+    .section-link { font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    /* Course card */
+    .course-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 1.5rem; margin-bottom: 1rem;
+      display: grid; grid-template-columns: auto 1fr auto; gap: 1.2rem; align-items: center;
+      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+      text-decoration: none; color: inherit; cursor: pointer;
+      position: relative; overflow: hidden;
+    }
+    .course-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--lc, var(--primary)); border-radius: 3px 0 0 3px;
+    }
+    .course-card:hover {
+      border-color: rgba(99,102,241,0.25); transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+    }
+    .course-icon {
+      width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; background: var(--bg-2); border: 1px solid var(--border);
+    }
+    .course-info { }
+    .course-name { font-size: 0.97rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .course-meta { display: flex; align-items: center; gap: 0.75rem; font-size: 0.78rem; color: var(--text-3); }
+    .course-tag {
+      display: inline-block; padding: 0.15rem 0.55rem; border-radius: 6px;
+      font-size: 0.67rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .ct-active { background: rgba(99,102,241,0.1); color: var(--primary); border: 1px solid rgba(99,102,241,0.25); }
+    .ct-soon   { background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid var(--border); }
+    .ct-new    { background: rgba(0,217,255,0.08); color: var(--accent); border: 1px solid rgba(0,217,255,0.18); }
+
+    .course-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; min-width: 110px; }
+    .progress-pct { font-size: 0.8rem; font-weight: 700; color: var(--text-2); }
+    .progress-bar {
+      width: 110px; height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden;
+    }
+    .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--primary), var(--cyan)); transition: width 0.5s ease; }
+
+    /* ─── LESSON GRID ─────────────────────────────────────── */
+    .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+    .lesson-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.2rem 1.2rem 1rem; cursor: pointer;
+      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 0.5rem;
+      position: relative; overflow: hidden;
+    }
+    .lesson-card.locked { opacity: 0.45; pointer-events: none; }
+    .lesson-card.completed::after {
+      content: '✓';
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--green); color: white;
+      font-size: 0.62rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lesson-card:not(.locked):hover {
+      border-color: rgba(99,102,241,0.25); transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.3);
+    }
+    .lesson-num { font-size: 0.68rem; font-weight: 700; color: var(--text-3); letter-spacing: 0.06em; }
+    .lesson-title { font-size: 0.9rem; font-weight: 700; line-height: 1.3; }
+    .lesson-desc  { font-size: 0.77rem; color: var(--text-2); line-height: 1.55; flex: 1; }
+    .lesson-xp {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      font-size: 0.68rem; font-weight: 700;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15);
+      color: var(--yellow); padding: 0.15rem 0.5rem; border-radius: 6px;
+      align-self: flex-start;
+    }
+
+    /* ─── ACHIEVEMENTS ────────────────────────────────────── */
+    .badge-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .badge {
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 0.9rem 1.1rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .badge:hover { border-color: rgba(99,102,241,0.22); transform: translateY(-2px); }
+    .badge-icon { font-size: 1.5rem; }
+    .badge-name { font-size: 0.68rem; font-weight: 700; color: var(--text-2); white-space: nowrap; }
+    .badge.locked-badge { opacity: 0.35; filter: grayscale(1); }
+
+    /* ─── HAMBURGER + MOBILE MENU ────────────────────────────── */
+    .hamburger {
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      width: 36px; height: 36px; background: none; border: none;
+      cursor: pointer; padding: 4px; border-radius: 8px;
+      transition: background 0.18s;
+    }
+    .hamburger:hover { background: rgba(255,255,255,0.07); }
+    .hamburger span {
+      display: block; width: 20px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: transform 0.28s, opacity 0.28s;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.25s; pointer-events: none;
+    }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+
+    .mobile-drawer {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 201;
+      width: 260px; background: #08091A;
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 1rem;
+      display: flex; flex-direction: column; gap: 0.3rem;
+      transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .mobile-drawer.open { transform: translateX(0); }
+    .mobile-drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0.25rem; margin-bottom: 1.2rem;
+    }
+    .mobile-drawer-logo { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; }
+    .mobile-drawer-logo-name { font-size: 1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .mobile-close {
+      background: none; border: none; cursor: pointer; color: var(--text-2);
+      font-size: 1.3rem; line-height: 1; padding: 0.2rem;
+      transition: color 0.15s;
+    }
+    .mobile-close:hover { color: var(--text); }
+
+    /* ─── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .hamburger { display: flex; }
+      .mobile-overlay { display: block; }
+    }
+    @media (max-width: 600px) {
+      .main { padding: 1.5rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .lesson-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ─── ONBOARDING MODAL ───────────────────────────────── */
+    .ob-step { padding: 0; text-align: center; max-width: 440px; margin: 0 auto; }
+    .ob-step h2 { font-size: 1.45rem; font-weight: 900; letter-spacing: -0.03em; margin: 18px 0 12px; line-height: 1.25; }
+    .ob-step p { color: var(--text-2); font-size: 0.925rem; line-height: 1.65; margin-bottom: 8px; }
+    .step-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); margin-bottom: 4px; }
+    .ob-lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    @media (max-width: 480px) { .ob-lang-grid { grid-template-columns: repeat(2, 1fr); } }
+    .ob-lang-card {
+      background: var(--bg-card); padding: 14px 12px; border-radius: 12px;
+      border: 1px solid var(--border); cursor: pointer; text-align: center;
+      transition: all 0.2s;
+    }
+    .ob-lang-card:hover { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.07); }
+    .ob-lang-card.selected { border-color: var(--primary); background: rgba(99,102,241,0.12); box-shadow: 0 0 16px rgba(99,102,241,0.2); }
+    .ob-lang-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .ob-lang-name { font-size: 0.85rem; font-weight: 700; }
+    .ob-lang-desc { font-size: 0.72rem; color: var(--text-2); margin-top: 3px; }
+    .ob-btn {
+      width: 100%; margin-top: 24px; padding: 13px; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 700; font-family: inherit; transition: all 0.2s;
+    }
+    .ob-btn-primary {
+      background: linear-gradient(135deg, var(--primary), #7C3AED); color: #fff;
+      border: none; cursor: pointer; box-shadow: 0 0 24px rgba(99,102,241,0.35);
+    }
+    .ob-btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .ob-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── EMPTY STATE ────────────────────────────────────── */
+    #empty-state { display: none; }
+    .es-lang-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px 12px; text-align: center; text-decoration: none; color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .es-lang-card:hover { border-color: rgba(99,102,241,0.35); transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,0.3); }
+    .es-lang-icon { font-size: 1.7rem; }
+    .es-lang-name { font-size: 0.85rem; font-weight: 700; }
+    .es-lang-cta { font-size: 0.75rem; color: var(--primary); font-weight: 600; margin-top: 2px; }
+  </style>
+</head>
+<body>
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <svg width="200" height="52" viewBox="0 0 200 52" fill="none" aria-hidden="true" style="overflow:hidden; display:block;">
+    <defs><clipPath id="dna-load-dash-c"><rect width="200" height="52"/></clipPath></defs>
+    <g clip-path="url(#dna-load-dash-c)">
+      <path d="M-44,26 Q-38.5,6 -33,26 Q-27.5,46 -22,26 Q-16.5,6 -11,26 Q-5.5,46 0,26 Q5.5,6 11,26 Q16.5,46 22,26 Q27.5,6 33,26 Q38.5,46 44,26 Q49.5,6 55,26 Q60.5,46 66,26 Q71.5,6 77,26 Q82.5,46 88,26 Q93.5,6 99,26 Q104.5,46 110,26 Q115.5,6 121,26 Q126.5,46 132,26 Q137.5,6 143,26 Q148.5,46 154,26 Q159.5,6 165,26 Q170.5,46 176,26 Q181.5,6 187,26 Q192.5,46 198,26 Q203.5,6 209,26 Q214.5,46 220,26" stroke="white" stroke-linecap="round" fill="none">
+        <animate attributeName="stroke-width" values="2.5;1.2;2.5" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+        <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M-44,26 Q-38.5,46 -33,26 Q-27.5,6 -22,26 Q-16.5,46 -11,26 Q-5.5,6 0,26 Q5.5,46 11,26 Q16.5,6 22,26 Q27.5,46 33,26 Q38.5,6 44,26 Q49.5,46 55,26 Q60.5,6 66,26 Q71.5,46 77,26 Q82.5,6 88,26 Q93.5,46 99,26 Q104.5,6 110,26 Q115.5,46 121,26 Q126.5,6 132,26 Q137.5,46 143,26 Q148.5,6 154,26 Q159.5,46 165,26 Q170.5,6 176,26 Q181.5,46 187,26 Q192.5,6 198,26 Q203.5,46 209,26 Q214.5,6 220,26" stroke="white" stroke-linecap="round" fill="none">
+        <animate attributeName="stroke-width" values="1.2;2.5;1.2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+        <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </svg>
+  <span class="loading-wordmark">helix</span>
+  <span class="loading-subtitle">Loading your dashboard…</span>
+</div>
+<script>
+// Loading screen: only show if page takes > 200ms
+(function() {
+  var _ls = document.getElementById('loadingScreen');
+  var _lt = setTimeout(function() {
+    if (_ls) { _ls.style.display = 'flex'; _ls.style.opacity = '0'; setTimeout(function(){ _ls.style.opacity = '1'; }, 10); }
+  }, 200);
+  window.addEventListener('load', function() {
+    clearTimeout(_lt);
+    if (_ls) _ls.remove();
+  });
+})();
+</script>
+
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+      <defs><clipPath id="dna-dash-c"><rect width="40" height="20"/></clipPath></defs>
+      <g clip-path="url(#dna-dash-c)">
+        <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+          <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+          <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </svg>
+    <span class="nav-logo-name">Helix</span>
+  </a>
+  <div class="nav-right">
+    <div class="xp-badge" id="nav-xp">⚡ <span id="nav-xp-val">0</span> XP</div>
+    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+    <div class="avatar" id="nav-avatar">Y</div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── MOBILE DRAWER ─────────────────────────────────────── -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-drawer" id="mobile-drawer">
+  <div class="mobile-drawer-head">
+    <a class="mobile-drawer-logo" href="index.html">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-mob-c"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-mob-c)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="mobile-drawer-logo-name">Helix</span>
+    </a>
+    <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+  </div>
+  <span class="sidebar-label" style="margin-top:0;">Learn</span>
+  <a class="nav-item active" href="dashboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏠</span> Dashboard</a>
+  <a class="nav-item" href="#courses-section" onclick="closeMobileMenu()"><span class="nav-item-icon">📚</span> Courses</a>
+  <a class="nav-item" href="challenge.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+  <span class="sidebar-label">Progress</span>
+  <a class="nav-item" href="leaderboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+  <a class="nav-item" href="profile.html" onclick="closeMobileMenu()"><span class="nav-item-icon">👤</span> Profile</a>
+  <span class="sidebar-label">Settings</span>
+  <a class="nav-item" href="settings.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚙️</span> Personal Details</a>
+  <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;"><span class="nav-item-icon">🚪</span> Logout</button>
+</div>
+
+<!-- ─── LAYOUT ──────────────────────────────────────────── -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="sidebar-label">Learn</span>
+    <a class="nav-item active" href="dashboard.html">
+      <span class="nav-item-icon">🏠</span> Dashboard
+    </a>
+    <a class="nav-item" href="#courses-section">
+      <span class="nav-item-icon">📚</span> Courses
+    </a>
+    <a class="nav-item" href="challenge.html">
+      <span class="nav-item-icon">⚡</span> Daily Challenge
+    </a>
+
+    <span class="sidebar-label">Progress</span>
+    <a class="nav-item" href="leaderboard.html">
+      <span class="nav-item-icon">🏆</span> Leaderboard
+    </a>
+    <a class="nav-item" href="profile.html">
+      <span class="nav-item-icon">👤</span> Profile
+    </a>
+
+    <span class="sidebar-label">Settings</span>
+    <a class="nav-item" href="settings.html">
+      <span class="nav-item-icon">⚙️</span> Personal Details
+    </a>
+    <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;">
+      <span class="nav-item-icon">🚪</span> Logout
+    </button>
+
+    <!-- User card -->
+    <div class="user-card" style="margin-top: auto;">
+      <div class="user-info">
+        <div class="user-avatar-lg" id="sidebar-avatar">Y</div>
+        <div>
+          <div class="user-name" id="sidebar-name">You</div>
+          <div class="user-level" id="sidebar-level">Level 1 · Novice</div>
+        </div>
+      </div>
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-top">
+          <span class="xp-bar-lbl">XP to next level</span>
+          <span class="xp-bar-val" id="sidebar-xp-label">0 / 500</span>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="sidebar-xp-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-title" id="dash-title">The helix kept spinning.</div>
+    <div class="page-sub">Pick up your strand — every rotation counts. Keep the coil in motion.</div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card sc-xp">
+        <div class="stat-card-val" id="stat-xp">0</div>
+        <div class="stat-card-lbl">⚡ Total XP</div>
+      </div>
+      <div class="stat-card sc-str">
+        <div class="stat-card-val" id="stat-streak">1</div>
+        <div class="stat-card-lbl">🔥 Day Streak</div>
+      </div>
+      <div class="stat-card sc-lvl">
+        <div class="stat-card-val" id="stat-level">1</div>
+        <div class="stat-card-lbl">✨ Level</div>
+      </div>
+      <div class="stat-card sc-les">
+        <div class="stat-card-val" id="stat-lessons">0</div>
+        <div class="stat-card-lbl">📘 Lessons Done</div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state">
+      <div style="text-align:center; padding:64px 24px 48px; max-width:600px; margin:0 auto;">
+        <div style="margin:0 auto 28px; width:160px; height:42px; opacity:0.7;">
+          <svg width="160" height="42" viewBox="0 0 160 42" fill="none" aria-hidden="true" style="overflow:hidden;display:block;">
+            <defs><clipPath id="dna-empty-c"><rect width="160" height="42"/></clipPath></defs>
+            <g clip-path="url(#dna-empty-c)">
+              <path d="M-44,21 Q-38.5,5 -33,21 Q-27.5,37 -22,21 Q-16.5,5 -11,21 Q-5.5,37 0,21 Q5.5,5 11,21 Q16.5,37 22,21 Q27.5,5 33,21 Q38.5,37 44,21 Q49.5,5 55,21 Q60.5,37 66,21 Q71.5,5 77,21 Q82.5,37 88,21 Q93.5,5 99,21 Q104.5,37 110,21 Q115.5,5 121,21 Q126.5,37 132,21 Q137.5,5 143,21 Q148.5,37 154,21 Q159.5,5 165,21 Q170.5,37 176,21" stroke="white" stroke-linecap="round" fill="none">
+                <animate attributeName="stroke-width" values="2.5;1.2;2.5" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+              </path>
+              <path d="M-44,21 Q-38.5,37 -33,21 Q-27.5,5 -22,21 Q-16.5,37 -11,21 Q-5.5,5 0,21 Q5.5,37 11,21 Q16.5,5 22,21 Q27.5,37 33,21 Q38.5,5 44,21 Q49.5,37 55,21 Q60.5,5 66,21 Q71.5,37 77,21 Q82.5,5 88,21 Q93.5,37 99,21 Q104.5,5 110,21 Q115.5,37 121,21 Q126.5,5 132,21 Q137.5,37 143,21 Q148.5,5 154,21 Q159.5,37 165,21 Q170.5,5 176,21" stroke="white" stroke-linecap="round" fill="none">
+                <animate attributeName="stroke-width" values="1.2;2.5;1.2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+              </path>
+            </g>
+          </svg>
+        </div>
+        <h2 style="font-size:1.8rem; font-weight:900; letter-spacing:-0.03em; margin-bottom:12px;">Your helix starts here.</h2>
+        <p style="color:var(--text-2); font-size:1rem; line-height:1.65; margin-bottom:36px;">You haven't started any lessons yet. Pick a language track below and write your first line of code.</p>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:480px; margin:0 auto;">
+          <a class="es-lang-card" href="lesson.html?id=1"><div class="es-lang-icon">🐍</div><div class="es-lang-name">Python</div><div class="es-lang-cta">Start →</div></a>
+          <a class="es-lang-card" href="lesson-js.html?id=1"><div class="es-lang-icon">⚡</div><div class="es-lang-name">JavaScript</div><div class="es-lang-cta">Start →</div></a>
+          <a class="es-lang-card" href="lesson-html.html?id=1"><div class="es-lang-icon">🌐</div><div class="es-lang-name">HTML & CSS</div><div class="es-lang-cta">Start →</div></a>
+          <a class="es-lang-card" href="lesson-sql.html?id=1"><div class="es-lang-icon">🗄️</div><div class="es-lang-name">SQL</div><div class="es-lang-cta">Start →</div></a>
+          <a class="es-lang-card" href="lesson-ts.html?id=1"><div class="es-lang-icon">📘</div><div class="es-lang-name">TypeScript</div><div class="es-lang-cta">Start →</div></a>
+          <a class="es-lang-card" href="lesson-cpp.html?id=1"><div class="es-lang-icon">⚙️</div><div class="es-lang-name">C++</div><div class="es-lang-cta">Start →</div></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Normal content (shown when user has progress) -->
+    <div id="normal-content">
+
+    <!-- Daily Challenge card -->
+    <div style="margin-bottom:2.5rem;">
+      <div class="section-title-row" style="margin-bottom:1rem;">
+        <div class="section-h">⚡ Daily Challenge</div>
+        <a href="challenge.html" class="section-link">Open →</a>
+      </div>
+      <a class="course-card" href="challenge.html" style="--lc:#EF4444;" id="daily-card">
+        <div class="course-icon">🔥</div>
+        <div class="course-info">
+          <div class="course-name" id="daily-title">Today's Challenge</div>
+          <div class="course-meta">
+            <span id="daily-meta">Resets at midnight</span>
+            <span class="course-tag" id="daily-tag" style="background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.2);">New</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="daily-xp" style="color:var(--red);">+75 XP</div>
+          <div style="font-size:0.72rem;color:var(--text-3);margin-top:0.3rem;" id="daily-status">Not done</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Courses -->
+    <div id="courses-section">
+      <div class="section-title-row">
+        <div class="section-h">Your Tracks</div>
+      </div>
+
+      <a class="course-card" href="#lessons-section" style="--lc:#3776AB;">
+        <div class="course-icon">🐍</div>
+        <div class="course-info">
+          <div class="course-name">Python Fundamentals</div>
+          <div class="course-meta">
+            <span id="course-lessons-count">0 / 15 lessons</span>
+            <span class="course-tag ct-active">Active</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="course-pct">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="course-bar" style="width:0%"></div></div>
+        </div>
+      </a>
+
+      <a class="course-card" href="lesson-js.html?id=1" style="--lc:#F7DF1E;">
+        <div class="course-icon">⚡</div>
+        <div class="course-info">
+          <div class="course-name">JavaScript Fundamentals</div>
+          <div class="course-meta">
+            <span id="js-lessons-count">0 / 15 lessons</span>
+            <span class="course-tag ct-active">Active</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="js-pct">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="js-bar" style="width:0%"></div></div>
+        </div>
+      </a>
+
+      <a class="course-card" href="lesson-html.html?id=1" style="--lc:#E34F26;">
+        <div class="course-icon">🏗️</div>
+        <div class="course-info">
+          <div class="course-name">HTML & CSS Essentials</div>
+          <div class="course-meta">
+            <span id="html-lessons-count">0 / 15 lessons</span>
+            <span class="course-tag ct-active">Active</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="html-pct">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="html-bar" style="width:0%"></div></div>
+        </div>
+      </a>
+
+      <a class="course-card" href="lesson-sql.html?id=1" style="--lc:#00758F;">
+        <div class="course-icon">🗄️</div>
+        <div class="course-info">
+          <div class="course-name">SQL Fundamentals</div>
+          <div class="course-meta">
+            <span id="sql-lessons-count">0 / 15 lessons</span>
+            <span class="course-tag ct-active">Active</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="sql-pct">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="sql-bar" style="width:0%"></div></div>
+        </div>
+      </a>
+
+      <a class="course-card" href="lesson-cpp.html?id=1" style="--lc:#00599C;">
+        <div class="course-icon">⚙️</div>
+        <div class="course-info">
+          <div class="course-name">C++ Fundamentals</div>
+          <div class="course-meta">
+            <span id="cpp-lessons-count">0 / 15 lessons</span>
+            <span class="course-tag ct-active">Active</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="cpp-pct">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="cpp-bar" style="width:0%"></div></div>
+        </div>
+      </a>
+
+      <a class="course-card" href="lesson-ts.html?id=1" style="--lc:#3178C6;">
+        <div class="course-icon">🔷</div>
+        <div class="course-info">
+          <div class="course-name">TypeScript Fundamentals</div>
+          <div class="course-meta">
+            <span id="ts-lessons-count">0 / 15 lessons</span>
+            <span class="course-tag ct-active">Active</span>
+          </div>
+        </div>
+        <div class="course-right">
+          <div class="progress-pct" id="ts-pct">0%</div>
+          <div class="progress-bar"><div class="progress-fill" id="ts-bar" style="width:0%"></div></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Lessons grid -->
+    <div id="lessons-section" style="margin-top:2.5rem;">
+      <div class="section-title-row">
+        <div class="section-h">🐍 Python Fundamentals — Lessons</div>
+        <span style="font-size:0.78rem; color:var(--text-3);">Ordered from beginner to advanced</span>
+      </div>
+      <div class="lesson-grid" id="lesson-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div>
+      <div class="section-title-row">
+        <div class="section-h">Achievements</div>
+      </div>
+      <div class="badge-row" id="badge-row">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    </div><!-- end #normal-content -->
+
+  </main>
+</div>
+
+<script>
+// Auth gate
+(function() {
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; return; }
+})();
+
+const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+
+// ─── Lesson data ─────────────────────────────────────────
+const LESSONS = [
+  { id:  1, title: "Hello, World!",          desc: "Write your very first Python program and print to the screen.",         xp:  50 },
+  { id:  2, title: "Variables",              desc: "Store and use data with named variables — the foundation of programs.", xp:  75 },
+  { id:  3, title: "User Input",             desc: "Make programs interactive by reading input from the user.",             xp:  75 },
+  { id:  4, title: "Strings & Numbers",      desc: "Work with text and numbers, and Python's core operators.",              xp: 100 },
+  { id:  5, title: "Conditions (if/else)",   desc: "Make decisions in code with if, elif, and else statements.",            xp: 125 },
+  { id:  6, title: "Loops (for/while)",      desc: "Repeat actions efficiently with for and while loops.",                  xp: 150 },
+  { id:  7, title: "Lists",                  desc: "Store multiple values in order and access them by index.",              xp: 150 },
+  { id:  8, title: "Dictionaries",           desc: "Map keys to values — Python's most versatile data structure.",          xp: 175 },
+  { id:  9, title: "Functions",              desc: "Write reusable blocks of code with def, parameters, and return.",       xp: 200 },
+  { id: 10, title: "String Methods",         desc: "Transform and analyse text with Python's powerful string toolkit.",     xp: 175 },
+  { id: 11, title: "List Comprehensions",    desc: "Build lists in a single expressive line — the Pythonic way.",           xp: 200 },
+  { id: 12, title: "Error Handling",         desc: "Catch and handle exceptions gracefully with try/except.",               xp: 200 },
+  { id: 13, title: "Classes & Objects",      desc: "Model the world with OOP — define classes, create objects.",            xp: 225 },
+  { id: 14, title: "Modules & Imports",      desc: "Use Python's standard library: math, random, and more.",               xp: 200 },
+  { id: 15, title: "File I/O",               desc: "Read and write files — make your programs persist data.",               xp: 250 },
+];
+
+const BADGES = [
+  { icon: "🎉", name: "First Step",      condition: d => d.lessonsCompleted >= 1  },
+  { icon: "🔥", name: "On Fire",         condition: d => d.streak >= 3            },
+  { icon: "⚡", name: "XP Hunter",       condition: d => d.xp >= 500              },
+  { icon: "🐍", name: "Pythonista",      condition: d => d.lessonsCompleted >= 5  },
+  { icon: "🧠", name: "Deep Thinker",    condition: d => d.lessonsCompleted >= 10 },
+  { icon: "🏆", name: "Track Master",    condition: d => d.lessonsCompleted >= 15 },
+  { icon: "🌟", name: "Level 5",         condition: d => d.level >= 5             },
+  { icon: "💎", name: "XP Legend",       condition: d => d.xp >= 2000             },
+];
+
+// ─── State ───────────────────────────────────────────────
+function loadState() {
+  const saved = localStorage.getItem('helix_progress');
+  if (saved) return JSON.parse(saved);
+  return { xp: 0, streak: 1, level: 1, lessonsCompleted: 0, completedIds: [] };
+}
+
+function getLevel(xp) {
+  const thresholds = [0, 100, 250, 500, 900, 1400, 2000];
+  for (let i = thresholds.length - 1; i >= 0; i--) {
+    if (xp >= thresholds[i]) return i + 1;
+  }
+  return 1;
+}
+
+function getLevelXP(level) {
+  const thresholds = [0, 100, 250, 500, 900, 1400, 2000];
+  return { cur: thresholds[level - 1] || 0, next: thresholds[level] || 2000 };
+}
+
+function getLevelTitle(level) {
+  const titles = ['', 'Novice', 'Coder', 'Builder', 'Engineer', 'Architect', 'Master'];
+  return titles[Math.min(level, titles.length - 1)] || 'Legend';
+}
+
+// ─── Render ──────────────────────────────────────────────
+function render() {
+  const state = loadState();
+  const level = getLevel(state.xp);
+  const lxp   = getLevelXP(level);
+  const pct   = Math.round(((state.xp - lxp.cur) / (lxp.next - lxp.cur)) * 100);
+
+  // navbar
+  document.getElementById('nav-xp-val').textContent = state.xp;
+  document.getElementById('nav-streak').textContent  = state.streak;
+
+  // stats
+  document.getElementById('stat-xp').textContent      = state.xp;
+  document.getElementById('stat-streak').textContent   = state.streak;
+  document.getElementById('stat-level').textContent    = level;
+  // total lessons = python + all other langs (computed here for accuracy)
+  function langDone(key) { const s=localStorage.getItem(key); return s?(JSON.parse(s).completedIds||[]).length:0; }
+  const totalDone = (state.completedIds||[]).length + langDone('helix_js_progress') + langDone('helix_html_progress') + langDone('helix_sql_progress') + langDone('helix_cpp_progress') + langDone('helix_ts_progress');
+  document.getElementById('stat-lessons').textContent  = totalDone;
+
+  // sidebar
+  document.getElementById('sidebar-level').textContent   = `Level ${level} · ${getLevelTitle(level)}`;
+  document.getElementById('sidebar-xp-label').textContent = `${state.xp} / ${lxp.next}`;
+  document.getElementById('sidebar-xp-bar').style.width   = pct + '%';
+
+  // dynamic dashboard greeting
+  const name = (session?.username) || (state.name ? state.name.split(' ')[0] : null);
+  const greetings = [
+    'The helix kept spinning.',
+    'Your coil awaits.',
+    'Always forward.',
+    'The loop never ends.',
+    'One more rotation.',
+  ];
+  const greeting = name
+    ? `The helix kept spinning, ${name}.`
+    : greetings[new Date().getDay() % greetings.length];
+  const dashTitle = document.getElementById('dash-title');
+  if (dashTitle) dashTitle.textContent = greeting;
+
+  // sidebar name
+  const sidebarName = document.getElementById('sidebar-name');
+  if (sidebarName) sidebarName.textContent = session?.username || state.name || 'You';
+
+  // profile picture in nav avatar and sidebar
+  const __allUsers = JSON.parse(localStorage.getItem('helix_users') || '[]');
+  const __curUser = __allUsers.find(u => u.id === session?.userId);
+  const __pic = __curUser?.profilePic;
+  const __init = (session?.username || 'Y')[0].toUpperCase();
+
+  const navAv = document.getElementById('nav-avatar');
+  if (__pic) {
+    navAv.style.backgroundImage = `url(${__pic})`;
+    navAv.style.backgroundSize = 'cover';
+    navAv.style.backgroundPosition = 'center';
+    navAv.textContent = '';
+  } else {
+    navAv.style.backgroundImage = '';
+    navAv.textContent = __init;
+  }
+
+  const sideAv = document.getElementById('sidebar-avatar');
+  if (__pic) {
+    sideAv.style.backgroundImage = `url(${__pic})`;
+    sideAv.style.backgroundSize = 'cover';
+    sideAv.style.backgroundPosition = 'center';
+    sideAv.textContent = '';
+  } else {
+    sideAv.style.backgroundImage = '';
+    sideAv.textContent = __init;
+  }
+
+  // Python course progress
+  const pyDone = (state.completedIds || []).length;
+  const cp = Math.round((pyDone / LESSONS.length) * 100);
+  document.getElementById('course-pct').textContent           = cp + '%';
+  document.getElementById('course-bar').style.width           = cp + '%';
+  document.getElementById('course-lessons-count').textContent = `${pyDone} / ${LESSONS.length} lessons`;
+
+  // Other language progress
+  function langPct(key) {
+    const s = localStorage.getItem(key);
+    if (!s) return { done: 0, pct: 0 };
+    const p = JSON.parse(s);
+    const done = (p.completedIds || []).length;
+    return { done, pct: Math.round((done / 15) * 100) };
+  }
+  const js   = langPct('helix_js_progress');
+  const html = langPct('helix_html_progress');
+  const sql  = langPct('helix_sql_progress');
+  const cpp  = langPct('helix_cpp_progress');
+  const ts   = langPct('helix_ts_progress');
+
+  document.getElementById('js-pct').textContent           = js.pct + '%';
+  document.getElementById('js-bar').style.width           = js.pct + '%';
+  document.getElementById('js-lessons-count').textContent = `${js.done} / 15 lessons`;
+
+  document.getElementById('html-pct').textContent           = html.pct + '%';
+  document.getElementById('html-bar').style.width           = html.pct + '%';
+  document.getElementById('html-lessons-count').textContent = `${html.done} / 15 lessons`;
+
+  document.getElementById('sql-pct').textContent           = sql.pct + '%';
+  document.getElementById('sql-bar').style.width           = sql.pct + '%';
+  document.getElementById('sql-lessons-count').textContent = `${sql.done} / 15 lessons`;
+
+  document.getElementById('cpp-pct').textContent           = cpp.pct + '%';
+  document.getElementById('cpp-bar').style.width           = cpp.pct + '%';
+  document.getElementById('cpp-lessons-count').textContent = `${cpp.done} / 15 lessons`;
+
+  document.getElementById('ts-pct').textContent           = ts.pct + '%';
+  document.getElementById('ts-bar').style.width           = ts.pct + '%';
+  document.getElementById('ts-lessons-count').textContent = `${ts.done} / 15 lessons`;
+
+  // lesson grid
+  const grid = document.getElementById('lesson-grid');
+  grid.innerHTML = LESSONS.map((l, i) => {
+    const done    = state.completedIds.includes(l.id);
+    const unlocked = i === 0 || state.completedIds.includes(LESSONS[i - 1].id);
+    const cls = done ? 'completed' : (!unlocked ? 'locked' : '');
+    return `
+      <a class="lesson-card ${cls}" href="lesson.html?id=${l.id}" ${!unlocked ? 'tabindex="-1"' : ''}>
+        <div class="lesson-num">LESSON ${l.id}</div>
+        <div class="lesson-title">${l.title}</div>
+        <div class="lesson-desc">${l.desc}</div>
+        <div class="lesson-xp">+${l.xp} XP</div>
+      </a>`;
+  }).join('');
+
+  // daily challenge card
+  const todayKey  = new Date().toISOString().slice(0, 10);
+  const CHALLENGES = [
+    { title: "FizzBuzz",          xp: 75,  difficulty: "Easy"   },
+    { title: "Palindrome Check",  xp: 80,  difficulty: "Easy"   },
+    { title: "Sum of Digits",     xp: 80,  difficulty: "Easy"   },
+    { title: "Count Vowels",      xp: 75,  difficulty: "Easy"   },
+    { title: "Reverse a List",    xp: 80,  difficulty: "Easy"   },
+    { title: "Fibonacci Sequence",xp: 100, difficulty: "Medium" },
+    { title: "Word Frequency",    xp: 100, difficulty: "Medium" },
+  ];
+  function dayOfYear() {
+    const now = new Date(), start = new Date(now.getFullYear(), 0, 0);
+    return Math.floor((now - start) / 86400000);
+  }
+  const dc = CHALLENGES[dayOfYear() % CHALLENGES.length];
+  const done = state.lastChallenge === todayKey;
+  document.getElementById('daily-title').textContent = dc.title;
+  document.getElementById('daily-xp').textContent    = done ? '✓ Done' : `+${dc.xp} XP`;
+  document.getElementById('daily-xp').style.color    = done ? 'var(--green)' : 'var(--red)';
+  document.getElementById('daily-status').textContent = done ? 'Completed today' : 'Not done yet';
+  document.getElementById('daily-tag').textContent   = done ? '✓ Done' : dc.difficulty;
+  if (done) {
+    document.getElementById('daily-tag').style.cssText = 'background:rgba(74,222,128,0.08);color:var(--green);border:1px solid rgba(74,222,128,0.18);font-size:0.67rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:7px;';
+  }
+
+  // badges
+  const badgeRow = document.getElementById('badge-row');
+  badgeRow.innerHTML = BADGES.map(b => {
+    const earned = b.condition({ xp: state.xp, streak: state.streak, level, lessonsCompleted: state.lessonsCompleted });
+    return `
+      <div class="badge ${earned ? '' : 'locked-badge'}" title="${b.name}">
+        <div class="badge-icon">${b.icon}</div>
+        <div class="badge-name">${b.name}</div>
+      </div>`;
+  }).join('');
+}
+
+render();
+
+// ── Stripe post-payment upgrade ────────────────────────────
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('upgraded') !== 'true') return;
+
+  // Upgrade current user to Pro in localStorage
+  try {
+    var session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+    if (session && session.userId) {
+      var users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+      var idx = users.findIndex(function(u) { return u.id === session.userId; });
+      if (idx !== -1) {
+        users[idx].plan = 'pro';
+        users[idx].planActivated = new Date().toISOString();
+        localStorage.setItem('helix_users', JSON.stringify(users));
+      }
+    }
+  } catch(e) {}
+
+  // Clean the URL so refreshing doesn't re-trigger
+  window.history.replaceState({}, '', 'dashboard.html');
+
+  // Show success toast
+  var toast = document.createElement('div');
+  toast.innerHTML = '🎉 Welcome to Helix Pro! All lessons are now unlocked.';
+  toast.style.cssText = [
+    'position:fixed', 'bottom:28px', 'left:50%', 'transform:translateX(-50%)',
+    'background:linear-gradient(135deg,#6366F1,#8B5CF6)',
+    'color:#fff', 'font-family:Inter,sans-serif', 'font-size:0.9rem',
+    'font-weight:600', 'padding:14px 28px', 'border-radius:12px',
+    'box-shadow:0 8px 32px rgba(99,102,241,0.45)',
+    'z-index:9999', 'opacity:0', 'transition:opacity 0.4s ease',
+    'white-space:nowrap'
+  ].join(';');
+  document.body.appendChild(toast);
+  requestAnimationFrame(function() { toast.style.opacity = '1'; });
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    setTimeout(function() { toast.remove(); }, 400);
+  }, 5000);
+
+  // Re-render to reflect Pro status
+  render();
+})();
+
+// ── Mobile menu ────────────────────────────────────────────
+function openMobileMenu() {
+  document.getElementById('hamburger').classList.add('open');
+  document.getElementById('mobile-overlay').classList.add('open');
+  document.getElementById('mobile-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu() {
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+  document.getElementById('mobile-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('hamburger').addEventListener('click', function() {
+  this.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+});
+
+// ── Logout ─────────────────────────────────────────────────
+function helixLogout() {
+  localStorage.removeItem('helix_session');
+  window.location.href = 'login.html';
+}
+
+// ── Empty State ────────────────────────────────────────────
+(function() {
+  function langDoneES(key) { var s=localStorage.getItem(key); return s?(JSON.parse(s).completedIds||[]).length:0; }
+  var pyState = JSON.parse(localStorage.getItem('helix_progress') || '{}');
+  var pyDoneES = (pyState.completedIds || []).length;
+  var totalDoneES = pyDoneES + langDoneES('helix_js_progress') + langDoneES('helix_html_progress') + langDoneES('helix_sql_progress') + langDoneES('helix_cpp_progress') + langDoneES('helix_ts_progress');
+  var emptyState = document.getElementById('empty-state');
+  var normalContent = document.getElementById('normal-content');
+  if (emptyState) emptyState.style.display = totalDoneES === 0 ? 'block' : 'none';
+  if (normalContent) normalContent.style.display = totalDoneES === 0 ? 'none' : 'block';
+})();
+
+// ── Onboarding Modal ───────────────────────────────────────
+(function() {
+  if (localStorage.getItem('helix_onboarded')) return;
+  var curSession = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!curSession) return;
+  var username = curSession.username || 'there';
+  var selectedLang = null;
+
+  var LANGS = [
+    { emoji: '🐍', name: 'Python',      desc: 'Great for beginners. Data, AI, scripting.', href: 'lesson.html' },
+    { emoji: '⚡', name: 'JavaScript',  desc: 'The language of the web.',                  href: 'lesson-js.html' },
+    { emoji: '🌐', name: 'HTML & CSS',  desc: 'Build your first webpage.',                 href: 'lesson-html.html' },
+    { emoji: '🗄️', name: 'SQL',         desc: 'Query databases like a pro.',               href: 'lesson-sql.html' },
+    { emoji: '📘', name: 'TypeScript',  desc: 'JavaScript with superpowers.',              href: 'lesson-ts.html' },
+    { emoji: '⚙️', name: 'C++',         desc: 'Speed and control.',                        href: 'lesson-cpp.html' },
+  ];
+
+  function showStep(n) {
+    var card = document.getElementById('onboarding-card');
+    if (!card) return;
+    if (n === 1) {
+      card.innerHTML = '<div class="ob-step">' +
+        '<svg width="60" height="30" viewBox="0 0 60 30" fill="none" aria-hidden="true" style="overflow:hidden;display:block;margin:0 auto;">' +
+          '<defs><clipPath id="dna-ob-c"><rect width="60" height="30"/></clipPath></defs>' +
+          '<g clip-path="url(#dna-ob-c)">' +
+            '<path d="M-44,15 Q-38.5,3 -33,15 Q-27.5,27 -22,15 Q-16.5,3 -11,15 Q-5.5,27 0,15 Q5.5,3 11,15 Q16.5,27 22,15 Q27.5,3 33,15 Q38.5,27 44,15 Q49.5,3 55,15 Q60.5,27 66,15 Q71.5,3 77,15 Q82.5,27 88,15" stroke="white" stroke-linecap="round" fill="none">' +
+              '<animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
+              '<animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
+              '<animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>' +
+            '</path>' +
+            '<path d="M-44,15 Q-38.5,27 -33,15 Q-27.5,3 -22,15 Q-16.5,27 -11,15 Q-5.5,3 0,15 Q5.5,27 11,15 Q16.5,3 22,15 Q27.5,27 33,15 Q38.5,3 44,15 Q49.5,27 55,15 Q60.5,3 66,15 Q71.5,27 77,15 Q82.5,3 88,15" stroke="white" stroke-linecap="round" fill="none">' +
+              '<animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
+              '<animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
+              '<animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>' +
+            '</path>' +
+          '</g>' +
+        '</svg>' +
+        '<h2>Welcome to Helix, ' + username + '! 🧬</h2>' +
+        '<p>You\'re about to start your coding journey. Helix teaches you real programming — no setup, no fluff, just code that actually runs.</p>' +
+        '<p style="color:var(--text-2);font-size:0.875rem;">Takes about 30 seconds to get you set up.</p>' +
+        '<button class="ob-btn ob-btn-primary" id="ob-btn-1">Let\'s go →</button>' +
+      '</div>';
+      document.getElementById('ob-btn-1').onclick = function() { showStep(2); };
+    } else if (n === 2) {
+      card.innerHTML = '<div class="ob-step">' +
+        '<p class="step-label">Step 2 of 3</p>' +
+        '<h2>Pick your first language</h2>' +
+        '<p>Don\'t worry — you can come back and learn all of them. Just pick one to start.</p>' +
+        '<div class="ob-lang-grid" id="ob-lang-grid">' +
+          LANGS.map(function(l, i) {
+            return '<div class="ob-lang-card" data-i="' + i + '">' +
+              '<div class="ob-lang-icon">' + l.emoji + '</div>' +
+              '<div class="ob-lang-name">' + l.name + '</div>' +
+              '<div class="ob-lang-desc">' + l.desc + '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+        '<button class="ob-btn ob-btn-primary" id="ob-btn-2" disabled>Next →</button>' +
+      '</div>';
+      document.getElementById('ob-lang-grid').addEventListener('click', function(e) {
+        var cardEl = e.target.closest('.ob-lang-card');
+        if (!cardEl) return;
+        document.querySelectorAll('.ob-lang-card').forEach(function(c) { c.classList.remove('selected'); });
+        cardEl.classList.add('selected');
+        selectedLang = LANGS[parseInt(cardEl.dataset.i)];
+        document.getElementById('ob-btn-2').disabled = false;
+      });
+      document.getElementById('ob-btn-2').onclick = function() { showStep(3); };
+    } else if (n === 3) {
+      card.innerHTML = '<div class="ob-step">' +
+        '<p class="step-label">Step 3 of 3</p>' +
+        '<div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.12);border:2px solid rgba(16,185,129,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:1.8rem;color:var(--green);">✓</div>' +
+        '<h2>You\'re all set!</h2>' +
+        '<p>Starting you on <strong>' + (selectedLang ? selectedLang.name : '') + '</strong>. Your first lesson is ready and waiting.</p>' +
+        '<button class="ob-btn ob-btn-primary" id="ob-btn-3">Start learning →</button>' +
+      '</div>';
+      document.getElementById('ob-btn-3').onclick = function() {
+        localStorage.setItem('helix_onboarded', '1');
+        document.getElementById('onboarding-overlay').style.display = 'none';
+        if (selectedLang) window.location.href = selectedLang.href + '?id=1';
+      };
+    }
+  }
+
+  setTimeout(function() {
+    var overlay = document.getElementById('onboarding-overlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      showStep(1);
+    }
+  }, 300);
+})();
+
+</script>
+
+<!-- ─── ONBOARDING OVERLAY ──────────────────────────────── -->
+<div id="onboarding-overlay" style="display:none; position:fixed; inset:0; z-index:500; background:rgba(5,8,22,0.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); align-items:center; justify-content:center; padding:24px;">
+  <div id="onboarding-card" style="background:#0d1120; border:1px solid rgba(99,102,241,0.3); border-radius:24px; padding:48px 40px; max-width:520px; width:100%; box-shadow:0 0 80px rgba(99,102,241,0.18); position:relative;">
+    <!-- Steps are injected by JS -->
+  </div>
+</div>
+
+</body>
+</html>

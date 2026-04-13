@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>About — Helix</title>
+  <meta name="description" content="Learning to code changed everything for us. We built Helix to pass that forward." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       DESIGN TOKENS
+    ========================================================= */
+    :root {
+      --bg:         #050816;
+      --bg-2:       #0C1022;
+      --bg-card:    rgba(255,255,255,0.04);
+      --border:     rgba(255,255,255,0.07);
+      --border-hi:  rgba(99,102,241,0.3);
+      --primary:    #6366F1;
+      --primary-l:  #818CF8;
+      --cyan:       #22D3EE;
+      --accent:     #F59E0B;
+      --text:       #EEF2F8;
+      --text-2:     #8892A4;
+      --text-3:     #2D3A4E;
+      --green:      #10B981;
+      --red:        #EF4444;
+      --violet:     #8B5CF6;
+      --radius:     16px;
+      --nav-h:      64px;
+    }
+
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* =========================================================
+       AURORA
+    ========================================================= */
+    .aurora {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      filter: blur(90px) saturate(130%);
+    }
+
+    .orb { position: absolute; border-radius: 50%; }
+
+    .orb-1 {
+      width: 900px; height: 900px;
+      background: radial-gradient(circle, rgba(99,102,241,0.55) 0%, transparent 65%);
+      top: -200px; left: -200px;
+      animation: drift1 22s ease-in-out alternate infinite;
+    }
+    .orb-2 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 65%);
+      bottom: -100px; right: -100px;
+      animation: drift2 17s ease-in-out alternate infinite;
+    }
+    .orb-3 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 65%);
+      top: 10%; right: 15%;
+      animation: drift3 14s ease-in-out alternate infinite;
+    }
+    .orb-4 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 65%);
+      bottom: 20%; left: 30%;
+      animation: drift4 28s ease-in-out alternate infinite;
+    }
+    .orb-5 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 65%);
+      top: 50%; left: 60%;
+      animation: drift5 19s ease-in-out alternate infinite;
+    }
+
+    @keyframes drift1 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(80px, 120px) scale(1.08); }
+      66%  { transform: translate(-60px, 200px) scale(0.95); }
+      100% { transform: translate(140px, 60px) scale(1.05); }
+    }
+    @keyframes drift2 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(-100px, -80px) scale(1.1); }
+      66%  { transform: translate(60px, -150px) scale(0.9); }
+      100% { transform: translate(-80px, -40px) scale(1.05); }
+    }
+    @keyframes drift3 {
+      0%   { transform: translate(0, 0) scale(1); }
+      25%  { transform: translate(-120px, 60px) scale(1.15); }
+      75%  { transform: translate(80px, -100px) scale(0.88); }
+      100% { transform: translate(-40px, 80px) scale(1.06); }
+    }
+    @keyframes drift4 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(100px, -60px) scale(1.12); }
+      66%  { transform: translate(-80px, 100px) scale(0.93); }
+      100% { transform: translate(60px, -80px) scale(1.08); }
+    }
+    @keyframes drift5 {
+      0%   { transform: translate(0, 0) scale(1); }
+      40%  { transform: translate(-90px, 70px) scale(1.2); }
+      70%  { transform: translate(110px, -50px) scale(0.85); }
+      100% { transform: translate(-50px, 110px) scale(1.1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* =========================================================
+       GRAIN OVERLAY
+    ========================================================= */
+    .grain {
+      position: fixed; inset: 0; z-index: 1; opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+    }
+
+    /* =========================================================
+       LAYOUT HELPERS
+    ========================================================= */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      position: relative;
+      z-index: 2;
+      padding: 96px 0;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* =========================================================
+       NAV
+    ========================================================= */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      background: rgba(5,8,22,0.6);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-2);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 20px rgba(99,102,241,0.45);
+    }
+
+    /* =========================================================
+       PAGE HERO
+    ========================================================= */
+    .page-hero {
+      position: relative;
+      z-index: 2;
+      padding: calc(var(--nav-h) + 88px) 0 72px;
+      text-align: center;
+    }
+
+    .page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--primary-l);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .page-hero-h1 {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+      margin-bottom: 24px;
+    }
+
+    .page-hero-sub {
+      color: var(--text-2);
+      font-size: 1.1rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* =========================================================
+       MISSION / PULL QUOTE
+    ========================================================= */
+    .mission-section {
+      position: relative;
+      z-index: 2;
+      padding: 0 0 96px;
+      text-align: center;
+    }
+
+    .mission-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .mission-card {
+      position: relative;
+      background: rgba(99,102,241,0.04);
+      border: 1px solid rgba(99,102,241,0.15);
+      border-radius: 24px;
+      padding: 56px 48px 48px;
+      overflow: hidden;
+    }
+
+    .mission-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.5), transparent);
+    }
+
+    .quote-mark {
+      font-family: Georgia, serif;
+      font-size: 6rem;
+      line-height: 0.5;
+      color: var(--primary);
+      opacity: 0.25;
+      display: block;
+      margin-bottom: 24px;
+      user-select: none;
+    }
+
+    .mission-quote {
+      font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+      font-weight: 500;
+      line-height: 1.7;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      font-style: italic;
+      margin-bottom: 28px;
+    }
+
+    .mission-attr {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+    }
+
+    /* =========================================================
+       STORY SECTION
+    ========================================================= */
+    .story-section {
+      position: relative;
+      z-index: 2;
+      padding: 0 0 96px;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .story-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-l);
+      margin-bottom: 16px;
+    }
+
+    .story-h2 {
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.12;
+      margin-bottom: 28px;
+    }
+
+    .story-body p {
+      color: var(--text-2);
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .story-body p:last-child { margin-bottom: 0; }
+
+    .story-body strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Helix visual card */
+    .story-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .helix-glow-card {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      background: rgba(99,102,241,0.06);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 44px 28px;
+    }
+
+    .helix-glow-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.15), transparent 40%, rgba(34,211,238,0.08));
+      pointer-events: none;
+    }
+
+    /* Inner glow rings */
+    .helix-glow-card::after {
+      content: '';
+      position: absolute;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 65%);
+      animation: pulse-glow 3.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50%       { transform: scale(1.12); opacity: 1; }
+    }
+
+    .helix-logo-large {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    /* =========================================================
+       VALUES SECTION
+    ========================================================= */
+    .values-section {
+      position: relative;
+      z-index: 2;
+      padding: 0 0 96px;
+    }
+
+    .values-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .values-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-l);
+      margin-bottom: 14px;
+    }
+
+    .values-h2 {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.12;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .value-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .value-card:hover {
+      border-color: rgba(99,102,241,0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+
+    .value-icon {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: block;
+      line-height: 1;
+    }
+
+    .value-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .value-desc {
+      font-size: 0.92rem;
+      color: var(--text-2);
+      line-height: 1.75;
+    }
+
+    /* =========================================================
+       PHILOSOPHY SECTION ("Built different")
+    ========================================================= */
+    .philosophy-section {
+      position: relative;
+      z-index: 2;
+      padding: 0 0 96px;
+    }
+
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 72px;
+      align-items: start;
+    }
+
+    .philosophy-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 16px;
+    }
+
+    .philosophy-h2 {
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.12;
+      margin-bottom: 32px;
+    }
+
+    .philosophy-body p {
+      color: var(--text-2);
+      font-size: 1rem;
+      line-height: 1.85;
+      margin-bottom: 22px;
+    }
+    .philosophy-body p:last-child { margin-bottom: 0; }
+
+    .stats-card {
+      position: sticky;
+      top: calc(var(--nav-h) + 24px);
+      background: rgba(99,102,241,0.06);
+      border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 24px;
+      padding: 40px 36px;
+      overflow: hidden;
+    }
+
+    .stats-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.5), transparent);
+    }
+
+    .stats-card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 20px 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+
+    .stat-item:hover {
+      border-color: rgba(99,102,241,0.3);
+      transform: translateY(-2px);
+    }
+
+    .stat-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #818CF8, #22D3EE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* =========================================================
+       TEAM SECTION
+    ========================================================= */
+    .team-section {
+      position: relative;
+      z-index: 2;
+      padding: 0 0 96px;
+    }
+
+    .team-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .team-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary-l);
+      margin-bottom: 14px;
+    }
+
+    .team-h2 {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.12;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .team-card {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 32px 36px;
+      text-align: center;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .team-card:hover {
+      border-color: rgba(99,102,241,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(99,102,241,0.12);
+    }
+
+    .team-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      position: relative;
+    }
+
+    .team-avatar::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: inherit;
+      filter: blur(12px);
+      opacity: 0.4;
+      z-index: -1;
+    }
+
+    .avatar-indigo { background: linear-gradient(135deg, #6366F1, #818CF8); }
+    .avatar-cyan    { background: linear-gradient(135deg, #0891B2, #22D3EE); }
+    .avatar-violet  { background: linear-gradient(135deg, #7C3AED, #8B5CF6); }
+
+    .team-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .team-role {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--primary-l);
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 100px;
+      padding: 4px 12px;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+    }
+
+    .team-bio {
+      font-size: 0.88rem;
+      color: var(--text-2);
+      line-height: 1.75;
+    }
+
+    /* =========================================================
+       TIMELINE / MILESTONES SECTION
+    ========================================================= */
+    .timeline-section {
+      position: relative;
+      z-index: 2;
+      padding: 0 0 96px;
+    }
+
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .timeline-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 14px;
+    }
+
+    .timeline-h2 {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.12;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 760px;
+      margin: 0 auto;
+      padding-left: 40px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--cyan) 50%, var(--violet) 100%);
+      opacity: 0.4;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 48px;
+    }
+
+    .timeline-item:last-child { margin-bottom: 0; }
+
+    .timeline-dot {
+      position: absolute;
+      left: -36px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 12px rgba(99,102,241,0.5);
+    }
+
+    .timeline-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .timeline-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .timeline-body {
+      font-size: 0.92rem;
+      color: var(--text-2);
+      line-height: 1.75;
+      max-width: 580px;
+    }
+
+    /* =========================================================
+       CTA SECTION
+    ========================================================= */
+    .cta-section {
+      position: relative;
+      z-index: 2;
+      padding: 100px 0;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.07) 0%, transparent 70%);
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .cta-sub {
+      color: var(--text-2);
+      font-size: 1rem;
+      max-width: 420px;
+      margin: 0 auto 32px;
+      line-height: 1.65;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 32px rgba(99,102,241,0.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-l);
+      box-shadow: 0 0 48px rgba(99,102,241,0.55);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    }
+
+    .btn-outline:hover {
+      border-color: rgba(99,102,241,0.5);
+      background: rgba(99,102,241,0.08);
+      transform: translateY(-1px);
+    }
+
+    .cta-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-h2-large {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    .cta-sub-large {
+      color: var(--text-2);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto 40px;
+      line-height: 1.65;
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    .footer {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border);
+      padding: 48px 0 28px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    .footer-left { display: flex; flex-direction: column; gap: 8px; }
+
+    .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-col-title {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-2); margin-bottom: 10px;
+    }
+    .footer-col a {
+      display: block; font-size: 0.85rem; color: var(--text-3);
+      text-decoration: none; margin-bottom: 7px;
+      transition: color 0.18s;
+    }
+    .footer-col a:hover { color: var(--text); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 28px auto 0; padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .footer-brand.visible { opacity: 1; transform: translateY(0); }
+
+    .footer-tagline {
+      font-size: 0.85rem;
+      margin-left: 6px;
+      font-weight: 500;
+      background: linear-gradient(
+        90deg,
+        var(--text-3) 0%, var(--text-2) 25%, var(--primary-l) 50%,
+        var(--cyan) 65%, var(--text-2) 80%, var(--text-3) 100%
+      );
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-3);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+    }
+    .footer-copy.visible { opacity: 1; transform: translateY(0); }
+
+    .footer-wave {
+      display: inline-block;
+      animation: breathe 4s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 0.8; transform: scale(1.06); }
+    }
+
+    /* =========================================================
+       DIVIDER
+    ========================================================= */
+    .section-divider {
+      position: relative;
+      z-index: 2;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 24px;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .story-grid { grid-template-columns: 1fr; gap: 40px; }
+      .story-visual { order: -1; }
+      .helix-glow-card { max-width: 260px; }
+      .values-grid { grid-template-columns: repeat(2, 1fr); }
+      .philosophy-grid { grid-template-columns: 1fr; gap: 48px; }
+      .stats-card { position: static; }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .cta-btn-group { flex-direction: column; align-items: center; }
+    }
+
+    @media (max-width: 600px) {
+      .mission-card { padding: 36px 24px 32px; }
+      .section { padding: 64px 0; }
+      .values-grid { grid-template-columns: 1fr 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .timeline { padding-left: 32px; }
+      .footer-inner { flex-direction: column; gap: 24px; }
+      .footer-cols { gap: 24px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    @media (min-width: 901px) and (max-width: 1100px) {
+      .values-grid { grid-template-columns: repeat(2, 1fr); }
+      .philosophy-grid { grid-template-columns: 1fr 360px; gap: 48px; }
+      .team-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- AURORA -->
+  <div class="aurora" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="orb orb-5"></div>
+  </div>
+
+  <!-- GRAIN -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">
+        <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+          <defs><clipPath id="dna-about-c"><rect width="40" height="20"/></clipPath></defs>
+          <g clip-path="url(#dna-about-c)">
+            <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+              <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+              <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        </svg>
+        Helix
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#how-it-works">How it works</a></li>
+        <li><a href="index.html#languages">Languages</a></li>
+        <li><a href="pricing.html">Plans</a></li>
+      </ul>
+
+      <div id="nav-cta-area"><a href="signup.html" class="nav-cta">Get started free</a></div>
+    </div>
+  </nav>
+<script>
+(function() {
+  var _sess = null;
+  try { _sess = JSON.parse(localStorage.getItem('helix_session') || 'null'); } catch(e) {}
+  var _ctaArea = document.getElementById('nav-cta-area');
+  if (!_ctaArea || !_sess) return;
+  var _users = [];
+  try { _users = JSON.parse(localStorage.getItem('helix_users') || '[]'); } catch(e) {}
+  var _u = _users.find(function(u) { return u.id === _sess.userId; });
+  var _html = '<div style="display:flex;align-items:center;gap:0.5rem;">';
+  _html += '<a href="dashboard.html" class="nav-cta" style="background:transparent;border:1px solid rgba(99,102,241,0.4);color:var(--text);">Dashboard</a>';
+  if (_u && _u.isAdmin) {
+    _html += '<a href="admin.html" class="nav-cta" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#EF4444;padding:8px 12px;" title="Admin Panel">⚙ Admin</a>';
+  }
+  if (_u && _u.profilePic) {
+    _html += '<a href="profile.html"><img src="' + _u.profilePic + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(99,102,241,0.4);display:block;" alt="Profile"></a>';
+  } else {
+    var _init = (_sess.username || 'Y')[0].toUpperCase();
+    _html += '<a href="profile.html" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#22D3EE);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;text-decoration:none;flex-shrink:0;">' + _init + '</a>';
+  }
+  _html += '</div>';
+  _ctaArea.innerHTML = _html;
+})();
+</script>
+
+  <!-- =========================================================
+       HERO
+  ========================================================= -->
+  <section class="page-hero" aria-label="About hero">
+    <div class="container">
+      <div class="page-badge">Our story</div>
+      <h1 class="page-hero-h1">
+        Why we built<br />
+        <span class="gradient-text">Helix.</span>
+      </h1>
+      <p class="page-hero-sub">
+        Learning to code changed everything for us. We built Helix to pass that forward.
+      </p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       MISSION / PULL QUOTE
+  ========================================================= -->
+  <section class="mission-section" aria-label="Mission">
+    <div class="mission-inner">
+      <div class="mission-card">
+        <span class="quote-mark" aria-hidden="true">&ldquo;</span>
+        <p class="mission-quote">
+          A helix spins endlessly &mdash; constantly moving forward and evolving, infinitely without rest, always one step ahead. That&rsquo;s what we want for every learner.
+        </p>
+        <p class="mission-attr">&mdash; The Helix Manifesto</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       STORY
+  ========================================================= -->
+  <section class="story-section section" aria-labelledby="story-title">
+    <div class="container">
+      <div class="story-grid">
+
+        <!-- Left: Text -->
+        <div>
+          <p class="story-label">The origin coil</p>
+          <h2 class="story-h2" id="story-title">
+            The helix that<br />
+            <span class="gradient-text">started it all.</span>
+          </h2>
+          <div class="story-body">
+            <p>
+              We were frustrated. Every platform we tried had the same problems: too much setup, too much theory, not enough <em>doing</em>. You'd spend forty minutes configuring a local environment before writing a single line of code. You'd read paragraphs of explanation before running your first function. <strong>Real learning happens when you run real code</strong> — not when you read about it, not when you watch it, and certainly not when you're still downloading dependencies.
+            </p>
+            <p>
+              The double helix wasn't just a logo — it was the metaphor we kept coming back to. Two strands, intertwined and inseparable: <strong>knowledge and practice</strong>. Theory and execution. Problem and solution. One doesn't work without the other. They spiral forward together, each coil building on the last, always moving, never backtracking. That's how we learn. That's how the helix grows.
+            </p>
+            <p>
+              Today, Helix is live with <strong>6 languages</strong> and <strong>90 lessons</strong>, all running directly in your browser. Python through Pyodide. JavaScript through native execution. SQL, TypeScript, HTML, CSS, and C++ — the full coil. The first 5 strands of every track are free, forever. For those who want to go all the way, Pro unlocks the rest. No setup. No ceiling. Just the helix, spinning forward.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Visual -->
+        <div class="story-visual" aria-hidden="true">
+          <div class="helix-glow-card">
+            <div class="helix-logo-large">
+              <svg viewBox="0 0 250 90" xmlns="http://www.w3.org/2000/svg" fill="none" style="width:100%;height:auto;display:block;overflow:hidden;">
+                <defs>
+                  <clipPath id="helix-story-c"><rect width="250" height="90"/></clipPath>
+                  <linearGradient id="hsg1" x1="0" y1="0" x2="250" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#6366F1"/>
+                    <stop offset="33%" stop-color="#22D3EE"/>
+                    <stop offset="66%" stop-color="#8B5CF6"/>
+                    <stop offset="100%" stop-color="#6366F1"/>
+                  </linearGradient>
+                  <linearGradient id="hsg2" x1="0" y1="0" x2="250" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#22D3EE"/>
+                    <stop offset="33%" stop-color="#8B5CF6"/>
+                    <stop offset="66%" stop-color="#6366F1"/>
+                    <stop offset="100%" stop-color="#22D3EE"/>
+                  </linearGradient>
+                </defs>
+                <g clip-path="url(#helix-story-c)">
+                  <!-- Rungs connecting the two strands at max-separation points -->
+                  <path d="M-37.5,12 L-37.5,78 M-12.5,12 L-12.5,78 M12.5,12 L12.5,78 M37.5,12 L37.5,78 M62.5,12 L62.5,78 M87.5,12 L87.5,78 M112.5,12 L112.5,78 M137.5,12 L137.5,78 M162.5,12 L162.5,78 M187.5,12 L187.5,78 M212.5,12 L212.5,78 M237.5,12 L237.5,78 M262.5,12 L262.5,78 M287.5,12 L287.5,78"
+                        stroke="rgba(255,255,255,0.14)" stroke-width="1.2" stroke-linecap="round">
+                    <animateTransform attributeName="transform" type="translate" values="0,0;-50,0" dur="3s" repeatCount="indefinite"/>
+                  </path>
+                  <!-- Strand 1: peaks up, troughs down (indigo→cyan→violet gradient) -->
+                  <path d="M-50,45 Q-37.5,-21 -25,45 Q-12.5,111 0,45 Q12.5,-21 25,45 Q37.5,111 50,45 Q62.5,-21 75,45 Q87.5,111 100,45 Q112.5,-21 125,45 Q137.5,111 150,45 Q162.5,-21 175,45 Q187.5,111 200,45 Q212.5,-21 225,45 Q237.5,111 250,45 Q262.5,-21 275,45 Q287.5,111 300,45"
+                        stroke="url(#hsg1)" stroke-linecap="round" fill="none">
+                    <animate attributeName="stroke-width" values="3;1.5;3" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                    <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                    <animateTransform attributeName="transform" type="translate" values="0,0;-50,0" dur="3s" repeatCount="indefinite"/>
+                  </path>
+                  <!-- Strand 2: peaks down, troughs up — anti-phase (cyan→violet→indigo gradient) -->
+                  <path d="M-50,45 Q-37.5,111 -25,45 Q-12.5,-21 0,45 Q12.5,111 25,45 Q37.5,-21 50,45 Q62.5,111 75,45 Q87.5,-21 100,45 Q112.5,111 125,45 Q137.5,-21 150,45 Q162.5,111 175,45 Q187.5,-21 200,45 Q212.5,111 225,45 Q237.5,-21 250,45 Q262.5,111 275,45 Q287.5,-21 300,45"
+                        stroke="url(#hsg2)" stroke-linecap="round" fill="none">
+                    <animate attributeName="stroke-width" values="1.5;3;1.5" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                    <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+                    <animateTransform attributeName="transform" type="translate" values="0,0;-50,0" dur="3s" repeatCount="indefinite"/>
+                  </path>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       VALUES
+  ========================================================= -->
+  <section class="values-section section" aria-labelledby="values-title">
+    <div class="container">
+      <div class="values-header">
+        <p class="values-label">What we stand for</p>
+        <h2 class="values-h2" id="values-title">
+          The strands that<br />
+          <span class="gradient-text">hold us together.</span>
+        </h2>
+      </div>
+
+      <div class="values-grid">
+
+        <!-- Value 1 -->
+        <article class="value-card">
+          <span class="value-icon" role="img" aria-label="Always forward">&#x1F501;</span>
+          <h3 class="value-title">Always Forward</h3>
+          <p class="value-desc">
+            We believe in momentum. Every lesson you complete, every line of code you write, moves you forward. The helix never goes backward — and neither do you once you've started spinning.
+          </p>
+        </article>
+
+        <!-- Value 2 -->
+        <article class="value-card">
+          <span class="value-icon" role="img" aria-label="Real code">&#x1F9EC;</span>
+          <h3 class="value-title">Real Code, Real Learning</h3>
+          <p class="value-desc">
+            No drag-and-drop. No oversimplification. You write real code that actually runs. We respect your intelligence — the helix teaches you to think like a programmer, not just click like one.
+          </p>
+        </article>
+
+        <!-- Value 3 -->
+        <article class="value-card">
+          <span class="value-icon" role="img" aria-label="Infinitely accessible">&#x221E;</span>
+          <h3 class="value-title">Infinitely Accessible</h3>
+          <p class="value-desc">
+            The first 5 lessons of every track are free, forever. We want learning to have no barrier to entry. The helix is for everyone — wherever you're starting, whatever your budget.
+          </p>
+        </article>
+
+        <!-- Value 4 -->
+        <article class="value-card">
+          <span class="value-icon" role="img" aria-label="Community first">&#x1F310;</span>
+          <h3 class="value-title">Community First</h3>
+          <p class="value-desc">
+            Your progress isn't just logged — it's shared. The leaderboard isn't a competition, it's a community. When you climb, you inspire. The helix grows strongest when everyone is spinning.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       PHILOSOPHY ("Built different")
+  ========================================================= -->
+  <section class="philosophy-section section" aria-labelledby="philosophy-title">
+    <div class="container">
+      <div class="philosophy-grid">
+
+        <!-- Left: Text -->
+        <div>
+          <p class="philosophy-label">Built different</p>
+          <h2 class="philosophy-h2" id="philosophy-title">
+            We don't teach code.<br />
+            <span class="gradient-text">We build coders.</span>
+          </h2>
+          <div class="philosophy-body">
+            <p>
+              Most platforms teach you to pass tests. We teach you to think. There's a difference between someone who can follow a tutorial and someone who can solve a problem they've never seen before. Helix is built for the second kind of person.
+            </p>
+            <p>
+              We never dumb things down. If you're writing a Python function, you write a real Python function — not a fill-in-the-blank exercise with training wheels. Real code. Real execution. Real results.
+            </p>
+            <p>
+              Every lesson on Helix is a deliberate step in a larger arc. The helix metaphor isn't decorative — it's structural. Each coil builds on the last. Strand by strand, you become a programmer.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Stats card -->
+        <div>
+          <div class="stats-card">
+            <p class="stats-card-label">Helix by the numbers</p>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number">90</div>
+                <div class="stat-label">Total lessons</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Programming languages</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Learners worldwide</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Lines of setup required</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       TEAM
+  ========================================================= -->
+  <section class="team-section section" aria-labelledby="team-title">
+    <div class="container">
+      <div class="team-header">
+        <p class="team-label">The people behind the helix</p>
+        <h2 class="team-h2" id="team-title">
+          Meet the<br />
+          <span class="gradient-text">founding coil.</span>
+        </h2>
+      </div>
+
+      <div class="team-grid">
+
+        <!-- Alex Mercer -->
+        <article class="team-card">
+          <div class="team-avatar avatar-indigo" aria-hidden="true">AM</div>
+          <h3 class="team-name">Alex Mercer</h3>
+          <span class="team-role">Co-founder &amp; CEO</span>
+          <p class="team-bio">
+            Former computer science teacher who got fed up watching students struggle with setup instead of learning to code.
+          </p>
+        </article>
+
+        <!-- Jordan Voss -->
+        <article class="team-card">
+          <div class="team-avatar avatar-cyan" aria-hidden="true">JV</div>
+          <h3 class="team-name">Jordan Voss</h3>
+          <span class="team-role">Co-founder &amp; CTO</span>
+          <p class="team-bio">
+            Built Helix's browser runtime from scratch. Obsessed with making Python run at native speed in a browser tab.
+          </p>
+        </article>
+
+        <!-- Priya Nair -->
+        <article class="team-card">
+          <div class="team-avatar avatar-violet" aria-hidden="true">PN</div>
+          <h3 class="team-name">Priya Nair</h3>
+          <span class="team-role">Head of Curriculum</span>
+          <p class="team-bio">
+            Designed every lesson arc on Helix. Believes the best programming lesson is one you finish, not one you skip.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       MILESTONES / TIMELINE
+  ========================================================= -->
+  <section class="timeline-section section" aria-labelledby="timeline-title">
+    <div class="container">
+      <div class="timeline-header">
+        <p class="timeline-label">How the coil grew</p>
+        <h2 class="timeline-h2" id="timeline-title">
+          The milestones that<br />
+          <span class="gradient-text">shaped the helix.</span>
+        </h2>
+      </div>
+
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <p class="timeline-date">Jan 2025</p>
+          <h3 class="timeline-title">The idea</h3>
+          <p class="timeline-body">
+            Two teachers, one whiteboard, one impossible question: why can't you just write code in your browser and have it work instantly?
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <p class="timeline-date">Mar 2025</p>
+          <h3 class="timeline-title">First prototype</h3>
+          <p class="timeline-body">
+            Python running in the browser via Pyodide. 30 beta testers. Zero support tickets. They just&hellip; got it.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <p class="timeline-date">Jun 2025</p>
+          <h3 class="timeline-title">Launch</h3>
+          <p class="timeline-body">
+            Helix goes live with Python, JavaScript, and HTML. 1,200 learners in the first week.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <p class="timeline-date">Sep 2025</p>
+          <h3 class="timeline-title">Full coil</h3>
+          <p class="timeline-body">
+            TypeScript, SQL, and C++ added. 90 lessons across 6 languages. The full double helix.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <p class="timeline-date">Apr 2026</p>
+          <h3 class="timeline-title">Today</h3>
+          <p class="timeline-body">
+            10,000+ learners. Daily challenges. Leaderboards. A community. And the helix keeps spinning.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       CTA
+  ========================================================= -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <div class="container">
+      <h2 class="cta-h2-large" id="cta-title">
+        The helix is already<br />
+        <span class="gradient-text">spinning.</span>
+      </h2>
+      <p class="cta-sub-large">10,000 learners started with a single line of code. Yours is next.</p>
+      <div class="cta-btn-group">
+        <a href="signup.html" class="btn-primary">Start for free &#8594;</a>
+        <a href="pricing.html" class="btn-outline">See the plans</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       FOOTER
+  ========================================================= -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <a href="index.html" class="footer-brand" id="footer-brand">
+          <span class="footer-wave" aria-hidden="true">
+            <svg width="22" height="14" viewBox="0 0 44 28" fill="none">
+              <path d="M0,14 Q5.5,4 11,14 Q16.5,24 22,14 Q27.5,4 33,14 Q38.5,24 44,14" stroke="#EEF2F8" stroke-width="2" stroke-linecap="round" fill="none"/>
+              <path d="M0,14 Q5.5,24 11,14 Q16.5,4 22,14 Q27.5,24 33,14 Q38.5,4 44,14" stroke="#EEF2F8" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.6"/>
+            </svg>
+          </span>
+          Helix
+        </a>
+        <span class="footer-tagline">Always forward. Never still.</span>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <div class="footer-col-title">Company</div>
+          <a href="about.html">About Us</a>
+          <a href="faq.html">FAQ</a>
+          <a href="terms.html">Terms</a>
+          <a href="privacy.html">Privacy</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Learn</div>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="pricing.html">Plans</a>
+          <a href="challenge.html">Daily Challenge</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Account</div>
+          <a href="login.html">Sign In</a>
+          <a href="signup.html">Create Account</a>
+          <a href="profile.html">Profile</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy" id="footer-copy">&copy; 2026 Helix &mdash; The helix never rests.</p>
+      <span class="footer-tagline" style="font-size:0.78rem;">Built with purpose.</span>
+    </div>
+  </footer>
+
+  <script>
+    /* Footer fade-in */
+    const footerBrand = document.getElementById('footer-brand');
+    const footerCopy  = document.getElementById('footer-copy');
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          footerBrand.classList.add('visible');
+          setTimeout(() => footerCopy.classList.add('visible'), 200);
+          footerObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    footerObserver.observe(document.querySelector('.footer'));
+
+    /* Fade-in on scroll for value cards */
+    const cards = document.querySelectorAll('.value-card, .mission-card, .helix-glow-card');
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, i * 80);
+          cardObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    cards.forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(24px)';
+      card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      cardObserver.observe(card);
+    });
+  </script>
+</body>
+</html>
