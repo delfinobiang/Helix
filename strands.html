@@ -207,17 +207,20 @@
   <!-- Nav -->
   <nav class="topnav">
     <a class="nav-logo" href="index.html">
-      <svg width="28" height="18" viewBox="0 0 44 28" fill="none">
-        <defs>
-          <linearGradient id="ng1" x1="0" y1="0" x2="44" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#6366F1"/><stop offset="50%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#6366F1"/>
-          </linearGradient>
-          <linearGradient id="ng2" x1="0" y1="0" x2="44" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#22D3EE"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#22D3EE"/>
-          </linearGradient>
-        </defs>
-        <path d="M0 14 Q5.5 4 11 14 Q16.5 24 22 14 Q27.5 4 33 14 Q38.5 24 44 14" stroke="url(#ng1)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <path d="M0 14 Q5.5 24 11 14 Q16.5 4 22 14 Q27.5 24 33 14 Q38.5 4 44 14" stroke="url(#ng2)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-str-c"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-str-c)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
       </svg>
       Helix
     </a>

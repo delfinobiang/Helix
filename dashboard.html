@@ -256,6 +256,37 @@
     }
     .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--primary), var(--cyan)); transition: width 0.5s ease; }
 
+    /* ─── STRAND GROUPS ──────────────────────────────────── */
+    .strand-group { margin-bottom: 2rem; }
+    .strand-group-head {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.85rem 1.1rem; margin-bottom: 0.75rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-left: 3px solid var(--sg-color, var(--primary));
+    }
+    .sg-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; }
+    .sg-text { flex: 1; min-width: 0; }
+    .sg-name { font-size: 0.9rem; font-weight: 800; letter-spacing: -0.01em; }
+    .sg-sub  { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
+    .sg-badge {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 3px 9px; border-radius: 100px;
+      flex-shrink: 0;
+    }
+    .sg-badge.live { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+    .sg-badge.soon { background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid var(--border); }
+    .strand-group .course-card { margin-bottom: 0.6rem; }
+    .strand-group .course-card:last-child { margin-bottom: 0; }
+    .strand-coming {
+      background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 1.1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.82rem; color: var(--text-3);
+    }
+    .strand-coming-icon { font-size: 1.2rem; }
+
     /* ─── LESSON GRID ─────────────────────────────────────── */
     .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
     .lesson-card {
@@ -503,7 +534,6 @@
   </div>
   <span class="sidebar-label" style="margin-top:0;">Learn</span>
   <a class="nav-item active" href="dashboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏠</span> Dashboard</a>
-  <a class="nav-item" href="strands.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🧬</span> All Strands</a>
   <a class="nav-item" href="#courses-section" onclick="closeMobileMenu()"><span class="nav-item-icon">📚</span> Courses</a>
   <a class="nav-item" href="challenge.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
   <span class="sidebar-label">Progress</span>
@@ -522,9 +552,6 @@
     <span class="sidebar-label">Learn</span>
     <a class="nav-item active" href="dashboard.html">
       <span class="nav-item-icon">🏠</span> Dashboard
-    </a>
-    <a class="nav-item" href="strands.html">
-      <span class="nav-item-icon">🧬</span> All Strands
     </a>
     <a class="nav-item" href="#courses-section">
       <span class="nav-item-icon">📚</span> Courses
@@ -651,101 +678,237 @@
       </a>
     </div>
 
-    <!-- Courses -->
+    <!-- Courses / Strands -->
     <div id="courses-section">
       <div class="section-title-row">
-        <div class="section-h">Your Tracks</div>
+        <div class="section-h">All Strands</div>
       </div>
 
-      <a class="course-card" href="#lessons-section" style="--lc:#3776AB;">
-        <div class="course-icon">🐍</div>
-        <div class="course-info">
-          <div class="course-name">Python Fundamentals</div>
-          <div class="course-meta">
-            <span id="course-lessons-count">0 / 15 lessons</span>
-            <span class="course-tag ct-active">Active</span>
+      <!-- ── CODING STRAND ── -->
+      <div class="strand-group">
+        <div class="strand-group-head" style="--sg-color:#6366F1;">
+          <span class="sg-icon">💻</span>
+          <div class="sg-text">
+            <div class="sg-name">Coding</div>
+            <div class="sg-sub">6 languages — Python, JavaScript, HTML &amp; CSS, SQL, C++, TypeScript</div>
           </div>
+          <span class="sg-badge live">Live</span>
         </div>
-        <div class="course-right">
-          <div class="progress-pct" id="course-pct">0%</div>
-          <div class="progress-bar"><div class="progress-fill" id="course-bar" style="width:0%"></div></div>
-        </div>
-      </a>
 
-      <a class="course-card" href="lesson-js.html?id=1" style="--lc:#F7DF1E;">
-        <div class="course-icon">⚡</div>
-        <div class="course-info">
-          <div class="course-name">JavaScript Fundamentals</div>
-          <div class="course-meta">
-            <span id="js-lessons-count">0 / 15 lessons</span>
-            <span class="course-tag ct-active">Active</span>
+        <a class="course-card" href="#lessons-section" style="--lc:#3776AB;">
+          <div class="course-icon">🐍</div>
+          <div class="course-info">
+            <div class="course-name">Python Fundamentals</div>
+            <div class="course-meta">
+              <span id="course-lessons-count">0 / 15 lessons</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
           </div>
-        </div>
-        <div class="course-right">
-          <div class="progress-pct" id="js-pct">0%</div>
-          <div class="progress-bar"><div class="progress-fill" id="js-bar" style="width:0%"></div></div>
-        </div>
-      </a>
+          <div class="course-right">
+            <div class="progress-pct" id="course-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="course-bar" style="width:0%"></div></div>
+          </div>
+        </a>
 
-      <a class="course-card" href="lesson-html.html?id=1" style="--lc:#E34F26;">
-        <div class="course-icon">🏗️</div>
-        <div class="course-info">
-          <div class="course-name">HTML & CSS Essentials</div>
-          <div class="course-meta">
-            <span id="html-lessons-count">0 / 15 lessons</span>
-            <span class="course-tag ct-active">Active</span>
+        <a class="course-card" href="lesson-js.html?id=1" style="--lc:#F7DF1E;">
+          <div class="course-icon">⚡</div>
+          <div class="course-info">
+            <div class="course-name">JavaScript Fundamentals</div>
+            <div class="course-meta">
+              <span id="js-lessons-count">0 / 15 lessons</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
           </div>
-        </div>
-        <div class="course-right">
-          <div class="progress-pct" id="html-pct">0%</div>
-          <div class="progress-bar"><div class="progress-fill" id="html-bar" style="width:0%"></div></div>
-        </div>
-      </a>
+          <div class="course-right">
+            <div class="progress-pct" id="js-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="js-bar" style="width:0%"></div></div>
+          </div>
+        </a>
 
-      <a class="course-card" href="lesson-sql.html?id=1" style="--lc:#00758F;">
-        <div class="course-icon">🗄️</div>
-        <div class="course-info">
-          <div class="course-name">SQL Fundamentals</div>
-          <div class="course-meta">
-            <span id="sql-lessons-count">0 / 15 lessons</span>
-            <span class="course-tag ct-active">Active</span>
+        <a class="course-card" href="lesson-html.html?id=1" style="--lc:#E34F26;">
+          <div class="course-icon">🏗️</div>
+          <div class="course-info">
+            <div class="course-name">HTML &amp; CSS Essentials</div>
+            <div class="course-meta">
+              <span id="html-lessons-count">0 / 15 lessons</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
           </div>
-        </div>
-        <div class="course-right">
-          <div class="progress-pct" id="sql-pct">0%</div>
-          <div class="progress-bar"><div class="progress-fill" id="sql-bar" style="width:0%"></div></div>
-        </div>
-      </a>
+          <div class="course-right">
+            <div class="progress-pct" id="html-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="html-bar" style="width:0%"></div></div>
+          </div>
+        </a>
 
-      <a class="course-card" href="lesson-cpp.html?id=1" style="--lc:#00599C;">
-        <div class="course-icon">⚙️</div>
-        <div class="course-info">
-          <div class="course-name">C++ Fundamentals</div>
-          <div class="course-meta">
-            <span id="cpp-lessons-count">0 / 15 lessons</span>
-            <span class="course-tag ct-active">Active</span>
+        <a class="course-card" href="lesson-sql.html?id=1" style="--lc:#00758F;">
+          <div class="course-icon">🗄️</div>
+          <div class="course-info">
+            <div class="course-name">SQL Fundamentals</div>
+            <div class="course-meta">
+              <span id="sql-lessons-count">0 / 15 lessons</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
           </div>
-        </div>
-        <div class="course-right">
-          <div class="progress-pct" id="cpp-pct">0%</div>
-          <div class="progress-bar"><div class="progress-fill" id="cpp-bar" style="width:0%"></div></div>
-        </div>
-      </a>
+          <div class="course-right">
+            <div class="progress-pct" id="sql-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="sql-bar" style="width:0%"></div></div>
+          </div>
+        </a>
 
-      <a class="course-card" href="lesson-ts.html?id=1" style="--lc:#3178C6;">
-        <div class="course-icon">🔷</div>
-        <div class="course-info">
-          <div class="course-name">TypeScript Fundamentals</div>
-          <div class="course-meta">
-            <span id="ts-lessons-count">0 / 15 lessons</span>
-            <span class="course-tag ct-active">Active</span>
+        <a class="course-card" href="lesson-cpp.html?id=1" style="--lc:#00599C;">
+          <div class="course-icon">⚙️</div>
+          <div class="course-info">
+            <div class="course-name">C++ Fundamentals</div>
+            <div class="course-meta">
+              <span id="cpp-lessons-count">0 / 15 lessons</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" id="cpp-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="cpp-bar" style="width:0%"></div></div>
+          </div>
+        </a>
+
+        <a class="course-card" href="lesson-ts.html?id=1" style="--lc:#3178C6;">
+          <div class="course-icon">🔷</div>
+          <div class="course-info">
+            <div class="course-name">TypeScript Fundamentals</div>
+            <div class="course-meta">
+              <span id="ts-lessons-count">0 / 15 lessons</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" id="ts-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="ts-bar" style="width:0%"></div></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- ── MATHEMATICS STRAND ── -->
+      <div class="strand-group">
+        <div class="strand-group-head" style="--sg-color:#F59E0B;">
+          <span class="sg-icon">🧮</span>
+          <div class="sg-text">
+            <div class="sg-name">Mathematics</div>
+            <div class="sg-sub">6 modules — Logic, Numbers, Algebra, Discrete Math &amp; more</div>
+          </div>
+          <span class="sg-badge live">Live</span>
+        </div>
+
+        <a class="course-card" href="math-logic.html" style="--lc:#F59E0B;">
+          <div class="course-icon">⚡</div>
+          <div class="course-info">
+            <div class="course-name">Boolean Logic &amp; Truth Tables</div>
+            <div class="course-meta">
+              <span>5 lessons · AND, OR, NOT, XOR</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" id="math-logic-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="math-logic-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
+          </div>
+        </a>
+
+        <a class="course-card" href="math-numbers.html" style="--lc:#F59E0B;">
+          <div class="course-icon">🔢</div>
+          <div class="course-info">
+            <div class="course-name">Number Systems &amp; Binary</div>
+            <div class="course-meta">
+              <span>4 lessons · Binary, Hex, Bit Flipper</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" id="math-num-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="math-num-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
+          </div>
+        </a>
+
+        <a class="course-card" href="math-algebra.html" style="--lc:#F59E0B;">
+          <div class="course-icon">📐</div>
+          <div class="course-info">
+            <div class="course-name">Algebra for Programmers</div>
+            <div class="course-meta">
+              <span>5 lessons · Variables, Equations, Functions</span>
+              <span class="course-tag ct-active">Active</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" id="math-alg-pct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="math-alg-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
+          </div>
+        </a>
+
+        <div class="course-card" style="--lc:#2D3A4E;opacity:0.5;pointer-events:none;">
+          <div class="course-icon">🔗</div>
+          <div class="course-info">
+            <div class="course-name">Discrete Mathematics</div>
+            <div class="course-meta">
+              <span>Sets, Graphs, Combinatorics</span>
+              <span class="course-tag ct-soon">Coming Soon</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" style="color:var(--text-3)">—</div>
           </div>
         </div>
-        <div class="course-right">
-          <div class="progress-pct" id="ts-pct">0%</div>
-          <div class="progress-bar"><div class="progress-fill" id="ts-bar" style="width:0%"></div></div>
+
+        <div class="course-card" style="--lc:#2D3A4E;opacity:0.5;pointer-events:none;">
+          <div class="course-icon">🎲</div>
+          <div class="course-info">
+            <div class="course-name">Statistics &amp; Probability</div>
+            <div class="course-meta">
+              <span>Distributions, Inference, Data</span>
+              <span class="course-tag ct-soon">Coming Soon</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" style="color:var(--text-3)">—</div>
+          </div>
         </div>
-      </a>
+
+        <div class="course-card" style="--lc:#2D3A4E;opacity:0.5;pointer-events:none;">
+          <div class="course-icon">🗺️</div>
+          <div class="course-info">
+            <div class="course-name">Pseudocode &amp; Flowcharts</div>
+            <div class="course-meta">
+              <span>Algorithm Design, Visual Thinking</span>
+              <span class="course-tag ct-soon">Coming Soon</span>
+            </div>
+          </div>
+          <div class="course-right">
+            <div class="progress-pct" style="color:var(--text-3)">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CS THEORY STRAND ── -->
+      <div class="strand-group">
+        <div class="strand-group-head" style="--sg-color:#22D3EE;opacity:0.55;">
+          <span class="sg-icon">🔬</span>
+          <div class="sg-text">
+            <div class="sg-name">CS Theory</div>
+            <div class="sg-sub">Big-O, Sorting, Graphs, Data Structures — coming soon</div>
+          </div>
+          <span class="sg-badge soon">Coming Soon</span>
+        </div>
+      </div>
+
+      <!-- ── DATA & AI STRAND ── -->
+      <div class="strand-group">
+        <div class="strand-group-head" style="--sg-color:#10B981;opacity:0.55;">
+          <span class="sg-icon">📊</span>
+          <div class="sg-text">
+            <div class="sg-name">Data &amp; AI</div>
+            <div class="sg-sub">ML fundamentals, neural networks, applied statistics — coming soon</div>
+          </div>
+          <span class="sg-badge soon">Coming Soon</span>
+        </div>
+      </div>
+
     </div>
 
     <!-- Lessons grid -->
@@ -950,6 +1113,19 @@ function render() {
   document.getElementById('ts-pct').textContent           = ts.pct + '%';
   document.getElementById('ts-bar').style.width           = ts.pct + '%';
   document.getElementById('ts-lessons-count').textContent = `${ts.done} / 15 lessons`;
+
+  // Math strand progress
+  const mathProg = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+  const mathMods = mathProg.modules || {};
+  const logicPct = mathMods.logic?.completed ? 100 : 0;
+  const numPct   = mathMods.numbers?.completed ? 100 : 0;
+  const algPct   = mathMods.algebra?.completed ? 100 : 0;
+  document.getElementById('math-logic-pct').textContent = logicPct + '%';
+  document.getElementById('math-logic-bar').style.width = logicPct + '%';
+  document.getElementById('math-num-pct').textContent   = numPct + '%';
+  document.getElementById('math-num-bar').style.width   = numPct + '%';
+  document.getElementById('math-alg-pct').textContent   = algPct + '%';
+  document.getElementById('math-alg-bar').style.width   = algPct + '%';
 
   // lesson grid
   const grid = document.getElementById('lesson-grid');
