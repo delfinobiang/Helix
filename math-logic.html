@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Boolean Logic — Helix Mathematics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --border:   rgba(255,255,255,0.07);
+      --amber:    #F59E0B;
+      --amber-l:  #FCD34D;
+      --orange:   #F97316;
+      --primary:  #6366F1;
+      --cyan:     #22D3EE;
+      --green:    #10B981;
+      --red:      #EF4444;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --nav-h:    60px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 65%); top: -100px; right: 0; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 65%); bottom: -150px; left: -100px; }
+
+    /* Layout */
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: var(--nav-h) 1fr; grid-template-areas: "nav nav" "sidebar main"; min-height: 100vh; position: relative; z-index: 1; }
+
+    /* Topnav */
+    .topnav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: rgba(5,8,22,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .nav-sep { color: var(--text-3); font-size: 1rem; }
+    .nav-title { font-size: 0.85rem; font-weight: 600; color: var(--amber); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-xp { font-size: 0.78rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); padding: 4px 12px; border-radius: 100px; }
+    .nav-back { font-size: 0.8rem; color: var(--text-2); padding: 5px 10px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* Sidebar */
+    .sidebar { grid-area: sidebar; border-right: 1px solid var(--border); background: rgba(8,10,25,0.7); padding: 24px 0; overflow-y: auto; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); }
+    .sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 0 20px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .lesson-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; cursor: pointer; transition: background 0.15s; border-left: 3px solid transparent; }
+    .lesson-item:hover { background: rgba(255,255,255,0.04); }
+    .lesson-item.active { background: rgba(245,158,11,0.08); border-left-color: var(--amber); }
+    .lesson-item.done { opacity: 0.7; }
+    .lesson-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-3); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; flex-shrink: 0; }
+    .lesson-item.active .lesson-dot { border-color: var(--amber); background: rgba(245,158,11,0.15); color: var(--amber); }
+    .lesson-item.done .lesson-dot { border-color: var(--green); background: rgba(16,185,129,0.15); color: var(--green); }
+    .lesson-name { font-size: 0.82rem; font-weight: 500; }
+    .lesson-item.active .lesson-name { color: var(--text); font-weight: 600; }
+
+    /* Progress bar */
+    .sidebar-progress { padding: 16px 20px; border-top: 1px solid var(--border); margin-top: auto; }
+    .progress-lbl { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-2); margin-bottom: 6px; }
+    .progress-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--amber), var(--orange)); border-radius: 100px; transition: width 0.5s ease; }
+
+    /* Main */
+    .main { grid-area: main; padding: 40px 48px; max-width: 820px; }
+
+    /* Lesson header */
+    .lesson-header { margin-bottom: 36px; }
+    .lesson-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+    .lesson-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 12px; }
+    .lesson-intro { font-size: 0.95rem; color: var(--text-2); line-height: 1.7; max-width: 640px; }
+
+    /* Sections */
+    .lesson-section { margin-bottom: 48px; }
+    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .section-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: var(--amber); flex-shrink: 0; }
+    .section-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.75; margin-bottom: 20px; }
+    .section-body strong { color: var(--text); }
+    .section-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 5px; color: var(--amber-l); }
+
+    /* Callout */
+    .callout { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 16px 18px; margin: 16px 0; display: flex; gap: 12px; }
+    .callout-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .callout-text { font-size: 0.855rem; color: var(--text-2); line-height: 1.6; }
+    .callout-text strong { color: var(--text); }
+
+    /* Code example */
+    .code-block { background: rgba(12,16,34,0.8); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 16px 0; }
+    .code-block-header { padding: 10px 16px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-2); background: rgba(255,255,255,0.02); }
+    .code-block-body { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; }
+    .kw { color: #C792EA; } .fn { color: #82AAFF; } .str { color: #C3E88D; } .num { color: #F78C6C; } .cmt { color: rgba(255,255,255,0.28); font-style: italic; } .op { color: rgba(255,255,255,0.5); }
+
+    /* ── INTERACTIVE: Gate Toggles ── */
+    .gate-widget { background: rgba(12,16,34,0.7); border: 1px solid rgba(245,158,11,0.2); border-radius: 16px; padding: 24px; margin: 20px 0; }
+    .gate-widget-title { font-size: 0.78rem; font-weight: 700; color: var(--amber); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px; }
+    .gate-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .gate-row:last-child { margin-bottom: 0; }
+
+    .toggle-btn {
+      width: 72px; height: 36px; border-radius: 100px; border: 2px solid;
+      font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      letter-spacing: 0.04em;
+    }
+    .toggle-btn.false { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); color: #FCA5A5; }
+    .toggle-btn.true { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #6EE7B7; }
+    .toggle-btn:hover { transform: scale(1.05); }
+
+    .gate-op { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700; color: var(--amber); padding: 0 4px; }
+    .gate-eq { color: var(--text-2); font-size: 1rem; }
+
+    .result-badge {
+      width: 80px; height: 36px; border-radius: 100px; display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; transition: all 0.25s;
+      border: 2px solid;
+    }
+    .result-badge.false { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); color: #FCA5A5; }
+    .result-badge.true { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #6EE7B7; }
+
+    .gate-hint { font-size: 0.78rem; color: var(--text-2); margin-top: 10px; font-style: italic; }
+
+    /* ── INTERACTIVE: Truth Table Builder ── */
+    .truth-table-wrap { margin: 20px 0; overflow-x: auto; }
+    .truth-table { border-collapse: collapse; width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+    .truth-table th { padding: 10px 16px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: var(--amber-l); font-weight: 700; text-align: center; }
+    .truth-table td { padding: 10px 16px; border: 1px solid rgba(255,255,255,0.06); text-align: center; }
+    .truth-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .tt-true { color: #6EE7B7; font-weight: 700; }
+    .tt-false { color: #FCA5A5; font-weight: 700; }
+    .tt-input { cursor: pointer; }
+    .tt-answer { background: rgba(99,102,241,0.08); }
+
+    /* Answer buttons in table */
+    .answer-btn { padding: 3px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: var(--text-2); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .answer-btn:hover { border-color: var(--amber); color: var(--amber-l); }
+    .answer-btn.correct { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #6EE7B7; }
+    .answer-btn.wrong { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.35); color: #FCA5A5; animation: shake 0.3s ease; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+    /* ── QUIZ ── */
+    .quiz-card { background: rgba(12,16,34,0.7); border: 1px solid rgba(245,158,11,0.2); border-radius: 16px; padding: 28px; margin: 20px 0; }
+    .quiz-q { font-size: 1rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+    .quiz-q code { font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.07); padding: 2px 8px; border-radius: 6px; color: var(--amber-l); font-size: 0.9em; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quiz-option {
+      padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03); font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: all 0.18s; text-align: left; color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .quiz-option:hover { border-color: var(--amber); background: rgba(245,158,11,0.06); }
+    .quiz-option.selected-correct { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.45); color: #6EE7B7; }
+    .quiz-option.selected-wrong { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); color: #FCA5A5; }
+    .quiz-option.reveal-correct { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
+    .quiz-option:disabled { cursor: default; }
+    .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.87rem; line-height: 1.55; display: none; }
+    .quiz-feedback.correct { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6EE7B7; }
+    .quiz-feedback.wrong { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #FCA5A5; }
+
+    /* ── XP Toast ── */
+    .xp-toast { position: fixed; bottom: 32px; right: 32px; background: rgba(12,16,34,0.95); border: 1px solid rgba(245,158,11,0.4); border-radius: 14px; padding: 16px 22px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 200; transform: translateY(80px); opacity: 0; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; pointer-events: none; }
+    .xp-toast.show { transform: translateY(0); opacity: 1; }
+    .xp-toast-icon { font-size: 1.6rem; }
+    .xp-toast-text strong { font-size: 1rem; color: var(--amber-l); }
+    .xp-toast-text p { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+
+    /* ── Complete Button ── */
+    .complete-btn { display: flex; align-items: center; gap: 10px; margin-top: 40px; padding: 16px 28px; background: linear-gradient(135deg, var(--amber), var(--orange)); color: #fff; border: none; border-radius: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; width: fit-content; }
+    .complete-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+    .complete-btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
+
+    /* Next lesson button */
+    .next-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 13px 24px; background: rgba(245,158,11,0.1); color: var(--amber-l); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .next-btn:hover { background: rgba(245,158,11,0.18); transform: translateX(4px); }
+
+    /* Divider */
+    .lesson-divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "nav" "main"; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+      .quiz-options { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+
+<!-- XP Toast -->
+<div class="xp-toast" id="xpToast">
+  <div class="xp-toast-icon">⚡</div>
+  <div class="xp-toast-text">
+    <strong id="xpToastAmount">+30 XP</strong>
+    <p id="xpToastMsg">Lesson complete!</p>
+  </div>
+</div>
+
+<div class="app">
+  <!-- Top Nav -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">
+        <svg width="22" height="14" viewBox="0 0 44 28" fill="none">
+          <path d="M0 14 Q5.5 4 11 14 Q16.5 24 22 14 Q27.5 4 33 14 Q38.5 24 44 14" stroke="#6366F1" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M0 14 Q5.5 24 11 14 Q16.5 4 22 14 Q27.5 24 33 14 Q38.5 4 44 14" stroke="#22D3EE" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        </svg>
+        Helix
+      </a>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Boolean Logic & Truth Tables</span>
+    </div>
+    <div class="nav-right">
+      <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+      <a href="math.html" class="nav-back">← Mathematics</a>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 01</div>
+
+    <div class="lesson-item active" onclick="scrollToLesson('l1')">
+      <div class="lesson-dot" id="dot-1">1</div>
+      <div class="lesson-name">What is Boolean Logic?</div>
+    </div>
+    <div class="lesson-item" id="item-2" onclick="scrollToLesson('l2')">
+      <div class="lesson-dot" id="dot-2">2</div>
+      <div class="lesson-name">The AND Gate</div>
+    </div>
+    <div class="lesson-item" id="item-3" onclick="scrollToLesson('l3')">
+      <div class="lesson-dot" id="dot-3">3</div>
+      <div class="lesson-name">OR and NOT Gates</div>
+    </div>
+    <div class="lesson-item" id="item-4" onclick="scrollToLesson('l4')">
+      <div class="lesson-dot" id="dot-4">4</div>
+      <div class="lesson-name">XOR & Truth Tables</div>
+    </div>
+    <div class="lesson-item" id="item-5" onclick="scrollToLesson('l5')">
+      <div class="lesson-dot" id="dot-5">5</div>
+      <div class="lesson-name">Final Quiz</div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="sidebar-progress">
+      <div class="progress-lbl"><span>Progress</span><span id="progPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- ═══════════════════════════════════════════════
+         LESSON 1: What is Boolean Logic?
+    ════════════════════════════════════════════════ -->
+    <div id="l1">
+      <div class="lesson-header">
+        <div class="lesson-eyebrow">🧮 Mathematics · Module 01 · Lesson 1 of 5</div>
+        <h1 class="lesson-title">Boolean Logic &<br>Truth Tables</h1>
+        <p class="lesson-intro">Every decision your computer makes — every <code>if</code>, every <code>while</code>, every filter, every search — comes down to one question: <strong>TRUE or FALSE?</strong> That's Boolean logic, and it's the heartbeat of everything digital.</p>
+      </div>
+
+      <div class="lesson-section">
+        <div class="section-title">
+          <div class="section-num">1</div>
+          What is Boolean Logic?
+        </div>
+        <div class="section-body">
+          In 1854, a mathematician named <strong>George Boole</strong> published a system of algebra where every variable had only two possible values: <strong>TRUE</strong> or <strong>FALSE</strong>. He called it "The Laws of Thought."<br><br>
+          Nearly 100 years later, engineers realised that electrical circuits — which are either <strong>ON</strong> or <strong>OFF</strong> — could represent Boole's algebra perfectly. Every transistor in your computer is a Boolean switch. Your phone has roughly 15 billion of them.
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">💡</div>
+          <div class="callout-text">
+            <strong>Boolean in Code</strong><br>
+            In Python, <code>True</code> and <code>False</code> are actual values. In JavaScript, any value can be "truthy" or "falsy". In every language, every condition evaluates to one of these two states.
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">python — boolean values in action</div>
+          <div class="code-block-body">
+<span class="cmt"># Boolean values</span>
+is_logged_in <span class="op">=</span> <span class="kw">True</span>
+has_permission <span class="op">=</span> <span class="kw">False</span>
+
+<span class="cmt"># Every comparison returns a boolean</span>
+score <span class="op">=</span> <span class="num">85</span>
+passed <span class="op">=</span> score <span class="op">>=</span> <span class="num">60</span>   <span class="cmt"># True</span>
+failed <span class="op">=</span> score <span class="op"><</span> <span class="num">60</span>    <span class="cmt"># False</span>
+
+<span class="fn">print</span>(passed)  <span class="cmt"># True</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════
+         LESSON 2: The AND Gate
+    ════════════════════════════════════════════════ -->
+    <div id="l2">
+      <div class="lesson-section">
+        <div class="section-title">
+          <div class="section-num">2</div>
+          The AND Gate — Both must be true
+        </div>
+        <div class="section-body">
+          The <strong>AND</strong> operator returns <code>True</code> only when <strong>both</strong> inputs are true. Think of it like a door that needs two keys: unless both are inserted, the door stays locked.<br><br>
+          In code you write <code>and</code> (Python) or <code>&&</code> (JavaScript/C++).
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">🎮</div>
+          <div class="callout-text"><strong>Try it!</strong> Click the A and B buttons below to toggle them TRUE/FALSE and watch the AND result update live.</div>
+        </div>
+
+        <!-- Interactive AND Gate -->
+        <div class="gate-widget">
+          <div class="gate-widget-title">⚡ Interactive AND Gate</div>
+          <div class="gate-row">
+            <button class="toggle-btn false" id="and-a" onclick="toggleGate('and','a')">A: F</button>
+            <span class="gate-op">AND</span>
+            <button class="toggle-btn false" id="and-b" onclick="toggleGate('and','b')">B: F</button>
+            <span class="gate-eq">=</span>
+            <div class="result-badge false" id="and-result">FALSE</div>
+          </div>
+          <div class="gate-hint" id="and-hint">Both A and B must be TRUE for AND to return TRUE.</div>
+        </div>
+
+        <!-- AND Truth Table -->
+        <div class="truth-table-wrap">
+          <table class="truth-table">
+            <thead>
+              <tr><th>A</th><th>B</th><th>A AND B</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="tt-false">FALSE</td><td class="tt-false">FALSE</td><td class="tt-false">FALSE</td></tr>
+              <tr><td class="tt-false">FALSE</td><td class="tt-true">TRUE</td><td class="tt-false">FALSE</td></tr>
+              <tr><td class="tt-true">TRUE</td><td class="tt-false">FALSE</td><td class="tt-false">FALSE</td></tr>
+              <tr><td class="tt-true">TRUE</td><td class="tt-true">TRUE</td><td class="tt-true">TRUE ✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">python — AND in real code</div>
+          <div class="code-block-body">
+age <span class="op">=</span> <span class="num">20</span>
+has_id <span class="op">=</span> <span class="kw">True</span>
+
+<span class="cmt"># Both conditions must be True</span>
+can_enter <span class="op">=</span> age <span class="op">>=</span> <span class="num">18</span> <span class="kw">and</span> has_id
+<span class="fn">print</span>(can_enter)  <span class="cmt"># True</span>
+
+<span class="cmt"># If either is False, result is False</span>
+age <span class="op">=</span> <span class="num">16</span>
+can_enter <span class="op">=</span> age <span class="op">>=</span> <span class="num">18</span> <span class="kw">and</span> has_id
+<span class="fn">print</span>(can_enter)  <span class="cmt"># False</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════
+         LESSON 3: OR and NOT
+    ════════════════════════════════════════════════ -->
+    <div id="l3">
+      <div class="lesson-section">
+        <div class="section-title">
+          <div class="section-num">3</div>
+          OR and NOT Gates
+        </div>
+        <div class="section-body">
+          <strong>OR</strong> returns <code>True</code> if <em>at least one</em> input is true. Like a door that opens with key A <em>or</em> key B — either one works.<br><br>
+          <strong>NOT</strong> flips the value. <code>True</code> becomes <code>False</code>, and <code>False</code> becomes <code>True</code>. It only takes one input.
+        </div>
+
+        <!-- OR Gate -->
+        <div class="gate-widget">
+          <div class="gate-widget-title">⚡ Interactive OR Gate</div>
+          <div class="gate-row">
+            <button class="toggle-btn false" id="or-a" onclick="toggleGate('or','a')">A: F</button>
+            <span class="gate-op">OR</span>
+            <button class="toggle-btn false" id="or-b" onclick="toggleGate('or','b')">B: F</button>
+            <span class="gate-eq">=</span>
+            <div class="result-badge false" id="or-result">FALSE</div>
+          </div>
+          <div class="gate-hint" id="or-hint">At least one of A or B must be TRUE for OR to return TRUE.</div>
+        </div>
+
+        <!-- NOT Gate -->
+        <div class="gate-widget" style="margin-top:16px;">
+          <div class="gate-widget-title">⚡ Interactive NOT Gate</div>
+          <div class="gate-row">
+            <span class="gate-op">NOT</span>
+            <button class="toggle-btn false" id="not-a" onclick="toggleGate('not','a')">A: F</button>
+            <span class="gate-eq">=</span>
+            <div class="result-badge true" id="not-result">TRUE</div>
+          </div>
+          <div class="gate-hint">NOT flips the value. FALSE becomes TRUE, TRUE becomes FALSE.</div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">python — OR and NOT in real code</div>
+          <div class="code-block-body">
+is_admin <span class="op">=</span> <span class="kw">False</span>
+is_owner <span class="op">=</span> <span class="kw">True</span>
+
+<span class="cmt"># OR: either condition is enough</span>
+can_delete <span class="op">=</span> is_admin <span class="kw">or</span> is_owner
+<span class="fn">print</span>(can_delete)  <span class="cmt"># True</span>
+
+<span class="cmt"># NOT: flip the value</span>
+is_guest <span class="op">=</span> <span class="kw">not</span> is_admin
+<span class="fn">print</span>(is_guest)  <span class="cmt"># True</span>
+
+<span class="cmt"># Combine them</span>
+is_blocked <span class="op">=</span> <span class="kw">False</span>
+can_view <span class="op">=</span> (is_admin <span class="kw">or</span> is_owner) <span class="kw">and</span> <span class="kw">not</span> is_blocked
+<span class="fn">print</span>(can_view)  <span class="cmt"># True</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════
+         LESSON 4: XOR & Truth Table Builder
+    ════════════════════════════════════════════════ -->
+    <div id="l4">
+      <div class="lesson-section">
+        <div class="section-title">
+          <div class="section-num">4</div>
+          XOR & Building a Truth Table
+        </div>
+        <div class="section-body">
+          <strong>XOR</strong> (Exclusive OR) returns <code>True</code> only when the inputs are <em>different</em>. If both are the same — both TRUE or both FALSE — it returns <code>False</code>.<br><br>
+          XOR is used everywhere: encryption, error detection, toggle buttons in UI, even flipping bits. Now let's put everything together and <strong>fill in a truth table yourself</strong>.
+        </div>
+
+        <!-- XOR Gate -->
+        <div class="gate-widget">
+          <div class="gate-widget-title">⚡ Interactive XOR Gate</div>
+          <div class="gate-row">
+            <button class="toggle-btn false" id="xor-a" onclick="toggleGate('xor','a')">A: F</button>
+            <span class="gate-op">XOR</span>
+            <button class="toggle-btn false" id="xor-b" onclick="toggleGate('xor','b')">B: F</button>
+            <span class="gate-eq">=</span>
+            <div class="result-badge false" id="xor-result">FALSE</div>
+          </div>
+          <div class="gate-hint" id="xor-hint">XOR is TRUE only when the inputs are DIFFERENT from each other.</div>
+        </div>
+
+        <div class="callout" style="border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.05);">
+          <div class="callout-icon">🧩</div>
+          <div class="callout-text">
+            <strong>Fill in the Truth Table!</strong> Click the "?" buttons to reveal your answer. See if you can figure it out before clicking.
+          </div>
+        </div>
+
+        <!-- Interactive Truth Table Builder -->
+        <div class="truth-table-wrap">
+          <table class="truth-table" id="xor-table">
+            <thead>
+              <tr><th>A</th><th>B</th><th>A XOR B</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tt-false">FALSE</td>
+                <td class="tt-false">FALSE</td>
+                <td class="tt-answer"><button class="answer-btn" onclick="checkAnswer(this, false, 'xor', 0)">?</button></td>
+              </tr>
+              <tr>
+                <td class="tt-false">FALSE</td>
+                <td class="tt-true">TRUE</td>
+                <td class="tt-answer"><button class="answer-btn" onclick="checkAnswer(this, true, 'xor', 1)">?</button></td>
+              </tr>
+              <tr>
+                <td class="tt-true">TRUE</td>
+                <td class="tt-false">FALSE</td>
+                <td class="tt-answer"><button class="answer-btn" onclick="checkAnswer(this, true, 'xor', 2)">?</button></td>
+              </tr>
+              <tr>
+                <td class="tt-true">TRUE</td>
+                <td class="tt-true">TRUE</td>
+                <td class="tt-answer"><button class="answer-btn" onclick="checkAnswer(this, false, 'xor', 3)">?</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="xor-table-feedback" style="font-size:0.82rem; color:var(--text-2); margin-top:8px;"></p>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ═══════════════════════════════════════════════
+         LESSON 5: Final Quiz
+    ════════════════════════════════════════════════ -->
+    <div id="l5">
+      <div class="lesson-section">
+        <div class="section-title">
+          <div class="section-num">5</div>
+          Final Quiz — Test Your Knowledge
+        </div>
+        <div class="section-body">
+          Answer all 4 questions to complete the lesson and earn your XP. No pressure — wrong answers show you the right one so you learn from them.
+        </div>
+
+        <!-- Q1 -->
+        <div class="quiz-card" id="q1-card">
+          <div class="quiz-q">Question 1 of 4<br><br>What does <code>True AND False</code> evaluate to?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(1, this, false, 'AND needs BOTH inputs to be True.')">TRUE</button>
+            <button class="quiz-option" onclick="answerQuiz(1, this, true, 'Correct! AND only returns True when BOTH inputs are True.')">FALSE</button>
+            <button class="quiz-option" onclick="answerQuiz(1, this, false, 'AND only returns True or False, never a number.')">1</button>
+            <button class="quiz-option" onclick="answerQuiz(1, this, false, 'AND always returns a boolean value.')">null</button>
+          </div>
+          <div class="quiz-feedback" id="q1-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-card" id="q2-card">
+          <div class="quiz-q">Question 2 of 4<br><br>Which operator returns True when inputs are <em>different</em>?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(2, this, false, 'AND returns True only when BOTH inputs are True.')">AND</button>
+            <button class="quiz-option" onclick="answerQuiz(2, this, false, 'OR returns True when at least one input is True.')">OR</button>
+            <button class="quiz-option" onclick="answerQuiz(2, this, true, 'Correct! XOR (Exclusive OR) is True only when inputs differ.')">XOR</button>
+            <button class="quiz-option" onclick="answerQuiz(2, this, false, 'NOT only takes one input and flips it.')">NOT</button>
+          </div>
+          <div class="quiz-feedback" id="q2-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-card" id="q3-card">
+          <div class="quiz-q">Question 3 of 4<br><br>What does <code>NOT True</code> evaluate to?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(3, this, false, 'NOT flips the value — True becomes False.')">TRUE</button>
+            <button class="quiz-option" onclick="answerQuiz(3, this, true, 'Correct! NOT flips the boolean value.')">FALSE</button>
+            <button class="quiz-option" onclick="answerQuiz(3, this, false, 'NOT always returns a boolean.')">0</button>
+            <button class="quiz-option" onclick="answerQuiz(3, this, false, 'NOT always returns a boolean.')">undefined</button>
+          </div>
+          <div class="quiz-feedback" id="q3-feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-card" id="q4-card">
+          <div class="quiz-q">Question 4 of 4<br><br>What does <code>False OR True</code> evaluate to?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(4, this, false, 'OR returns True when at least one input is True.')">FALSE</button>
+            <button class="quiz-option" onclick="answerQuiz(4, this, true, 'Correct! OR returns True when at least one input is True.')">TRUE</button>
+            <button class="quiz-option" onclick="answerQuiz(4, this, false, 'OR always returns a boolean.')">MAYBE</button>
+            <button class="quiz-option" onclick="answerQuiz(4, this, false, 'OR always returns a boolean value.')">ERROR</button>
+          </div>
+          <div class="quiz-feedback" id="q4-feedback"></div>
+        </div>
+
+        <!-- Complete -->
+        <div id="complete-area" style="display:none; text-align:center; padding: 32px 0;">
+          <div style="font-size:3rem; margin-bottom:16px;">🎉</div>
+          <div style="font-size:1.4rem; font-weight:800; margin-bottom:8px; letter-spacing:-0.02em;">Lesson Complete!</div>
+          <div style="font-size:0.9rem; color:var(--text-2); margin-bottom:24px;">You've mastered Boolean Logic & Truth Tables. Well done!</div>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <a href="math.html" class="next-btn">← Back to Mathematics</a>
+            <a href="math-numbers.html" class="next-btn" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4);">Next: Number Systems →</a>
+          </div>
+        </div>
+
+        <button class="complete-btn" id="completeBtn" onclick="completeLesson()" disabled>
+          Complete Lesson & Earn XP →
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  /* ── Auth ── */
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  /* ── State ── */
+  const gateState = {
+    and: { a: false, b: false },
+    or:  { a: false, b: false },
+    not: { a: false },
+    xor: { a: false, b: false }
+  };
+  const quizAnswered = { 1: false, 2: false, 3: false, 4: false };
+  const xorTableAnswered = [false, false, false, false];
+  let lessonXP = 0;
+  const LESSON_XP = 150;
+
+  /* ── Load existing XP ── */
+  const mathProg = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+  const currentXP = mathProg.xp || 0;
+  document.getElementById('navXP').textContent = '⚡ ' + currentXP + ' XP';
+
+  /* ── Toggle Gate ── */
+  function toggleGate(gate, input) {
+    gateState[gate][input] = !gateState[gate][input];
+    updateGate(gate);
+  }
+
+  function updateGate(gate) {
+    const s = gateState[gate];
+    let result;
+
+    if (gate === 'and')  result = s.a && s.b;
+    else if (gate === 'or')   result = s.a || s.b;
+    else if (gate === 'not')  result = !s.a;
+    else if (gate === 'xor')  result = s.a !== s.b;
+
+    /* Update input buttons */
+    if (gate !== 'not') {
+      const btnA = document.getElementById(gate + '-a');
+      const btnB = document.getElementById(gate + '-b');
+      btnA.className = 'toggle-btn ' + (s.a ? 'true' : 'false');
+      btnA.textContent = 'A: ' + (s.a ? 'T' : 'F');
+      btnB.className = 'toggle-btn ' + (s.b ? 'true' : 'false');
+      btnB.textContent = 'B: ' + (s.b ? 'T' : 'F');
+    } else {
+      const btnA = document.getElementById('not-a');
+      btnA.className = 'toggle-btn ' + (s.a ? 'true' : 'false');
+      btnA.textContent = 'A: ' + (s.a ? 'T' : 'F');
+    }
+
+    /* Update result badge */
+    const badge = document.getElementById(gate + '-result');
+    badge.className = 'result-badge ' + (result ? 'true' : 'false');
+    badge.textContent = result ? 'TRUE' : 'FALSE';
+
+    /* Update hints */
+    const hints = {
+      and: s.a && s.b ? '✓ Both are TRUE — AND returns TRUE!' : s.a || s.b ? 'One input is TRUE, but AND needs BOTH.' : 'Neither input is TRUE yet.',
+      or:  result ? '✓ At least one is TRUE — OR returns TRUE!' : 'Both are FALSE — OR returns FALSE.',
+      xor: result ? '✓ The inputs are DIFFERENT — XOR returns TRUE!' : s.a === s.b && s.a ? 'Both are TRUE — XOR returns FALSE (they\'re the same).' : 'Both are FALSE — XOR returns FALSE (they\'re the same).'
+    };
+    const hintEl = document.getElementById(gate + '-hint');
+    if (hintEl && hints[gate]) hintEl.textContent = hints[gate];
+  }
+
+  /* ── Truth Table Answers ── */
+  let xorCorrect = 0;
+  function checkAnswer(btn, correctAnswer, gate, rowIndex) {
+    const isCorrect = correctAnswer; /* The correct answer IS the value we passed */
+
+    /* Show a mini choice */
+    const parent = btn.parentElement;
+    parent.innerHTML = '';
+
+    const trueBtn = document.createElement('button');
+    trueBtn.className = 'answer-btn';
+    trueBtn.textContent = 'TRUE';
+    trueBtn.onclick = () => resolveAnswer(parent, true, correctAnswer, rowIndex);
+
+    const falseBtn = document.createElement('button');
+    falseBtn.className = 'answer-btn';
+    falseBtn.textContent = 'FALSE';
+    falseBtn.onclick = () => resolveAnswer(parent, false, correctAnswer, rowIndex);
+
+    parent.appendChild(trueBtn);
+    parent.appendChild(falseBtn);
+  }
+
+  function resolveAnswer(parent, chosen, correct, rowIndex) {
+    const isRight = chosen === correct;
+    parent.innerHTML = `<span class="${isRight ? 'tt-true' : 'tt-false'}">${correct ? 'TRUE' : 'FALSE'}${isRight ? ' ✓' : ' ✗'}</span>`;
+
+    if (!xorTableAnswered[rowIndex]) {
+      xorTableAnswered[rowIndex] = true;
+      if (isRight) { xorCorrect++; awardXP(10, 'Nice work! +10 XP'); }
+    }
+
+    const allDone = xorTableAnswered.every(v => v);
+    if (allDone) {
+      document.getElementById('xor-table-feedback').textContent = `You got ${xorCorrect}/4 correct. ${xorCorrect === 4 ? '🎉 Perfect!' : 'Keep going!'}`;
+      checkLessonComplete();
+    }
+  }
+
+  /* ── Quiz ── */
+  let quizScore = 0;
+  function answerQuiz(qNum, btn, isCorrect, feedback) {
+    if (quizAnswered[qNum]) return;
+    quizAnswered[qNum] = true;
+
+    const card = document.getElementById('q' + qNum + '-card');
+    const feedbackEl = document.getElementById('q' + qNum + '-feedback');
+    const options = card.querySelectorAll('.quiz-option');
+
+    options.forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+
+    if (isCorrect) {
+      btn.classList.add('selected-correct');
+      quizScore++;
+      awardXP(20, 'Correct! +20 XP');
+    } else {
+      btn.classList.add('selected-wrong');
+      /* Highlight the correct option */
+      options.forEach(o => {
+        if (o.getAttribute('onclick').includes(', true,')) {
+          o.classList.add('reveal-correct');
+        }
+      });
+    }
+
+    feedbackEl.textContent = feedback;
+    feedbackEl.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
+    feedbackEl.style.display = 'block';
+
+    checkLessonComplete();
+  }
+
+  /* ── XP Toast ── */
+  let toastTimeout;
+  function awardXP(amount, msg) {
+    lessonXP += amount;
+    const toast = document.getElementById('xpToast');
+    document.getElementById('xpToastAmount').textContent = '+' + amount + ' XP';
+    document.getElementById('xpToastMsg').textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  /* ── Check if lesson can be completed ── */
+  function checkLessonComplete() {
+    const allQuizDone = Object.values(quizAnswered).every(v => v);
+    const tableAllDone = xorTableAnswered.every(v => v);
+    if (allQuizDone && tableAllDone) {
+      document.getElementById('completeBtn').disabled = false;
+    }
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = 4 + 4; /* 4 quiz + 4 table */
+    const done = Object.values(quizAnswered).filter(v => v).length + xorTableAnswered.filter(v => v).length;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progPct').textContent = pct + '%';
+    document.getElementById('progFill').style.width = pct + '%';
+  }
+
+  /* ── Complete Lesson ── */
+  function completeLesson() {
+    const btn = document.getElementById('completeBtn');
+    btn.disabled = true;
+    btn.textContent = '✓ Lesson Complete!';
+
+    /* Save progress */
+    const prog = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    prog.xp = (prog.xp || 0) + LESSON_XP;
+    prog.completedLessons = (prog.completedLessons || 0) + 1;
+    prog.modules = prog.modules || {};
+    prog.modules.logic = Math.min((prog.modules.logic || 0) + 1, 5);
+    prog.lastActivity = new Date().toISOString();
+    localStorage.setItem('helix_math_progress', JSON.stringify(prog));
+
+    document.getElementById('navXP').textContent = '⚡ ' + prog.xp + ' XP';
+    document.getElementById('progPct').textContent = '100%';
+    document.getElementById('progFill').style.width = '100%';
+
+    /* Mark sidebar item done */
+    document.querySelectorAll('.lesson-item').forEach((item, i) => {
+      item.classList.add('done');
+      item.classList.remove('active');
+      const dot = item.querySelector('.lesson-dot');
+      if (dot) dot.textContent = '✓';
+    });
+
+    /* Big XP toast */
+    const toast = document.getElementById('xpToast');
+    document.getElementById('xpToastAmount').textContent = '+' + LESSON_XP + ' XP';
+    document.getElementById('xpToastMsg').textContent = 'Lesson complete! Boolean Logic mastered 🧠';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+
+    /* Show complete area */
+    btn.style.display = 'none';
+    document.getElementById('complete-area').style.display = 'block';
+    document.getElementById('complete-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ── Scroll to lesson ── */
+  function scrollToLesson(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.lesson-item').forEach(item => item.classList.remove('active'));
+    const num = parseInt(id.replace('l', ''));
+    const items = document.querySelectorAll('.lesson-item');
+    if (items[num - 1]) items[num - 1].classList.add('active');
+  }
+
+  /* ── Highlight active section on scroll ── */
+  const sections = ['l1','l2','l3','l4','l5'];
+  window.addEventListener('scroll', () => {
+    let current = 'l1';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top < 160) current = id;
+    });
+    const idx = sections.indexOf(current);
+    document.querySelectorAll('.lesson-item').forEach((item, i) => {
+      item.classList.toggle('active', i === idx);
+    });
+  }, { passive: true });
+</script>
+</body>
+</html>
