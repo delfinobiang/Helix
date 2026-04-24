@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Algebra for Programmers — Helix Mathematics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --border:   rgba(255,255,255,0.07);
+      --amber:    #F59E0B;
+      --amber-l:  #FCD34D;
+      --orange:   #F97316;
+      --primary:  #6366F1;
+      --cyan:     #22D3EE;
+      --green:    #10B981;
+      --red:      #EF4444;
+      --violet:   #8B5CF6;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --nav-h:    60px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 65%); top: -80px; right: 0; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 65%); bottom: -150px; left: -100px; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(16,185,129,0.09) 0%, transparent 65%); top: 40%; left: 50%; }
+
+    /* Layout */
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: var(--nav-h) 1fr; grid-template-areas: "nav nav" "sidebar main"; min-height: 100vh; position: relative; z-index: 1; }
+
+    /* Topnav */
+    .topnav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: rgba(5,8,22,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .nav-sep { color: var(--text-3); font-size: 1rem; }
+    .nav-title { font-size: 0.85rem; font-weight: 600; color: var(--amber); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-xp { font-size: 0.78rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); padding: 4px 12px; border-radius: 100px; }
+    .nav-back { font-size: 0.8rem; color: var(--text-2); padding: 5px 10px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* Sidebar */
+    .sidebar { grid-area: sidebar; border-right: 1px solid var(--border); background: rgba(8,10,25,0.7); padding: 24px 0; overflow-y: auto; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 0 20px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .lesson-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; border-left: 3px solid transparent; }
+    .lesson-item:hover { background: rgba(255,255,255,0.03); }
+    .lesson-item.active { background: rgba(245,158,11,0.08); border-left-color: var(--amber); }
+    .lesson-num { font-size: 0.7rem; font-weight: 700; color: var(--text-3); width: 20px; flex-shrink: 0; }
+    .lesson-item.active .lesson-num { color: var(--amber); }
+    .lesson-name { font-size: 0.85rem; font-weight: 500; color: var(--text-2); }
+    .lesson-item.active .lesson-name { color: var(--text); font-weight: 600; }
+    .lesson-done { margin-left: auto; font-size: 0.7rem; color: var(--green); }
+
+    .sidebar-footer { margin-top: auto; padding: 20px; border-top: 1px solid var(--border); }
+    .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 100px; height: 6px; overflow: hidden; margin-top: 8px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--amber), var(--orange)); border-radius: 100px; transition: width 0.5s ease; }
+    .progress-label { font-size: 0.72rem; color: var(--text-2); display: flex; justify-content: space-between; }
+
+    /* Main */
+    .main { grid-area: main; padding: 40px 48px; overflow-y: auto; }
+    .lesson-section { max-width: 780px; padding-bottom: 80px; }
+    .lesson-section + .lesson-section { border-top: 1px solid var(--border); padding-top: 60px; }
+
+    /* Section header */
+    .section-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .section-tag::before { content: ''; display: block; width: 20px; height: 2px; background: var(--amber); border-radius: 2px; }
+    h2 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 14px; line-height: 1.2; }
+    .lead { font-size: 1rem; color: var(--text-2); line-height: 1.7; margin-bottom: 28px; }
+
+    /* Info box */
+    .info-box { border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; border: 1px solid; }
+    .info-box.amber { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.2); }
+    .info-box.violet { background: rgba(139,92,246,0.07); border-color: rgba(139,92,246,0.2); }
+    .info-box.green  { background: rgba(16,185,129,0.07); border-color: rgba(16,185,129,0.2); }
+    .info-box.cyan   { background: rgba(34,211,238,0.07); border-color: rgba(34,211,238,0.2); }
+    .info-box.red    { background: rgba(239,68,68,0.07);  border-color: rgba(239,68,68,0.2);  }
+    .info-box-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .info-box.amber .info-box-title { color: var(--amber); }
+    .info-box.violet .info-box-title { color: var(--violet); }
+    .info-box.green  .info-box-title { color: var(--green); }
+    .info-box.cyan   .info-box-title { color: var(--cyan); }
+    .info-box.red    .info-box-title { color: var(--red); }
+    .info-box p { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; }
+
+    /* Code block */
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
+    .c-comment { color: #4B5563; }
+    .c-keyword { color: #C084FC; }
+    .c-string  { color: #86EFAC; }
+    .c-fn      { color: #60A5FA; }
+    .c-num     { color: var(--amber-l); }
+    .c-op      { color: var(--cyan); }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .data-table th { background: rgba(245,158,11,0.1); color: var(--amber); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(245,158,11,0.2); }
+    .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+    .data-table td:first-child { color: var(--text); font-weight: 600; }
+    .data-table td code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--cyan); background: rgba(34,211,238,0.08); padding: 1px 6px; border-radius: 4px; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Variable playground */
+    .var-playground { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .var-playground h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .var-playground h4::before { content: '⚡'; font-size: 0.9rem; }
+    .var-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .var-label { font-size: 0.82rem; font-weight: 600; color: var(--text-2); width: 80px; flex-shrink: 0; }
+    .var-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text); width: 100px; outline: none; transition: border 0.2s; }
+    .var-input:focus { border-color: var(--amber); }
+    .var-op { font-size: 1.1rem; color: var(--text-3); font-weight: 700; }
+    .var-result { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--amber-l); min-width: 60px; }
+    .var-expr { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-2); margin-bottom: 14px; }
+    .var-expr span { color: var(--cyan); }
+    .var-divider { height: 1px; background: var(--border); margin: 16px 0; }
+    .var-desc { font-size: 0.82rem; color: var(--text-2); line-height: 1.6; }
+
+    /* Equation builder */
+    .eq-builder { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .eq-builder h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--violet); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .eq-builder h4::before { content: '🔧'; font-size: 0.9rem; }
+    .eq-display { background: rgba(0,0,0,0.5); border-radius: 10px; padding: 14px 18px; font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text); margin-bottom: 16px; text-align: center; min-height: 46px; display: flex; align-items: center; justify-content: center; }
+    .eq-display .unknown { color: var(--amber); font-weight: 700; }
+    .eq-display .known   { color: var(--cyan); }
+    .eq-inputs { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .eq-field { display: flex; flex-direction: column; gap: 4px; }
+    .eq-field label { font-size: 0.72rem; color: var(--text-3); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    .eq-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text); width: 90px; outline: none; transition: border 0.2s; }
+    .eq-input:focus { border-color: var(--violet); }
+    .eq-solve-btn { background: linear-gradient(135deg, var(--violet), #6366F1); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .eq-solve-btn:hover { opacity: 0.85; }
+    .eq-answer { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--green); font-weight: 700; margin-top: 8px; min-height: 24px; }
+    .eq-steps { font-size: 0.82rem; color: var(--text-2); line-height: 1.8; margin-top: 10px; }
+    .eq-steps .step { display: block; padding: 3px 0; }
+    .eq-steps .step span { color: var(--cyan); font-family: 'JetBrains Mono', monospace; }
+
+    /* Function machine */
+    .fn-machine { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .fn-machine h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .fn-machine h4::before { content: '⚙️'; font-size: 0.9rem; }
+    .machine-diagram { display: flex; align-items: center; gap: 0; margin-bottom: 20px; overflow-x: auto; }
+    .machine-box { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; text-align: center; }
+    .machine-arrow { color: var(--text-3); font-size: 1.4rem; padding: 0 8px; flex-shrink: 0; }
+    .machine-input { border-color: rgba(34,211,238,0.3); }
+    .machine-func  { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.06); min-width: 140px; }
+    .machine-output { border-color: rgba(245,158,11,0.3); }
+    .machine-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-bottom: 4px; }
+    .machine-value { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; }
+    .machine-input .machine-value  { color: var(--cyan); }
+    .machine-func  .machine-value  { color: var(--green); }
+    .machine-output .machine-value { color: var(--amber-l); }
+    .machine-formula { font-size: 0.75rem; color: var(--text-3); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+    .fn-slider-row { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .fn-slider { -webkit-appearance: none; appearance: none; width: 200px; height: 4px; border-radius: 100px; background: var(--border); outline: none; }
+    .fn-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--green); cursor: pointer; }
+    .fn-val { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--cyan); min-width: 30px; }
+    .fn-result-label { font-size: 0.82rem; color: var(--text-2); }
+    .fn-result-val { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--amber-l); }
+
+    /* Coordinate plotter */
+    .plotter { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .plotter h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cyan); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .plotter h4::before { content: '📈'; font-size: 0.9rem; }
+    .plotter-body { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+    canvas#plotCanvas { border: 1px solid var(--border); border-radius: 10px; background: #060919; }
+    .plotter-controls { flex: 1; min-width: 200px; }
+    .plotter-controls label { font-size: 0.75rem; color: var(--text-2); font-weight: 600; display: block; margin-bottom: 6px; margin-top: 14px; }
+    .plotter-controls label:first-child { margin-top: 0; }
+    .plotter-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; color: var(--text); width: 100%; outline: none; transition: border 0.2s; }
+    .plotter-input:focus { border-color: var(--cyan); }
+    .plot-btn { background: linear-gradient(135deg, var(--cyan), #0891B2); color: #000; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; margin-top: 14px; width: 100%; }
+    .plot-btn:hover { opacity: 0.85; }
+    .plot-hint { font-size: 0.75rem; color: var(--text-3); margin-top: 10px; line-height: 1.5; }
+
+    /* Challenge */
+    .challenge { background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2); border-radius: 14px; padding: 22px 24px; margin: 24px 0; }
+    .challenge-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .challenge-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange); background: rgba(249,115,22,0.12); padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(249,115,22,0.25); }
+    .challenge-xp { font-size: 0.68rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); padding: 3px 8px; border-radius: 6px; margin-left: auto; }
+    .challenge h4 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .challenge p { font-size: 0.88rem; color: var(--text-2); line-height: 1.65; margin-bottom: 14px; }
+    .challenge-input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .challenge-input { background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); outline: none; transition: border 0.2s; }
+    .challenge-input:focus { border-color: var(--amber); }
+    .challenge-btn { background: linear-gradient(135deg, var(--amber), var(--orange)); color: #000; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+    .challenge-btn:hover { opacity: 0.85; }
+    .challenge-feedback { font-size: 0.85rem; margin-top: 10px; min-height: 22px; line-height: 1.5; }
+    .challenge-feedback.correct { color: var(--green); }
+    .challenge-feedback.wrong   { color: var(--red); }
+    .challenge-hint-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; color: var(--text-2); cursor: pointer; transition: border-color 0.2s; }
+    .challenge-hint-btn:hover { border-color: var(--text-2); }
+    .challenge-hint { font-size: 0.82rem; color: var(--amber); margin-top: 8px; display: none; }
+
+    /* Quiz */
+    .quiz-card { background: rgba(8,10,28,0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 18px; }
+    .quiz-q { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+    .quiz-q code { font-family: 'JetBrains Mono', monospace; color: var(--cyan); background: rgba(34,211,238,0.1); padding: 1px 7px; border-radius: 4px; font-size: 0.88em; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-opt { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: 0.88rem; color: var(--text-2); cursor: pointer; text-align: left; transition: all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .quiz-opt.correct  { background: rgba(16,185,129,0.12); border-color: var(--green); color: var(--green); }
+    .quiz-opt.wrong    { background: rgba(239,68,68,0.12);  border-color: var(--red);   color: var(--red); }
+    .quiz-opt code { font-family: 'JetBrains Mono', monospace; color: inherit; font-size: 0.88em; }
+    .quiz-feedback { font-size: 0.82rem; margin-top: 10px; min-height: 20px; color: var(--text-2); }
+    .quiz-feedback.correct { color: var(--green); }
+    .quiz-feedback.wrong   { color: var(--red); }
+
+    /* Complete button */
+    .complete-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--border); text-align: center; }
+    .complete-btn { background: linear-gradient(135deg, var(--amber), var(--orange)); color: #000; border: none; border-radius: 14px; padding: 16px 48px; font-size: 1rem; font-weight: 800; cursor: pointer; letter-spacing: -0.01em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px; }
+    .complete-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .complete-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(245,158,11,0.3); }
+    .complete-note { font-size: 0.8rem; color: var(--text-3); margin-top: 12px; }
+
+    /* XP toast */
+    .xp-toast { position: fixed; bottom: 32px; right: 32px; background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(249,115,22,0.15)); border: 1px solid rgba(245,158,11,0.35); border-radius: 12px; padding: 12px 20px; font-size: 0.88rem; font-weight: 700; color: var(--amber-l); z-index: 999; opacity: 0; transform: translateY(16px); transition: all 0.35s cubic-bezier(.34,1.56,.64,1); pointer-events: none; display: flex; align-items: center; gap: 8px; }
+    .xp-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Math formula display */
+    .formula { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--amber-l); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15); border-radius: 10px; padding: 10px 20px; margin: 8px 0; text-align: center; }
+    .formula-block { text-align: center; margin: 20px 0; }
+
+    /* Real world cards */
+    .rw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 20px 0; }
+    .rw-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .rw-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .rw-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .rw-code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--cyan); background: rgba(34,211,238,0.07); padding: 2px 7px; border-radius: 4px; display: inline-block; margin-bottom: 6px; }
+    .rw-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "nav" "main"; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="app">
+
+  <!-- Topnav -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#F59E0B" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>
+        Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Algebra for Programmers</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="math.html" class="nav-back">← Math Strand</a>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 03</div>
+
+    <div class="lesson-item active" onclick="scrollTo('#l1')">
+      <span class="lesson-num">01</span>
+      <span class="lesson-name">Variables & Expressions</span>
+      <span class="lesson-done" id="done-1"></span>
+    </div>
+    <div class="lesson-item" onclick="scrollTo('#l2')">
+      <span class="lesson-num">02</span>
+      <span class="lesson-name">Equations & Solving</span>
+      <span class="lesson-done" id="done-2"></span>
+    </div>
+    <div class="lesson-item" onclick="scrollTo('#l3')">
+      <span class="lesson-num">03</span>
+      <span class="lesson-name">Functions & Graphs</span>
+      <span class="lesson-done" id="done-3"></span>
+    </div>
+    <div class="lesson-item" onclick="scrollTo('#l4')">
+      <span class="lesson-num">04</span>
+      <span class="lesson-name">Algebra in Code</span>
+      <span class="lesson-done" id="done-4"></span>
+    </div>
+    <div class="lesson-item" onclick="scrollTo('#quiz')">
+      <span class="lesson-num">05</span>
+      <span class="lesson-name">Final Quiz</span>
+      <span class="lesson-done" id="done-quiz"></span>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="progress-label">
+        <span>Progress</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- ── LESSON 1: Variables & Expressions ── -->
+    <section class="lesson-section" id="l1">
+      <div class="section-tag">Lesson 01</div>
+      <h2>Variables & Expressions</h2>
+      <p class="lead">
+        In math, a <strong>variable</strong> is a letter that stands in for a number we don't know yet —
+        like <em>x</em> or <em>y</em>. In programming, a variable is a named box that holds a value.
+        They're the <em>same idea</em>, just written differently.
+      </p>
+
+      <div class="info-box amber">
+        <div class="info-box-title">💡 Math vs Code — same concept, different syntax</div>
+        <p>
+          Math writes <strong>y = 2x + 5</strong>.<br>
+          Python writes <code style="color:var(--cyan)">y = 2 * x + 5</code>.<br><br>
+          Both say: "whatever <em>x</em> is, multiply it by 2 and add 5 to get <em>y</em>."
+        </p>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Math notation</th>
+            <th>What it means</th>
+            <th>Python equivalent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>x = 7</td><td>x has the value 7</td><td><code>x = 7</code></td></tr>
+          <tr><td>y = x + 3</td><td>y is 3 more than x</td><td><code>y = x + 3</code></td></tr>
+          <tr><td>2x</td><td>2 times x (implicit multiplication)</td><td><code>2 * x</code></td></tr>
+          <tr><td>x²</td><td>x to the power of 2</td><td><code>x ** 2</code></td></tr>
+          <tr><td>|x|</td><td>absolute value of x</td><td><code>abs(x)</code></td></tr>
+          <tr><td>√x</td><td>square root of x</td><td><code>x ** 0.5</code> or <code>math.sqrt(x)</code></td></tr>
+        </tbody>
+      </table>
+
+      <p class="lead" style="margin-top:24px">
+        An <strong>expression</strong> is a combination of variables, numbers, and operations that produces a value.
+        It's not a complete sentence — it doesn't say "equals something". It's just a value waiting to be computed.
+      </p>
+
+      <div class="formula-block">
+        <div class="formula">3x² + 2x − 5</div>
+      </div>
+
+      <p style="font-size:0.9rem; color:var(--text-2); line-height:1.7; margin-bottom:24px">
+        This expression has three <strong>terms</strong>: <span style="color:var(--cyan)">3x²</span>,
+        <span style="color:var(--green)">2x</span>, and <span style="color:var(--red)">−5</span>.
+        The numbers in front of the variables (3 and 2) are called <strong>coefficients</strong>.
+        The −5 with no variable is a <strong>constant</strong>.
+      </p>
+
+      <!-- Interactive variable playground -->
+      <div class="var-playground">
+        <h4>Variable Playground</h4>
+        <p class="var-expr">Expression: <span id="varExprDisplay">3x² + 2x − 5</span></p>
+        <div class="var-row">
+          <span class="var-label">x =</span>
+          <input class="var-input" id="varX" type="number" value="3" oninput="evalExpr()">
+          <span class="var-op">=</span>
+          <span class="var-result" id="varResult">?</span>
+        </div>
+        <div class="var-divider"></div>
+        <div class="var-desc" id="varBreakdown"></div>
+      </div>
+
+      <div class="code-block"><span class="c-comment"># Same expression in Python</span>
+<span class="c-keyword">def</span> <span class="c-fn">expression</span>(x):
+    <span class="c-keyword">return</span> <span class="c-num">3</span> * x**<span class="c-num">2</span> + <span class="c-num">2</span> * x - <span class="c-num">5</span>
+
+<span class="c-fn">print</span>(expression(<span class="c-num">3</span>))   <span class="c-comment"># → 28</span>
+<span class="c-fn">print</span>(expression(<span class="c-num">0</span>))   <span class="c-comment"># → -5</span>
+<span class="c-fn">print</span>(expression(<span class="c-num">-2</span>))  <span class="c-comment"># → 7</span></div>
+
+      <div class="challenge" id="ch1">
+        <div class="challenge-header">
+          <span class="challenge-badge">Challenge 1</span>
+          <span class="challenge-xp">+15 XP</span>
+        </div>
+        <h4>Evaluate the expression</h4>
+        <p>What is <strong>4x − 7</strong> when <strong>x = 5</strong>?</p>
+        <div class="challenge-input-row">
+          <input class="challenge-input" id="c1ans" type="number" placeholder="your answer" style="width:130px">
+          <button class="challenge-btn" onclick="checkChallenge(1)">Check ✓</button>
+          <button class="challenge-hint-btn" onclick="toggleHint(1)">Hint</button>
+        </div>
+        <div class="challenge-hint" id="hint1">Substitute x = 5: 4×5 − 7 = 20 − 7 = ?</div>
+        <div class="challenge-feedback" id="cf1"></div>
+      </div>
+    </section>
+
+    <!-- ── LESSON 2: Equations & Solving ── -->
+    <section class="lesson-section" id="l2">
+      <div class="section-tag">Lesson 02</div>
+      <h2>Equations & Solving</h2>
+      <p class="lead">
+        An <strong>equation</strong> is different from an expression — it has an <em>equals sign</em>.
+        It's a statement that two things are equal. When you <strong>solve</strong> an equation,
+        you find the value of the unknown variable that makes the statement true.
+      </p>
+
+      <div class="info-box violet">
+        <div class="info-box-title">⚖️ The Golden Rule of Equations</div>
+        <p>
+          Whatever you do to one side of the equals sign, you <em>must</em> do to the other.
+          Think of it as a balance scale — both sides must always stay balanced.
+        </p>
+      </div>
+
+      <p style="font-size:0.9rem; color:var(--text-2); line-height:1.7; margin:0 0 20px">
+        Let's solve <strong style="color:var(--text)">2x + 6 = 14</strong> step by step:
+      </p>
+
+      <div style="background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:14px;padding:22px 26px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <span style="background:rgba(245,158,11,0.15);color:var(--amber);font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:100px;letter-spacing:0.08em">STEP 1</span>
+          <span style="font-size:0.9rem;color:var(--text-2)">Subtract 6 from both sides to isolate the term with x</span>
+        </div>
+        <div class="formula-block" style="margin:8px 0">
+          <div class="formula" style="font-size:1rem">2x + 6 − 6 = 14 − 6 &nbsp;→&nbsp; 2x = 8</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:16px 0 12px">
+          <span style="background:rgba(99,102,241,0.15);color:var(--primary);font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:100px;letter-spacing:0.08em">STEP 2</span>
+          <span style="font-size:0.9rem;color:var(--text-2)">Divide both sides by 2 to isolate x</span>
+        </div>
+        <div class="formula-block" style="margin:8px 0">
+          <div class="formula" style="font-size:1rem">2x ÷ 2 = 8 ÷ 2 &nbsp;→&nbsp; <span style="color:var(--green)">x = 4</span></div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;margin:16px 0 12px">
+          <span style="background:rgba(16,185,129,0.15);color:var(--green);font-size:0.7rem;font-weight:700;padding:3px 10px;border-radius:100px;letter-spacing:0.08em">CHECK</span>
+          <span style="font-size:0.9rem;color:var(--text-2)">Plug x = 4 back in: 2(4) + 6 = 8 + 6 = 14 ✓</span>
+        </div>
+      </div>
+
+      <!-- Equation solver widget -->
+      <div class="eq-builder">
+        <h4>Equation Solver — ax + b = c</h4>
+        <div class="eq-display" id="eqDisplay">
+          <span class="unknown" id="eqA">a</span>x + <span class="known" id="eqB">b</span> = <span class="known" id="eqC">c</span>
+        </div>
+        <div class="eq-inputs">
+          <div class="eq-field">
+            <label>a (coefficient)</label>
+            <input class="eq-input" id="inputA" type="number" value="2" oninput="updateEqDisplay()">
+          </div>
+          <div class="eq-field">
+            <label>b (constant)</label>
+            <input class="eq-input" id="inputB" type="number" value="6" oninput="updateEqDisplay()">
+          </div>
+          <div class="eq-field">
+            <label>c (result)</label>
+            <input class="eq-input" id="inputC" type="number" value="14" oninput="updateEqDisplay()">
+          </div>
+          <button class="eq-solve-btn" onclick="solveEquation()">Solve for x →</button>
+        </div>
+        <div class="eq-answer" id="eqAnswer"></div>
+        <div class="eq-steps" id="eqSteps"></div>
+      </div>
+
+      <div class="code-block"><span class="c-comment"># Solving ax + b = c in Python</span>
+<span class="c-keyword">def</span> <span class="c-fn">solve_linear</span>(a, b, c):
+    <span class="c-comment"># x = (c - b) / a</span>
+    <span class="c-keyword">if</span> a == <span class="c-num">0</span>:
+        <span class="c-keyword">return</span> <span class="c-string">"No solution (a cannot be 0)"</span>
+    <span class="c-keyword">return</span> (c - b) / a
+
+<span class="c-fn">print</span>(solve_linear(<span class="c-num">2</span>, <span class="c-num">6</span>, <span class="c-num">14</span>))   <span class="c-comment"># → 4.0</span>
+<span class="c-fn">print</span>(solve_linear(<span class="c-num">3</span>, <span class="c-num">-9</span>, <span class="c-num">0</span>))  <span class="c-comment"># → 3.0</span>
+<span class="c-fn">print</span>(solve_linear(<span class="c-num">5</span>, <span class="c-num">0</span>, <span class="c-num">20</span>))   <span class="c-comment"># → 4.0</span></div>
+
+      <div class="challenge" id="ch2">
+        <div class="challenge-header">
+          <span class="challenge-badge">Challenge 2</span>
+          <span class="challenge-xp">+15 XP</span>
+        </div>
+        <h4>Solve for x</h4>
+        <p>Solve: <strong>3x − 9 = 0</strong></p>
+        <div class="challenge-input-row">
+          <span style="font-size:0.9rem;color:var(--text-2);margin-right:4px">x =</span>
+          <input class="challenge-input" id="c2ans" type="number" placeholder="?" style="width:100px">
+          <button class="challenge-btn" onclick="checkChallenge(2)">Check ✓</button>
+          <button class="challenge-hint-btn" onclick="toggleHint(2)">Hint</button>
+        </div>
+        <div class="challenge-hint" id="hint2">Add 9 to both sides first: 3x = 9. Then divide both sides by 3.</div>
+        <div class="challenge-feedback" id="cf2"></div>
+      </div>
+    </section>
+
+    <!-- ── LESSON 3: Functions & Graphs ── -->
+    <section class="lesson-section" id="l3">
+      <div class="section-tag">Lesson 03</div>
+      <h2>Functions & Graphs</h2>
+      <p class="lead">
+        A <strong>function</strong> is a machine: you put a number in, it does something to it, and
+        spits a number out. Every input gives <em>exactly one</em> output. In math it's written
+        <strong>f(x)</strong> — in Python it's literally a <code style="color:var(--cyan)">def</code>.
+      </p>
+
+      <!-- Function machine widget -->
+      <div class="fn-machine">
+        <h4>Function Machine — f(x) = 2x + 1</h4>
+        <div class="machine-diagram">
+          <div class="machine-box machine-input">
+            <div class="machine-label">Input x</div>
+            <div class="machine-value" id="machineIn">3</div>
+          </div>
+          <div class="machine-arrow">→</div>
+          <div class="machine-box machine-func">
+            <div class="machine-label">Function</div>
+            <div class="machine-value">f(x)</div>
+            <div class="machine-formula">2x + 1</div>
+          </div>
+          <div class="machine-arrow">→</div>
+          <div class="machine-box machine-output">
+            <div class="machine-label">Output f(x)</div>
+            <div class="machine-value" id="machineOut">7</div>
+          </div>
+        </div>
+        <div class="fn-slider-row">
+          <span style="font-size:0.8rem;color:var(--text-2)">x =</span>
+          <input class="fn-slider" id="fnSlider" type="range" min="-10" max="10" value="3" oninput="updateMachine()">
+          <span class="fn-val" id="fnSliderVal">3</span>
+        </div>
+        <div style="font-size:0.82rem;color:var(--text-2)">
+          f(<span id="fnX2">3</span>) = 2×<span id="fnX3">3</span> + 1 = <span class="fn-result-val" id="fnResult">7</span>
+        </div>
+      </div>
+
+      <div class="info-box green">
+        <div class="info-box-title">🐍 Functions in Python are identical in spirit</div>
+        <p>
+          Math's <strong>f(x) = 2x + 1</strong> translates directly to Python.<br>
+          When you call <code style="color:var(--cyan)">f(3)</code>, Python computes <code style="color:var(--cyan)">2*3 + 1 = 7</code> — exactly what the math says.
+        </p>
+      </div>
+
+      <div class="code-block"><span class="c-comment"># f(x) = 2x + 1 in Python</span>
+<span class="c-keyword">def</span> <span class="c-fn">f</span>(x):
+    <span class="c-keyword">return</span> <span class="c-num">2</span> * x + <span class="c-num">1</span>
+
+<span class="c-fn">print</span>(<span class="c-fn">f</span>(<span class="c-num">3</span>))    <span class="c-comment"># → 7</span>
+<span class="c-fn">print</span>(<span class="c-fn">f</span>(<span class="c-num">0</span>))    <span class="c-comment"># → 1</span>
+<span class="c-fn">print</span>(<span class="c-fn">f</span>(-<span class="c-num">4</span>))   <span class="c-comment"># → -7</span>
+
+<span class="c-comment"># You can also map it across a list!</span>
+xs = [<span class="c-num">1</span>, <span class="c-num">2</span>, <span class="c-num">3</span>, <span class="c-num">4</span>, <span class="c-num">5</span>]
+ys = [<span class="c-fn">f</span>(x) <span class="c-keyword">for</span> x <span class="c-keyword">in</span> xs]
+<span class="c-fn">print</span>(ys)   <span class="c-comment"># → [3, 5, 7, 9, 11]</span></div>
+
+      <p style="font-size:0.9rem;color:var(--text-2);line-height:1.7;margin:24px 0 16px">
+        A <strong>graph</strong> is a visual picture of a function. Every point on the line is an (x, y) pair where
+        y = f(x). The <strong>slope</strong> tells you how steep the line is — for <em>f(x) = 2x + 1</em>
+        the slope is 2 (go right 1 unit → go up 2 units). The <strong>y-intercept</strong> is where the line
+        crosses the y-axis (when x = 0): here it's 1.
+      </p>
+
+      <!-- Canvas plotter -->
+      <div class="plotter">
+        <h4>Interactive Graph Plotter</h4>
+        <div class="plotter-body">
+          <canvas id="plotCanvas" width="340" height="300"></canvas>
+          <div class="plotter-controls">
+            <label>Slope (m)</label>
+            <input class="plotter-input" id="plotM" type="number" value="2" step="0.5" oninput="drawPlot()">
+            <label>Y-intercept (b)</label>
+            <input class="plotter-input" id="plotB" type="number" value="1" step="1" oninput="drawPlot()">
+            <div style="margin-top:14px;background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 12px">
+              <div style="font-size:0.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Equation</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--cyan)" id="plotEquation">y = 2x + 1</div>
+            </div>
+            <div style="margin-top:12px;background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 12px">
+              <div style="font-size:0.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">When x = 0</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--amber-l)" id="plotAt0">y = 1</div>
+            </div>
+            <div class="plot-hint">Try slope = 0 for a flat line. Try slope = −1 for a downward line. Try slope = 10 for steep!</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="challenge" id="ch3">
+        <div class="challenge-header">
+          <span class="challenge-badge">Challenge 3</span>
+          <span class="challenge-xp">+15 XP</span>
+        </div>
+        <h4>What's the output?</h4>
+        <p>Given <strong>f(x) = 3x − 2</strong>, what is <strong>f(7)</strong>?</p>
+        <div class="challenge-input-row">
+          <span style="font-size:0.9rem;color:var(--text-2);margin-right:4px">f(7) =</span>
+          <input class="challenge-input" id="c3ans" type="number" placeholder="?" style="width:100px">
+          <button class="challenge-btn" onclick="checkChallenge(3)">Check ✓</button>
+          <button class="challenge-hint-btn" onclick="toggleHint(3)">Hint</button>
+        </div>
+        <div class="challenge-hint" id="hint3">Substitute x = 7: f(7) = 3 × 7 − 2</div>
+        <div class="challenge-feedback" id="cf3"></div>
+      </div>
+    </section>
+
+    <!-- ── LESSON 4: Algebra in Code ── -->
+    <section class="lesson-section" id="l4">
+      <div class="section-tag">Lesson 04</div>
+      <h2>Algebra in Code — Real Examples</h2>
+      <p class="lead">
+        Algebra isn't just for math class. You use it every day as a programmer — calculating positions,
+        prices, scores, conversions, and animations. Here are real patterns you'll write again and again.
+      </p>
+
+      <div class="rw-grid">
+        <div class="rw-card">
+          <div class="rw-icon">🎮</div>
+          <div class="rw-title">Game Score</div>
+          <div class="rw-code">score = base + bonus * level</div>
+          <div class="rw-desc">Classic linear expression — the score grows by a constant amount each level.</div>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">🌡️</div>
+          <div class="rw-title">Temperature Convert</div>
+          <div class="rw-code">C = (F − 32) × 5/9</div>
+          <div class="rw-desc">Directly solving an algebraic equation: rearrange the formula to isolate C.</div>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">📏</div>
+          <div class="rw-title">Centering an Element</div>
+          <div class="rw-code">x = (parent_w − child_w) / 2</div>
+          <div class="rw-desc">Every UI framework uses this to centre elements on screen.</div>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">💸</div>
+          <div class="rw-title">Discount Price</div>
+          <div class="rw-code">final = price × (1 − discount)</div>
+          <div class="rw-desc">E-commerce: factored-out algebra to apply percentage discounts cleanly.</div>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">🎞️</div>
+          <div class="rw-title">Animation Lerp</div>
+          <div class="rw-code">pos = start + (end − start) × t</div>
+          <div class="rw-desc">Linear interpolation — the algebraic backbone of smooth animations (t goes 0→1).</div>
+        </div>
+        <div class="rw-card">
+          <div class="rw-icon">📈</div>
+          <div class="rw-title">Compound Interest</div>
+          <div class="rw-code">A = P × (1 + r)^n</div>
+          <div class="rw-desc">Exponential growth formula — applies to finance, population, and viral spread.</div>
+        </div>
+      </div>
+
+      <div class="code-block"><span class="c-comment"># Real algebra in action: animation lerp</span>
+<span class="c-keyword">def</span> <span class="c-fn">lerp</span>(start, end, t):
+    <span class="c-string">"""Linear interpolation between start and end.
+    t=0 returns start, t=1 returns end, t=0.5 returns midpoint."""</span>
+    <span class="c-keyword">return</span> start + (end - start) * t
+
+<span class="c-comment"># Move a sprite from x=0 to x=400 over 10 frames</span>
+<span class="c-keyword">for</span> frame <span class="c-keyword">in</span> <span class="c-fn">range</span>(<span class="c-num">11</span>):
+    t = frame / <span class="c-num">10</span>
+    x = <span class="c-fn">lerp</span>(<span class="c-num">0</span>, <span class="c-num">400</span>, t)
+    <span class="c-fn">print</span>(<span class="c-string">f"Frame <span class="c-num">{frame}</span>: x = <span class="c-num">{x}</span>"</span>)
+
+<span class="c-comment"># Temperature converter</span>
+<span class="c-keyword">def</span> <span class="c-fn">fahrenheit_to_celsius</span>(F):
+    <span class="c-keyword">return</span> (F - <span class="c-num">32</span>) * <span class="c-num">5</span> / <span class="c-num">9</span>
+
+<span class="c-fn">print</span>(<span class="c-fn">fahrenheit_to_celsius</span>(<span class="c-num">212</span>))  <span class="c-comment"># → 100.0 (boiling)</span>
+<span class="c-fn">print</span>(<span class="c-fn">fahrenheit_to_celsius</span>(<span class="c-num">32</span>))   <span class="c-comment"># → 0.0   (freezing)</span></div>
+
+      <!-- Interactive Lerp widget -->
+      <div class="fn-machine" style="--green:#22D3EE">
+        <h4 style="color:var(--cyan)">Try it: Lerp Calculator</h4>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+          <div class="eq-field">
+            <label style="color:var(--text-3)">Start</label>
+            <input class="eq-input" id="lerpStart" type="number" value="0" oninput="calcLerp()" style="border-color:rgba(34,211,238,0.3)">
+          </div>
+          <div class="eq-field">
+            <label style="color:var(--text-3)">End</label>
+            <input class="eq-input" id="lerpEnd" type="number" value="400" oninput="calcLerp()" style="border-color:rgba(34,211,238,0.3)">
+          </div>
+          <div class="eq-field">
+            <label style="color:var(--text-3)">t (0 → 1)</label>
+            <input class="eq-input" id="lerpT" type="number" value="0.5" step="0.1" min="0" max="1" oninput="calcLerp()" style="border-color:rgba(34,211,238,0.3)">
+          </div>
+        </div>
+        <div class="fn-slider-row">
+          <span style="font-size:0.8rem;color:var(--text-2)">t =</span>
+          <input class="fn-slider" id="lerpSlider" style="accent-color:var(--cyan)" type="range" min="0" max="100" value="50" oninput="syncLerpSlider()">
+          <span class="fn-val" id="lerpSliderVal" style="color:var(--cyan)">0.5</span>
+        </div>
+        <div style="font-size:0.9rem;color:var(--text-2);margin-top:4px">
+          lerp(start, end, t) = start + (end − start) × t = <span class="fn-result-val" style="color:var(--cyan)" id="lerpResult">200</span>
+        </div>
+      </div>
+
+      <div class="challenge" id="ch4">
+        <div class="challenge-header">
+          <span class="challenge-badge">Challenge 4</span>
+          <span class="challenge-xp">+15 XP</span>
+        </div>
+        <h4>Celsius conversion</h4>
+        <p>Using the formula <strong>C = (F − 32) × 5/9</strong>, what is <strong>98.6°F</strong> in Celsius? (Round to nearest whole number)</p>
+        <div class="challenge-input-row">
+          <input class="challenge-input" id="c4ans" type="number" placeholder="°C" style="width:100px">
+          <button class="challenge-btn" onclick="checkChallenge(4)">Check ✓</button>
+          <button class="challenge-hint-btn" onclick="toggleHint(4)">Hint</button>
+        </div>
+        <div class="challenge-hint" id="hint4">(98.6 − 32) = 66.6, then × 5/9 ≈ ?</div>
+        <div class="challenge-feedback" id="cf4"></div>
+      </div>
+    </section>
+
+    <!-- ── LESSON 5: Final Quiz ── -->
+    <section class="lesson-section" id="quiz">
+      <div class="section-tag">Lesson 05</div>
+      <h2>Final Quiz</h2>
+      <p class="lead">Test what you've learned. Each correct answer earns XP!</p>
+
+      <div class="quiz-card">
+        <div class="quiz-q">1. In the expression <code>5x² − 3x + 7</code>, what is the coefficient of <code>x</code>?</div>
+        <div class="quiz-options" id="q1opts">
+          <button class="quiz-opt" onclick="answerQuiz(1,this,false,'The coefficient of x² is 5. The coefficient of x (first power) is −3.')">5</button>
+          <button class="quiz-opt" onclick="answerQuiz(1,this,false,'The coefficient of x² is 5. The coefficient of x (first power) is −3.')">7</button>
+          <button class="quiz-opt" onclick="answerQuiz(1,this,true,'Correct! −3 is the number multiplying x¹. The 7 is a constant (no variable).')">−3</button>
+          <button class="quiz-opt" onclick="answerQuiz(1,this,false,'The coefficient of x² is 5. The coefficient of x (first power) is −3.')">3</button>
+        </div>
+        <div class="quiz-feedback" id="qf1"></div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">2. What is the solution to <code>4x + 8 = 24</code>?</div>
+        <div class="quiz-options" id="q2opts">
+          <button class="quiz-opt" onclick="answerQuiz(2,this,false,'Try again: subtract 8 from both sides first, then divide by 4.')">8</button>
+          <button class="quiz-opt" onclick="answerQuiz(2,this,true,'✓ Correct! 4x = 24−8 = 16, so x = 16÷4 = 4.')">4</button>
+          <button class="quiz-opt" onclick="answerQuiz(2,this,false,'Try again: subtract 8 from both sides first, then divide by 4.')">6</button>
+          <button class="quiz-opt" onclick="answerQuiz(2,this,false,'Try again: subtract 8 from both sides first, then divide by 4.')">2</button>
+        </div>
+        <div class="quiz-feedback" id="qf2"></div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">3. For the function <code>f(x) = x² + 1</code>, what is <code>f(4)</code>?</div>
+        <div class="quiz-options" id="q3opts">
+          <button class="quiz-opt" onclick="answerQuiz(3,this,false,'Remember: x² means x×x, not x×2. So 4² = 16, not 8.')">9</button>
+          <button class="quiz-opt" onclick="answerQuiz(3,this,false,'Remember: x² means x×x, not x×2. So 4² = 16, not 8.')">8</button>
+          <button class="quiz-opt" onclick="answerQuiz(3,this,true,'✓ Correct! f(4) = 4² + 1 = 16 + 1 = 17.')">17</button>
+          <button class="quiz-opt" onclick="answerQuiz(3,this,false,'Remember: x² means x×x, not x×2. So 4² = 16, not 8.')">5</button>
+        </div>
+        <div class="quiz-feedback" id="qf3"></div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-q">4. In Python, how do you write the math expression <code>x³</code>?</div>
+        <div class="quiz-options" id="q4opts">
+          <button class="quiz-opt" onclick="answerQuiz(4,this,false,'<code>x^3</code> is XOR in Python, not exponentiation! Use ** instead.')"><code>x^3</code></button>
+          <button class="quiz-opt" onclick="answerQuiz(4,this,true,'✓ Correct! Python uses ** for exponentiation. x**3 = x×x×x.')"><code>x**3</code></button>
+          <button class="quiz-opt" onclick="answerQuiz(4,this,false,'pow() works, but x**3 is the most direct translation of x³.')"><code>pow(x)</code></button>
+          <button class="quiz-opt" onclick="answerQuiz(4,this,false,'x*3 means x multiplied by 3, not x to the power 3.')"><code>x*3</code></button>
+        </div>
+        <div class="quiz-feedback" id="qf4"></div>
+      </div>
+
+      <div class="complete-section">
+        <button class="complete-btn" id="completeBtn" disabled onclick="completeLesson()">
+          🎓 Complete Module — Claim 130 XP
+        </button>
+        <p class="complete-note" id="completeNote">Finish all challenges and quiz questions to unlock.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- XP Toast -->
+<div class="xp-toast" id="xpToast">
+  <span>⚡</span><span id="xpToastMsg">+15 XP</span>
+</div>
+
+<script>
+  /* ── State ── */
+  const state = {
+    xp: 0,
+    done: { c1:false, c2:false, c3:false, c4:false, q1:false, q2:false, q3:false, q4:false }
+  };
+
+  /* ── Load existing progress ── */
+  function loadProgress() {
+    const p = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    state.xp = p.xp || 0;
+    document.getElementById('navXp').textContent = state.xp + ' XP';
+    if (p.modules && p.modules.algebra && p.modules.algebra.completed) {
+      document.getElementById('completeBtn').disabled = false;
+      document.getElementById('completeNote').textContent = 'Module already completed! ✓';
+    }
+  }
+
+  /* ── XP toast ── */
+  function showXP(amt, msg) {
+    const t = document.getElementById('xpToast');
+    document.getElementById('xpToastMsg').textContent = msg || ('+' + amt + ' XP');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function awardXP(amt) {
+    state.xp += amt;
+    document.getElementById('navXp').textContent = state.xp + ' XP';
+    const p = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    p.xp = (p.xp || 0) + amt;
+    localStorage.setItem('helix_math_progress', JSON.stringify(p));
+  }
+
+  /* ── Check if all done ── */
+  function checkAllDone() {
+    const all = Object.values(state.done).every(Boolean);
+    if (all) {
+      document.getElementById('completeBtn').disabled = false;
+      document.getElementById('completeNote').textContent = 'All activities complete! Claim your XP ↑';
+    }
+    // sidebar progress
+    const doneCount = Object.values(state.done).filter(Boolean).length;
+    const pct = Math.round((doneCount / 8) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressPct').textContent = pct + '%';
+  }
+
+  /* ── Scroll-based sidebar highlight ── */
+  function scrollTo(id) {
+    document.querySelector(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  window.addEventListener('scroll', () => {
+    const sections = ['l1','l2','l3','l4','quiz'];
+    const items = document.querySelectorAll('.lesson-item');
+    let active = 0;
+    sections.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top < 120) active = i;
+    });
+    items.forEach((item, i) => item.classList.toggle('active', i === active));
+  }, { passive: true });
+
+  /* ── Variable playground ── */
+  function evalExpr() {
+    const x = parseFloat(document.getElementById('varX').value);
+    if (isNaN(x)) return;
+    const result = 3*x*x + 2*x - 5;
+    document.getElementById('varResult').textContent = result;
+    document.getElementById('varBreakdown').innerHTML =
+      `3×(${x})² + 2×(${x}) − 5<br>= 3×${x*x} + ${2*x} − 5<br>= ${3*x*x} + ${2*x} − 5<br>= <strong style="color:var(--amber-l)">${result}</strong>`;
+  }
+  evalExpr();
+
+  /* ── Equation solver ── */
+  function updateEqDisplay() {
+    const a = document.getElementById('inputA').value || 'a';
+    const b = parseFloat(document.getElementById('inputB').value);
+    const c = document.getElementById('inputC').value || 'c';
+    const bStr = isNaN(b) ? '+ b' : (b >= 0 ? '+ ' + b : '− ' + Math.abs(b));
+    document.getElementById('eqDisplay').innerHTML =
+      `<span class="unknown">${a}</span>x ${bStr} = <span class="known">${c}</span>`;
+  }
+  function solveEquation() {
+    const a = parseFloat(document.getElementById('inputA').value);
+    const b = parseFloat(document.getElementById('inputB').value);
+    const c = parseFloat(document.getElementById('inputC').value);
+    if (isNaN(a) || isNaN(b) || isNaN(c)) { document.getElementById('eqAnswer').textContent = 'Enter valid numbers.'; return; }
+    if (a === 0) { document.getElementById('eqAnswer').textContent = 'a cannot be 0!'; return; }
+    const x = (c - b) / a;
+    document.getElementById('eqAnswer').textContent = 'x = ' + x;
+    document.getElementById('eqSteps').innerHTML =
+      `<span class="step">Step 1: subtract ${b} from both sides → <span>${a}x = ${c - b}</span></span>` +
+      `<span class="step">Step 2: divide both sides by ${a} → <span>x = ${c - b} ÷ ${a} = ${x}</span></span>` +
+      `<span class="step" style="color:var(--green)">✓ Check: ${a}(${x}) + ${b} = ${a*x + b} = ${c}</span>`;
+  }
+  updateEqDisplay();
+
+  /* ── Function machine ── */
+  function updateMachine() {
+    const x = parseInt(document.getElementById('fnSlider').value);
+    const out = 2*x + 1;
+    document.getElementById('machineIn').textContent = x;
+    document.getElementById('machineOut').textContent = out;
+    document.getElementById('fnSliderVal').textContent = x;
+    document.getElementById('fnX2').textContent = x;
+    document.getElementById('fnX3').textContent = x;
+    document.getElementById('fnResult').textContent = out;
+  }
+
+  /* ── Graph plotter ── */
+  function drawPlot() {
+    const canvas = document.getElementById('plotCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const m = parseFloat(document.getElementById('plotM').value) || 0;
+    const b = parseFloat(document.getElementById('plotB').value) || 0;
+    ctx.clearRect(0, 0, W, H);
+
+    const cx = W/2, cy = H/2;
+    const scale = 22;
+
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let i = -8; i <= 8; i++) {
+      ctx.beginPath(); ctx.moveTo(cx + i*scale, 0); ctx.lineTo(cx + i*scale, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, cy + i*scale); ctx.lineTo(W, cy + i*scale); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+
+    // Axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '10px Inter';
+    ctx.textAlign = 'center';
+    for (let i = -7; i <= 7; i++) {
+      if (i !== 0) {
+        ctx.fillText(i, cx + i*scale, cy + 14);
+        ctx.fillText(-i, cx + 4, cy + i*scale + 4);
+      }
+    }
+
+    // Line y = mx + b
+    ctx.strokeStyle = '#F59E0B';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = 'rgba(245,158,11,0.5)';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    const x1 = -W/2/scale, x2 = W/2/scale;
+    const y1 = -(m*x1 + b), y2 = -(m*x2 + b);
+    ctx.moveTo(cx + x1*scale, cy + y1*scale);
+    ctx.lineTo(cx + x2*scale, cy + y2*scale);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Y-intercept dot
+    ctx.fillStyle = '#22D3EE';
+    ctx.beginPath();
+    ctx.arc(cx, cy - b*scale, 5, 0, Math.PI*2);
+    ctx.fill();
+
+    const bStr = b >= 0 ? '+ ' + b : '− ' + Math.abs(b);
+    document.getElementById('plotEquation').textContent = `y = ${m}x ${bStr}`;
+    document.getElementById('plotAt0').textContent = `y = ${b}`;
+  }
+  drawPlot();
+
+  /* ── Lerp calculator ── */
+  function calcLerp() {
+    const s = parseFloat(document.getElementById('lerpStart').value) || 0;
+    const e = parseFloat(document.getElementById('lerpEnd').value) || 0;
+    const t = parseFloat(document.getElementById('lerpT').value);
+    const tc = Math.min(1, Math.max(0, isNaN(t) ? 0 : t));
+    const result = s + (e - s) * tc;
+    document.getElementById('lerpResult').textContent = Math.round(result * 100) / 100;
+    document.getElementById('lerpSlider').value = Math.round(tc * 100);
+    document.getElementById('lerpSliderVal').textContent = tc.toFixed(2);
+  }
+  function syncLerpSlider() {
+    const t = document.getElementById('lerpSlider').value / 100;
+    document.getElementById('lerpT').value = t.toFixed(2);
+    calcLerp();
+  }
+  calcLerp();
+
+  /* ── Challenges ── */
+  const challengeAnswers = { 1: 13, 2: 3, 3: 19, 4: 37 };
+  function checkChallenge(n) {
+    if (state.done['c' + n]) return;
+    const val = parseFloat(document.getElementById('c' + n + 'ans').value);
+    const fb = document.getElementById('cf' + n);
+    const correct = Math.abs(val - challengeAnswers[n]) < 0.6;
+    if (correct) {
+      fb.className = 'challenge-feedback correct';
+      fb.textContent = '✓ Correct! +15 XP';
+      state.done['c' + n] = true;
+      document.getElementById('done-' + n).textContent = '✓';
+      awardXP(15);
+      showXP(15);
+      checkAllDone();
+    } else {
+      fb.className = 'challenge-feedback wrong';
+      fb.textContent = '✗ Not quite. Try again or use the hint.';
+    }
+  }
+  function toggleHint(n) {
+    const h = document.getElementById('hint' + n);
+    h.style.display = h.style.display === 'block' ? 'none' : 'block';
+  }
+
+  /* ── Quiz ── */
+  let quizCorrect = 0;
+  function answerQuiz(n, btn, isCorrect, msg) {
+    if (state.done['q' + n]) return;
+    const opts = document.querySelectorAll('#q' + n + 'opts .quiz-opt');
+    opts.forEach(o => { o.disabled = true; });
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    const fb = document.getElementById('qf' + n);
+    fb.textContent = msg;
+    fb.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
+    if (isCorrect) {
+      state.done['q' + n] = true;
+      awardXP(20);
+      showXP(20, '+20 XP');
+      checkAllDone();
+    } else {
+      // Find correct button and highlight
+      opts.forEach(o => { if (o.onclick.toString().includes('true')) o.classList.add('correct'); });
+    }
+    state.done['q' + n] = true;
+    checkAllDone();
+  }
+
+  /* ── Complete module ── */
+  function completeLesson() {
+    const btn = document.getElementById('completeBtn');
+    btn.disabled = true;
+    btn.textContent = '🎓 Module Complete!';
+    awardXP(130);
+    showXP(130, '+130 XP — Module Complete!');
+    const p = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    p.completedLessons = (p.completedLessons || 0) + 1;
+    p.modules = p.modules || {};
+    p.modules.algebra = { completed: true, date: new Date().toISOString() };
+    p.lastActivity = new Date().toISOString();
+    localStorage.setItem('helix_math_progress', JSON.stringify(p));
+    document.getElementById('completeNote').textContent = '🎉 Module completed! Head back to continue the strand.';
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('progressPct').textContent = '100%';
+  }
+
+  loadProgress();
+</script>
+</body>
+</html>

@@ -262,6 +262,30 @@
         </div>
       </a>
 
+      <!-- Module 3: Algebra for Programmers -->
+      <a href="math-algebra.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 03</div>
+          <span class="course-icon">📐</span>
+          <div class="course-name">Algebra for Programmers</div>
+          <div class="course-desc">Variables, equations, functions — you already know algebra, you just call it code. This module shows you the bridge between the two worlds.</div>
+          <div class="course-tags">
+            <span class="course-tag">Variables</span>
+            <span class="course-tag">Functions</span>
+            <span class="course-tag">Equations</span>
+            <span class="course-tag">Graphs</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-algebra" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-algebra">5 lessons · ~22 min</div>
+          </div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>5</strong> lessons · <strong>130</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
     </div>
 
     <!-- Coming Soon Modules -->
@@ -270,24 +294,6 @@
       <span class="sec-sub">— More modules dropping soon</span>
     </div>
     <div class="courses-grid">
-
-      <div class="course-card locked">
-        <div class="course-card-top">
-          <div class="course-num">Module 03</div>
-          <span class="course-icon">📐</span>
-          <div class="course-name">Algebra for Programmers</div>
-          <div class="course-desc">Variables, equations, functions — you already know algebra, you just call it code. This module shows you the bridge between the two worlds.</div>
-          <div class="course-tags">
-            <span class="course-tag locked-tag">Variables</span>
-            <span class="course-tag locked-tag">Functions</span>
-            <span class="course-tag locked-tag">Equations</span>
-          </div>
-        </div>
-        <div class="course-card-bottom">
-          <div class="course-meta"><strong>5</strong> lessons planned</div>
-          <button class="course-btn locked-btn">🔒 Coming Soon</button>
-        </div>
-      </div>
 
       <div class="course-card locked">
         <div class="course-card-top">
@@ -380,12 +386,28 @@
 
     /* Per-module progress */
     const modules = mathProg.modules || {};
-    const logicDone = modules.logic || 0;
-    const logicPct  = Math.min(Math.round((logicDone / 5) * 100), 100);
+
+    // Module 1: Boolean Logic
+    const logicDone = modules.logic?.completed ? 5 : 0;
+    const logicPct  = modules.logic?.completed ? 100 : 0;
     setTimeout(() => { document.getElementById('prog-logic').style.width = logicPct + '%'; }, 200);
     if (logicDone > 0) {
-      document.getElementById('lbl-logic').textContent = `${logicDone}/5 lessons complete`;
-      document.getElementById('btn-logic').textContent = logicDone >= 5 ? '✓ Review' : 'Continue →';
+      document.getElementById('lbl-logic').textContent = 'Completed ✓';
+      document.getElementById('btn-logic').textContent = '✓ Review';
+    }
+
+    // Module 2: Number Systems
+    const numsDone = modules.numbers?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-numbers').style.width = numsDone + '%'; }, 250);
+    if (modules.numbers?.completed) {
+      document.getElementById('lbl-numbers').textContent = 'Completed ✓';
+    }
+
+    // Module 3: Algebra
+    const algDone = modules.algebra?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-algebra').style.width = algDone + '%'; }, 300);
+    if (modules.algebra?.completed) {
+      document.getElementById('lbl-algebra').textContent = 'Completed ✓';
     }
   </script>
 </body>
