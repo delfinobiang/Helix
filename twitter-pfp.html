@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Helix — Profile Picture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 400px;
+      height: 400px;
+      overflow: hidden;
+      background: #050816;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pfp {
+      width: 400px;
+      height: 400px;
+      background: #050816;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Glow blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+    .blob-1 {
+      width: 280px; height: 280px;
+      background: #6366F1;
+      opacity: 0.22;
+      top: -60px; left: -60px;
+    }
+    .blob-2 {
+      width: 220px; height: 220px;
+      background: #22D3EE;
+      opacity: 0.16;
+      bottom: -50px; right: -40px;
+    }
+    .blob-3 {
+      width: 180px; height: 180px;
+      background: #8B5CF6;
+      opacity: 0.18;
+      bottom: -40px; left: 40px;
+    }
+
+    /* Subtle grid */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Outer ring */
+    .ring {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      border: 1px solid rgba(99,102,241,0.2);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .ring-2 {
+      width: 360px;
+      height: 360px;
+      border-color: rgba(99,102,241,0.08);
+    }
+
+    /* Content */
+    .content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .helix-wrap {
+      width: 110px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow:
+        0 0 30px rgba(99,102,241,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .wordmark {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 52px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .tagline {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+    }
+
+    /* Bottom gradient line */
+    .line {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #6366F1, #22D3EE, #8B5CF6, transparent);
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="pfp">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="grid"></div>
+    <div class="ring"></div>
+    <div class="ring ring-2"></div>
+
+    <div class="content">
+      <!-- Helix SVG logo -->
+      <div class="helix-wrap">
+        <svg width="78" height="40" viewBox="0 0 78 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="78" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#6366F1"/>
+              <stop offset="33%" stop-color="#22D3EE"/>
+              <stop offset="66%" stop-color="#8B5CF6"/>
+              <stop offset="100%" stop-color="#6366F1"/>
+            </linearGradient>
+            <linearGradient id="g2" x1="0" y1="0" x2="78" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#22D3EE"/>
+              <stop offset="33%" stop-color="#8B5CF6"/>
+              <stop offset="66%" stop-color="#6366F1"/>
+              <stop offset="100%" stop-color="#22D3EE"/>
+            </linearGradient>
+          </defs>
+          <!-- Strand 1 -->
+          <path d="M0 20 Q9.75 4 19.5 20 Q29.25 36 39 20 Q48.75 4 58.5 20 Q68.25 36 78 20"
+                stroke="url(#g1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Strand 2 -->
+          <path d="M0 20 Q9.75 36 19.5 20 Q29.25 4 39 20 Q48.75 36 58.5 20 Q68.25 4 78 20"
+                stroke="url(#g2)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Rungs -->
+          <line x1="19.5" y1="14" x2="19.5" y2="26" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="39" y1="14" x2="39" y2="26" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="58.5" y1="14" x2="58.5" y2="26" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="wordmark">Helix</div>
+      <div class="tagline">Code your helix</div>
+    </div>
+
+    <div class="line"></div>
+  </div>
+</body>
+</html>
