@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Number Systems — Helix Mathematics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --border:   rgba(255,255,255,0.07);
+      --amber:    #F59E0B;
+      --amber-l:  #FCD34D;
+      --orange:   #F97316;
+      --primary:  #6366F1;
+      --cyan:     #22D3EE;
+      --green:    #10B981;
+      --red:      #EF4444;
+      --violet:   #8B5CF6;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --nav-h:    60px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(245,158,11,0.16) 0%, transparent 65%); top: -80px; right: 0; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 65%); bottom: -150px; left: -100px; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(34,211,238,0.1) 0%, transparent 65%); top: 40%; left: 50%; }
+
+    /* Layout */
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: var(--nav-h) 1fr; grid-template-areas: "nav nav" "sidebar main"; min-height: 100vh; position: relative; z-index: 1; }
+
+    /* Topnav */
+    .topnav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: rgba(5,8,22,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .nav-sep { color: var(--text-3); font-size: 1rem; }
+    .nav-title { font-size: 0.85rem; font-weight: 600; color: var(--amber); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-xp { font-size: 0.78rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); padding: 4px 12px; border-radius: 100px; }
+    .nav-back { font-size: 0.8rem; color: var(--text-2); padding: 5px 10px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* Sidebar */
+    .sidebar { grid-area: sidebar; border-right: 1px solid var(--border); background: rgba(8,10,25,0.7); padding: 24px 0; overflow-y: auto; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 0 20px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .lesson-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; cursor: pointer; transition: background 0.15s; border-left: 3px solid transparent; }
+    .lesson-item:hover { background: rgba(255,255,255,0.04); }
+    .lesson-item.active { background: rgba(245,158,11,0.08); border-left-color: var(--amber); }
+    .lesson-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-3); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; flex-shrink: 0; transition: all 0.2s; }
+    .lesson-item.active .lesson-dot { border-color: var(--amber); background: rgba(245,158,11,0.15); color: var(--amber); }
+    .lesson-item.done .lesson-dot { border-color: var(--green); background: rgba(16,185,129,0.15); color: var(--green); }
+    .lesson-name { font-size: 0.82rem; font-weight: 500; }
+    .lesson-item.active .lesson-name { color: var(--text); font-weight: 600; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-progress { padding: 16px 20px; border-top: 1px solid var(--border); }
+    .progress-lbl { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-2); margin-bottom: 6px; }
+    .progress-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--amber), var(--orange)); border-radius: 100px; transition: width 0.5s ease; }
+
+    /* Main */
+    .main { grid-area: main; padding: 40px 48px; max-width: 820px; }
+
+    /* Lesson header */
+    .lesson-header { margin-bottom: 36px; }
+    .lesson-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+    .lesson-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 12px; }
+    .lesson-intro { font-size: 0.95rem; color: var(--text-2); line-height: 1.7; max-width: 640px; }
+
+    /* Sections */
+    .lesson-section { margin-bottom: 48px; }
+    .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .section-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: var(--amber); flex-shrink: 0; }
+    .section-body { font-size: 0.9rem; color: var(--text-2); line-height: 1.75; margin-bottom: 20px; }
+    .section-body strong { color: var(--text); }
+    .section-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 5px; color: var(--amber-l); }
+
+    .callout { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 16px 18px; margin: 16px 0; display: flex; gap: 12px; }
+    .callout-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .callout-text { font-size: 0.855rem; color: var(--text-2); line-height: 1.6; }
+    .callout-text strong { color: var(--text); }
+    .callout.cyan { background: rgba(34,211,238,0.05); border-color: rgba(34,211,238,0.2); }
+    .callout.violet { background: rgba(139,92,246,0.06); border-color: rgba(139,92,246,0.2); }
+
+    .code-block { background: rgba(12,16,34,0.8); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 16px 0; }
+    .code-block-header { padding: 10px 16px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-2); background: rgba(255,255,255,0.02); }
+    .code-block-body { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; }
+    .kw  { color: #C792EA; }
+    .fn  { color: #82AAFF; }
+    .str { color: #C3E88D; }
+    .num { color: #F78C6C; }
+    .cmt { color: rgba(255,255,255,0.28); font-style: italic; }
+    .op  { color: rgba(255,255,255,0.5); }
+    .c-amber { color: #FCD34D; }
+    .c-cyan  { color: #67E8F9; }
+
+    .lesson-divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+    /* ── Place Value Table ── */
+    .place-table-wrap { overflow-x: auto; margin: 20px 0; }
+    .place-table { border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; width: 100%; }
+    .place-table th { padding: 10px 14px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: var(--amber-l); font-weight: 700; text-align: center; }
+    .place-table td { padding: 10px 14px; border: 1px solid rgba(255,255,255,0.06); text-align: center; }
+    .place-table .row-label { color: var(--text-2); font-size: 0.78rem; text-align: left; }
+    .place-table .val-1 { color: #6EE7B7; font-weight: 700; }
+    .place-table .val-0 { color: var(--text-3); }
+    .place-table .power { color: var(--cyan); }
+    .place-table .decimal-val { color: var(--amber-l); font-weight: 700; }
+
+    /* ── Bit Flipper ── */
+    .bit-flipper { background: rgba(12,16,34,0.7); border: 1px solid rgba(245,158,11,0.2); border-radius: 16px; padding: 24px; margin: 20px 0; }
+    .bit-flipper-title { font-size: 0.78rem; font-weight: 700; color: var(--amber); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .bit-flipper-sub { font-size: 0.8rem; color: var(--text-2); margin-bottom: 20px; }
+    .bits-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .bit-btn {
+      width: 52px; height: 52px; border-radius: 10px; border: 2px solid;
+      font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 800;
+      cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+    }
+    .bit-btn .bit-pos { font-size: 0.52rem; font-weight: 500; opacity: 0.6; }
+    .bit-btn.off { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); color: var(--text-3); }
+    .bit-btn.on  { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.5); color: var(--amber-l); }
+    .bit-btn:hover { transform: translateY(-2px); }
+    .bit-result { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .bit-result-val { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 800; color: var(--amber-l); letter-spacing: -0.03em; }
+    .bit-result-lbl { font-size: 0.82rem; color: var(--text-2); }
+    .bit-result-hex { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--cyan); }
+
+    /* ── Live Converter ── */
+    .converter { background: rgba(12,16,34,0.7); border: 1px solid rgba(99,102,241,0.2); border-radius: 16px; padding: 24px; margin: 20px 0; }
+    .converter-title { font-size: 0.78rem; font-weight: 700; color: var(--primary-l, #818CF8); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px; }
+    .converter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+    .conv-field { display: flex; flex-direction: column; gap: 6px; }
+    .conv-label { font-size: 0.72rem; font-weight: 600; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase; }
+    .conv-input {
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700;
+      color: var(--text); outline: none; transition: border-color 0.2s;
+      width: 100%;
+    }
+    .conv-input:focus { border-color: var(--amber); }
+    .conv-input.readonly { cursor: default; color: var(--amber-l); }
+    .conv-base { font-size: 0.68rem; color: var(--text-3); margin-top: 2px; }
+
+    /* ── Number Reference Table ── */
+    .ref-table-wrap { overflow-x: auto; margin: 20px 0; max-height: 320px; overflow-y: auto; border-radius: 12px; border: 1px solid var(--border); }
+    .ref-table { border-collapse: collapse; width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; }
+    .ref-table thead th { position: sticky; top: 0; padding: 10px 16px; background: rgba(12,16,34,0.95); border-bottom: 1px solid rgba(245,158,11,0.2); color: var(--amber-l); font-weight: 700; text-align: center; z-index: 2; }
+    .ref-table td { padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; }
+    .ref-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .ref-dec { color: var(--text); }
+    .ref-bin { color: #6EE7B7; }
+    .ref-hex { color: var(--cyan); }
+    .ref-oct { color: #C4B5FD; }
+
+    /* ── Conversion Challenge ── */
+    .challenge-card { background: rgba(12,16,34,0.7); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 24px; margin: 20px 0; }
+    .challenge-title { font-size: 0.78rem; font-weight: 700; color: var(--violet); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+    .challenge-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+    .challenge-q .highlight { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--amber-l); background: rgba(245,158,11,0.1); padding: 2px 8px; border-radius: 6px; }
+    .challenge-input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .challenge-input {
+      flex: 1; min-width: 120px; max-width: 200px;
+      background: rgba(255,255,255,0.04); border: 2px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700;
+      color: var(--text); outline: none; transition: border-color 0.2s;
+    }
+    .challenge-input:focus { border-color: var(--violet); }
+    .challenge-input.correct { border-color: var(--green); background: rgba(16,185,129,0.08); color: #6EE7B7; }
+    .challenge-input.wrong { border-color: var(--red); background: rgba(239,68,68,0.06); animation: shake 0.3s ease; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    .check-btn { padding: 10px 20px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--violet), var(--primary)); color: #fff; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .check-btn:hover { opacity: 0.85; }
+    .challenge-feedback { margin-top: 12px; font-size: 0.85rem; line-height: 1.5; padding: 10px 14px; border-radius: 8px; display: none; }
+    .challenge-feedback.ok  { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6EE7B7; }
+    .challenge-feedback.err { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #FCA5A5; }
+    .hint-btn { font-size: 0.75rem; color: var(--text-3); background: none; border: none; cursor: pointer; text-decoration: underline; margin-top: 8px; display: block; }
+    .hint-btn:hover { color: var(--text-2); }
+
+    /* ── Quiz ── */
+    .quiz-card { background: rgba(12,16,34,0.7); border: 1px solid rgba(245,158,11,0.2); border-radius: 16px; padding: 28px; margin: 16px 0; }
+    .quiz-q { font-size: 1rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; }
+    .quiz-q code { font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.07); padding: 2px 8px; border-radius: 6px; color: var(--amber-l); font-size: 0.9em; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quiz-option { padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.18s; text-align: left; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+    .quiz-option:hover:not(:disabled) { border-color: var(--amber); background: rgba(245,158,11,0.06); }
+    .quiz-option.selected-correct { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.45); color: #6EE7B7; }
+    .quiz-option.selected-wrong   { background: rgba(239,68,68,0.1);  border-color: rgba(239,68,68,0.35);  color: #FCA5A5; }
+    .quiz-option.reveal-correct   { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
+    .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.87rem; line-height: 1.55; display: none; }
+    .quiz-feedback.correct { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6EE7B7; }
+    .quiz-feedback.wrong   { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #FCA5A5; }
+
+    /* ── XP Toast ── */
+    .xp-toast { position: fixed; bottom: 32px; right: 32px; background: rgba(12,16,34,0.95); border: 1px solid rgba(245,158,11,0.4); border-radius: 14px; padding: 16px 22px; display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 200; transform: translateY(80px); opacity: 0; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; pointer-events: none; }
+    .xp-toast.show { transform: translateY(0); opacity: 1; }
+    .xp-toast-icon { font-size: 1.6rem; }
+    .xp-toast-text strong { font-size: 1rem; color: var(--amber-l); }
+    .xp-toast-text p { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+
+    /* Complete */
+    .complete-btn { display: flex; align-items: center; gap: 10px; margin-top: 40px; padding: 16px 28px; background: linear-gradient(135deg, var(--amber), var(--orange)); color: #fff; border: none; border-radius: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .complete-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+    .complete-btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+    .next-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 13px 24px; background: rgba(245,158,11,0.1); color: var(--amber-l); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .next-btn:hover { background: rgba(245,158,11,0.18); }
+
+    @media (max-width: 768px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "nav" "main"; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+      .quiz-options { grid-template-columns: 1fr; }
+      .bits-row { gap: 6px; }
+      .bit-btn { width: 44px; height: 44px; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+
+<!-- XP Toast -->
+<div class="xp-toast" id="xpToast">
+  <div class="xp-toast-icon">⚡</div>
+  <div class="xp-toast-text">
+    <strong id="xpToastAmount">+30 XP</strong>
+    <p id="xpToastMsg">Nice work!</p>
+  </div>
+</div>
+
+<div class="app">
+  <!-- Nav -->
+  <nav class="topnav">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">
+        <svg width="22" height="14" viewBox="0 0 44 28" fill="none">
+          <path d="M0 14 Q5.5 4 11 14 Q16.5 24 22 14 Q27.5 4 33 14 Q38.5 24 44 14" stroke="#6366F1" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <path d="M0 14 Q5.5 24 11 14 Q16.5 4 22 14 Q27.5 24 33 14 Q38.5 4 44 14" stroke="#22D3EE" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        </svg>
+        Helix
+      </a>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Number Systems & Binary</span>
+    </div>
+    <div class="nav-right">
+      <div class="nav-xp" id="navXP">⚡ 0 XP</div>
+      <a href="math.html" class="nav-back">← Mathematics</a>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 02</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')">
+      <div class="lesson-dot" id="dot-1">1</div>
+      <div class="lesson-name">Why Binary?</div>
+    </div>
+    <div class="lesson-item" id="item-2" onclick="scrollToLesson('l2')">
+      <div class="lesson-dot" id="dot-2">2</div>
+      <div class="lesson-name">Counting in Binary</div>
+    </div>
+    <div class="lesson-item" id="item-3" onclick="scrollToLesson('l3')">
+      <div class="lesson-dot" id="dot-3">3</div>
+      <div class="lesson-name">Hexadecimal</div>
+    </div>
+    <div class="lesson-item" id="item-4" onclick="scrollToLesson('l4')">
+      <div class="lesson-dot" id="dot-4">4</div>
+      <div class="lesson-name">Final Quiz</div>
+    </div>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-progress">
+      <div class="progress-lbl"><span>Progress</span><span id="progPct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ══════════════════════════════════
+         LESSON 1 — Why Binary?
+    ═══════════════════════════════════ -->
+    <div id="l1">
+      <div class="lesson-header">
+        <div class="lesson-eyebrow">🧮 Mathematics · Module 02 · Lesson 1 of 4</div>
+        <h1 class="lesson-title">Number Systems<br>& Binary</h1>
+        <p class="lesson-intro">Your computer has never seen the number 7. It has only ever seen <strong>0</strong> and <strong>1</strong>. Everything else — every number, letter, image, video, and emoji — is built from those two digits. Here's how.</p>
+      </div>
+
+      <div class="lesson-section">
+        <div class="section-title"><div class="section-num">1</div>Why do computers use binary?</div>
+        <div class="section-body">
+          Computers are built from billions of tiny switches called <strong>transistors</strong>. A transistor has two states: <strong>ON</strong> (electricity flows) or <strong>OFF</strong> (it doesn't). That's it.<br><br>
+          Since we only have two states, we need a number system with only two digits — <strong>0</strong> (OFF) and <strong>1</strong> (ON). That's <strong>binary</strong>, also called <em>Base-2</em>.<br><br>
+          Our everyday number system uses 10 digits (0–9) because humans have 10 fingers. We call it <strong>Base-10</strong> or <em>decimal</em>. There's nothing special about 10 — it's just convenient for us, not for computers.
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">💡</div>
+          <div class="callout-text">
+            <strong>Base-2 vs Base-10</strong><br>
+            In Base-10, each digit position is worth 10× the one to its right (1, 10, 100, 1000…).<br>
+            In Base-2, each digit position is worth 2× the one to its right (1, 2, 4, 8, 16, 32…).
+          </div>
+        </div>
+
+        <!-- Place value table -->
+        <div class="place-table-wrap">
+          <table class="place-table">
+            <thead>
+              <tr>
+                <th>System</th>
+                <th>Base</th>
+                <th>Digits used</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--text); font-weight:600;">Decimal</td>
+                <td class="power">10</td>
+                <td style="color:var(--text-2);">0 1 2 3 4 5 6 7 8 9</td>
+                <td class="decimal-val">42</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text); font-weight:600;">Binary</td>
+                <td class="power">2</td>
+                <td style="color:var(--text-2);">0 1</td>
+                <td class="val-1">101010</td>
+              </tr>
+              <tr>
+                <td style="color:var(--text); font-weight:600;">Hexadecimal</td>
+                <td class="power">16</td>
+                <td style="color:var(--text-2);">0–9 A B C D E F</td>
+                <td class="ref-hex">2A</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:0.78rem; color:var(--text-3); margin-top:6px;">All three rows above represent the same number: 42.</p>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ══════════════════════════════════
+         LESSON 2 — Counting in Binary
+    ═══════════════════════════════════ -->
+    <div id="l2">
+      <div class="lesson-section">
+        <div class="section-title"><div class="section-num">2</div>Counting in Binary</div>
+        <div class="section-body">
+          In decimal, the number <strong>347</strong> means: 3×100 + 4×10 + 7×1.<br>
+          Each position is a power of 10: 10², 10¹, 10⁰.<br><br>
+          Binary works the same way, but with powers of 2.<br>
+          The binary number <strong>1011</strong> means: 1×8 + 0×4 + 1×2 + 1×1 = <strong>11</strong>.
+        </div>
+
+        <!-- Powers of 2 table -->
+        <div class="place-table-wrap">
+          <table class="place-table">
+            <thead>
+              <tr><th>Bit position</th><th>7</th><th>6</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th><th>0</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="row-label">Power of 2</td>
+                <td class="power">2⁷</td><td class="power">2⁶</td><td class="power">2⁵</td><td class="power">2⁴</td>
+                <td class="power">2³</td><td class="power">2²</td><td class="power">2¹</td><td class="power">2⁰</td>
+              </tr>
+              <tr>
+                <td class="row-label">Decimal value</td>
+                <td class="decimal-val">128</td><td class="decimal-val">64</td><td class="decimal-val">32</td><td class="decimal-val">16</td>
+                <td class="decimal-val">8</td><td class="decimal-val">4</td><td class="decimal-val">2</td><td class="decimal-val">1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <div class="callout-icon">🎮</div>
+          <div class="callout-text"><strong>Try the Bit Flipper!</strong> Click each bit to flip it ON (1) or OFF (0). Watch the decimal and hex values update live.</div>
+        </div>
+
+        <!-- Bit Flipper -->
+        <div class="bit-flipper">
+          <div class="bit-flipper-title">🔢 8-Bit Flipper</div>
+          <div class="bit-flipper-sub">Click any bit to toggle it. Each bit is worth its power of 2.</div>
+          <div class="bits-row" id="bitsRow"></div>
+          <div class="bit-result">
+            <div class="bit-result-val" id="bitDecimal">0</div>
+            <div class="bit-result-lbl">decimal</div>
+            <div style="color:var(--text-3);">·</div>
+            <div class="bit-result-hex" id="bitHex">0x00</div>
+            <div class="bit-result-lbl">hex</div>
+            <div style="color:var(--text-3);">·</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:1rem; font-weight:700; color:#C4B5FD;" id="bitBinary">00000000</div>
+            <div class="bit-result-lbl">binary</div>
+          </div>
+        </div>
+
+        <!-- Live Converter -->
+        <div class="converter">
+          <div class="converter-title">⚡ Live Number Converter</div>
+          <div class="converter-grid">
+            <div class="conv-field">
+              <div class="conv-label">Decimal</div>
+              <input class="conv-input" id="convDec" type="number" min="0" max="65535" placeholder="0" oninput="convertFrom('dec')">
+              <div class="conv-base">Base 10 · 0–65535</div>
+            </div>
+            <div class="conv-field">
+              <div class="conv-label">Binary</div>
+              <input class="conv-input" id="convBin" type="text" placeholder="0" oninput="convertFrom('bin')">
+              <div class="conv-base">Base 2 · only 0s and 1s</div>
+            </div>
+            <div class="conv-field">
+              <div class="conv-label">Hexadecimal</div>
+              <input class="conv-input" id="convHex" type="text" placeholder="0" oninput="convertFrom('hex')">
+              <div class="conv-base">Base 16 · 0–9, A–F</div>
+            </div>
+            <div class="conv-field">
+              <div class="conv-label">Octal</div>
+              <input class="conv-input readonly" id="convOct" type="text" placeholder="0" readonly>
+              <div class="conv-base">Base 8 · 0–7</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversion Challenge 1 -->
+        <div class="challenge-card">
+          <div class="challenge-title">🧩 Challenge — Binary to Decimal</div>
+          <div class="challenge-q">What is <span class="highlight">1010</span> in decimal?<br><small style="font-size:0.78rem; color:var(--text-2); font-weight:400;">Hint: work out 1×8 + 0×4 + 1×2 + 0×1</small></div>
+          <div class="challenge-input-row">
+            <input class="challenge-input" id="ch1-input" type="number" placeholder="Your answer…" onkeydown="if(event.key==='Enter') checkChallenge(1)">
+            <button class="check-btn" onclick="checkChallenge(1)">Check →</button>
+          </div>
+          <div class="challenge-feedback" id="ch1-feedback"></div>
+          <button class="hint-btn" onclick="showHint(1)">Show hint</button>
+          <div id="ch1-hint" style="display:none; margin-top:10px; font-size:0.82rem; color:var(--text-2); background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:8px;">
+            1×2³ + 0×2² + 1×2¹ + 0×2⁰ = 8 + 0 + 2 + 0 = <strong style="color:var(--amber-l);">10</strong>
+          </div>
+        </div>
+
+        <!-- Conversion Challenge 2 -->
+        <div class="challenge-card">
+          <div class="challenge-title">🧩 Challenge — Decimal to Binary</div>
+          <div class="challenge-q">Convert <span class="highlight">13</span> to binary.<br><small style="font-size:0.78rem; color:var(--text-2); font-weight:400;">Type your answer as a sequence of 0s and 1s (e.g. 1101)</small></div>
+          <div class="challenge-input-row">
+            <input class="challenge-input" id="ch2-input" type="text" placeholder="e.g. 1101" onkeydown="if(event.key==='Enter') checkChallenge(2)">
+            <button class="check-btn" onclick="checkChallenge(2)">Check →</button>
+          </div>
+          <div class="challenge-feedback" id="ch2-feedback"></div>
+          <button class="hint-btn" onclick="showHint(2)">Show hint</button>
+          <div id="ch2-hint" style="display:none; margin-top:10px; font-size:0.82rem; color:var(--text-2); background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:8px;">
+            13 = 8 + 4 + 1 = 2³ + 2² + 2⁰ → bits 3, 2, 0 are ON → <strong style="color:var(--amber-l);">1101</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ══════════════════════════════════
+         LESSON 3 — Hexadecimal
+    ═══════════════════════════════════ -->
+    <div id="l3">
+      <div class="lesson-section">
+        <div class="section-title"><div class="section-num">3</div>Hexadecimal — The Programmer's Shortcut</div>
+        <div class="section-body">
+          Binary is great for computers but hard for humans to read. Imagine writing <code>11111111</code> instead of <code>255</code>. Hex is the solution.<br><br>
+          Hexadecimal is <strong>Base-16</strong>. It uses digits <strong>0–9</strong> and letters <strong>A–F</strong> (where A=10, B=11, … F=15). One hex digit represents exactly <strong>4 binary bits</strong> — making it a perfect shorthand.<br><br>
+          You see hex everywhere: <strong>CSS colors</strong> like <code style="color:#A78BFA;">#6366F1</code>, <strong>memory addresses</strong>, <strong>file encodings</strong>, and <strong>Unicode characters</strong>.
+        </div>
+
+        <div class="callout cyan">
+          <div class="callout-icon">🎨</div>
+          <div class="callout-text">
+            <strong>Hex colors in CSS</strong> — The color <code>#FF5733</code> means:<br>
+            R = <code>FF</code> = 255 · G = <code>57</code> = 87 · B = <code>33</code> = 51<br>
+            Each pair of hex digits = one color channel from 0–255.
+          </div>
+        </div>
+
+        <!-- Reference Table -->
+        <p style="font-size:0.85rem; color:var(--text-2); margin-bottom:10px;">Scroll through the table to see decimal, binary, hex, and octal side by side:</p>
+        <div class="ref-table-wrap">
+          <table class="ref-table" id="refTable">
+            <thead>
+              <tr><th>Decimal</th><th>Binary</th><th>Hex</th><th>Octal</th></tr>
+            </thead>
+            <tbody id="refBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Conversion Challenge 3 -->
+        <div class="challenge-card" style="margin-top:20px;">
+          <div class="challenge-title">🧩 Challenge — Hex to Decimal</div>
+          <div class="challenge-q">What is <span class="highlight">0xFF</span> in decimal?<br><small style="font-size:0.78rem; color:var(--text-2); font-weight:400;">F = 15 in decimal. Remember: each hex digit position is worth 16×.</small></div>
+          <div class="challenge-input-row">
+            <input class="challenge-input" id="ch3-input" type="number" placeholder="Your answer…" onkeydown="if(event.key==='Enter') checkChallenge(3)">
+            <button class="check-btn" onclick="checkChallenge(3)">Check →</button>
+          </div>
+          <div class="challenge-feedback" id="ch3-feedback"></div>
+          <button class="hint-btn" onclick="showHint(3)">Show hint</button>
+          <div id="ch3-hint" style="display:none; margin-top:10px; font-size:0.82rem; color:var(--text-2); background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:8px;">
+            FF = F×16 + F×1 = 15×16 + 15×1 = 240 + 15 = <strong style="color:var(--amber-l);">255</strong>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-header">python — working with different bases</div>
+          <div class="code-block-body">
+<span class="cmt"># Python understands different bases natively</span>
+decimal_val <span class="op">=</span> <span class="num">255</span>
+binary_val  <span class="op">=</span> <span class="c-amber">0b11111111</span>   <span class="cmt"># 0b prefix = binary</span>
+hex_val     <span class="op">=</span> <span class="c-cyan">0xFF</span>          <span class="cmt"># 0x prefix = hex</span>
+octal_val   <span class="op">=</span> <span class="num">0o377</span>         <span class="cmt"># 0o prefix = octal</span>
+
+<span class="cmt"># They all equal the same number!</span>
+<span class="fn">print</span>(decimal_val <span class="op">==</span> binary_val <span class="op">==</span> hex_val)  <span class="cmt"># True</span>
+
+<span class="cmt"># Convert between formats</span>
+n <span class="op">=</span> <span class="num">42</span>
+<span class="fn">print</span>(<span class="fn">bin</span>(n))   <span class="cmt"># '0b101010'</span>
+<span class="fn">print</span>(<span class="fn">hex</span>(n))   <span class="cmt"># '0x2a'</span>
+<span class="fn">print</span>(<span class="fn">oct</span>(n))   <span class="cmt"># '0o52'</span>
+          </div>
+        </div>
+
+        <div class="callout violet">
+          <div class="callout-icon">🧠</div>
+          <div class="callout-text">
+            <strong>Why does this matter?</strong><br>
+            A byte is 8 bits. The max value of a byte is 11111111 in binary = 255 decimal = <strong>FF in hex</strong>. That's why web colors go from #000000 to #FFFFFF, and why you'll see "255" in RGB values everywhere.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-divider"></div>
+
+    <!-- ══════════════════════════════════
+         LESSON 4 — Final Quiz
+    ═══════════════════════════════════ -->
+    <div id="l4">
+      <div class="lesson-section">
+        <div class="section-title"><div class="section-num">4</div>Final Quiz</div>
+        <div class="section-body">Four questions to lock in your knowledge. You've got this.</div>
+
+        <!-- Q1 -->
+        <div class="quiz-card">
+          <div class="quiz-q">Question 1 of 4 — How many unique values can 1 byte (8 bits) represent?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(1,this,false,'8 bits can represent 2⁸ = 256 values, not 8.')">8</button>
+            <button class="quiz-option" onclick="answerQuiz(1,this,false,'Close! 2⁸ = 256, not 128.')">128</button>
+            <button class="quiz-option" onclick="answerQuiz(1,this,true,'Correct! 2⁸ = 256 unique values (0 to 255).')">256</button>
+            <button class="quiz-option" onclick="answerQuiz(1,this,false,'2⁸ = 256, not 512.')">512</button>
+          </div>
+          <div class="quiz-feedback" id="q1-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-card">
+          <div class="quiz-q">Question 2 of 4 — What is the binary number <code>1100</code> in decimal?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(2,this,false,'1100 = 8+4+0+0 = 12, not 10.')">10</button>
+            <button class="quiz-option" onclick="answerQuiz(2,this,false,'1100 = 1×8 + 1×4 + 0×2 + 0×1 = 12, not 11.')">11</button>
+            <button class="quiz-option" onclick="answerQuiz(2,this,true,'Correct! 1×8 + 1×4 + 0×2 + 0×1 = 12.')">12</button>
+            <button class="quiz-option" onclick="answerQuiz(2,this,false,'1100 = 8+4 = 12, not 14.')">14</button>
+          </div>
+          <div class="quiz-feedback" id="q2-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-card">
+          <div class="quiz-q">Question 3 of 4 — In hexadecimal, what letter represents the decimal value 15?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(3,this,false,'D = 13 in hex.')">D</button>
+            <button class="quiz-option" onclick="answerQuiz(3,this,false,'E = 14 in hex.')">E</button>
+            <button class="quiz-option" onclick="answerQuiz(3,this,true,'Correct! F = 15. Hex goes: 10=A, 11=B, 12=C, 13=D, 14=E, 15=F.')">F</button>
+            <button class="quiz-option" onclick="answerQuiz(3,this,false,'G is not a valid hex digit. Hex only goes up to F.')">G</button>
+          </div>
+          <div class="quiz-feedback" id="q3-feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-card">
+          <div class="quiz-q">Question 4 of 4 — Why do programmers use hexadecimal instead of binary?</div>
+          <div class="quiz-options">
+            <button class="quiz-option" onclick="answerQuiz(4,this,false,'Computers actually process binary internally — hex is for human readability.')">Computers process hex faster</button>
+            <button class="quiz-option" onclick="answerQuiz(4,this,true,'Correct! 1 hex digit = 4 bits, so it\'s a compact, readable shorthand for binary.')">It\'s a compact shorthand for binary</button>
+            <button class="quiz-option" onclick="answerQuiz(4,this,false,'Hex has nothing to do with ASCII.')">It\'s related to ASCII</button>
+            <button class="quiz-option" onclick="answerQuiz(4,this,false,'Hex was invented long before internet protocols.')">It\'s a web standard</button>
+          </div>
+          <div class="quiz-feedback" id="q4-feedback"></div>
+        </div>
+
+        <!-- Complete area -->
+        <div id="complete-area" style="display:none; text-align:center; padding:32px 0;">
+          <div style="font-size:3rem; margin-bottom:16px;">🎉</div>
+          <div style="font-size:1.4rem; font-weight:800; margin-bottom:8px; letter-spacing:-0.02em;">Lesson Complete!</div>
+          <div style="font-size:0.9rem; color:var(--text-2); margin-bottom:24px;">You've mastered Number Systems & Binary. Your computer speaks your language now.</div>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+            <a href="math.html" class="next-btn">← Back to Mathematics</a>
+            <a href="math.html" class="next-btn" style="background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4);">More Modules →</a>
+          </div>
+        </div>
+
+        <button class="complete-btn" id="completeBtn" onclick="completeLesson()" disabled>
+          Complete Lesson & Earn XP →
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  /* ── Auth ── */
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  /* ── Load XP ── */
+  const mathProg = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+  document.getElementById('navXP').textContent = '⚡ ' + (mathProg.xp || 0) + ' XP';
+
+  /* ══════════════════════════════
+     BIT FLIPPER
+  ═══════════════════════════════ */
+  const bits = new Array(8).fill(0);
+  const bitsRow = document.getElementById('bitsRow');
+
+  function renderBits() {
+    bitsRow.innerHTML = '';
+    bits.forEach((val, i) => {
+      const pos = 7 - i;
+      const btn = document.createElement('button');
+      btn.className = 'bit-btn ' + (val ? 'on' : 'off');
+      btn.innerHTML = `<span>${val}</span><span class="bit-pos">2<sup>${pos}</sup></span>`;
+      btn.onclick = () => { bits[i] = bits[i] ? 0 : 1; renderBits(); updateBitResult(); };
+      bitsRow.appendChild(btn);
+    });
+  }
+
+  function updateBitResult() {
+    const binStr = bits.join('');
+    const dec = parseInt(binStr, 2) || 0;
+    const hex = '0x' + dec.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('bitDecimal').textContent = dec;
+    document.getElementById('bitHex').textContent     = hex;
+    document.getElementById('bitBinary').textContent  = binStr;
+  }
+
+  renderBits();
+  updateBitResult();
+
+  /* ══════════════════════════════
+     LIVE CONVERTER
+  ═══════════════════════════════ */
+  function convertFrom(base) {
+    const decEl = document.getElementById('convDec');
+    const binEl = document.getElementById('convBin');
+    const hexEl = document.getElementById('convHex');
+    const octEl = document.getElementById('convOct');
+
+    let val = 0;
+    try {
+      if (base === 'dec') val = parseInt(decEl.value, 10) || 0;
+      if (base === 'bin') val = parseInt(binEl.value, 2)  || 0;
+      if (base === 'hex') val = parseInt(hexEl.value, 16) || 0;
+    } catch(e) { return; }
+
+    if (val < 0 || val > 65535 || isNaN(val)) return;
+
+    if (base !== 'dec') decEl.value = val;
+    if (base !== 'bin') binEl.value = val.toString(2);
+    if (base !== 'hex') hexEl.value = val.toString(16).toUpperCase();
+    octEl.value = val.toString(8);
+  }
+
+  /* ══════════════════════════════
+     REFERENCE TABLE
+  ═══════════════════════════════ */
+  const refBody = document.getElementById('refBody');
+  for (let i = 0; i <= 255; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="ref-dec">${i}</td>
+      <td class="ref-bin">${i.toString(2).padStart(8,'0')}</td>
+      <td class="ref-hex">${i.toString(16).toUpperCase().padStart(2,'0')}</td>
+      <td class="ref-oct">${i.toString(8)}</td>
+    `;
+    refBody.appendChild(tr);
+  }
+
+  /* ══════════════════════════════
+     CHALLENGES
+  ═══════════════════════════════ */
+  const challenges = {
+    1: { answer: '10',   type: 'number' },
+    2: { answer: '1101', type: 'string' },
+    3: { answer: '255',  type: 'number' }
+  };
+  const challengeDone = { 1: false, 2: false, 3: false };
+
+  function checkChallenge(n) {
+    const input   = document.getElementById('ch' + n + '-input');
+    const feedback = document.getElementById('ch' + n + '-feedback');
+    const ch      = challenges[n];
+    const userVal = input.value.trim().toUpperCase().replace(/^0B/,'').replace(/^0X/,'');
+    const correct = ch.answer.toUpperCase();
+    const isRight = userVal === correct;
+
+    input.classList.remove('correct','wrong');
+    input.classList.add(isRight ? 'correct' : 'wrong');
+    feedback.style.display = 'block';
+
+    if (isRight) {
+      feedback.className = 'challenge-feedback ok';
+      feedback.textContent = '✓ Correct! ' + (n === 1 ? '1010 = 8+2 = 10' : n === 2 ? '13 = 8+4+1 = 1101' : '0xFF = 15×16 + 15 = 255');
+      if (!challengeDone[n]) { challengeDone[n] = true; awardXP(15, 'Challenge solved! +15 XP'); }
+      checkComplete();
+    } else {
+      feedback.className = 'challenge-feedback err';
+      feedback.textContent = '✗ Not quite. Try again, or click "Show hint" below.';
+    }
+  }
+
+  function showHint(n) {
+    document.getElementById('ch' + n + '-hint').style.display = 'block';
+  }
+
+  /* ══════════════════════════════
+     QUIZ
+  ═══════════════════════════════ */
+  const quizDone = { 1: false, 2: false, 3: false, 4: false };
+  let quizScore  = 0;
+
+  function answerQuiz(qNum, btn, isCorrect, msg) {
+    if (quizDone[qNum]) return;
+    quizDone[qNum] = true;
+
+    const cards   = document.querySelectorAll('.quiz-card');
+    const card    = cards[qNum - 1];
+    const options = card.querySelectorAll('.quiz-option');
+    const fb      = document.getElementById('q' + qNum + '-feedback');
+
+    options.forEach(o => { o.disabled = true; o.style.pointerEvents = 'none'; });
+
+    if (isCorrect) {
+      btn.classList.add('selected-correct');
+      quizScore++;
+      awardXP(20, 'Correct! +20 XP');
+    } else {
+      btn.classList.add('selected-wrong');
+      options.forEach(o => {
+        if (o.getAttribute('onclick').includes(',true,')) o.classList.add('reveal-correct');
+      });
+    }
+
+    fb.textContent = msg;
+    fb.className   = 'quiz-feedback ' + (isCorrect ? 'correct' : 'wrong');
+    fb.style.display = 'block';
+    checkComplete();
+  }
+
+  /* ══════════════════════════════
+     PROGRESS & COMPLETE
+  ═══════════════════════════════ */
+  function checkComplete() {
+    const allChallenges = Object.values(challengeDone).every(v => v);
+    const allQuiz       = Object.values(quizDone).every(v => v);
+    if (allChallenges && allQuiz) {
+      document.getElementById('completeBtn').disabled = false;
+    }
+    const done  = Object.values(challengeDone).filter(v=>v).length + Object.values(quizDone).filter(v=>v).length;
+    const total = 3 + 4;
+    const pct   = Math.round((done / total) * 100);
+    document.getElementById('progPct').textContent  = pct + '%';
+    document.getElementById('progFill').style.width = pct + '%';
+  }
+
+  /* ── XP Toast ── */
+  let toastT;
+  function awardXP(amount, msg) {
+    const toast = document.getElementById('xpToast');
+    document.getElementById('xpToastAmount').textContent = '+' + amount + ' XP';
+    document.getElementById('xpToastMsg').textContent    = msg;
+    toast.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  /* ── Complete Lesson ── */
+  function completeLesson() {
+    const LESSON_XP = 120;
+    const btn = document.getElementById('completeBtn');
+    btn.disabled = true;
+    btn.textContent = '✓ Lesson Complete!';
+
+    const prog = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    prog.xp               = (prog.xp || 0) + LESSON_XP;
+    prog.completedLessons = (prog.completedLessons || 0) + 1;
+    prog.modules          = prog.modules || {};
+    prog.modules.numbers  = Math.min((prog.modules.numbers || 0) + 1, 4);
+    prog.lastActivity     = new Date().toISOString();
+    localStorage.setItem('helix_math_progress', JSON.stringify(prog));
+
+    document.getElementById('navXP').textContent  = '⚡ ' + prog.xp + ' XP';
+    document.getElementById('progPct').textContent  = '100%';
+    document.getElementById('progFill').style.width = '100%';
+
+    document.querySelectorAll('.lesson-item').forEach(item => {
+      item.classList.add('done'); item.classList.remove('active');
+      const dot = item.querySelector('.lesson-dot');
+      if (dot) dot.textContent = '✓';
+    });
+
+    const toast = document.getElementById('xpToast');
+    document.getElementById('xpToastAmount').textContent = '+' + LESSON_XP + ' XP';
+    document.getElementById('xpToastMsg').textContent    = 'Number Systems mastered! 🔢';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+
+    btn.style.display = 'none';
+    const area = document.getElementById('complete-area');
+    area.style.display = 'block';
+    area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* ── Scroll ── */
+  function scrollToLesson(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const idx = parseInt(id.replace('l','')) - 1;
+    document.querySelectorAll('.lesson-item').forEach((item, i) => item.classList.toggle('active', i === idx));
+  }
+
+  const sections = ['l1','l2','l3','l4'];
+  window.addEventListener('scroll', () => {
+    let current = 'l1';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.getBoundingClientRect().top < 160) current = id;
+    });
+    const idx = sections.indexOf(current);
+    document.querySelectorAll('.lesson-item').forEach((item, i) => item.classList.toggle('active', i === idx));
+  }, { passive: true });
+</script>
+</body>
+</html>
