@@ -627,6 +627,88 @@
     }
 
     /* =========================================================
+       STRANDS SECTION
+    ========================================================= */
+    .strands-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .strands-header .section-sub { margin: 0 auto; }
+
+    .strands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .strand-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+    .strand-card.available:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+    .strand-card.locked { opacity: 0.5; cursor: default; }
+
+    .strand-card-glow {
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      opacity: 0.12;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .strand-card.available:hover .strand-card-glow { opacity: 0.22; }
+
+    .strand-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .strand-icon { font-size: 2rem; line-height: 1; }
+    .strand-status-live {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 100px;
+    }
+    .strand-status-soon {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 3px 10px; border-radius: 100px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-3);
+    }
+    .strand-name {
+      font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .strand-tagline {
+      font-size: 0.85rem; color: var(--text-2); line-height: 1.55;
+      margin-bottom: 18px; flex: 1;
+    }
+    .strand-modules {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px;
+    }
+    .strand-module-pill {
+      font-size: 0.68rem; font-weight: 600; padding: 3px 9px;
+      border-radius: 100px; border: 1px solid;
+    }
+    .strand-cta {
+      font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 5px;
+      margin-top: auto;
+    }
+
+    /* =========================================================
        FEATURES
     ========================================================= */
     .features-header {
@@ -1133,9 +1215,9 @@
 
       <!-- Center links -->
       <ul class="nav-links" role="list">
+        <li><a href="#strands">Strands</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">How it works</a></li>
-        <li><a href="#languages">Languages</a></li>
         <li><a href="pricing.html">Plans</a></li>
       </ul>
 
@@ -1156,18 +1238,18 @@
         <!-- Eyebrow badge -->
         <div class="hero-badge">
           <span class="badge-dot" aria-hidden="true"></span>
-          Always evolving &middot; Run real code &middot; Free forever
+          Code &middot; Math &middot; CS Theory &middot; And more — Free forever
         </div>
 
         <!-- Headline -->
         <h1 class="hero-h1">
-          Code your helix.<br />
+          Learn everything.<br />
           <span class="gradient-text">Strand by strand.</span>
         </h1>
 
         <!-- Subtitle -->
         <p class="hero-sub">
-          We don't just teach code — we help you coil it into instinct. Write real programs in your browser, earn XP with every loop, and keep the helix spinning. No setup. No ceiling.
+          Helix isn't just a coding platform — it's a full knowledge system. Write real programs, master the math behind algorithms, and expand every strand of your understanding. No setup. No ceiling.
         </p>
 
         <!-- CTA buttons -->
@@ -1183,12 +1265,12 @@
         <!-- Stats strip -->
         <div class="hero-stats" role="list" aria-label="Platform stats">
           <div class="hero-stat" role="listitem">
-            <div class="stat-value">90</div>
-            <div class="stat-label">Lessons live</div>
+            <div class="stat-value">2</div>
+            <div class="stat-label">Knowledge strands</div>
           </div>
           <div class="hero-stat" role="listitem">
-            <div class="stat-value">6</div>
-            <div class="stat-label">Language coils</div>
+            <div class="stat-value">90+</div>
+            <div class="stat-label">Lessons live</div>
           </div>
           <div class="hero-stat" role="listitem">
             <div class="stat-value">Free</div>
@@ -1248,32 +1330,123 @@
     <div class="marquee-track">
       <!-- Set 1 -->
       <span class="marquee-item">Python Fundamentals</span>
-      <span class="marquee-item">Variables &amp; Types</span>
+      <span class="marquee-item">Boolean Logic</span>
       <span class="marquee-item">Control Flow</span>
-      <span class="marquee-item">Functions</span>
-      <span class="marquee-item">Lists &amp; Dicts</span>
+      <span class="marquee-item">Binary &amp; Hex</span>
+      <span class="marquee-item">Algebra for Programmers</span>
       <span class="marquee-item">OOP</span>
       <span class="marquee-item">JavaScript</span>
-      <span class="marquee-item">HTML &amp; CSS</span>
+      <span class="marquee-item">Truth Tables</span>
       <span class="marquee-item">Algorithms</span>
       <span class="marquee-item">Data Structures</span>
+      <span class="marquee-item">Discrete Math</span>
       <span class="marquee-item">Daily Challenges</span>
-      <span class="marquee-item">Leaderboards</span>
+      <span class="marquee-item">Functions &amp; Graphs</span>
+      <span class="marquee-item">Number Systems</span>
       <!-- Set 2 (duplicate for seamless loop) -->
       <span class="marquee-item">Python Fundamentals</span>
-      <span class="marquee-item">Variables &amp; Types</span>
+      <span class="marquee-item">Boolean Logic</span>
       <span class="marquee-item">Control Flow</span>
-      <span class="marquee-item">Functions</span>
-      <span class="marquee-item">Lists &amp; Dicts</span>
+      <span class="marquee-item">Binary &amp; Hex</span>
+      <span class="marquee-item">Algebra for Programmers</span>
       <span class="marquee-item">OOP</span>
       <span class="marquee-item">JavaScript</span>
-      <span class="marquee-item">HTML &amp; CSS</span>
+      <span class="marquee-item">Truth Tables</span>
       <span class="marquee-item">Algorithms</span>
       <span class="marquee-item">Data Structures</span>
+      <span class="marquee-item">Discrete Math</span>
       <span class="marquee-item">Daily Challenges</span>
-      <span class="marquee-item">Leaderboards</span>
+      <span class="marquee-item">Functions &amp; Graphs</span>
+      <span class="marquee-item">Number Systems</span>
     </div>
   </div>
+
+  <!-- =========================================================
+       KNOWLEDGE STRANDS
+  ========================================================= -->
+  <section class="section" id="strands" aria-labelledby="strands-title">
+    <div class="container">
+      <div class="strands-header">
+        <p class="section-label">The Strands</p>
+        <h2 class="section-title" id="strands-title">
+          More than code.<br /><span class="gradient-text">A full knowledge helix.</span>
+        </h2>
+        <p class="section-sub">Each strand is a domain of knowledge — interactive, XP-driven, and built to complement the others. Code better by understanding the math. Understand the math by writing the code.</p>
+      </div>
+
+      <div class="strands-grid">
+
+        <!-- Coding -->
+        <a href="signup.html" class="strand-card available" style="border-color: rgba(99,102,241,0.25);">
+          <div class="strand-card-glow" style="background: radial-gradient(circle, #6366F1, transparent);"></div>
+          <div class="strand-card-top">
+            <span class="strand-icon">💻</span>
+            <span class="strand-status-live" style="background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: #818CF8;">Live</span>
+          </div>
+          <div class="strand-name">Coding</div>
+          <p class="strand-tagline">Write real programs, build real intuition. Python, JavaScript, HTML & more — powered by a live engine in your browser.</p>
+          <div class="strand-modules">
+            <span class="strand-module-pill" style="background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.2); color: #818CF8;">Python</span>
+            <span class="strand-module-pill" style="background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.2); color: #818CF8;">JavaScript</span>
+            <span class="strand-module-pill" style="background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.2); color: #818CF8;">HTML &amp; CSS</span>
+            <span class="strand-module-pill" style="background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.2); color: #818CF8;">+ more</span>
+          </div>
+          <span class="strand-cta" style="color: #818CF8;">Start coding →</span>
+        </a>
+
+        <!-- Mathematics -->
+        <a href="signup.html" class="strand-card available" style="border-color: rgba(245,158,11,0.25);">
+          <div class="strand-card-glow" style="background: radial-gradient(circle, #F59E0B, transparent);"></div>
+          <div class="strand-card-top">
+            <span class="strand-icon">🧮</span>
+            <span class="strand-status-live" style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #FCD34D;">Live</span>
+          </div>
+          <div class="strand-name">Mathematics</div>
+          <p class="strand-tagline">The language behind the code. Boolean logic, number systems, algebra — explained interactively, with Python connections throughout.</p>
+          <div class="strand-modules">
+            <span class="strand-module-pill" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #FCD34D;">Boolean Logic</span>
+            <span class="strand-module-pill" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #FCD34D;">Binary &amp; Hex</span>
+            <span class="strand-module-pill" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #FCD34D;">Algebra</span>
+            <span class="strand-module-pill" style="background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #FCD34D;">+ more</span>
+          </div>
+          <span class="strand-cta" style="color: #FCD34D;">Explore math →</span>
+        </a>
+
+        <!-- CS Theory -->
+        <div class="strand-card locked">
+          <div class="strand-card-top">
+            <span class="strand-icon">🔬</span>
+            <span class="strand-status-soon">Coming soon</span>
+          </div>
+          <div class="strand-name">CS Theory</div>
+          <p class="strand-tagline">Big-O notation, sorting, searching, graph theory — the computer science fundamentals that separate junior devs from senior engineers.</p>
+          <div class="strand-modules">
+            <span class="strand-module-pill" style="background: rgba(255,255,255,0.03); border-color: var(--border); color: var(--text-3);">Complexity</span>
+            <span class="strand-module-pill" style="background: rgba(255,255,255,0.03); border-color: var(--border); color: var(--text-3);">Sorting</span>
+            <span class="strand-module-pill" style="background: rgba(255,255,255,0.03); border-color: var(--border); color: var(--text-3);">Graphs</span>
+          </div>
+          <span class="strand-cta" style="color: var(--text-3);">🔒 Coming soon</span>
+        </div>
+
+        <!-- Data & AI -->
+        <div class="strand-card locked">
+          <div class="strand-card-top">
+            <span class="strand-icon">📊</span>
+            <span class="strand-status-soon">Coming soon</span>
+          </div>
+          <div class="strand-name">Data &amp; AI</div>
+          <p class="strand-tagline">Probability, statistics, machine learning fundamentals — understand the math that powers modern AI, then apply it in code.</p>
+          <div class="strand-modules">
+            <span class="strand-module-pill" style="background: rgba(255,255,255,0.03); border-color: var(--border); color: var(--text-3);">Statistics</span>
+            <span class="strand-module-pill" style="background: rgba(255,255,255,0.03); border-color: var(--border); color: var(--text-3);">Probability</span>
+            <span class="strand-module-pill" style="background: rgba(255,255,255,0.03); border-color: var(--border); color: var(--text-3);">ML Basics</span>
+          </div>
+          <span class="strand-cta" style="color: var(--text-3);">🔒 Coming soon</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
 
   <!-- =========================================================
        FEATURES
@@ -1430,11 +1603,11 @@
   <section class="section" id="languages" aria-labelledby="lang-title">
     <div class="container">
       <div class="lang-header">
-        <p class="section-label">Active Strands</p>
+        <p class="section-label">Coding Strand — Languages</p>
         <h2 class="section-title" id="lang-title">
-          Start your first coil.<br /><span class="gradient-text">More strands incoming.</span>
+          Six languages.<br /><span class="gradient-text">One helix.</span>
         </h2>
-        <p class="section-sub">Python is your first coil — 15 strands, live now. Each new language extends the helix further. Watch the spiral widen.</p>
+        <p class="section-sub">The Coding strand covers six languages — from Python basics to TypeScript. Each one is a coil in the same helix. Start anywhere, go everywhere.</p>
       </div>
 
       <div class="lang-grid">
@@ -1515,11 +1688,11 @@
   <section class="cta-section" aria-labelledby="cta-title">
     <div class="container">
       <h2 class="cta-h2" id="cta-title">
-        The helix is already<br />
-        <span class="gradient-text">spinning. Are you?</span>
+        Every strand matters.<br />
+        <span class="gradient-text">Start yours today.</span>
       </h2>
-      <p class="cta-sub">No account. No countdown. The helix doesn't wait for perfect conditions — and neither should you.</p>
-      <a href="dashboard.html" class="btn-primary" style="display: inline-flex;">
+      <p class="cta-sub">Code, math, CS theory — all in one place. Free to start, impossible to outgrow. The helix expands every week.</p>
+      <a href="signup.html" class="btn-primary" style="display: inline-flex;">
         Start your helix &#8594;
       </a>
     </div>
