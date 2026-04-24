@@ -641,7 +641,7 @@
           </svg>
         </div>
         <h2 style="font-size:1.8rem; font-weight:900; letter-spacing:-0.03em; margin-bottom:12px;">Your helix starts here.</h2>
-        <p style="color:var(--text-2); font-size:1rem; line-height:1.65; margin-bottom:36px;">You haven't started any lessons yet. Pick a language track below and write your first line of code.</p>
+        <p style="color:var(--text-2); font-size:1rem; line-height:1.65; margin-bottom:36px;">You haven't started any lessons yet. Pick any strand below — code, math, or both — and write your first line.</p>
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:480px; margin:0 auto;">
           <a class="es-lang-card" href="lesson.html?id=1"><div class="es-lang-icon">🐍</div><div class="es-lang-name">Python</div><div class="es-lang-cta">Start →</div></a>
           <a class="es-lang-card" href="lesson-js.html?id=1"><div class="es-lang-icon">⚡</div><div class="es-lang-name">JavaScript</div><div class="es-lang-cta">Start →</div></a>
@@ -1251,6 +1251,7 @@ function helixLogout() {
 }
 
 // ── Empty State ────────────────────────────────────────────
+// Show welcome banner only if no lessons done — but always show normal-content
 (function() {
   function langDoneES(key) { var s=localStorage.getItem(key); return s?(JSON.parse(s).completedIds||[]).length:0; }
   var pyState = JSON.parse(localStorage.getItem('helix_progress') || '{}');
@@ -1259,7 +1260,7 @@ function helixLogout() {
   var emptyState = document.getElementById('empty-state');
   var normalContent = document.getElementById('normal-content');
   if (emptyState) emptyState.style.display = totalDoneES === 0 ? 'block' : 'none';
-  if (normalContent) normalContent.style.display = totalDoneES === 0 ? 'none' : 'block';
+  if (normalContent) normalContent.style.display = 'block'; // always visible
 })();
 
 // ── Onboarding Modal ───────────────────────────────────────
