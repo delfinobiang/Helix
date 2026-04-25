@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script src="analytics.js" defer></script>
+  <title>Trophies · Helix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #050816;
+      --bg-2:      #0C1022;
+      --bg-card:   rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.07);
+      --primary:   #6366F1;
+      --primary-l: #818CF8;
+      --cyan:      #22D3EE;
+      --accent:    #F59E0B;
+      --text:      #EEF2F8;
+      --text-2:    #8892A4;
+      --text-3:    #2D3A4E;
+      --green:     #10B981;
+      --yellow:    #F59E0B;
+      --red:       #EF4444;
+      /* Tier colours */
+      --bronze:    #CD7F32;
+      --bronze-bg: rgba(205,127,50,0.08);
+      --bronze-bd: rgba(205,127,50,0.22);
+      --silver:    #94A3B8;
+      --silver-bg: rgba(148,163,184,0.08);
+      --silver-bd: rgba(148,163,184,0.22);
+      --gold:      #EAB308;
+      --gold-bg:   rgba(234,179,8,0.08);
+      --gold-bd:   rgba(234,179,8,0.22);
+      --plat-a:    #818CF8;
+      --plat-b:    #38BDF8;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; overflow-x: hidden; min-height: 100vh; }
+
+    /* ── Aurora ── */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 65%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    .orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(34,211,238,0.2) 0%, transparent 65%); top: 40%; right: 15%; animation: drift3 18s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(80px,60px) scale(1.08)} 100%{transform:translate(40px,120px) scale(0.95)} }
+    @keyframes drift2 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(-70px,-50px) scale(1.1)} 100%{transform:translate(-30px,-100px) scale(0.96)} }
+    @keyframes drift3 { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(-60px,70px) scale(1.12)} }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ── Navbar ── */
+    nav { position: sticky; top: 0; z-index: 100; height: 60px; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; background: rgba(5,8,22,0.7); backdrop-filter: blur(24px) saturate(160%); border-bottom: 1px solid var(--border); }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .xp-badge { display: flex; align-items: center; gap: 0.4rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18); color: var(--yellow); font-size: 0.8rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 100px; }
+    .streak-badge { display: flex; align-items: center; gap: 0.4rem; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18); color: var(--red); font-size: 0.8rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 100px; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; cursor: pointer; border: 2px solid rgba(99,102,241,0.35); }
+
+    /* ── Layout ── */
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 60px); position: relative; z-index: 1; }
+
+    /* ── Sidebar ── */
+    .sidebar { padding: 1.5rem 1rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.3rem; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--text-3); padding: 0 0.75rem; margin: 1rem 0 0.4rem; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .nav-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.6rem 0.75rem; border-radius: 10px; color: var(--text-2); font-size: 0.875rem; font-weight: 500; text-decoration: none; cursor: pointer; transition: background 0.18s, color 0.18s; border: none; background: none; font-family: inherit; width: 100%; text-align: left; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+    .nav-item.active { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-item.active .nav-item-icon { color: var(--primary); }
+    .nav-item-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .user-card { margin-top: auto; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; }
+    .user-info { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.9rem; }
+    .user-avatar-lg { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: white; border: 2px solid rgba(99,102,241,0.35); }
+    .user-name { font-size: 0.875rem; font-weight: 700; }
+    .user-level { font-size: 0.72rem; color: var(--text-3); }
+    .xp-bar-top { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+    .xp-bar-lbl { font-size: 0.7rem; color: var(--text-3); }
+    .xp-bar-val { font-size: 0.7rem; color: var(--yellow); font-weight: 700; }
+    .xp-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .xp-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--primary), var(--cyan)); transition: width 0.6s ease; }
+
+    /* ── Main ── */
+    .main { padding: 2rem 2.5rem; overflow-y: auto; position: relative; z-index: 1; }
+    .page-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.3rem; }
+    .page-sub   { font-size: 0.875rem; color: var(--text-2); margin-bottom: 2rem; }
+
+    /* ── Trophy Summary Bar ── */
+    .trophy-summary {
+      display: flex; align-items: center; gap: 1.5rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 1.3rem 1.75rem;
+      margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .ts-divider { width: 1px; height: 44px; background: var(--border); flex-shrink: 0; }
+    .ts-item { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; min-width: 54px; }
+    .ts-count { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+    .ts-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.13em; }
+    .ts-plat   .ts-count { background: linear-gradient(135deg, var(--plat-a), var(--plat-b)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .ts-plat   .ts-label { color: var(--plat-a); }
+    .ts-gold   .ts-count { color: var(--gold); }
+    .ts-gold   .ts-label { color: var(--gold); opacity: 0.75; }
+    .ts-silver .ts-count { color: var(--silver); }
+    .ts-silver .ts-label { color: var(--silver); opacity: 0.75; }
+    .ts-bronze .ts-count { color: var(--bronze); }
+    .ts-bronze .ts-label { color: var(--bronze); opacity: 0.75; }
+    .ts-progress { flex: 1 1 180px; }
+    .ts-prog-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
+    .ts-prog-label { font-size: 0.7rem; color: var(--text-3); }
+    .ts-prog-pct   { font-size: 0.85rem; font-weight: 800; color: var(--text); }
+    .ts-prog-bar   { height: 7px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .ts-prog-fill  { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--plat-a), var(--plat-b)); transition: width 0.9s cubic-bezier(0.34,1.56,0.64,1); }
+    .ts-total { text-align: right; flex-shrink: 0; }
+    .ts-total-num   { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+    .ts-total-label { font-size: 0.68rem; color: var(--text-3); }
+
+    /* ── Filter Pills ── */
+    .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .filter-pill { padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.78rem; font-weight: 600; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-2); cursor: pointer; transition: all 0.18s; font-family: inherit; }
+    .filter-pill:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .filter-pill.active { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); color: var(--primary-l); }
+
+    /* ── Course Section ── */
+    .course-section { margin-bottom: 2.5rem; }
+    .csh {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.4rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px 16px 0 0; border-bottom: none;
+      position: relative; overflow: hidden;
+    }
+    .csh::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--csc, var(--primary)); border-radius: 4px 0 0 4px; }
+    .csh-icon  { font-size: 1.4rem; flex-shrink: 0; }
+    .csh-name  { font-size: 0.95rem; font-weight: 700; flex: 1; }
+    .csh-count { font-size: 0.72rem; font-weight: 700; color: var(--text-3); }
+    .csh-plat  { display: flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 100px; white-space: nowrap; }
+    .csh-plat.earned { background: rgba(129,140,248,0.1); border: 1px solid rgba(129,140,248,0.28); color: var(--plat-a); }
+    .csh-plat.locked { background: rgba(255,255,255,0.03); border: 1px solid var(--border); color: var(--text-3); }
+
+    /* ── Trophy Grid ── */
+    .trophy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 16px 16px; overflow: hidden;
+    }
+
+    /* ── Trophy Card ── */
+    .tc {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.1rem 0.85rem 1rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+      position: relative; overflow: hidden;
+      transition: background 0.2s;
+    }
+    .tc.earned:hover  { background: rgba(255,255,255,0.055); }
+    .tc.locked        { opacity: 0.6; }
+
+    /* Tier badge */
+    .tc-tier { font-size: 0.57rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.13em; padding: 0.14rem 0.5rem; border-radius: 100px; align-self: flex-start; }
+    .tc-tier.bronze   { background: var(--bronze-bg); border: 1px solid var(--bronze-bd); color: var(--bronze); }
+    .tc-tier.silver   { background: var(--silver-bg); border: 1px solid var(--silver-bd); color: var(--silver); }
+    .tc-tier.gold     { background: var(--gold-bg);   border: 1px solid var(--gold-bd);   color: var(--gold);   }
+    .tc-tier.platinum { background: rgba(129,140,248,0.08); border: 1px solid rgba(129,140,248,0.28); color: var(--plat-a); }
+
+    /* Icon */
+    .tc-icon { font-size: 2.1rem; line-height: 1; margin: 0.2rem 0; transition: transform 0.2s; }
+    .tc.earned:hover .tc-icon { transform: scale(1.18) rotate(-6deg); }
+    .tc.locked .tc-icon { filter: grayscale(1); opacity: 0.3; }
+
+    /* Text */
+    .tc-name { font-size: 0.78rem; font-weight: 700; text-align: center; line-height: 1.25; }
+    .tc-desc { font-size: 0.67rem; color: var(--text-2); text-align: center; line-height: 1.45; }
+    .tc.locked .tc-name { color: var(--text-3); }
+    .tc.locked .tc-desc { color: var(--text-3); font-style: italic; }
+
+    /* Earned check */
+    .tc-check { position: absolute; top: 0.55rem; right: 0.55rem; width: 18px; height: 18px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 0.58rem; color: white; font-weight: 800; flex-shrink: 0; }
+
+    /* ── Platinum card (full-width row) ── */
+    .tc.is-plat {
+      grid-column: 1 / -1;
+      flex-direction: row; align-items: center; gap: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(129,140,248,0.04);
+      border-right: none;
+    }
+    .tc.is-plat .tc-icon { font-size: 2.8rem; flex-shrink: 0; }
+    .tc.is-plat .tc-name { font-size: 1rem; text-align: left; }
+    .tc.is-plat .tc-desc { text-align: left; }
+    .tc.is-plat .tc-tier { align-self: auto; }
+    .tc.is-plat .tc-body { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+    .tc.is-plat .tc-check { position: relative; top: auto; right: auto; width: 22px; height: 22px; font-size: 0.68rem; flex-shrink: 0; }
+    .tc.is-plat.earned {
+      background: linear-gradient(135deg, rgba(129,140,248,0.09) 0%, rgba(56,189,248,0.07) 100%);
+      border-color: rgba(129,140,248,0.22);
+    }
+    /* Grand platinum */
+    .tc.is-grand.earned {
+      background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(56,189,248,0.1) 100%);
+      border-color: rgba(99,102,241,0.28);
+    }
+
+    /* Shimmer on earned platinums */
+    @keyframes shimmer {
+      0%   { transform: translateX(-120%) skewX(-18deg); }
+      100% { transform: translateX(220%)  skewX(-18deg); }
+    }
+    .tc.is-plat.earned::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+      animation: shimmer 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* ── Hamburger / Mobile ── */
+    .hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; background: none; border: none; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.18s; }
+    .hamburger:hover { background: rgba(255,255,255,0.07); }
+    .hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: transform 0.28s, opacity 0.28s; transform-origin: center; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobile-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.55); opacity: 0; pointer-events: none; transition: opacity 0.28s; }
+    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+    .mobile-drawer { position: fixed; top: 0; left: 0; bottom: 0; z-index: 201; width: 260px; background: #08091A; border-right: 1px solid var(--border); padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); }
+    .mobile-drawer.open { transform: translateX(0); }
+    .mobile-drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 0 0.25rem; margin-bottom: 1.2rem; }
+    .mobile-drawer-logo { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; }
+    .mobile-drawer-logo-name { font-size: 1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .mobile-close { background: none; border: none; cursor: pointer; color: var(--text-2); font-size: 1.3rem; line-height: 1; padding: 0.2rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .hamburger { display: flex; }
+      .main { padding: 1.5rem; }
+    }
+    @media (max-width: 600px) {
+      .trophy-summary { gap: 0.9rem; }
+      .ts-divider { display: none; }
+      .ts-total { margin-left: 0; }
+      .trophy-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 400px) {
+      .trophy-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- Mobile overlay + drawer -->
+<div class="mobile-overlay" id="mob-overlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-drawer" id="mob-drawer">
+  <div class="mobile-drawer-head">
+    <a class="mobile-drawer-logo" href="index.html">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-mob-t"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-mob-t)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="mobile-drawer-logo-name">Helix</span>
+    </a>
+    <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+  </div>
+  <span class="sidebar-label" style="margin-top:0;">Learn</span>
+  <a class="nav-item" href="dashboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏠</span> Dashboard</a>
+  <a class="nav-item" href="dashboard.html#courses-section" onclick="closeMobileMenu()"><span class="nav-item-icon">📚</span> Courses</a>
+  <a class="nav-item" href="challenge.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+  <span class="sidebar-label">Progress</span>
+  <a class="nav-item" href="leaderboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+  <a class="nav-item active" href="trophies.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🎖️</span> Trophies</a>
+  <a class="nav-item" href="profile.html" onclick="closeMobileMenu()"><span class="nav-item-icon">👤</span> Profile</a>
+  <span class="sidebar-label">Settings</span>
+  <a class="nav-item" href="settings.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚙️</span> Personal Details</a>
+  <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:inherit;"><span class="nav-item-icon">🚪</span> Logout</button>
+</div>
+
+<!-- Navbar -->
+<nav>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="hamburger" id="hamburger" aria-label="Open menu" onclick="openMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="nav-logo" href="index.html">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-nav-t"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-nav-t)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-linecap="round" fill="none">
+            <animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="nav-logo-name">Helix</span>
+    </a>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp-val">0</span> XP</div>
+    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+    <a href="profile.html"><div class="avatar" id="nav-avatar">Y</div></a>
+  </div>
+</nav>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <span class="sidebar-label">Learn</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-item-icon">🏠</span> Dashboard</a>
+    <a class="nav-item" href="dashboard.html#courses-section"><span class="nav-item-icon">📚</span> Courses</a>
+    <a class="nav-item" href="challenge.html"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
+
+    <span class="sidebar-label">Progress</span>
+    <a class="nav-item" href="leaderboard.html"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+    <a class="nav-item active" href="trophies.html"><span class="nav-item-icon">🎖️</span> Trophies</a>
+    <a class="nav-item" href="profile.html"><span class="nav-item-icon">👤</span> Profile</a>
+
+    <span class="sidebar-label">Settings</span>
+    <a class="nav-item" href="settings.html"><span class="nav-item-icon">⚙️</span> Personal Details</a>
+    <button class="nav-item" onclick="helixLogout()" style="border:none;background:none;width:100%;text-align:left;cursor:pointer;">
+      <span class="nav-item-icon">🚪</span> Logout
+    </button>
+
+    <div class="user-card" style="margin-top:auto;">
+      <div class="user-info">
+        <div class="user-avatar-lg" id="sidebar-avatar">Y</div>
+        <div>
+          <div class="user-name" id="sidebar-name">You</div>
+          <div class="user-level" id="sidebar-level">Level 1 · Novice</div>
+        </div>
+      </div>
+      <div>
+        <div class="xp-bar-top">
+          <span class="xp-bar-lbl">XP to next level</span>
+          <span class="xp-bar-val" id="sidebar-xp-label">0 / 100</span>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="sidebar-xp-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-title">🎖️ Trophies</div>
+    <div class="page-sub">Track your progress across every Helix course. Unlock Bronze → Silver → Gold → Platinum.</div>
+
+    <!-- Summary bar -->
+    <div class="trophy-summary">
+      <div class="ts-item ts-plat">
+        <div class="ts-count" id="ts-plat">0</div>
+        <div class="ts-label">Platinum</div>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-item ts-gold">
+        <div class="ts-count" id="ts-gold">0</div>
+        <div class="ts-label">Gold</div>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-item ts-silver">
+        <div class="ts-count" id="ts-silver">0</div>
+        <div class="ts-label">Silver</div>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-item ts-bronze">
+        <div class="ts-count" id="ts-bronze">0</div>
+        <div class="ts-label">Bronze</div>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-progress">
+        <div class="ts-prog-header">
+          <span class="ts-prog-label">Overall completion</span>
+          <span class="ts-prog-pct" id="ts-pct">0%</span>
+        </div>
+        <div class="ts-prog-bar"><div class="ts-prog-fill" id="ts-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="ts-divider"></div>
+      <div class="ts-total">
+        <div class="ts-total-num"><span id="ts-earned">0</span>&thinsp;/&thinsp;44</div>
+        <div class="ts-total-label">trophies unlocked</div>
+      </div>
+    </div>
+
+    <!-- Course filter -->
+    <div class="filter-row">
+      <button class="filter-pill active" data-filter="all"    onclick="setFilter('all')">All</button>
+      <button class="filter-pill" data-filter="coding"        onclick="setFilter('coding')">💻 Coding</button>
+      <button class="filter-pill" data-filter="math"          onclick="setFilter('math')">🧮 Mathematics</button>
+      <button class="filter-pill" data-filter="cs"            onclick="setFilter('cs')">🔬 CS Theory</button>
+      <button class="filter-pill" data-filter="data"          onclick="setFilter('data')">📊 Data &amp; AI</button>
+      <button class="filter-pill" data-filter="web"           onclick="setFilter('web')">🌐 Web &amp; Internet</button>
+      <button class="filter-pill" data-filter="helix"         onclick="setFilter('helix')">🧬 Helix</button>
+    </div>
+
+    <!-- Trophy sections (JS-populated) -->
+    <div id="trophy-sections"></div>
+
+  </main>
+</div>
+
+<script>
+// ── Auth gate ─────────────────────────────────────────────
+(function() {
+  const s = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!s) { window.location.href = 'login.html'; }
+})();
+const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+
+// ── Trophy definitions ────────────────────────────────────
+const TROPHY_DATA = [
+  {
+    id: 'coding', name: 'Python Fundamentals', icon: '💻', color: '#6366F1', rgb: '99,102,241',
+    trophies: [
+      { id:'c_b1', tier:'bronze',   icon:'👋', name:'Hello, World!',       desc:'Complete your first Python lesson',           check: d => d.coding.ids.includes(1)         },
+      { id:'c_b2', tier:'bronze',   icon:'📦', name:'Getting Comfortable',  desc:'Complete 3 lessons',                          check: d => d.coding.ids.length >= 3         },
+      { id:'c_b3', tier:'bronze',   icon:'🚀', name:'Building Momentum',   desc:'Complete 5 lessons',                          check: d => d.coding.ids.length >= 5         },
+      { id:'c_b4', tier:'bronze',   icon:'⚡', name:'Halfway There',        desc:'Complete 8 out of 15 lessons',                check: d => d.coding.ids.length >= 8         },
+      { id:'c_s1', tier:'silver',   icon:'🧠', name:'Deep Thinker',        desc:'Complete 10 lessons',                         check: d => d.coding.ids.length >= 10        },
+      { id:'c_s2', tier:'silver',   icon:'🏛️', name:'Object Oriented',    desc:'Complete the Classes & Objects lesson',       check: d => d.coding.ids.includes(13)        },
+      { id:'c_s3', tier:'silver',   icon:'🛡️', name:'Graceful Errors',    desc:'Complete the Error Handling lesson',          check: d => d.coding.ids.includes(12)        },
+      { id:'c_g1', tier:'gold',     icon:'🐍', name:'Full Python',         desc:'Complete all 15 lessons',                     check: d => d.coding.ids.length >= 15        },
+      { id:'c_g2', tier:'gold',     icon:'💰', name:'XP Grinder',          desc:'Earn 1,000 XP in Coding',                     check: d => d.coding.xp >= 1000             },
+      { id:'c_p',  tier:'platinum', icon:'⭐', name:'Pythonista',          desc:'Unlock every Coding trophy',                  isPlatinum: true },
+    ]
+  },
+  {
+    id: 'math', name: 'Mathematics', icon: '🧮', color: '#F59E0B', rgb: '245,158,11',
+    trophies: [
+      { id:'m_b1', tier:'bronze',   icon:'💡', name:'Logic First',         desc:'Complete Logic & Boolean Algebra',            check: d => d.math.mods.logic?.completed     },
+      { id:'m_b2', tier:'bronze',   icon:'🔢', name:'Number Systems',      desc:'Complete the Number Systems module',          check: d => d.math.mods.numbers?.completed   },
+      { id:'m_b3', tier:'bronze',   icon:'📐', name:'Algebraist',          desc:'Complete Algebra & Functions',                check: d => d.math.mods.algebra?.completed   },
+      { id:'m_s1', tier:'silver',   icon:'🧩', name:'Discrete Mind',       desc:'Complete Discrete Mathematics',               check: d => d.math.mods.discrete?.completed  },
+      { id:'m_s2', tier:'silver',   icon:'📉', name:'Stats Maven',         desc:'Complete Statistics & Probability',           check: d => d.math.mods.stats?.completed     },
+      { id:'m_g1', tier:'gold',     icon:'📝', name:'Pseudocode Pro',      desc:'Complete Algorithms & Pseudocode',            check: d => d.math.mods.pseudo?.completed    },
+      { id:'m_g2', tier:'gold',     icon:'🎓', name:'Pure Mathematician',  desc:'Complete all 6 Mathematics modules',          check: d => ['logic','numbers','algebra','discrete','stats','pseudo'].every(k => d.math.mods[k]?.completed) },
+      { id:'m_p',  tier:'platinum', icon:'♾️', name:'Mathematical Mind',  desc:'Unlock every Mathematics trophy',             isPlatinum: true },
+    ]
+  },
+  {
+    id: 'cs', name: 'CS Theory', icon: '🔬', color: '#22D3EE', rgb: '34,211,238',
+    trophies: [
+      { id:'cs_b1', tier:'bronze',   icon:'📈', name:'Big-O Believer',     desc:'Complete Big-O & Complexity',                 check: d => d.cs.mods.bigO?.completed        },
+      { id:'cs_b2', tier:'bronze',   icon:'🔗', name:'Array Architect',    desc:'Complete Arrays & Linked Lists',              check: d => d.cs.mods.arrays?.completed      },
+      { id:'cs_s1', tier:'silver',   icon:'🔄', name:'Sort Savant',        desc:'Master Sorting Algorithms',                   check: d => d.cs.mods.sorting?.completed     },
+      { id:'cs_s2', tier:'silver',   icon:'🌲', name:'Tree Climber',       desc:'Complete Trees & Recursion',                  check: d => d.cs.mods.trees?.completed       },
+      { id:'cs_g1', tier:'gold',     icon:'🗺️', name:'Graph Walker',      desc:'Complete Graphs & Pathfinding',               check: d => d.cs.mods.graphs?.completed      },
+      { id:'cs_g2', tier:'gold',     icon:'⚙️', name:'Algorithm Ace',     desc:'Complete all 5 CS Theory modules',            check: d => ['bigO','arrays','sorting','trees','graphs'].every(k => d.cs.mods[k]?.completed) },
+      { id:'cs_p',  tier:'platinum', icon:'🖥️', name:'Computer Scientist',desc:'Unlock every CS Theory trophy',               isPlatinum: true },
+    ]
+  },
+  {
+    id: 'data', name: 'Data & AI', icon: '📊', color: '#10B981', rgb: '16,185,129',
+    trophies: [
+      { id:'d_b1', tier:'bronze',   icon:'🔍', name:'Data Curious',        desc:'Complete Intro to Data Science',              check: d => d.data.mods.intro?.completed     },
+      { id:'d_b2', tier:'bronze',   icon:'📊', name:'Stats Apprentice',    desc:'Complete Stats & Probability',                check: d => d.data.mods.stats?.completed     },
+      { id:'d_s1', tier:'silver',   icon:'🤖', name:'Machine Learner',     desc:'Complete Machine Learning Basics',            check: d => d.data.mods.ml?.completed        },
+      { id:'d_g1', tier:'gold',     icon:'🧬', name:'Neural Pioneer',      desc:'Complete Neural Networks',                    check: d => d.data.mods.neural?.completed    },
+      { id:'d_g2', tier:'gold',     icon:'🧪', name:'Data Master',         desc:'Complete all 4 Data & AI modules',            check: d => ['intro','stats','ml','neural'].every(k => d.data.mods[k]?.completed) },
+      { id:'d_p',  tier:'platinum', icon:'🧠', name:'Data Scientist',      desc:'Unlock every Data & AI trophy',               isPlatinum: true },
+    ]
+  },
+  {
+    id: 'web', name: 'Web & Internet', icon: '🌐', color: '#EC4899', rgb: '236,72,153',
+    trophies: [
+      { id:'w_b1', tier:'bronze',   icon:'🌍', name:'Connected',           desc:'Complete How the Internet Works',             check: d => d.web.mods.how?.completed        },
+      { id:'w_b2', tier:'bronze',   icon:'📮', name:'HTTP Initiate',       desc:'Complete HTTP & APIs',                        check: d => d.web.mods.http?.completed       },
+      { id:'w_s1', tier:'silver',   icon:'🔐', name:'Cyber Aware',         desc:'Complete Web Security',                       check: d => d.web.mods.security?.completed   },
+      { id:'w_g1', tier:'gold',     icon:'🌿', name:'DOM Explorer',        desc:'Complete Browsers & DOM',                     check: d => d.web.mods.browser?.completed    },
+      { id:'w_g2', tier:'gold',     icon:'🛠️', name:'Web Developer',      desc:'Complete all 4 Web & Internet modules',       check: d => ['how','http','security','browser'].every(k => d.web.mods[k]?.completed) },
+      { id:'w_p',  tier:'platinum', icon:'🌐', name:'Web Pioneer',         desc:'Unlock every Web & Internet trophy',          isPlatinum: true },
+    ]
+  },
+  {
+    id: 'helix', name: 'Helix', icon: '🧬', color: '#8B5CF6', rgb: '139,92,246',
+    trophies: [
+      { id:'h_b1', tier:'bronze',   icon:'✨', name:'First Spark',         desc:'Earn your very first XP on Helix',            check: d => d.totalXp >= 1               },
+      { id:'h_b2', tier:'bronze',   icon:'🎲', name:'Polymath',            desc:'Start 2 different strands',                   check: d => d.strandsStarted >= 2        },
+      { id:'h_s1', tier:'silver',   icon:'🌉', name:'Cross-Strand',        desc:'Complete a module in 3 different strands',    check: d => d.strandsWithMods >= 3       },
+      { id:'h_s2', tier:'silver',   icon:'🏹', name:'XP Hunter',           desc:'Earn 500 total XP across all strands',        check: d => d.totalXp >= 500             },
+      { id:'h_g1', tier:'gold',     icon:'🎯', name:'Full Spectrum',       desc:'Complete at least 1 module in all 5 strands', check: d => d.strandsWithMods >= 5       },
+      { id:'h_g2', tier:'gold',     icon:'💎', name:'XP Legend',           desc:'Earn 2,000 total XP across all strands',      check: d => d.totalXp >= 2000            },
+      { id:'h_p',  tier:'platinum', icon:'🏆', name:'Helix Master',        desc:'Platinum every course and conquer all Helix trophies', isPlatinum: true, isGrand: true },
+    ]
+  },
+];
+
+// ── Data loading ──────────────────────────────────────────
+function loadData() {
+  const r = {
+    coding: JSON.parse(localStorage.getItem('helix_progress')      || '{}'),
+    math:   JSON.parse(localStorage.getItem('helix_math_progress') || '{}'),
+    cs:     JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}'),
+    data:   JSON.parse(localStorage.getItem('helix_data_progress') || '{}'),
+    web:    JSON.parse(localStorage.getItem('helix_web_progress')  || '{}'),
+  };
+  const xps = [r.coding.xp||0, r.math.xp||0, r.cs.xp||0, r.data.xp||0, r.web.xp||0];
+  const modsDone = [
+    (r.coding.completedIds||[]).length,
+    Object.values(r.math.modules||{}).filter(m=>m.completed).length,
+    Object.values(r.cs.modules||{}).filter(m=>m.completed).length,
+    Object.values(r.data.modules||{}).filter(m=>m.completed).length,
+    Object.values(r.web.modules||{}).filter(m=>m.completed).length,
+  ];
+  return {
+    coding: { xp: r.coding.xp||0,  ids:  r.coding.completedIds||[] },
+    math:   { xp: r.math.xp||0,    mods: r.math.modules||{}  },
+    cs:     { xp: r.cs.xp||0,      mods: r.cs.modules||{}    },
+    data:   { xp: r.data.xp||0,    mods: r.data.modules||{}  },
+    web:    { xp: r.web.xp||0,     mods: r.web.modules||{}   },
+    totalXp:        xps.reduce((a,b)=>a+b, 0),
+    strandsStarted: xps.filter(x=>x>0).length,
+    strandsWithMods: modsDone.filter(c=>c>0).length,
+    // expose raw for sidebar level
+    _py: r.coding,
+  };
+}
+
+// ── Trophy evaluation ─────────────────────────────────────
+function evaluate(data) {
+  const e = {};
+  // Pass 1: all non-platinum
+  TROPHY_DATA.forEach(course => course.trophies.filter(t=>!t.isPlatinum).forEach(t => { e[t.id] = !!t.check(data); }));
+  // Pass 2: course platinums
+  TROPHY_DATA.filter(c=>c.id!=='helix').forEach(course => {
+    const pt = course.trophies.find(t=>t.isPlatinum);
+    if (pt) e[pt.id] = course.trophies.filter(t=>!t.isPlatinum).every(t=>e[t.id]);
+  });
+  // Pass 3: Helix Master — all Helix non-plat + all course platinums
+  const hc    = TROPHY_DATA.find(c=>c.id==='helix');
+  const hPt   = hc.trophies.find(t=>t.isPlatinum);
+  const hNonPt= hc.trophies.filter(t=>!t.isPlatinum);
+  const cPts  = TROPHY_DATA.filter(c=>c.id!=='helix').map(c=>c.trophies.find(t=>t.isPlatinum)).filter(Boolean);
+  e[hPt.id]   = hNonPt.every(t=>e[t.id]) && cPts.every(t=>e[t.id]);
+  return e;
+}
+
+// ── Filter ────────────────────────────────────────────────
+let currentFilter = 'all';
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.toggle('active', p.dataset.filter===f));
+  document.querySelectorAll('.course-section').forEach(s => { s.style.display = (f==='all'||s.dataset.course===f) ? '' : 'none'; });
+}
+
+// ── Render helpers ────────────────────────────────────────
+const TIER_LABEL = { bronze:'Bronze', silver:'Silver', gold:'Gold', platinum:'Platinum' };
+
+function renderCard(t, isEarned) {
+  const isPt   = t.isPlatinum;
+  const isGrand= t.isGrand;
+  const cls    = ['tc', isEarned?'earned':'locked', isPt?'is-plat':'', isGrand?'is-grand':''].filter(Boolean).join(' ');
+  const tier   = `<span class="tc-tier ${t.tier}">${TIER_LABEL[t.tier]}</span>`;
+  const icon   = `<div class="tc-icon">${isEarned ? t.icon : '🔒'}</div>`;
+  const name   = `<div class="tc-name">${t.name}</div>`;
+  const desc   = `<div class="tc-desc">${isEarned ? t.desc : 'Keep learning to unlock'}</div>`;
+  const check  = isEarned ? `<div class="tc-check">✓</div>` : '';
+
+  if (isPt) return `
+    <div class="${cls}">
+      ${icon}
+      <div class="tc-body">${tier}${name}${desc}</div>
+      ${check}
+    </div>`;
+
+  return `
+    <div class="${cls}">
+      ${check}
+      ${tier}
+      ${icon}
+      ${name}
+      ${desc}
+    </div>`;
+}
+
+// ── Main render ───────────────────────────────────────────
+function render() {
+  const data   = loadData();
+  const earned = evaluate(data);
+
+  // Navbar / sidebar
+  const py = data._py;
+  document.getElementById('nav-xp-val').textContent = py.xp || 0;
+  document.getElementById('nav-streak').textContent  = py.streak || 1;
+  const __allUsers = JSON.parse(localStorage.getItem('helix_users') || '[]');
+  const __curUser  = __allUsers.find(u => u.id === session?.userId);
+  const __pic  = __curUser?.profilePic;
+  const __init = (session?.username || 'Y')[0].toUpperCase();
+  ['nav-avatar','sidebar-avatar'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    if (__pic) { el.style.backgroundImage=`url(${__pic})`; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; el.textContent=''; }
+    else       { el.style.backgroundImage=''; el.textContent=__init; }
+  });
+  const sn = document.getElementById('sidebar-name'); if (sn) sn.textContent = session?.username||'You';
+  // Sidebar level
+  const thresholds = [0,100,250,500,900,1400,2000];
+  const titles = ['','Novice','Coder','Builder','Engineer','Architect','Master'];
+  const xpTotal = py.xp || 0;
+  let lvl = 1;
+  for (let i = thresholds.length-1; i >= 0; i--) { if (xpTotal >= thresholds[i]) { lvl = i+1; break; } }
+  const lvlTitle = titles[Math.min(lvl, titles.length-1)] || 'Legend';
+  const sl = document.getElementById('sidebar-level'); if (sl) sl.textContent = `Level ${lvl} · ${lvlTitle}`;
+  const curXp = thresholds[lvl-1]||0, nxtXp = thresholds[lvl]||2000;
+  const pct = Math.round(((xpTotal-curXp)/(nxtXp-curXp))*100);
+  const sxl = document.getElementById('sidebar-xp-label'); if (sxl) sxl.textContent = `${xpTotal} / ${nxtXp}`;
+  const sxb = document.getElementById('sidebar-xp-bar');   if (sxb) sxb.style.width = pct+'%';
+
+  // Count tiers
+  let counts = { platinum:0, gold:0, silver:0, bronze:0 };
+  let totalEarned = 0;
+  TROPHY_DATA.forEach(c => c.trophies.forEach(t => { if (earned[t.id]) { counts[t.tier]++; totalEarned++; } }));
+
+  // Summary bar
+  document.getElementById('ts-plat').textContent   = counts.platinum;
+  document.getElementById('ts-gold').textContent   = counts.gold;
+  document.getElementById('ts-silver').textContent = counts.silver;
+  document.getElementById('ts-bronze').textContent = counts.bronze;
+  document.getElementById('ts-earned').textContent = totalEarned;
+  const overallPct = Math.round((totalEarned/44)*100);
+  document.getElementById('ts-pct').textContent      = overallPct+'%';
+  document.getElementById('ts-prog-fill').style.width = overallPct+'%';
+
+  // Build sections
+  const container = document.getElementById('trophy-sections');
+  container.innerHTML = TROPHY_DATA.map(course => {
+    const earnedCount = course.trophies.filter(t=>earned[t.id]).length;
+    const pt          = course.trophies.find(t=>t.isPlatinum);
+    const platEarned  = pt && earned[pt.id];
+    const platBadge   = pt ? `<div class="csh-plat ${platEarned?'earned':'locked'}">${platEarned?'🏆 Platinum':'🔒 Platinum'}</div>` : '';
+    const cards       = course.trophies.map(t => renderCard(t, earned[t.id])).join('');
+    return `
+      <div class="course-section" data-course="${course.id}">
+        <div class="csh" style="--csc:${course.color};">
+          <span class="csh-icon">${course.icon}</span>
+          <span class="csh-name">${course.name}</span>
+          <span class="csh-count">${earnedCount}&thinsp;/&thinsp;${course.trophies.length} trophies</span>
+          ${platBadge}
+        </div>
+        <div class="trophy-grid">${cards}</div>
+      </div>`;
+  }).join('');
+
+  // Re-apply filter
+  if (currentFilter !== 'all') setFilter(currentFilter);
+}
+
+render();
+
+// ── Utilities ─────────────────────────────────────────────
+function helixLogout() {
+  localStorage.removeItem('helix_session');
+  window.location.href = 'login.html';
+}
+function openMobileMenu() {
+  document.getElementById('mob-drawer').classList.add('open');
+  document.getElementById('mob-overlay').classList.add('open');
+  document.getElementById('hamburger').classList.add('open');
+}
+function closeMobileMenu() {
+  document.getElementById('mob-drawer').classList.remove('open');
+  document.getElementById('mob-overlay').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+</script>
+</body>
+</html>

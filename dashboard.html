@@ -458,17 +458,44 @@
     .cl-card.not-started:hover { opacity: 1; }
 
     /* ─── ACHIEVEMENTS ────────────────────────────────────── */
-    .badge-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
-    .badge {
-      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
-      padding: 0.9rem 1.1rem;
-      transition: border-color 0.2s, transform 0.2s;
+    /* ─── TROPHY MINI-SUMMARY ───────────────────────────── */
+    .trophy-mini {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 0.75rem;
+      margin-bottom: 1rem;
     }
-    .badge:hover { border-color: rgba(99,102,241,0.22); transform: translateY(-2px); }
-    .badge-icon { font-size: 1.5rem; }
-    .badge-name { font-size: 0.68rem; font-weight: 700; color: var(--text-2); white-space: nowrap; }
-    .badge.locked-badge { opacity: 0.35; filter: grayscale(1); }
+    .tmi {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 0.9rem 0.7rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .tmi:hover { transform: translateY(-2px); }
+    .tmi-count { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+    .tmi-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+    .tmi-plat .tmi-count { background: linear-gradient(135deg,#818CF8,#38BDF8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .tmi-plat .tmi-label { color: #818CF8; }
+    .tmi-plat { border-color: rgba(129,140,248,0.18); }
+    .tmi-gold .tmi-count  { color: #EAB308; }
+    .tmi-gold .tmi-label  { color: #EAB308; opacity: 0.75; }
+    .tmi-gold { border-color: rgba(234,179,8,0.15); }
+    .tmi-silver .tmi-count{ color: #94A3B8; }
+    .tmi-silver .tmi-label{ color: #94A3B8; opacity: 0.75; }
+    .tmi-bronze .tmi-count{ color: #CD7F32; }
+    .tmi-bronze .tmi-label{ color: #CD7F32; opacity: 0.75; }
+    .tmi-bronze { border-color: rgba(205,127,50,0.15); }
+    .trophy-mini-cta {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 1.1rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; text-decoration: none; color: var(--text-2);
+      font-size: 0.82rem; font-weight: 600;
+      transition: border-color 0.2s, color 0.2s, transform 0.2s;
+      margin-bottom: 2.5rem;
+    }
+    .trophy-mini-cta:hover { border-color: rgba(99,102,241,0.25); color: var(--text); transform: translateY(-1px); }
+    .tmc-left { display: flex; align-items: center; gap: 0.55rem; }
+    .tmc-pct  { font-size: 0.72rem; color: var(--text-3); }
+    @media (max-width: 600px) { .trophy-mini { grid-template-columns: repeat(2,1fr); } }
 
     /* ─── HAMBURGER + MOBILE MENU ────────────────────────────── */
     .hamburger {
@@ -680,6 +707,7 @@
   <a class="nav-item" href="challenge.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚡</span> Daily Challenge</a>
   <span class="sidebar-label">Progress</span>
   <a class="nav-item" href="leaderboard.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🏆</span> Leaderboard</a>
+  <a class="nav-item" href="trophies.html" onclick="closeMobileMenu()"><span class="nav-item-icon">🎖️</span> Trophies</a>
   <a class="nav-item" href="profile.html" onclick="closeMobileMenu()"><span class="nav-item-icon">👤</span> Profile</a>
   <span class="sidebar-label">Settings</span>
   <a class="nav-item" href="settings.html" onclick="closeMobileMenu()"><span class="nav-item-icon">⚙️</span> Personal Details</a>
@@ -705,6 +733,9 @@
     <span class="sidebar-label">Progress</span>
     <a class="nav-item" href="leaderboard.html">
       <span class="nav-item-icon">🏆</span> Leaderboard
+    </a>
+    <a class="nav-item" href="trophies.html">
+      <span class="nav-item-icon">🎖️</span> Trophies
     </a>
     <a class="nav-item" href="profile.html">
       <span class="nav-item-icon">👤</span> Profile
@@ -1114,14 +1145,36 @@
       </div>
     </div>
 
-    <!-- Achievements -->
+    <!-- Trophy Summary -->
     <div>
       <div class="section-title-row">
-        <div class="section-h">Achievements</div>
+        <div class="section-h">Trophies</div>
+        <a class="section-link" href="trophies.html">View all 44 →</a>
       </div>
-      <div class="badge-row" id="badge-row">
-        <!-- populated by JS -->
+      <div class="trophy-mini">
+        <div class="tmi tmi-plat">
+          <div class="tmi-count" id="tmi-plat">0</div>
+          <div class="tmi-label">Platinum</div>
+        </div>
+        <div class="tmi tmi-gold">
+          <div class="tmi-count" id="tmi-gold">0</div>
+          <div class="tmi-label">Gold</div>
+        </div>
+        <div class="tmi tmi-silver">
+          <div class="tmi-count" id="tmi-silver">0</div>
+          <div class="tmi-label">Silver</div>
+        </div>
+        <div class="tmi tmi-bronze">
+          <div class="tmi-count" id="tmi-bronze">0</div>
+          <div class="tmi-label">Bronze</div>
+        </div>
       </div>
+      <a class="trophy-mini-cta" href="trophies.html">
+        <div class="tmc-left">
+          🎖️ <span id="tmc-summary">0 / 44 trophies unlocked</span>
+        </div>
+        <span style="color:var(--primary-l);font-size:0.8rem;">View all →</span>
+      </a>
     </div>
 
     </div><!-- end #normal-content -->
@@ -1147,15 +1200,61 @@ const CL_STRANDS = [
   { key: 'web',    label: 'Web & Internet',icon: '🌐', color: '#EC4899', rgb: '236,72,153',  hub: 'web-internet.html', maxItems: 4,  itemLabel: 'modules' },
 ];
 
-const BADGES = [
-  { icon: "🎉", name: "First Step",      condition: d => d.lessonsCompleted >= 1  },
-  { icon: "🔥", name: "On Fire",         condition: d => d.streak >= 3            },
-  { icon: "⚡", name: "XP Hunter",       condition: d => d.xp >= 500              },
-  { icon: "🐍", name: "Pythonista",      condition: d => d.lessonsCompleted >= 5  },
-  { icon: "🧠", name: "Deep Thinker",    condition: d => d.lessonsCompleted >= 10 },
-  { icon: "🏆", name: "Track Master",    condition: d => d.lessonsCompleted >= 15 },
-  { icon: "🌟", name: "Level 5",         condition: d => d.level >= 5             },
-  { icon: "💎", name: "XP Legend",       condition: d => d.xp >= 2000             },
+// ─── Trophy mini-summary data ─────────────────────────────
+const DASH_TROPHIES = [
+  // Coding
+  { id:'c_b1', tier:'bronze',   check: d => d.ids.includes(1)     },
+  { id:'c_b2', tier:'bronze',   check: d => d.ids.length >= 3     },
+  { id:'c_b3', tier:'bronze',   check: d => d.ids.length >= 5     },
+  { id:'c_b4', tier:'bronze',   check: d => d.ids.length >= 8     },
+  { id:'c_s1', tier:'silver',   check: d => d.ids.length >= 10    },
+  { id:'c_s2', tier:'silver',   check: d => d.ids.includes(13)    },
+  { id:'c_s3', tier:'silver',   check: d => d.ids.includes(12)    },
+  { id:'c_g1', tier:'gold',     check: d => d.ids.length >= 15    },
+  { id:'c_g2', tier:'gold',     check: d => d.coding_xp >= 1000   },
+  // Math
+  { id:'m_b1', tier:'bronze',   check: d => d.math.logic?.completed      },
+  { id:'m_b2', tier:'bronze',   check: d => d.math.numbers?.completed    },
+  { id:'m_b3', tier:'bronze',   check: d => d.math.algebra?.completed    },
+  { id:'m_s1', tier:'silver',   check: d => d.math.discrete?.completed   },
+  { id:'m_s2', tier:'silver',   check: d => d.math.stats?.completed      },
+  { id:'m_g1', tier:'gold',     check: d => d.math.pseudo?.completed     },
+  { id:'m_g2', tier:'gold',     check: d => ['logic','numbers','algebra','discrete','stats','pseudo'].every(k=>d.math[k]?.completed) },
+  // CS
+  { id:'cs_b1', tier:'bronze',  check: d => d.cs.bigO?.completed    },
+  { id:'cs_b2', tier:'bronze',  check: d => d.cs.arrays?.completed  },
+  { id:'cs_s1', tier:'silver',  check: d => d.cs.sorting?.completed },
+  { id:'cs_s2', tier:'silver',  check: d => d.cs.trees?.completed   },
+  { id:'cs_g1', tier:'gold',    check: d => d.cs.graphs?.completed  },
+  { id:'cs_g2', tier:'gold',    check: d => ['bigO','arrays','sorting','trees','graphs'].every(k=>d.cs[k]?.completed) },
+  // Data
+  { id:'d_b1', tier:'bronze',   check: d => d.data.intro?.completed   },
+  { id:'d_b2', tier:'bronze',   check: d => d.data.stats?.completed   },
+  { id:'d_s1', tier:'silver',   check: d => d.data.ml?.completed      },
+  { id:'d_g1', tier:'gold',     check: d => d.data.neural?.completed  },
+  { id:'d_g2', tier:'gold',     check: d => ['intro','stats','ml','neural'].every(k=>d.data[k]?.completed) },
+  // Web
+  { id:'w_b1', tier:'bronze',   check: d => d.web.how?.completed      },
+  { id:'w_b2', tier:'bronze',   check: d => d.web.http?.completed     },
+  { id:'w_s1', tier:'silver',   check: d => d.web.security?.completed },
+  { id:'w_g1', tier:'gold',     check: d => d.web.browser?.completed  },
+  { id:'w_g2', tier:'gold',     check: d => ['how','http','security','browser'].every(k=>d.web[k]?.completed) },
+  // Helix global
+  { id:'h_b1', tier:'bronze',   check: d => d.totalXp >= 1          },
+  { id:'h_b2', tier:'bronze',   check: d => d.strandsStarted >= 2   },
+  { id:'h_s1', tier:'silver',   check: d => d.strandsWithMods >= 3  },
+  { id:'h_s2', tier:'silver',   check: d => d.totalXp >= 500        },
+  { id:'h_g1', tier:'gold',     check: d => d.strandsWithMods >= 5  },
+  { id:'h_g2', tier:'gold',     check: d => d.totalXp >= 2000       },
+];
+// Platinum trophies (per course) — each requires all same-course non-plat
+const PLAT_GROUPS = [
+  { id:'c_p',  ids: ['c_b1','c_b2','c_b3','c_b4','c_s1','c_s2','c_s3','c_g1','c_g2'] },
+  { id:'m_p',  ids: ['m_b1','m_b2','m_b3','m_s1','m_s2','m_g1','m_g2'] },
+  { id:'cs_p', ids: ['cs_b1','cs_b2','cs_s1','cs_s2','cs_g1','cs_g2'] },
+  { id:'d_p',  ids: ['d_b1','d_b2','d_s1','d_g1','d_g2'] },
+  { id:'w_p',  ids: ['w_b1','w_b2','w_s1','w_g1','w_g2'] },
+  { id:'h_p',  ids: ['h_b1','h_b2','h_s1','h_s2','h_g1','h_g2','c_p','m_p','cs_p','d_p','w_p'] },
 ];
 
 // ─── State ───────────────────────────────────────────────
@@ -1431,16 +1530,41 @@ function render() {
     document.getElementById('daily-tag').style.cssText = 'background:rgba(74,222,128,0.08);color:var(--green);border:1px solid rgba(74,222,128,0.18);font-size:0.67rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:7px;';
   }
 
-  // badges
-  const badgeRow = document.getElementById('badge-row');
-  badgeRow.innerHTML = BADGES.map(b => {
-    const earned = b.condition({ xp: state.xp, streak: state.streak, level, lessonsCompleted: state.lessonsCompleted });
-    return `
-      <div class="badge ${earned ? '' : 'locked-badge'}" title="${b.name}">
-        <div class="badge-icon">${b.icon}</div>
-        <div class="badge-name">${b.name}</div>
-      </div>`;
-  }).join('');
+  // Trophy mini-summary
+  const mathRaw = JSON.parse(localStorage.getItem('helix_math_progress') || '{}').modules || {};
+  const csRaw   = JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}').modules || {};
+  const dataRaw = JSON.parse(localStorage.getItem('helix_data_progress') || '{}').modules || {};
+  const webRaw  = JSON.parse(localStorage.getItem('helix_web_progress')  || '{}').modules || {};
+  const mathXP  = JSON.parse(localStorage.getItem('helix_math_progress') || '{}').xp || 0;
+  const csXP    = JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}').xp || 0;
+  const dataXP  = JSON.parse(localStorage.getItem('helix_data_progress') || '{}').xp || 0;
+  const webXP   = JSON.parse(localStorage.getItem('helix_web_progress')  || '{}').xp || 0;
+  const totalXP = (state.xp||0) + mathXP + csXP + dataXP + webXP;
+  const modsDone= [
+    (state.completedIds||[]).length,
+    Object.values(mathRaw).filter(m=>m.completed).length,
+    Object.values(csRaw).filter(m=>m.completed).length,
+    Object.values(dataRaw).filter(m=>m.completed).length,
+    Object.values(webRaw).filter(m=>m.completed).length,
+  ];
+  const trophyData = {
+    ids: state.completedIds||[], coding_xp: state.xp||0,
+    math: mathRaw, cs: csRaw, data: dataRaw, web: webRaw,
+    totalXp: totalXP,
+    strandsStarted:  [(state.xp||0),mathXP,csXP,dataXP,webXP].filter(x=>x>0).length,
+    strandsWithMods: modsDone.filter(c=>c>0).length,
+  };
+  const tEarned = {};
+  DASH_TROPHIES.forEach(t => { tEarned[t.id] = !!t.check(trophyData); });
+  PLAT_GROUPS.forEach(pg => { tEarned[pg.id] = pg.ids.every(id=>tEarned[id]); });
+  const tCounts = { platinum:0, gold:0, silver:0, bronze:0 };
+  [...DASH_TROPHIES, ...PLAT_GROUPS.map(p=>({id:p.id,tier:'platinum'}))].forEach(t => { if (tEarned[t.id]) tCounts[t.tier]++; });
+  const tTotal = Object.values(tCounts).reduce((a,b)=>a+b,0);
+  document.getElementById('tmi-plat').textContent   = tCounts.platinum;
+  document.getElementById('tmi-gold').textContent   = tCounts.gold;
+  document.getElementById('tmi-silver').textContent = tCounts.silver;
+  document.getElementById('tmi-bronze').textContent = tCounts.bronze;
+  document.getElementById('tmc-summary').textContent = `${tTotal} / 44 trophies unlocked`;
 }
 
 render();
