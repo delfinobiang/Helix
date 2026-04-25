@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Trees &amp; Hierarchies — Helix CS Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#050816;--bg-2:#0C1022;--border:rgba(255,255,255,0.07);--amber:#F59E0B;--amber-l:#FCD34D;--orange:#F97316;--primary:#6366F1;--cyan:#22D3EE;--green:#10B981;--red:#EF4444;--violet:#8B5CF6;--text:#EEF2F8;--text-2:#8892A4;--text-3:#2D3A4E;--nav-h:60px;--acc:#22D3EE;--acc-l:#67E8F9;--acc-d:#0891B2;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}button{font-family:inherit;}
+    .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;filter:blur(100px) saturate(120%);}
+    .orb{position:absolute;border-radius:50%;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(34,211,238,0.12) 0%,transparent 65%);top:-80px;right:0;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%);bottom:-150px;left:-100px;}
+    .orb-3{width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 65%);top:40%;left:50%;}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:var(--nav-h) 1fr;grid-template-areas:"nav nav" "sidebar main";min-height:100vh;position:relative;z-index:1;}
+    .topnav{grid-area:nav;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,8,22,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+    .nav-left{display:flex;align-items:center;gap:16px;}
+    .nav-logo{font-size:1.05rem;font-weight:800;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
+    .nav-sep{color:var(--text-3);}.nav-title{font-size:0.85rem;font-weight:600;color:var(--acc);}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-xp{font-size:0.78rem;font-weight:700;color:var(--acc-l);background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.2);padding:4px 12px;border-radius:100px;}
+    .nav-back{font-size:0.8rem;color:var(--text-2);padding:5px 10px;border-radius:8px;transition:color 0.2s;}
+    .nav-back:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+    .sidebar{grid-area:sidebar;border-right:1px solid var(--border);background:rgba(8,10,25,0.7);padding:24px 0;overflow-y:auto;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;}
+    .sidebar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:8px;margin-top:20px;}
+    .sidebar-label:first-child{margin-top:0;}
+    .lesson-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background 0.15s;border-left:3px solid transparent;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);}
+    .lesson-item.active{background:rgba(34,211,238,0.07);border-left-color:var(--acc);}
+    .lesson-num{font-size:0.7rem;font-weight:700;color:var(--text-3);width:20px;flex-shrink:0;}
+    .lesson-item.active .lesson-num{color:var(--acc);}
+    .lesson-name{font-size:0.85rem;font-weight:500;color:var(--text-2);}
+    .lesson-item.active .lesson-name{color:var(--text);font-weight:600;}
+    .sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+    .progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;margin-top:8px;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--primary));border-radius:100px;transition:width 0.5s ease;}
+    .progress-label{font-size:0.72rem;color:var(--text-2);display:flex;justify-content:space-between;}
+    .main{grid-area:main;padding:40px 48px;overflow-y:auto;}
+    .lesson-section{max-width:780px;padding-bottom:80px;}
+    .lesson-section+.lesson-section{border-top:1px solid var(--border);padding-top:60px;}
+    .section-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .section-tag::before{content:'';display:block;width:20px;height:2px;background:var(--acc);border-radius:2px;}
+    h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:14px;line-height:1.2;}
+    .lead{font-size:1rem;color:var(--text-2);line-height:1.7;margin-bottom:28px;}
+    .info-box{border-radius:14px;padding:20px 22px;margin-bottom:24px;border:1px solid;}
+    .info-box.cyan{background:rgba(34,211,238,0.06);border-color:rgba(34,211,238,0.2);}
+    .info-box.amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+    .info-box.violet{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.2);}
+    .info-box.green{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.2);}
+    .info-box-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+    .info-box.cyan .info-box-title{color:var(--acc);}
+    .info-box.amber .info-box-title{color:var(--amber);}
+    .info-box.violet .info-box-title{color:var(--violet);}
+    .info-box.green .info-box-title{color:var(--green);}
+    .info-box p{font-size:0.9rem;color:var(--text-2);line-height:1.65;}
+    .info-box ul{font-size:0.9rem;color:var(--text-2);line-height:1.65;padding-left:1.25rem;}
+    .info-box li{margin-bottom:4px;}
+    .code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;margin:20px 0;white-space:pre;}
+    .c-comment{color:#4B5563;}.c-keyword{color:#C084FC;}.c-string{color:#86EFAC;}.c-fn{color:#60A5FA;}.c-num{color:var(--amber-l);}.c-op{color:var(--acc);}
+    .data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.88rem;}
+    .data-table th{background:rgba(34,211,238,0.08);color:var(--acc);font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(34,211,238,0.2);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .data-table td:first-child{color:var(--text);font-weight:600;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tr:hover td{background:rgba(255,255,255,0.02);}
+    .widget{background:rgba(8,10,28,0.9);border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;}
+    .widget h4{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    .widget-input{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .widget-input:focus{border-color:var(--acc);}
+    .widget-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+    .widget-btn:hover{opacity:0.85;}
+    .widget-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;}
+    .widget-result{font-family:'JetBrains Mono',monospace;font-size:0.88rem;color:var(--acc-l);font-weight:700;margin-top:10px;min-height:22px;}
+    .challenge{background:rgba(34,211,238,0.04);border:1px solid rgba(34,211,238,0.18);border-radius:14px;padding:22px 24px;margin:24px 0;}
+    .challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .challenge-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);background:rgba(34,211,238,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(34,211,238,0.25);}
+    .challenge-xp{font-size:0.68rem;font-weight:700;color:var(--amber-l);background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:6px;margin-left:auto;}
+    .challenge h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+    .challenge p{font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+    .challenge-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .challenge-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .challenge-input:focus{border-color:var(--acc);}
+    .challenge-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:opacity 0.2s;}
+    .challenge-btn:hover{opacity:0.85;}
+    .challenge-feedback{font-size:0.85rem;margin-top:10px;min-height:22px;line-height:1.5;}
+    .challenge-feedback.correct{color:var(--green);}.challenge-feedback.wrong{color:var(--red);}
+    .challenge-hint-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:0.78rem;color:var(--text-2);cursor:pointer;}
+    .challenge-hint-btn:hover{border-color:var(--text-2);}
+    .challenge-hint{font-size:0.82rem;color:var(--acc);margin-top:8px;display:none;}
+    .quiz-card{background:rgba(8,10,28,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;}
+    .quiz-q{font-size:0.95rem;font-weight:600;margin-bottom:16px;line-height:1.5;}
+    .quiz-q code{font-family:'JetBrains Mono',monospace;color:var(--acc);background:rgba(34,211,238,0.1);padding:1px 7px;border-radius:4px;font-size:0.88em;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:0.88rem;color:var(--text-2);cursor:pointer;text-align:left;transition:all 0.15s;}
+    .quiz-opt:hover:not(:disabled){background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--text);}
+    .quiz-opt.correct{background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green);}
+    .quiz-opt.wrong{background:rgba(239,68,68,0.12);border-color:var(--red);color:var(--red);}
+    .quiz-feedback{font-size:0.82rem;margin-top:10px;min-height:20px;color:var(--text-2);}
+    .quiz-feedback.correct{color:var(--green);}.quiz-feedback.wrong{color:var(--red);}
+    .rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:20px 0;}
+    .rw-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:16px;}
+    .rw-icon{font-size:1.4rem;margin-bottom:8px;}
+    .rw-title{font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+    .rw-desc{font-size:0.78rem;color:var(--text-2);line-height:1.55;}
+    .complete-section{margin-top:60px;padding-top:40px;border-top:1px solid var(--border);text-align:center;}
+    .complete-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+    .complete-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .complete-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(34,211,238,0.25);}
+    .complete-note{font-size:0.8rem;color:var(--text-3);margin-top:12px;}
+    .xp-toast{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,rgba(34,211,238,0.15),rgba(99,102,241,0.15));border:1px solid rgba(34,211,238,0.3);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:700;color:var(--acc-l);z-index:999;opacity:0;transform:translateY(16px);transition:all 0.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+    .xp-toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:860px){.app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}.sidebar{display:none;}.main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#22D3EE" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Trees &amp; Hierarchies</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="cs-theory.html" class="nav-back">← CS Theory</a>
+    </div>
+  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 04</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">Tree Fundamentals</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Binary Search Trees</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Tree Traversal</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Balanced Trees &amp; Heaps</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · CS Theory</div>
+    <h2>Tree Fundamentals</h2>
+    <p class="lead">A <strong>tree</strong> is a connected, acyclic graph. Trees model hierarchical data — file systems, company org charts, HTML DOM, compilers' abstract syntax trees. Every tree has one root and every node has exactly one parent (except the root).</p>
+    <div class="info-box cyan">
+      <div class="info-box-title">🌳 Key Terms</div>
+      <ul>
+        <li><strong>Root:</strong> The top node with no parent</li>
+        <li><strong>Leaf:</strong> A node with no children</li>
+        <li><strong>Height:</strong> Longest path from root to any leaf</li>
+        <li><strong>Depth:</strong> Distance from root to a specific node</li>
+        <li><strong>Subtree:</strong> A node plus all its descendants</li>
+      </ul>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Tree Type</th><th>Description</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Binary tree</td><td>Each node has at most 2 children</td><td>BST, heap</td></tr>
+        <tr><td>N-ary tree</td><td>Each node has at most N children</td><td>File system</td></tr>
+        <tr><td>Perfect binary</td><td>All leaves at same level, all nodes full</td><td>Complete binary tree</td></tr>
+        <tr><td>Balanced</td><td>Height ≈ log n</td><td>AVL, Red-Black tree</td></tr>
+        <tr><td>Trie (prefix tree)</td><td>Each edge = one character</td><td>Autocomplete</td></tr>
+      </tbody>
+    </table>
+    <div class="widget">
+      <h4 style="color:var(--acc);">🌲 Binary Search Tree Visualizer</h4>
+      <canvas id="bstCanvas" width="620" height="280" style="border:1px solid var(--border);border-radius:10px;background:#060919;display:block;max-width:100%;"></canvas>
+      <div class="widget-row">
+        <input class="widget-input" id="bstInput" type="number" placeholder="insert value" style="width:140px"/>
+        <button class="widget-btn" onclick="bstInsert()">Insert</button>
+        <button class="widget-btn" style="background:rgba(255,255,255,0.07);color:var(--text-2);" onclick="bstReset()">Reset</button>
+      </div>
+      <div class="widget-result" id="bstResult">Insert values to build your BST</div>
+    </div>
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Tree Height</h4>
+      <p>A perfect binary tree has 3 levels (root at level 0, leaves at level 2). How many nodes does it have in total?</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" type="number" placeholder="nodes" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">Level 0: 1 node. Level 1: 2 nodes. Level 2: 4 nodes. Total: 1+2+4 = 7. Formula: 2^h − 1 = 2^3 − 1 = 7.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · CS Theory</div>
+    <h2>Binary Search Trees</h2>
+    <p class="lead">A <strong>Binary Search Tree (BST)</strong> stores values so that for every node, all left descendants are smaller, and all right descendants are larger. This property enables O(log n) search, insert, and delete on balanced trees.</p>
+    <div class="info-box cyan">
+      <div class="info-box-title">🔍 BST Search Property</div>
+      <p>To find value X: if X &lt; current node, go left. If X &gt; current node, go right. If X = current node, found! Each step eliminates half the remaining tree — O(log n) on a balanced tree.</p>
+    </div>
+    <div class="code-block"><span class="c-keyword">class</span> <span class="c-fn">BST</span>:
+    <span class="c-keyword">def</span> <span class="c-fn">insert</span>(self, node, val):
+        <span class="c-keyword">if</span> node <span class="c-keyword">is None</span>: <span class="c-keyword">return</span> <span class="c-fn">Node</span>(val)
+        <span class="c-keyword">if</span> val &lt; node.val:
+            node.left = self.<span class="c-fn">insert</span>(node.left, val)
+        <span class="c-keyword">else</span>:
+            node.right = self.<span class="c-fn">insert</span>(node.right, val)
+        <span class="c-keyword">return</span> node
+
+    <span class="c-keyword">def</span> <span class="c-fn">search</span>(self, node, val):
+        <span class="c-keyword">if</span> node <span class="c-keyword">is None or</span> node.val == val:
+            <span class="c-keyword">return</span> node
+        <span class="c-keyword">if</span> val &lt; node.val:
+            <span class="c-keyword">return</span> self.<span class="c-fn">search</span>(node.left, val)
+        <span class="c-keyword">return</span> self.<span class="c-fn">search</span>(node.right, val)</div>
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>BST Search Direction</h4>
+      <p>In a BST, the root is 50. You're searching for 30. Do you go left or right? Type: <strong>left</strong> or <strong>right</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="left or right" style="width:130px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">30 &lt; 50, so go left. Values smaller than the current node are always in the left subtree.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · CS Theory</div>
+    <h2>Tree Traversal</h2>
+    <p class="lead">Tree traversal visits every node exactly once. The three main orderings — in-order, pre-order, post-order — have different uses and produce different sequences from the same tree.</p>
+    <div class="info-box violet">
+      <div class="info-box-title">🗺️ Three Traversal Orders</div>
+      <ul>
+        <li><strong>In-order (Left, Root, Right):</strong> Visits BST nodes in sorted order</li>
+        <li><strong>Pre-order (Root, Left, Right):</strong> Useful for copying/serializing a tree</li>
+        <li><strong>Post-order (Left, Right, Root):</strong> Used for deletion, expression evaluation</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-comment"># For BST with values inserted: 5, 3, 7, 1, 4</span>
+<span class="c-comment">#        5</span>
+<span class="c-comment">#       / \</span>
+<span class="c-comment">#      3   7</span>
+<span class="c-comment">#     / \</span>
+<span class="c-comment">#    1   4</span>
+
+<span class="c-keyword">def</span> <span class="c-fn">inorder</span>(node):     <span class="c-comment"># → 1, 3, 4, 5, 7 (sorted!)</span>
+    <span class="c-keyword">if</span> node:
+        <span class="c-fn">inorder</span>(node.left)
+        <span class="c-fn">print</span>(node.val)
+        <span class="c-fn">inorder</span>(node.right)
+
+<span class="c-keyword">def</span> <span class="c-fn">preorder</span>(node):    <span class="c-comment"># → 5, 3, 1, 4, 7</span>
+    <span class="c-keyword">if</span> node:
+        <span class="c-fn">print</span>(node.val)
+        <span class="c-fn">preorder</span>(node.left)
+        <span class="c-fn">preorder</span>(node.right)</div>
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>In-order Traversal</h4>
+      <p>BST with root 5, left child 3, right child 7. What does in-order traversal print first? Type the number.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" type="number" placeholder="value" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">In-order: Left, Root, Right. Go as far left as possible first. The leftmost node (3) is printed first.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · CS Theory</div>
+    <h2>Balanced Trees &amp; Heaps</h2>
+    <p class="lead">An unbalanced BST can degrade to O(n) — essentially a linked list. <strong>Balanced trees</strong> maintain height ≈ log n automatically. <strong>Heaps</strong> are another tree structure optimized for finding the minimum or maximum in O(1).</p>
+    <div class="info-box green">
+      <div class="info-box-title">⚖️ Why Balance Matters</div>
+      <p>Insert 1, 2, 3, 4, 5 into a BST in order — you get a straight line to the right. Search is O(n). Insert them in random order and you get a balanced tree with O(log n) search. Self-balancing trees (AVL, Red-Black) fix this automatically.</p>
+    </div>
+    <div class="info-box cyan">
+      <div class="info-box-title">🏔️ Min-Heap Property</div>
+      <p>In a min-heap, every parent is smaller than its children. The minimum is always at the root — O(1) access. Insert and delete are O(log n). Python's <code>heapq</code> module gives you a min-heap for free.</p>
+    </div>
+    <div class="code-block"><span class="c-keyword">import</span> heapq
+
+h = []
+heapq.<span class="c-fn">heappush</span>(h, <span class="c-num">5</span>)
+heapq.<span class="c-fn">heappush</span>(h, <span class="c-num">1</span>)
+heapq.<span class="c-fn">heappush</span>(h, <span class="c-num">3</span>)
+
+<span class="c-fn">print</span>(h[<span class="c-num">0</span>])           <span class="c-comment"># 1 — minimum is always at index 0</span>
+heapq.<span class="c-fn">heappop</span>(h)     <span class="c-comment"># removes and returns 1</span>
+<span class="c-fn">print</span>(h[<span class="c-num">0</span>])           <span class="c-comment"># 3 — next minimum</span></div>
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">📁</div><div class="rw-title">File Systems</div><div class="rw-desc">Your hard drive's folder structure is an N-ary tree. Every path from / to a file traces a root-to-leaf path.</div></div>
+      <div class="rw-card"><div class="rw-icon">🌐</div><div class="rw-title">HTML DOM</div><div class="rw-desc">Every webpage is a tree — html → body → div → p. Browser rendering engines traverse this tree millions of times per second.</div></div>
+      <div class="rw-card"><div class="rw-icon">🗄️</div><div class="rw-title">Database B-Trees</div><div class="rw-desc">Most database indexes use B-trees — balanced trees optimized for disk reads. Enables O(log n) queries on billions of rows.</div></div>
+      <div class="rw-card"><div class="rw-icon">🎯</div><div class="rw-title">Priority Queues</div><div class="rw-desc">Heaps power priority queues used in Dijkstra's algorithm, OS scheduling, and A* pathfinding.</div></div>
+    </div>
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Heap Minimum</h4>
+      <p>In a min-heap with values [1, 3, 5, 7, 9], what is the time complexity of finding the minimum? Type: <strong>O(1)</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="O(...)" style="width:100px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">The minimum is always at the root (index 0) — accessing it is O(1), no search needed.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 04</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your trees knowledge.</p>
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">In a BST, where are values smaller than the root stored?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">Right subtree</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">Left subtree</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">Randomly distributed</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">At the leaves only</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">In-order traversal of a BST produces elements in:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">Random order</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">Insertion order</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">Sorted (ascending) order</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">Reverse sorted order</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">A balanced BST with n nodes has height approximately:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">n</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">n/2</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">log n</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">n²</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">What data structure always provides O(1) access to the minimum element?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">BST</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">Min-Heap</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">Hash table</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">Sorted linked list</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>🎉 Complete Module 04</button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+<script>
+  const session=JSON.parse(localStorage.getItem('helix_session')||'null');
+  if(!session){window.location.href='login.html';}
+  const state={xp:0,done:{c1:false,c2:false,c3:false,c4:false,q1:false,q2:false,q3:false,q4:false}};
+  function awardXP(a,k){if(state.done[k])return;state.done[k]=true;state.xp+=a;document.getElementById('navXp').textContent=state.xp+' XP';showToast('+'+a+' XP');updateProgress();checkComplete();}
+  function showToast(m){const t=document.getElementById('xpToast');document.getElementById('toastXp').textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+  function updateProgress(){const tot=Object.keys(state.done).length;const d=Object.values(state.done).filter(Boolean).length;const p=Math.round((d/tot)*100);document.getElementById('prog-fill').style.width=p+'%';document.getElementById('prog-label').textContent=p+'%';}
+  function checkComplete(){const a=Object.values(state.done).every(Boolean);document.getElementById('completeBtn').disabled=!a;if(a)document.getElementById('complete-note').textContent='All challenges and quiz questions completed!';}
+
+  // BST Visualizer
+  let bstRoot=null;
+  function Node(v){return{val:v,left:null,right:null};}
+  function insert(node,v){if(!node)return Node(v);if(v<node.val)node.left=insert(node.left,v);else if(v>node.val)node.right=insert(node.right,v);return node;}
+  function bstInsert(){const v=parseInt(document.getElementById('bstInput').value);if(isNaN(v))return;bstRoot=insert(bstRoot,v);drawBST();document.getElementById('bstResult').textContent='Inserted '+v+' into BST';document.getElementById('bstInput').value='';}
+  function bstReset(){bstRoot=null;const c=document.getElementById('bstCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height);document.getElementById('bstResult').textContent='BST cleared. Insert values to build your tree';}
+  function drawNode(ctx,node,x,y,spread){if(!node)return;if(node.left){const lx=x-spread,ly=y+70;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(lx,ly-16);ctx.strokeStyle='rgba(34,211,238,0.3)';ctx.lineWidth=1.5;ctx.stroke();drawNode(ctx,node.left,lx,ly,spread/2);}if(node.right){const rx=x+spread,ry=y+70;ctx.beginPath();ctx.moveTo(x,y+16);ctx.lineTo(rx,ry-16);ctx.strokeStyle='rgba(34,211,238,0.3)';ctx.lineWidth=1.5;ctx.stroke();drawNode(ctx,node.right,rx,ry,spread/2);}ctx.beginPath();ctx.arc(x,y,18,0,Math.PI*2);ctx.fillStyle='rgba(34,211,238,0.1)';ctx.fill();ctx.strokeStyle='rgba(34,211,238,0.6)';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font='bold 12px Inter';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(node.val,x,y);}
+  function drawBST(){const c=document.getElementById('bstCanvas');const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);if(bstRoot)drawNode(ctx,bstRoot,c.width/2,30,130);}
+
+  const CHALLENGES={
+    1:{check:v=>parseInt(v)===7},
+    2:{check:v=>v.trim().toLowerCase()==='left'},
+    3:{check:v=>parseInt(v)===3},
+    4:{check:v=>v.trim().replace(/\s/g,'').toLowerCase()==='o(1)'},
+  };
+  function checkChallenge(n){const val=document.getElementById('c'+n+'-inp').value;const fb=document.getElementById('c'+n+'-fb');if(CHALLENGES[n].check(val)){fb.className='challenge-feedback correct';fb.textContent='✓ Correct!';awardXP(15,'c'+n);}else{fb.className='challenge-feedback wrong';fb.textContent='✗ Not quite. Try again.';}}
+  function showHint(n){const h=document.getElementById('c'+n+'-hint');h.style.display=h.style.display==='block'?'none':'block';}
+  const QUIZ={
+    1:{correct:'b',explain:'✓ BST property: values less than root go in the left subtree.'},
+    2:{correct:'c',explain:'✓ In-order (L, Root, R) visits a BST in ascending sorted order.'},
+    3:{correct:'c',explain:'✓ A balanced tree has height O(log n), enabling efficient O(log n) operations.'},
+    4:{correct:'b',explain:'✓ Min-heap keeps the minimum at the root — always O(1) access.'},
+  };
+  function answerQuiz(n,opt){const card=document.getElementById('q'+n+'-card');if(card.dataset.answered)return;card.dataset.answered='true';const q=QUIZ[n];card.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;const l=['a','b','c','d'][i];if(l===q.correct)b.classList.add('correct');else if(l===opt)b.classList.add('wrong');});const fb=document.getElementById('q'+n+'-fb');if(opt===q.correct){fb.className='quiz-feedback correct';fb.textContent=q.explain;awardXP(20,'q'+n);}else{fb.className='quiz-feedback wrong';fb.textContent='✗ '+q.explain;}}
+  function completeModule(){const p=JSON.parse(localStorage.getItem('helix_cs_progress')||'{}');p.xp=(p.xp||0)+state.xp+120;p.completedLessons=(p.completedLessons||0)+4;p.modules=p.modules||{};p.modules.trees={completed:true,completedAt:new Date().toISOString()};p.lastActivity=new Date().toISOString();localStorage.setItem('helix_cs_progress',JSON.stringify(p));showToast('+120 XP — Module Complete!');setTimeout(()=>{window.location.href='cs-theory.html';},1800);}
+  function scrollToLesson(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.lesson-item').forEach(el=>el.classList.remove('active'));const map={l1:0,l2:1,l3:2,l4:3,quiz:4};const items=document.querySelectorAll('.lesson-item');if(map[id]!==undefined&&items[map[id]])items[map[id]].classList.add('active');}
+</script>
+</body>
+</html>

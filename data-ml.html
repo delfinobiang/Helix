@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>ML Basics — Helix Data &amp; AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#050816;--bg-2:#0C1022;--border:rgba(255,255,255,0.07);--amber:#F59E0B;--amber-l:#FCD34D;--primary:#6366F1;--cyan:#22D3EE;--green:#10B981;--red:#EF4444;--violet:#8B5CF6;--text:#EEF2F8;--text-2:#8892A4;--text-3:#2D3A4E;--nav-h:60px;--acc:#10B981;--acc-l:#34D399;--acc-d:#059669;}
+    html{scroll-behavior:smooth;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}button{font-family:inherit;}
+    .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;filter:blur(100px) saturate(120%);}
+    .orb{position:absolute;border-radius:50%;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(16,185,129,0.12) 0%,transparent 65%);top:-80px;right:0;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 65%);bottom:-150px;left:-100px;}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:var(--nav-h) 1fr;grid-template-areas:"nav nav" "sidebar main";min-height:100vh;position:relative;z-index:1;}
+    .topnav{grid-area:nav;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,8,22,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+    .nav-left{display:flex;align-items:center;gap:16px;}.nav-logo{font-size:1.05rem;font-weight:800;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
+    .nav-sep{color:var(--text-3);}.nav-title{font-size:0.85rem;font-weight:600;color:var(--acc);}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-xp{font-size:0.78rem;font-weight:700;color:var(--acc-l);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:4px 12px;border-radius:100px;}
+    .nav-back{font-size:0.8rem;color:var(--text-2);padding:5px 10px;border-radius:8px;transition:color 0.2s;}
+    .nav-back:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+    .sidebar{grid-area:sidebar;border-right:1px solid var(--border);background:rgba(8,10,25,0.7);padding:24px 0;overflow-y:auto;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;}
+    .sidebar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:8px;margin-top:20px;}
+    .sidebar-label:first-child{margin-top:0;}
+    .lesson-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background 0.15s;border-left:3px solid transparent;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);}
+    .lesson-item.active{background:rgba(16,185,129,0.07);border-left-color:var(--acc);}
+    .lesson-num{font-size:0.7rem;font-weight:700;color:var(--text-3);width:20px;flex-shrink:0;}
+    .lesson-item.active .lesson-num{color:var(--acc);}
+    .lesson-name{font-size:0.85rem;font-weight:500;color:var(--text-2);}
+    .lesson-item.active .lesson-name{color:var(--text);font-weight:600;}
+    .sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+    .progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;margin-top:8px;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--primary));border-radius:100px;transition:width 0.5s ease;}
+    .progress-label{font-size:0.72rem;color:var(--text-2);display:flex;justify-content:space-between;}
+    .main{grid-area:main;padding:40px 48px;overflow-y:auto;}
+    .lesson-section{max-width:780px;padding-bottom:80px;}
+    .lesson-section+.lesson-section{border-top:1px solid var(--border);padding-top:60px;}
+    .section-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .section-tag::before{content:'';display:block;width:20px;height:2px;background:var(--acc);border-radius:2px;}
+    h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:14px;line-height:1.2;}
+    .lead{font-size:1rem;color:var(--text-2);line-height:1.7;margin-bottom:28px;}
+    .info-box{border-radius:14px;padding:20px 22px;margin-bottom:24px;border:1px solid;}
+    .info-box.green{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2);}
+    .info-box.amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+    .info-box.violet{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.2);}
+    .info-box.cyan{background:rgba(34,211,238,0.06);border-color:rgba(34,211,238,0.2);}
+    .info-box.red{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.2);}
+    .info-box-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+    .info-box.green .info-box-title{color:var(--acc);}
+    .info-box.amber .info-box-title{color:var(--amber);}
+    .info-box.violet .info-box-title{color:var(--violet);}
+    .info-box.cyan .info-box-title{color:var(--cyan);}
+    .info-box.red .info-box-title{color:var(--red);}
+    .info-box p{font-size:0.9rem;color:var(--text-2);line-height:1.65;}
+    .info-box ul{font-size:0.9rem;color:var(--text-2);line-height:1.65;padding-left:1.25rem;}
+    .info-box li{margin-bottom:4px;}
+    .code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;margin:20px 0;white-space:pre;}
+    .c-comment{color:#4B5563;}.c-keyword{color:#C084FC;}.c-string{color:#86EFAC;}.c-fn{color:#60A5FA;}.c-num{color:var(--amber-l);}.c-op{color:var(--acc);}
+    .data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.88rem;}
+    .data-table th{background:rgba(16,185,129,0.08);color:var(--acc);font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(16,185,129,0.2);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .data-table td:first-child{color:var(--text);font-weight:600;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .widget{background:rgba(8,10,28,0.9);border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;}
+    .widget h4{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    .widget-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+    .widget-btn:hover{opacity:0.85;}
+    .widget-result{font-size:0.85rem;color:var(--acc-l);font-weight:700;margin-top:10px;min-height:22px;}
+    .challenge{background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.18);border-radius:14px;padding:22px 24px;margin:24px 0;}
+    .challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .challenge-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);background:rgba(16,185,129,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(16,185,129,0.25);}
+    .challenge-xp{font-size:0.68rem;font-weight:700;color:var(--amber-l);background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:6px;margin-left:auto;}
+    .challenge h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+    .challenge p{font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+    .challenge-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .challenge-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .challenge-input:focus{border-color:var(--acc);}
+    .challenge-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:opacity 0.2s;}
+    .challenge-feedback{font-size:0.85rem;margin-top:10px;min-height:22px;line-height:1.5;}
+    .challenge-feedback.correct{color:var(--green);}.challenge-feedback.wrong{color:var(--red);}
+    .challenge-hint-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:0.78rem;color:var(--text-2);cursor:pointer;}
+    .challenge-hint{font-size:0.82rem;color:var(--acc);margin-top:8px;display:none;}
+    .quiz-card{background:rgba(8,10,28,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;}
+    .quiz-q{font-size:0.95rem;font-weight:600;margin-bottom:16px;line-height:1.5;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:0.88rem;color:var(--text-2);cursor:pointer;text-align:left;transition:all 0.15s;}
+    .quiz-opt:hover:not(:disabled){background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--text);}
+    .quiz-opt.correct{background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green);}
+    .quiz-opt.wrong{background:rgba(239,68,68,0.12);border-color:var(--red);color:var(--red);}
+    .quiz-feedback{font-size:0.82rem;margin-top:10px;min-height:20px;color:var(--text-2);}
+    .quiz-feedback.correct{color:var(--green);}.quiz-feedback.wrong{color:var(--red);}
+    .rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:20px 0;}
+    .rw-card{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:16px;}
+    .rw-icon{font-size:1.4rem;margin-bottom:8px;}
+    .rw-title{font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+    .rw-desc{font-size:0.78rem;color:var(--text-2);line-height:1.55;}
+    .complete-section{margin-top:60px;padding-top:40px;border-top:1px solid var(--border);text-align:center;}
+    .complete-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+    .complete-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .complete-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(16,185,129,0.25);}
+    .complete-note{font-size:0.8rem;color:var(--text-3);margin-top:12px;}
+    .xp-toast{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(99,102,241,0.15));border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:700;color:var(--acc-l);z-index:999;opacity:0;transform:translateY(16px);transition:all 0.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+    .xp-toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:860px){.app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}.sidebar{display:none;}.main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<div class="app">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#10B981" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>Helix
+      </div>
+      <span class="nav-sep">/</span><span class="nav-title">ML Basics</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="data-ai.html" class="nav-back">← Data &amp; AI</a>
+    </div>
+  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 03</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">What is ML?</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Supervised Learning</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Unsupervised Learning</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Model Evaluation</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Data &amp; AI</div>
+    <h2>What is Machine Learning?</h2>
+    <p class="lead"><strong>Machine learning</strong> is the field where systems learn patterns from data without being explicitly programmed. Instead of writing rules, you feed examples and the algorithm infers the rules itself.</p>
+    <div class="info-box green">
+      <div class="info-box-title">🤖 Traditional Programming vs ML</div>
+      <p><strong>Traditional:</strong> Data + Rules → Output<br><strong>Machine Learning:</strong> Data + Output → Rules (model)</p>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Supervised</td><td>Learn from labeled examples</td><td>Spam detection, image classification</td></tr>
+        <tr><td>Unsupervised</td><td>Find structure in unlabeled data</td><td>Customer clustering, anomaly detection</td></tr>
+        <tr><td>Reinforcement</td><td>Learn by trial and reward</td><td>Game AI, robotics, recommendation</td></tr>
+        <tr><td>Semi-supervised</td><td>Mix of labeled and unlabeled</td><td>Medical imaging with few labels</td></tr>
+      </tbody>
+    </table>
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Identify ML Type</h4>
+      <p>Training a model to classify emails as spam/not-spam using 10,000 labelled examples. What type of ML is this? Type: <strong>supervised</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="answer" style="width:150px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">Labelled examples (spam/not-spam) = supervised learning. You're teaching the model with correct answers.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Data &amp; AI</div>
+    <h2>Supervised Learning</h2>
+    <p class="lead">In <strong>supervised learning</strong>, you train a model on labeled data to predict outputs for new inputs. The two main tasks are <em>classification</em> (discrete outputs) and <em>regression</em> (continuous outputs).</p>
+    <div class="info-box green">
+      <div class="info-box-title">📦 Classification vs Regression</div>
+      <ul>
+        <li><strong>Classification:</strong> Predict a category — spam/ham, cat/dog, disease/healthy</li>
+        <li><strong>Regression:</strong> Predict a number — house price, temperature, user age</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-keyword">from</span> sklearn.linear_model <span class="c-keyword">import</span> LinearRegression, LogisticRegression
+<span class="c-keyword">from</span> sklearn.model_selection <span class="c-keyword">import</span> train_test_split
+
+<span class="c-comment"># Split data: 80% training, 20% testing</span>
+X_train, X_test, y_train, y_test = <span class="c-fn">train_test_split</span>(
+    X, y, test_size=<span class="c-num">0.2</span>, random_state=<span class="c-num">42</span>
+)
+
+<span class="c-comment"># Regression: predict house price (continuous)</span>
+model = <span class="c-fn">LinearRegression</span>()
+model.<span class="c-fn">fit</span>(X_train, y_train)       <span class="c-comment"># train</span>
+predictions = model.<span class="c-fn">predict</span>(X_test)  <span class="c-comment"># predict</span>
+
+<span class="c-comment"># Classification: spam (0/1)</span>
+clf = <span class="c-fn">LogisticRegression</span>()
+clf.<span class="c-fn">fit</span>(X_train, y_train)
+probabilities = clf.<span class="c-fn">predict_proba</span>(X_test)  <span class="c-comment"># confidence scores</span></div>
+
+    <!-- KNN Visualizer -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">🎯 k-NN Classifier — Click to Add Points</h4>
+      <canvas id="knnCanvas" width="560" height="240" style="border:1px solid var(--border);border-radius:10px;background:#060919;cursor:crosshair;display:block;max-width:100%;"></canvas>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+        <button class="widget-btn" onclick="setClass(0)" id="cls0btn">🟢 Class A</button>
+        <button class="widget-btn" style="background:linear-gradient(135deg,#7C3AED,#4F46E5);" onclick="setClass(1)" id="cls1btn">🟣 Class B</button>
+        <button class="widget-btn" style="background:rgba(255,255,255,0.07);color:var(--text-2);" onclick="resetKNN()">Reset</button>
+      </div>
+      <div class="widget-result" id="knnResult">Click on the canvas to add training points, then add a new point to classify</div>
+    </div>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Classification or Regression?</h4>
+      <p>Predicting the exact temperature (in °C) for tomorrow. Is this classification or regression? Type: <strong>regression</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="answer" style="width:160px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Temperature is a continuous number — regression predicts a value on a scale. Classification predicts a category (hot/cold would be classification).</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Data &amp; AI</div>
+    <h2>Unsupervised Learning</h2>
+    <p class="lead"><strong>Unsupervised learning</strong> finds hidden structure in unlabeled data. There are no right answers to train from — the algorithm discovers patterns on its own.</p>
+    <div class="info-box violet">
+      <div class="info-box-title">🔵 Clustering (K-Means)</div>
+      <p>Group data points into k clusters so points within each cluster are similar. Algorithm: randomly place k centroids, assign each point to nearest centroid, update centroids to cluster means, repeat until stable.</p>
+    </div>
+    <div class="info-box green">
+      <div class="info-box-title">📉 Dimensionality Reduction (PCA)</div>
+      <p>Compress high-dimensional data into fewer dimensions while preserving most variance. A dataset with 100 features might be visualizable in 2D using PCA. Used for visualisation and speeding up training.</p>
+    </div>
+    <div class="code-block"><span class="c-keyword">from</span> sklearn.cluster <span class="c-keyword">import</span> KMeans
+<span class="c-keyword">from</span> sklearn.decomposition <span class="c-keyword">import</span> PCA
+
+<span class="c-comment"># Cluster customers into 3 groups</span>
+kmeans = <span class="c-fn">KMeans</span>(n_clusters=<span class="c-num">3</span>, random_state=<span class="c-num">42</span>)
+labels = kmeans.<span class="c-fn">fit_predict</span>(X)  <span class="c-comment"># assigns 0, 1, or 2</span>
+
+<span class="c-comment"># Reduce to 2D for visualisation</span>
+pca = <span class="c-fn">PCA</span>(n_components=<span class="c-num">2</span>)
+X_2d = pca.<span class="c-fn">fit_transform</span>(X)
+<span class="c-fn">print</span>(pca.explained_variance_ratio_)  <span class="c-comment"># how much variance kept</span></div>
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Clustering Application</h4>
+      <p>You have customer purchase data but no labels. You want to group similar customers. Which algorithm is appropriate? Type: <strong>k-means</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="algorithm" style="width:140px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">No labels → unsupervised learning. K-means is the classic clustering algorithm for grouping unlabeled data.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Data &amp; AI</div>
+    <h2>Model Evaluation</h2>
+    <p class="lead">A model that gets 99% accuracy on training data but fails on new data is useless. <strong>Overfitting</strong>, <strong>underfitting</strong>, and proper evaluation metrics are the difference between research toy and real product.</p>
+    <div class="info-box amber">
+      <div class="info-box-title">⚖️ Bias–Variance Tradeoff</div>
+      <ul>
+        <li><strong>Underfitting (high bias):</strong> Model too simple — misses patterns. Train accuracy low.</li>
+        <li><strong>Overfitting (high variance):</strong> Model memorises training data — fails on new data. Train high, test low.</li>
+        <li><strong>Sweet spot:</strong> Good generalisation — train ≈ test, both high.</li>
+      </ul>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Formula</th><th>Use when</th></tr></thead>
+      <tbody>
+        <tr><td>Accuracy</td><td>(TP+TN) / total</td><td>Balanced classes</td></tr>
+        <tr><td>Precision</td><td>TP / (TP+FP)</td><td>Cost of false positives is high</td></tr>
+        <tr><td>Recall</td><td>TP / (TP+FN)</td><td>Cost of false negatives is high</td></tr>
+        <tr><td>F1 Score</td><td>2 × P × R / (P+R)</td><td>Imbalanced classes</td></tr>
+        <tr><td>RMSE</td><td>√(mean squared error)</td><td>Regression tasks</td></tr>
+      </tbody>
+    </table>
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">📧</div><div class="rw-title">Spam Filters</div><div class="rw-desc">Gmail's ML model processes billions of emails daily. High recall catches more spam; high precision avoids false positives.</div></div>
+      <div class="rw-card"><div class="rw-icon">🏥</div><div class="rw-title">Cancer Detection</div><div class="rw-desc">Medical ML prioritises recall — missing a cancer (false negative) is far worse than a false alarm.</div></div>
+      <div class="rw-card"><div class="rw-icon">🎵</div><div class="rw-title">Recommendations</div><div class="rw-desc">Spotify trains models on billions of listening events to predict which songs you'll want to hear next.</div></div>
+      <div class="rw-card"><div class="rw-icon">🚗</div><div class="rw-title">Self-Driving Cars</div><div class="rw-desc">Computer vision models classify objects at 30fps — pedestrian, car, sign — to navigate autonomously.</div></div>
+    </div>
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Overfitting or Underfitting?</h4>
+      <p>A model has 98% training accuracy but 55% test accuracy. What is the problem? Type: <strong>overfitting</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="answer" style="width:150px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">High training accuracy + low test accuracy = model memorised training data but can't generalise = overfitting.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 03</div>
+    <h2>Quiz</h2>
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">Which type of ML learns from labeled data with correct answers?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">Unsupervised learning</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">Reinforcement learning</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">Supervised learning</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">Transfer learning</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">Predicting whether a customer will churn (yes/no) is an example of:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">Regression</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">Clustering</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">Classification</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">Dimensionality reduction</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">K-Means is used for:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">Predicting continuous values</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">Grouping unlabeled data into clusters</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">Training neural networks</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">Evaluating model accuracy</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">A model with 99% training accuracy and 52% test accuracy suffers from:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">Underfitting</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">Overfitting</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">Data leakage</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">Class imbalance</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>🎉 Complete Module 03</button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+<script>
+  const session=JSON.parse(localStorage.getItem('helix_session')||'null');
+  if(!session){window.location.href='login.html';}
+  const state={xp:0,done:{c1:false,c2:false,c3:false,c4:false,q1:false,q2:false,q3:false,q4:false}};
+  function awardXP(a,k){if(state.done[k])return;state.done[k]=true;state.xp+=a;document.getElementById('navXp').textContent=state.xp+' XP';showToast('+'+a+' XP');updateProgress();checkComplete();}
+  function showToast(m){const t=document.getElementById('xpToast');document.getElementById('toastXp').textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+  function updateProgress(){const tot=Object.keys(state.done).length;const d=Object.values(state.done).filter(Boolean).length;const p=Math.round((d/tot)*100);document.getElementById('prog-fill').style.width=p+'%';document.getElementById('prog-label').textContent=p+'%';}
+  function checkComplete(){const a=Object.values(state.done).every(Boolean);document.getElementById('completeBtn').disabled=!a;if(a)document.getElementById('complete-note').textContent='All challenges and quiz questions completed!';}
+
+  // KNN canvas
+  let points=[], currentClass=0;
+  const colors=['rgba(16,185,129,0.8)','rgba(139,92,246,0.8)'];
+  const canvas=document.getElementById('knnCanvas');
+  const ctx=canvas.getContext('2d');
+  function drawKNN(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    points.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);
+      ctx.fillStyle=colors[p.cls];ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;ctx.stroke();
+    });
+  }
+  function setClass(c){currentClass=c;document.getElementById('knnResult').textContent='Class '+(c===0?'A':'B')+' selected. Click to add points.';}
+  function resetKNN(){points=[];drawKNN();document.getElementById('knnResult').textContent='Canvas cleared. Add points to start.';}
+  canvas.addEventListener('click',e=>{
+    const rect=canvas.getBoundingClientRect();
+    const x=(e.clientX-rect.left)*(canvas.width/rect.width);
+    const y=(e.clientY-rect.top)*(canvas.height/rect.height);
+    points.push({x,y,cls:currentClass});
+    drawKNN();
+    document.getElementById('knnResult').textContent=`Added ${points.length} point(s). ${points.filter(p=>p.cls===0).length} Class A, ${points.filter(p=>p.cls===1).length} Class B.`;
+  });
+
+  const CHALLENGES={
+    1:{check:v=>v.trim().toLowerCase()==='supervised'},
+    2:{check:v=>v.trim().toLowerCase()==='regression'},
+    3:{check:v=>v.trim().toLowerCase().includes('k-means')||v.trim().toLowerCase().includes('kmeans')},
+    4:{check:v=>v.trim().toLowerCase()==='overfitting'},
+  };
+  function checkChallenge(n){const val=document.getElementById('c'+n+'-inp').value;const fb=document.getElementById('c'+n+'-fb');if(CHALLENGES[n].check(val)){fb.className='challenge-feedback correct';fb.textContent='✓ Correct!';awardXP(15,'c'+n);}else{fb.className='challenge-feedback wrong';fb.textContent='✗ Not quite. Try again.';}}
+  function showHint(n){const h=document.getElementById('c'+n+'-hint');h.style.display=h.style.display==='block'?'none':'block';}
+  const QUIZ={
+    1:{correct:'c',explain:'✓ Supervised learning: model learns from labeled examples with known correct answers.'},
+    2:{correct:'c',explain:'✓ Churn (yes/no) is a binary category — classification predicts discrete classes.'},
+    3:{correct:'b',explain:'✓ K-Means is an unsupervised clustering algorithm that groups unlabeled data points.'},
+    4:{correct:'b',explain:'✓ High train accuracy + low test accuracy = overfitting (memorised training, can\'t generalise).'},
+  };
+  function answerQuiz(n,opt){const card=document.getElementById('q'+n+'-card');if(card.dataset.answered)return;card.dataset.answered='true';const q=QUIZ[n];card.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;const l=['a','b','c','d'][i];if(l===q.correct)b.classList.add('correct');else if(l===opt)b.classList.add('wrong');});const fb=document.getElementById('q'+n+'-fb');if(opt===q.correct){fb.className='quiz-feedback correct';fb.textContent=q.explain;awardXP(20,'q'+n);}else{fb.className='quiz-feedback wrong';fb.textContent='✗ '+q.explain;}}
+  function completeModule(){const p=JSON.parse(localStorage.getItem('helix_data_progress')||'{}');p.xp=(p.xp||0)+state.xp+120;p.completedLessons=(p.completedLessons||0)+4;p.modules=p.modules||{};p.modules.ml={completed:true,completedAt:new Date().toISOString()};p.lastActivity=new Date().toISOString();localStorage.setItem('helix_data_progress',JSON.stringify(p));showToast('+120 XP — Module Complete!');setTimeout(()=>{window.location.href='data-ai.html';},1800);}
+  function scrollToLesson(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.lesson-item').forEach(el=>el.classList.remove('active'));const map={l1:0,l2:1,l3:2,l4:3,quiz:4};const items=document.querySelectorAll('.lesson-item');if(map[id]!==undefined&&items[map[id]])items[map[id]].classList.add('active');}
+</script>
+</body>
+</html>

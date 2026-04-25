@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>HTTP &amp; APIs — Helix Web & Internet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#050816;--bg-2:#0C1022;--border:rgba(255,255,255,0.07);--amber:#F59E0B;--amber-l:#FCD34D;--primary:#6366F1;--cyan:#22D3EE;--green:#10B981;--red:#EF4444;--violet:#8B5CF6;--text:#EEF2F8;--text-2:#8892A4;--text-3:#2D3A4E;--nav-h:60px;--acc:#EC4899;--acc-l:#F472B6;--acc-d:#BE185D;}
+    html{scroll-behavior:smooth;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}button{font-family:inherit;}
+    .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;filter:blur(100px) saturate(120%);}
+    .orb{position:absolute;border-radius:50%;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 65%);top:-80px;right:0;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%);bottom:-150px;left:-100px;}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:var(--nav-h) 1fr;grid-template-areas:"nav nav" "sidebar main";min-height:100vh;position:relative;z-index:1;}
+    .topnav{grid-area:nav;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,8,22,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+    .nav-left{display:flex;align-items:center;gap:16px;}.nav-logo{font-size:1.05rem;font-weight:800;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
+    .nav-sep{color:var(--text-3);}.nav-title{font-size:0.85rem;font-weight:600;color:var(--acc);}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-xp{font-size:0.78rem;font-weight:700;color:var(--acc-l);background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);padding:4px 12px;border-radius:100px;}
+    .nav-back{font-size:0.8rem;color:var(--text-2);padding:5px 10px;border-radius:8px;transition:color 0.2s;}
+    .nav-back:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+    .sidebar{grid-area:sidebar;border-right:1px solid var(--border);background:rgba(8,10,25,0.7);padding:24px 0;overflow-y:auto;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;}
+    .sidebar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:8px;margin-top:20px;}
+    .sidebar-label:first-child{margin-top:0;}
+    .lesson-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background 0.15s;border-left:3px solid transparent;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);}
+    .lesson-item.active{background:rgba(236,72,153,0.07);border-left-color:var(--acc);}
+    .lesson-num{font-size:0.7rem;font-weight:700;color:var(--text-3);width:20px;flex-shrink:0;}
+    .lesson-item.active .lesson-num{color:var(--acc);}
+    .lesson-name{font-size:0.85rem;font-weight:500;color:var(--text-2);}
+    .lesson-item.active .lesson-name{color:var(--text);font-weight:600;}
+    .sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+    .progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;margin-top:8px;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--primary));border-radius:100px;transition:width 0.5s ease;}
+    .progress-label{font-size:0.72rem;color:var(--text-2);display:flex;justify-content:space-between;}
+    .main{grid-area:main;padding:40px 48px;overflow-y:auto;}
+    .lesson-section{max-width:780px;padding-bottom:80px;}
+    .lesson-section+.lesson-section{border-top:1px solid var(--border);padding-top:60px;}
+    .section-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .section-tag::before{content:'';display:block;width:20px;height:2px;background:var(--acc);border-radius:2px;}
+    h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:14px;line-height:1.2;}
+    .lead{font-size:1rem;color:var(--text-2);line-height:1.7;margin-bottom:28px;}
+    .info-box{border-radius:14px;padding:20px 22px;margin-bottom:24px;border:1px solid;}
+    .info-box.pink{background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.2);}
+    .info-box.amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+    .info-box.violet{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.2);}
+    .info-box.green{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.2);}
+    .info-box.cyan{background:rgba(34,211,238,0.07);border-color:rgba(34,211,238,0.2);}
+    .info-box-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+    .info-box.pink .info-box-title{color:var(--acc);}
+    .info-box.amber .info-box-title{color:var(--amber);}
+    .info-box.violet .info-box-title{color:var(--violet);}
+    .info-box.green .info-box-title{color:var(--green);}
+    .info-box.cyan .info-box-title{color:var(--cyan);}
+    .info-box p{font-size:0.9rem;color:var(--text-2);line-height:1.65;}
+    .info-box ul{font-size:0.9rem;color:var(--text-2);line-height:1.65;padding-left:1.25rem;}
+    .info-box li{margin-bottom:4px;}
+    .code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;margin:20px 0;white-space:pre;}
+    .c-comment{color:#4B5563;}.c-keyword{color:#C084FC;}.c-string{color:#86EFAC;}.c-fn{color:#60A5FA;}.c-num{color:var(--amber-l);}.c-op{color:var(--acc);}
+    .data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.88rem;}
+    .data-table th{background:rgba(236,72,153,0.08);color:var(--acc);font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(236,72,153,0.2);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .data-table td:first-child{color:var(--text);font-weight:600;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .widget{background:rgba(8,10,28,0.9);border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;}
+    .widget h4{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    .widget-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+    .widget-btn:hover{opacity:0.85;}
+    .method-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:14px;}
+    .method-btn{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.8rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.15s;text-align:center;}
+    .method-btn:hover,.method-btn.active{border-color:var(--acc);color:var(--acc);background:rgba(236,72,153,0.08);}
+    .method-response{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;line-height:1.65;min-height:80px;white-space:pre-wrap;}
+    .status-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:700;padding:3px 10px;border-radius:6px;margin-right:6px;}
+    .status-2xx{background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.25);}
+    .status-3xx{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+    .status-4xx{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+    .status-5xx{background:rgba(139,92,246,0.12);color:var(--violet);border:1px solid rgba(139,92,246,0.25);}
+    .challenge{background:rgba(236,72,153,0.04);border:1px solid rgba(236,72,153,0.18);border-radius:14px;padding:22px 24px;margin:24px 0;}
+    .challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .challenge-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);background:rgba(236,72,153,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(236,72,153,0.25);}
+    .challenge-xp{font-size:0.68rem;font-weight:700;color:var(--amber-l);background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:6px;margin-left:auto;}
+    .challenge h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+    .challenge p{font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+    .challenge-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .challenge-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .challenge-input:focus{border-color:var(--acc);}
+    .challenge-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:opacity 0.2s;}
+    .challenge-feedback{font-size:0.85rem;margin-top:10px;min-height:22px;line-height:1.5;}
+    .challenge-feedback.correct{color:var(--green);}.challenge-feedback.wrong{color:var(--red);}
+    .challenge-hint-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:0.78rem;color:var(--text-2);cursor:pointer;}
+    .challenge-hint{font-size:0.82rem;color:var(--acc);margin-top:8px;display:none;}
+    .quiz-card{background:rgba(8,10,28,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;}
+    .quiz-q{font-size:0.95rem;font-weight:600;margin-bottom:16px;line-height:1.5;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:0.88rem;color:var(--text-2);cursor:pointer;text-align:left;transition:all 0.15s;}
+    .quiz-opt:hover:not(:disabled){background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--text);}
+    .quiz-opt.correct{background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green);}
+    .quiz-opt.wrong{background:rgba(239,68,68,0.12);border-color:var(--red);color:var(--red);}
+    .quiz-feedback{font-size:0.82rem;margin-top:10px;min-height:20px;color:var(--text-2);}
+    .quiz-feedback.correct{color:var(--green);}.quiz-feedback.wrong{color:var(--red);}
+    .complete-section{margin-top:60px;padding-top:40px;border-top:1px solid var(--border);text-align:center;}
+    .complete-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+    .complete-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .complete-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(236,72,153,0.25);}
+    .complete-note{font-size:0.8rem;color:var(--text-3);margin-top:12px;}
+    .xp-toast{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(99,102,241,0.15));border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:700;color:var(--acc-l);z-index:999;opacity:0;transform:translateY(16px);transition:all 0.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+    .xp-toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:860px){.app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}.sidebar{display:none;}.main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<div class="app">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#EC4899" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>Helix
+      </div>
+      <span class="nav-sep">/</span><span class="nav-title">HTTP &amp; APIs</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="web-internet.html" class="nav-back">← Web &amp; Internet</a>
+    </div>
+  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 02</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">HTTP Methods</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Status Codes</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">REST APIs</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Fetch &amp; JSON</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Web &amp; Internet</div>
+    <h2>HTTP Methods</h2>
+    <p class="lead"><strong>HTTP (HyperText Transfer Protocol)</strong> is the language browsers and servers speak. Every request has a <strong>method</strong> — a verb that tells the server what action to perform.</p>
+    <div class="info-box pink">
+      <div class="info-box-title">📋 The Main HTTP Methods</div>
+      <ul>
+        <li><strong>GET</strong> — retrieve a resource; no body; safe &amp; idempotent</li>
+        <li><strong>POST</strong> — create a new resource; includes a body; not idempotent</li>
+        <li><strong>PUT</strong> — replace a resource entirely; idempotent</li>
+        <li><strong>PATCH</strong> — partially update a resource</li>
+        <li><strong>DELETE</strong> — remove a resource; idempotent</li>
+        <li><strong>HEAD</strong> — like GET but returns headers only (useful for checking if a resource exists)</li>
+        <li><strong>OPTIONS</strong> — ask the server what methods it supports (used in CORS)</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-comment"># GET — fetch a user</span>
+<span class="c-op">GET</span> /api/users/<span class="c-num">42</span> HTTP/<span class="c-num">1.1</span>
+Host: api.example.com
+Authorization: Bearer <span class="c-string">eyJhbGci...</span>
+
+<span class="c-comment"># POST — create a new user</span>
+<span class="c-op">POST</span> /api/users HTTP/<span class="c-num">1.1</span>
+Content-Type: application/json
+
+{<span class="c-string">"name"</span>: <span class="c-string">"Alice"</span>, <span class="c-string">"email"</span>: <span class="c-string">"alice@example.com"</span>}
+
+<span class="c-comment"># DELETE — remove a user</span>
+<span class="c-op">DELETE</span> /api/users/<span class="c-num">42</span> HTTP/<span class="c-num">1.1</span></div>
+    <div class="info-box amber">
+      <div class="info-box-title">🔄 Idempotency</div>
+      <p>A request is <strong>idempotent</strong> if calling it multiple times has the same effect as calling it once. GET, PUT, DELETE are idempotent. POST is not — sending the same POST twice might create two records.</p>
+    </div>
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Create vs Retrieve</h4>
+      <p>You're building a sign-up form. When the user submits their details to create a new account, which HTTP method should the request use? Type: <strong>POST</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="method" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1,'post')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(1)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-1">Creating a new resource = POST. Retrieving = GET.</div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Web &amp; Internet</div>
+    <h2>Status Codes</h2>
+    <p class="lead">Every HTTP response includes a <strong>status code</strong> — a three-digit number that tells the client what happened. The first digit indicates the class of response.</p>
+    <table class="data-table">
+      <thead><tr><th>Range</th><th>Category</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>1xx</td><td>Informational</td><td>Request received, processing</td></tr>
+        <tr><td>2xx</td><td>Success</td><td>Request succeeded</td></tr>
+        <tr><td>3xx</td><td>Redirection</td><td>Further action needed</td></tr>
+        <tr><td>4xx</td><td>Client Error</td><td>Bad request (your fault)</td></tr>
+        <tr><td>5xx</td><td>Server Error</td><td>Server failed (their fault)</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box pink">
+      <div class="info-box-title">🔢 Must-Know Codes</div>
+      <p>
+        <span class="status-badge status-2xx">200 OK</span> Standard success<br><br>
+        <span class="status-badge status-2xx">201 Created</span> Resource created (POST)<br><br>
+        <span class="status-badge status-3xx">301 Moved Permanently</span> Redirect<br><br>
+        <span class="status-badge status-4xx">400 Bad Request</span> Malformed request<br><br>
+        <span class="status-badge status-4xx">401 Unauthorized</span> Not authenticated<br><br>
+        <span class="status-badge status-4xx">403 Forbidden</span> Authenticated but no permission<br><br>
+        <span class="status-badge status-4xx">404 Not Found</span> Resource doesn't exist<br><br>
+        <span class="status-badge status-5xx">500 Internal Server Error</span> Generic server crash<br><br>
+        <span class="status-badge status-5xx">503 Service Unavailable</span> Server down/overloaded
+      </p>
+    </div>
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Authentication vs Authorisation</h4>
+      <p>A user is logged in but tries to access an admin page they don't have permission for. The server should respond with: <strong>403</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="status code" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2,'403')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(2)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-2">401 = "who are you?" — 403 = "I know who you are, but no."</div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Web &amp; Internet</div>
+    <h2>REST APIs</h2>
+    <p class="lead">A <strong>REST API</strong> (Representational State Transfer) is a set of conventions for building web APIs using HTTP. It's not a protocol — it's an architectural style. Well-designed REST APIs are predictable, stateless, and resource-oriented.</p>
+    <div class="info-box violet">
+      <div class="info-box-title">📐 REST Constraints</div>
+      <ul>
+        <li><strong>Stateless</strong> — each request contains all info needed; no server-side session</li>
+        <li><strong>Resource-based</strong> — URLs identify resources, not actions (<code>/users/42</code> not <code>/getUser?id=42</code>)</li>
+        <li><strong>Uniform interface</strong> — HTTP methods define actions on resources</li>
+        <li><strong>Client-server</strong> — frontend and backend are independent</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-comment"># RESTful URL design</span>
+<span class="c-op">GET</span>    /posts           <span class="c-comment"># list all posts</span>
+<span class="c-op">POST</span>   /posts           <span class="c-comment"># create a new post</span>
+<span class="c-op">GET</span>    /posts/<span class="c-num">7</span>        <span class="c-comment"># get post #7</span>
+<span class="c-op">PUT</span>    /posts/<span class="c-num">7</span>        <span class="c-comment"># replace post #7</span>
+<span class="c-op">PATCH</span>  /posts/<span class="c-num">7</span>        <span class="c-comment"># update post #7 fields</span>
+<span class="c-op">DELETE</span> /posts/<span class="c-num">7</span>        <span class="c-comment"># delete post #7</span>
+
+<span class="c-comment"># Nested resources</span>
+<span class="c-op">GET</span>    /posts/<span class="c-num">7</span>/comments    <span class="c-comment"># comments on post 7</span>
+<span class="c-op">POST</span>   /posts/<span class="c-num">7</span>/comments    <span class="c-comment"># add comment to post 7</span></div>
+    <div class="info-box cyan">
+      <div class="info-box-title">🆚 REST vs GraphQL vs gRPC</div>
+      <p><strong>REST</strong> — simple, widely understood, great for public APIs. <strong>GraphQL</strong> — client specifies exactly what data it needs, avoids over/under-fetching. <strong>gRPC</strong> — binary protocol, extremely fast, great for internal microservices.</p>
+    </div>
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Statelessness</h4>
+      <p>REST APIs are stateless. This means the server stores no <strong>session</strong> state between requests — each request must contain all needed information. What must every authenticated request include? Type: <strong>token</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="your answer" style="width:150px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3,'token')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(3)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-3">Since there's no server session, identity must travel with the request — usually as a JWT or API key.</div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Web &amp; Internet</div>
+    <h2>Fetch &amp; JSON</h2>
+    <p class="lead"><strong>JSON (JavaScript Object Notation)</strong> is the lingua franca of web APIs. The browser's built-in <strong>Fetch API</strong> lets you make HTTP requests from JavaScript and handle responses asynchronously.</p>
+    <div class="code-block"><span class="c-comment">// GET request with fetch</span>
+<span class="c-keyword">const</span> response = <span class="c-keyword">await</span> <span class="c-fn">fetch</span>(<span class="c-string">'https://api.example.com/users/1'</span>);
+<span class="c-keyword">const</span> user = <span class="c-keyword">await</span> response.<span class="c-fn">json</span>();
+console.<span class="c-fn">log</span>(user.name);  <span class="c-comment">// "Alice"</span>
+
+<span class="c-comment">// POST request with JSON body</span>
+<span class="c-keyword">const</span> res = <span class="c-keyword">await</span> <span class="c-fn">fetch</span>(<span class="c-string">'/api/posts'</span>, {
+  method: <span class="c-string">'POST'</span>,
+  headers: { <span class="c-string">'Content-Type'</span>: <span class="c-string">'application/json'</span> },
+  body: JSON.<span class="c-fn">stringify</span>({ title: <span class="c-string">'Hello World'</span>, body: <span class="c-string">'...'</span> })
+});
+<span class="c-keyword">const</span> created = <span class="c-keyword">await</span> res.<span class="c-fn">json</span>();
+console.<span class="c-fn">log</span>(res.status);  <span class="c-comment">// 201</span>
+
+<span class="c-comment">// Always handle errors</span>
+<span class="c-keyword">if</span> (!res.ok) <span class="c-keyword">throw new</span> <span class="c-fn">Error</span>(<span class="c-string">`HTTP error: </span>${res.status}<span class="c-string">`</span>);</div>
+
+    <div class="widget">
+      <h4>🔌 HTTP Method Explorer</h4>
+      <p style="font-size:0.82rem;color:var(--text-2);margin-bottom:14px;">Click a method to see what a real API request and response looks like:</p>
+      <div class="method-grid">
+        <button class="method-btn active" id="mb-GET" onclick="showMethod('GET')">GET</button>
+        <button class="method-btn" id="mb-POST" onclick="showMethod('POST')">POST</button>
+        <button class="method-btn" id="mb-PUT" onclick="showMethod('PUT')">PUT</button>
+        <button class="method-btn" id="mb-PATCH" onclick="showMethod('PATCH')">PATCH</button>
+        <button class="method-btn" id="mb-DELETE" onclick="showMethod('DELETE')">DELETE</button>
+      </div>
+      <div class="method-response" id="methodResponse"></div>
+    </div>
+
+    <div class="info-box green">
+      <div class="info-box-title">🛡️ CORS</div>
+      <p><strong>Cross-Origin Resource Sharing</strong> — browsers block JS from fetching resources on different domains by default. The server must include <code style="font-family:monospace">Access-Control-Allow-Origin</code> headers to permit cross-origin requests. This is why your frontend dev server needs a proxy when calling a different-origin API.</p>
+    </div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Parsing the Response</h4>
+      <p>After <code style="font-family:monospace">const res = await fetch(url)</code>, what method do you call on <code style="font-family:monospace">res</code> to parse the JSON body? Type: <strong>json()</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="method name" style="width:150px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4,'json()')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(4)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-4">It returns a Promise — <code>await res._____()</code></div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Practice · Web &amp; Internet</div>
+    <h2>Knowledge Check</h2>
+    <p class="lead">Test your understanding of HTTP and APIs. Each correct answer earns XP.</p>
+
+    <div class="quiz-card" id="q1">
+      <div class="quiz-q">1. Which HTTP method should be used to retrieve data without modifying anything?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">a) POST</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">b) PUT</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">c) GET</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">d) PATCH</button>
+      </div>
+      <div class="quiz-feedback" id="qf1"></div>
+    </div>
+
+    <div class="quiz-card" id="q2">
+      <div class="quiz-q">2. A user submits login credentials but they are incorrect. The server should respond with:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">a) 500 Internal Server Error</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">b) 404 Not Found</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">c) 401 Unauthorized</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">d) 200 OK</button>
+      </div>
+      <div class="quiz-feedback" id="qf2"></div>
+    </div>
+
+    <div class="quiz-card" id="q3">
+      <div class="quiz-q">3. What does "stateless" mean in the context of REST APIs?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">a) The API never changes its response</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">b) The server stores session state in a database</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">c) Each request contains all information needed; the server stores no session state</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">d) The API only responds with static files</button>
+      </div>
+      <div class="quiz-feedback" id="qf3"></div>
+    </div>
+
+    <div class="quiz-card" id="q4">
+      <div class="quiz-q">4. What header must a POST request include when sending JSON data?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">a) Accept: application/json</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">b) Content-Type: application/json</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">c) Authorization: Bearer json</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">d) Transfer-Encoding: json</button>
+      </div>
+      <div class="quiz-feedback" id="qf4"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Complete Module
+      </button>
+      <p class="complete-note" id="completeNote">Complete all 4 challenges and the quiz to unlock.</p>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ +<span id="toastAmt">15</span> XP</div>
+
+<script>
+const STORAGE_KEY='helix_web_progress';
+const MODULE_KEY='http';
+let xp=0,challenges={},quizAnswers={};
+
+const METHOD_DEMOS={
+  GET:`→ Request:\nGET /api/users/42 HTTP/1.1\nHost: api.example.com\n\n← Response: 200 OK\n{\n  "id": 42,\n  "name": "Alice",\n  "email": "alice@example.com"\n}`,
+  POST:`→ Request:\nPOST /api/users HTTP/1.1\nContent-Type: application/json\n\n{"name":"Bob","email":"bob@example.com"}\n\n← Response: 201 Created\n{"id": 43, "name": "Bob", "email": "bob@example.com"}`,
+  PUT:`→ Request:\nPUT /api/users/42 HTTP/1.1\nContent-Type: application/json\n\n{"name":"Alice Smith","email":"alicesmith@example.com"}\n\n← Response: 200 OK\n{"id":42,"name":"Alice Smith","email":"alicesmith@example.com"}`,
+  PATCH:`→ Request:\nPATCH /api/users/42 HTTP/1.1\nContent-Type: application/json\n\n{"name":"Alice Smith"}\n\n← Response: 200 OK\n{"id":42,"name":"Alice Smith","email":"alice@example.com"}`,
+  DELETE:`→ Request:\nDELETE /api/users/42 HTTP/1.1\nAuthorization: Bearer eyJhbGci...\n\n← Response: 204 No Content\n(empty body — resource deleted successfully)`
+};
+
+function showMethod(m){
+  document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mb-'+m).classList.add('active');
+  document.getElementById('methodResponse').textContent=METHOD_DEMOS[m];
+}
+
+function loadProgress(){
+  const s=JSON.parse(localStorage.getItem('helix_session')||'null');
+  if(!s){window.location.href='login.html';return;}
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  xp=p.xp||0;
+  document.getElementById('navXp').textContent=xp+' XP';
+  showMethod('GET');
+  updateModuleProgress();
+}
+
+function saveXP(amt){
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  p.xp=(p.xp||0)+amt;xp=p.xp;
+  p.lastActivity=new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(p));
+  document.getElementById('navXp').textContent=xp+' XP';
+  showToast(amt);
+}
+
+function showToast(amt){
+  const t=document.getElementById('xpToast');
+  document.getElementById('toastAmt').textContent=amt;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function checkChallenge(n,correct){
+  const inp=document.getElementById('c'+n+'-inp').value.trim().toLowerCase();
+  const fb=document.getElementById('c'+n+'-fb');
+  if(inp===correct.toLowerCase()){
+    if(!challenges[n]){challenges[n]=true;saveXP(15);updateModuleProgress();}
+    fb.textContent='✓ Correct!';fb.className='challenge-feedback correct';
+  } else {
+    fb.textContent='✗ Not quite — re-read the lesson and try again.';fb.className='challenge-feedback wrong';
+  }
+}
+
+function toggleHint(n){
+  const h=document.getElementById('hint-'+n);
+  h.style.display=h.style.display==='block'?'none':'block';
+}
+
+const QUIZ_CORRECT={1:'c',2:'c',3:'c',4:'b'};
+const QUIZ_EXPLAIN={
+  1:'GET is the safe, read-only method. It retrieves resources without side effects.',
+  2:'401 Unauthorized means authentication failed — the credentials were wrong or missing.',
+  3:'Statelessness means each HTTP request must carry all context (e.g., a token) — the server holds no session between requests.',
+  4:'Content-Type: application/json tells the server the request body is JSON-encoded data.'
+};
+
+function answerQuiz(n,choice){
+  if(quizAnswers[n])return;
+  quizAnswers[n]=choice;
+  const card=document.getElementById('q'+n);
+  const opts=card.querySelectorAll('.quiz-opt');
+  const correct=QUIZ_CORRECT[n];
+  opts.forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent.startsWith(correct+')')){btn.classList.add('correct');}
+    else if(btn.textContent.startsWith(choice+')')){btn.classList.add('wrong');}
+  });
+  const fb=document.getElementById('qf'+n);
+  if(choice===correct){fb.textContent='✓ '+QUIZ_EXPLAIN[n];fb.className='quiz-feedback correct';saveXP(20);}
+  else{fb.textContent='✗ '+QUIZ_EXPLAIN[n];fb.className='quiz-feedback wrong';}
+  updateModuleProgress();
+}
+
+function updateModuleProgress(){
+  const chalDone=Object.keys(challenges).length;
+  const quizDone=Object.keys(quizAnswers).length;
+  const pct=Math.round(((chalDone+quizDone)/8)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=pct+'%';
+  const allDone=chalDone>=4&&quizDone>=4;
+  document.getElementById('completeBtn').disabled=!allDone;
+  if(allDone)document.getElementById('completeNote').textContent='All done — mark this module complete!';
+}
+
+function completeModule(){
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(!p.modules)p.modules={};
+  if(!p.modules[MODULE_KEY]){
+    p.modules[MODULE_KEY]={completed:true,completedAt:new Date().toISOString()};
+    p.xp=(p.xp||0)+120;p.completedLessons=(p.completedLessons||0)+1;
+    p.lastActivity=new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(p));
+    xp=p.xp;document.getElementById('navXp').textContent=xp+' XP';
+    showToast(120);
+  }
+  setTimeout(()=>{window.location.href='web-internet.html';},1200);
+}
+
+function scrollToLesson(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.lesson-item').forEach(li=>li.classList.remove('active'));
+  const map={l1:0,l2:1,l3:2,l4:3,quiz:5};
+  const items=document.querySelectorAll('.lesson-item');
+  if(map[id]!==undefined)items[map[id]].classList.add('active');
+}
+
+loadProgress();
+</script>
+</body>
+</html>

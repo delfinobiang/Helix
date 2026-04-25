@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Sorting Algorithms — Helix CS Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#050816; --bg-2:#0C1022; --border:rgba(255,255,255,0.07);
+      --amber:#F59E0B; --amber-l:#FCD34D; --orange:#F97316;
+      --primary:#6366F1; --cyan:#22D3EE; --green:#10B981;
+      --red:#EF4444; --violet:#8B5CF6;
+      --text:#EEF2F8; --text-2:#8892A4; --text-3:#2D3A4E;
+      --nav-h:60px;
+      --acc:#22D3EE; --acc-l:#67E8F9; --acc-d:#0891B2;
+    }
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;} button{font-family:inherit;}
+    .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;filter:blur(100px) saturate(120%);}
+    .orb{position:absolute;border-radius:50%;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(34,211,238,0.12) 0%,transparent 65%);top:-80px;right:0;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%);bottom:-150px;left:-100px;}
+    .orb-3{width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 65%);top:40%;left:50%;}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:var(--nav-h) 1fr;grid-template-areas:"nav nav" "sidebar main";min-height:100vh;position:relative;z-index:1;}
+    .topnav{grid-area:nav;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,8,22,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+    .nav-left{display:flex;align-items:center;gap:16px;}
+    .nav-logo{font-size:1.05rem;font-weight:800;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
+    .nav-sep{color:var(--text-3);} .nav-title{font-size:0.85rem;font-weight:600;color:var(--acc);}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-xp{font-size:0.78rem;font-weight:700;color:var(--acc-l);background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.2);padding:4px 12px;border-radius:100px;}
+    .nav-back{font-size:0.8rem;color:var(--text-2);padding:5px 10px;border-radius:8px;transition:color 0.2s;}
+    .nav-back:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+    .sidebar{grid-area:sidebar;border-right:1px solid var(--border);background:rgba(8,10,25,0.7);padding:24px 0;overflow-y:auto;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;}
+    .sidebar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:8px;margin-top:20px;}
+    .sidebar-label:first-child{margin-top:0;}
+    .lesson-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background 0.15s;border-left:3px solid transparent;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);}
+    .lesson-item.active{background:rgba(34,211,238,0.07);border-left-color:var(--acc);}
+    .lesson-num{font-size:0.7rem;font-weight:700;color:var(--text-3);width:20px;flex-shrink:0;}
+    .lesson-item.active .lesson-num{color:var(--acc);}
+    .lesson-name{font-size:0.85rem;font-weight:500;color:var(--text-2);}
+    .lesson-item.active .lesson-name{color:var(--text);font-weight:600;}
+    .sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+    .progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;margin-top:8px;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--primary));border-radius:100px;transition:width 0.5s ease;}
+    .progress-label{font-size:0.72rem;color:var(--text-2);display:flex;justify-content:space-between;}
+    .main{grid-area:main;padding:40px 48px;overflow-y:auto;}
+    .lesson-section{max-width:780px;padding-bottom:80px;}
+    .lesson-section+.lesson-section{border-top:1px solid var(--border);padding-top:60px;}
+    .section-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .section-tag::before{content:'';display:block;width:20px;height:2px;background:var(--acc);border-radius:2px;}
+    h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:14px;line-height:1.2;}
+    .lead{font-size:1rem;color:var(--text-2);line-height:1.7;margin-bottom:28px;}
+    .info-box{border-radius:14px;padding:20px 22px;margin-bottom:24px;border:1px solid;}
+    .info-box.cyan{background:rgba(34,211,238,0.06);border-color:rgba(34,211,238,0.2);}
+    .info-box.amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+    .info-box.violet{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.2);}
+    .info-box.green{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.2);}
+    .info-box.red{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.2);}
+    .info-box-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+    .info-box.cyan .info-box-title{color:var(--acc);}
+    .info-box.amber .info-box-title{color:var(--amber);}
+    .info-box.violet .info-box-title{color:var(--violet);}
+    .info-box.green .info-box-title{color:var(--green);}
+    .info-box.red .info-box-title{color:var(--red);}
+    .info-box p{font-size:0.9rem;color:var(--text-2);line-height:1.65;}
+    .info-box ul{font-size:0.9rem;color:var(--text-2);line-height:1.65;padding-left:1.25rem;}
+    .info-box li{margin-bottom:4px;}
+    .code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;margin:20px 0;white-space:pre;}
+    .c-comment{color:#4B5563;}.c-keyword{color:#C084FC;}.c-string{color:#86EFAC;}.c-fn{color:#60A5FA;}.c-num{color:var(--amber-l);}.c-op{color:var(--acc);}
+    .data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.88rem;}
+    .data-table th{background:rgba(34,211,238,0.08);color:var(--acc);font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(34,211,238,0.2);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .data-table td:first-child{color:var(--text);font-weight:600;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tr:hover td{background:rgba(255,255,255,0.02);}
+    .widget{background:rgba(8,10,28,0.9);border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;}
+    .widget h4{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    .widget-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+    .widget-btn:hover{opacity:0.85;}
+    .widget-btn.secondary{background:rgba(255,255,255,0.07);color:var(--text-2);}
+    .sort-bars{display:flex;gap:6px;align-items:flex-end;height:160px;margin:16px 0;}
+    .sort-bar{flex:1;border-radius:6px 6px 0 0;background:rgba(34,211,238,0.3);border:1px solid rgba(34,211,238,0.4);transition:all 0.15s;position:relative;min-width:20px;}
+    .sort-bar.comparing{background:rgba(245,158,11,0.4);border-color:var(--amber);}
+    .sort-bar.swapping{background:rgba(239,68,68,0.4);border-color:var(--red);}
+    .sort-bar.sorted{background:rgba(16,185,129,0.3);border-color:var(--green);}
+    .sort-bar-lbl{position:absolute;bottom:-20px;width:100%;text-align:center;font-size:0.65rem;color:var(--text-3);}
+    .sort-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+    .widget-result{font-family:'JetBrains Mono',monospace;font-size:0.88rem;color:var(--text-2);margin-top:10px;min-height:22px;}
+    .challenge{background:rgba(34,211,238,0.04);border:1px solid rgba(34,211,238,0.18);border-radius:14px;padding:22px 24px;margin:24px 0;}
+    .challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .challenge-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);background:rgba(34,211,238,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(34,211,238,0.25);}
+    .challenge-xp{font-size:0.68rem;font-weight:700;color:var(--amber-l);background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:6px;margin-left:auto;}
+    .challenge h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+    .challenge p{font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+    .challenge-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .challenge-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .challenge-input:focus{border-color:var(--acc);}
+    .challenge-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:opacity 0.2s;}
+    .challenge-btn:hover{opacity:0.85;}
+    .challenge-feedback{font-size:0.85rem;margin-top:10px;min-height:22px;line-height:1.5;}
+    .challenge-feedback.correct{color:var(--green);} .challenge-feedback.wrong{color:var(--red);}
+    .challenge-hint-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:0.78rem;color:var(--text-2);cursor:pointer;transition:border-color 0.2s;}
+    .challenge-hint-btn:hover{border-color:var(--text-2);}
+    .challenge-hint{font-size:0.82rem;color:var(--acc);margin-top:8px;display:none;}
+    .quiz-card{background:rgba(8,10,28,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;}
+    .quiz-q{font-size:0.95rem;font-weight:600;margin-bottom:16px;line-height:1.5;}
+    .quiz-q code{font-family:'JetBrains Mono',monospace;color:var(--acc);background:rgba(34,211,238,0.1);padding:1px 7px;border-radius:4px;font-size:0.88em;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:0.88rem;color:var(--text-2);cursor:pointer;text-align:left;transition:all 0.15s;}
+    .quiz-opt:hover:not(:disabled){background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--text);}
+    .quiz-opt.correct{background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green);}
+    .quiz-opt.wrong{background:rgba(239,68,68,0.12);border-color:var(--red);color:var(--red);}
+    .quiz-feedback{font-size:0.82rem;margin-top:10px;min-height:20px;color:var(--text-2);}
+    .quiz-feedback.correct{color:var(--green);} .quiz-feedback.wrong{color:var(--red);}
+    .complete-section{margin-top:60px;padding-top:40px;border-top:1px solid var(--border);text-align:center;}
+    .complete-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+    .complete-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .complete-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(34,211,238,0.25);}
+    .complete-note{font-size:0.8rem;color:var(--text-3);margin-top:12px;}
+    .xp-toast{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,rgba(34,211,238,0.15),rgba(99,102,241,0.15));border:1px solid rgba(34,211,238,0.3);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:700;color:var(--acc-l);z-index:999;opacity:0;transform:translateY(16px);transition:all 0.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+    .xp-toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:860px){.app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}.sidebar{display:none;}.main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#22D3EE" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Sorting Algorithms</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="cs-theory.html" class="nav-back">← CS Theory</a>
+    </div>
+  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 03</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">Why Sorting Matters</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Bubble &amp; Selection Sort</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Merge Sort</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Quicksort</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · CS Theory</div>
+    <h2>Why Sorting Matters</h2>
+    <p class="lead">Sorting is one of the most studied problems in computer science. A sorted array unlocks binary search — turning O(n) lookups into O(log n). Nearly every database query, search engine ranking, and recommendation system relies on sorted data.</p>
+    <div class="info-box cyan">
+      <div class="info-box-title">⚡ The Power of Sorted Data</div>
+      <p>Finding an element in an unsorted list of 1 billion items takes up to 1 billion steps. In a sorted list, binary search finds it in just 30 steps. Sorting once pays off forever for every search that follows.</p>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable?</th></tr></thead>
+      <tbody>
+        <tr><td>Bubble Sort</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td></tr>
+        <tr><td>Selection Sort</td><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>No</td></tr>
+        <tr><td>Insertion Sort</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td></tr>
+        <tr><td>Merge Sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td></tr>
+        <tr><td>Quicksort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>No</td></tr>
+        <tr><td>Python Timsort</td><td>O(n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Best Sorting Algorithm?</h4>
+      <p>Which algorithm guarantees O(n log n) worst case AND is stable? Type: <strong>merge sort</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="algorithm name" style="width:160px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">Look at the table — only merge sort has O(n log n) worst case AND is stable. Quicksort is O(n²) worst case.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · CS Theory</div>
+    <h2>Bubble &amp; Selection Sort</h2>
+    <p class="lead">The simplest sorting algorithms. Both run in O(n²) — fine for small arrays, disastrous at scale. Understanding them builds intuition for why faster algorithms exist.</p>
+    <div class="info-box cyan">
+      <div class="info-box-title">🫧 Bubble Sort</div>
+      <p>Repeatedly compare adjacent elements and swap them if out of order. Each pass "bubbles" the largest unsorted element to its correct position. After n passes, the array is sorted.</p>
+    </div>
+    <div class="code-block"><span class="c-keyword">def</span> <span class="c-fn">bubble_sort</span>(arr):
+    n = <span class="c-fn">len</span>(arr)
+    <span class="c-keyword">for</span> i <span class="c-keyword">in</span> <span class="c-fn">range</span>(n):
+        swapped = <span class="c-keyword">False</span>
+        <span class="c-keyword">for</span> j <span class="c-keyword">in</span> <span class="c-fn">range</span>(n-i-<span class="c-num">1</span>):
+            <span class="c-keyword">if</span> arr[j] > arr[j+<span class="c-num">1</span>]:
+                arr[j], arr[j+<span class="c-num">1</span>] = arr[j+<span class="c-num">1</span>], arr[j]
+                swapped = <span class="c-keyword">True</span>
+        <span class="c-keyword">if not</span> swapped: <span class="c-keyword">break</span>  <span class="c-comment"># already sorted!</span>
+    <span class="c-keyword">return</span> arr</div>
+
+    <!-- Sorting Visualizer -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">📊 Bubble Sort Visualizer</h4>
+      <div class="sort-bars" id="sortBars"></div>
+      <div style="margin-top:28px;"></div>
+      <div class="sort-controls">
+        <button class="widget-btn" onclick="stepSort()" id="stepBtn">Step →</button>
+        <button class="widget-btn secondary" onclick="resetSort()">Reset</button>
+      </div>
+      <div class="widget-result" id="sortResult">Press Step to watch bubble sort in action</div>
+    </div>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Bubble Sort Passes</h4>
+      <p>Array: [5, 3, 1, 4, 2]. After the first full pass of bubble sort, what is the last element? Type the number.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" type="number" placeholder="value" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Bubble sort bubbles the largest element to the end each pass. The largest element is 5, so it ends up last.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · CS Theory</div>
+    <h2>Merge Sort</h2>
+    <p class="lead"><strong>Merge sort</strong> uses divide and conquer: recursively split the array in half, sort each half, then merge the sorted halves. Guaranteed O(n log n) — always, no bad cases.</p>
+    <div class="info-box violet">
+      <div class="info-box-title">✂️ Divide and Conquer</div>
+      <ul>
+        <li><strong>Divide:</strong> Split array into two halves</li>
+        <li><strong>Conquer:</strong> Recursively sort each half</li>
+        <li><strong>Combine:</strong> Merge two sorted halves into one sorted array</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-keyword">def</span> <span class="c-fn">merge_sort</span>(arr):
+    <span class="c-keyword">if</span> <span class="c-fn">len</span>(arr) &lt;= <span class="c-num">1</span>: <span class="c-keyword">return</span> arr
+    mid = <span class="c-fn">len</span>(arr) // <span class="c-num">2</span>
+    left  = <span class="c-fn">merge_sort</span>(arr[:mid])
+    right = <span class="c-fn">merge_sort</span>(arr[mid:])
+    <span class="c-keyword">return</span> <span class="c-fn">merge</span>(left, right)
+
+<span class="c-keyword">def</span> <span class="c-fn">merge</span>(left, right):
+    result = []
+    i = j = <span class="c-num">0</span>
+    <span class="c-keyword">while</span> i &lt; <span class="c-fn">len</span>(left) <span class="c-keyword">and</span> j &lt; <span class="c-fn">len</span>(right):
+        <span class="c-keyword">if</span> left[i] &lt;= right[j]:
+            result.append(left[i]); i += <span class="c-num">1</span>
+        <span class="c-keyword">else</span>:
+            result.append(right[j]); j += <span class="c-num">1</span>
+    <span class="c-keyword">return</span> result + left[i:] + right[j:]</div>
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Merge Step</h4>
+      <p>Merging sorted arrays [2, 5, 8] and [1, 4, 7]. What is the first element in the merged result? Type the number.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" type="number" placeholder="value" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">Compare first elements: 2 vs 1. The smaller is 1, so it goes first.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · CS Theory</div>
+    <h2>Quicksort</h2>
+    <p class="lead"><strong>Quicksort</strong> picks a pivot, partitions elements around it (smaller left, larger right), and recursively sorts each partition. Average O(n log n), uses O(log n) space — often faster in practice than merge sort.</p>
+    <div class="info-box amber">
+      <div class="info-box-title">🎯 The Pivot Strategy</div>
+      <p>The choice of pivot affects performance. Random pivot avoids worst-case O(n²). "Median of three" (first, middle, last elements) is a common optimization. Python's Timsort uses insertion sort for small arrays and merge sort for large ones.</p>
+    </div>
+    <div class="code-block"><span class="c-keyword">def</span> <span class="c-fn">quicksort</span>(arr):
+    <span class="c-keyword">if</span> <span class="c-fn">len</span>(arr) &lt;= <span class="c-num">1</span>: <span class="c-keyword">return</span> arr
+    pivot = arr[<span class="c-fn">len</span>(arr) // <span class="c-num">2</span>]
+    left   = [x <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr <span class="c-keyword">if</span> x &lt;  pivot]
+    middle = [x <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr <span class="c-keyword">if</span> x == pivot]
+    right  = [x <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr <span class="c-keyword">if</span> x >  pivot]
+    <span class="c-keyword">return</span> <span class="c-fn">quicksort</span>(left) + middle + <span class="c-fn">quicksort</span>(right)
+
+<span class="c-comment"># Python's built-in sort is even better:</span>
+arr.<span class="c-fn">sort</span>()         <span class="c-comment"># in-place Timsort O(n log n)</span>
+<span class="c-fn">sorted</span>(arr)       <span class="c-comment"># returns new sorted list</span></div>
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Quicksort Worst Case</h4>
+      <p>Quicksort degrades to O(n²) when the pivot is always the smallest or largest element. What input causes this with a naive first-element pivot? Type: <strong>sorted</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="answer" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">If the array is already sorted and we pick the first element as pivot, one partition is always empty — O(n²) partitions total.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 03</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your sorting knowledge.</p>
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">What is the worst-case time complexity of bubble sort?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">O(n log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">O(n²)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">O(n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">O(log n)</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">Merge sort uses which algorithmic technique?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">Greedy</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">Dynamic programming</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">Divide and conquer</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">Backtracking</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">Which sorting algorithm is used by Python's built-in <code>sort()</code>?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">Quicksort</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">Merge sort</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">Timsort</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">Heap sort</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">A "stable" sort means:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">It never crashes</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">Elements with equal keys maintain their original relative order</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">It always runs in O(n log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">It uses constant extra space</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>🎉 Complete Module 03</button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+<script>
+  const session=JSON.parse(localStorage.getItem('helix_session')||'null');
+  if(!session){window.location.href='login.html';}
+  const state={xp:0,done:{c1:false,c2:false,c3:false,c4:false,q1:false,q2:false,q3:false,q4:false}};
+  function awardXP(a,k){if(state.done[k])return;state.done[k]=true;state.xp+=a;document.getElementById('navXp').textContent=state.xp+' XP';showToast('+'+a+' XP');updateProgress();checkComplete();}
+  function showToast(m){const t=document.getElementById('xpToast');document.getElementById('toastXp').textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+  function updateProgress(){const tot=Object.keys(state.done).length;const d=Object.values(state.done).filter(Boolean).length;const p=Math.round((d/tot)*100);document.getElementById('prog-fill').style.width=p+'%';document.getElementById('prog-label').textContent=p+'%';}
+  function checkComplete(){const a=Object.values(state.done).every(Boolean);document.getElementById('completeBtn').disabled=!a;if(a)document.getElementById('complete-note').textContent='All challenges and quiz questions completed!';}
+
+  // Bubble sort visualizer
+  let sortArr = [64, 34, 25, 12, 22, 11, 90];
+  let si=0, sj=0, sortDone=false, sortedFrom=sortArr.length;
+  function renderBars(cmpI=-1, cmpJ=-1) {
+    const max=Math.max(...sortArr);
+    document.getElementById('sortBars').innerHTML=sortArr.map((v,i)=>{
+      let cls='sort-bar';
+      if(i===cmpI||i===cmpJ) cls+=' comparing';
+      if(i>=sortedFrom) cls+=' sorted';
+      return `<div class="${cls}" style="height:${Math.round((v/max)*140)+10}px"><span class="sort-bar-lbl">${v}</span></div>`;
+    }).join('');
+  }
+  renderBars();
+  function stepSort(){
+    if(sortDone){document.getElementById('sortResult').textContent='Array is sorted! ✓';return;}
+    const n=sortArr.length;
+    if(si>=n-1){sortDone=true;sortedFrom=0;renderBars();document.getElementById('sortResult').textContent='Array fully sorted! ✓ ('+n+'² = '+(n*n)+' comparisons in worst case)';return;}
+    if(sj>=n-si-1){si++;sj=0;sortedFrom=n-si;renderBars();document.getElementById('sortResult').textContent='Pass '+(si+1)+' complete. Largest unsorted element in place.';return;}
+    renderBars(sj,sj+1);
+    if(sortArr[sj]>sortArr[sj+1]){
+      [sortArr[sj],sortArr[sj+1]]=[sortArr[sj+1],sortArr[sj]];
+      document.getElementById('sortResult').textContent=`Swapped ${sortArr[sj+1]} and ${sortArr[sj]}`;
+    } else {
+      document.getElementById('sortResult').textContent=`${sortArr[sj]} ≤ ${sortArr[sj+1]} — no swap needed`;
+    }
+    sj++;
+  }
+  function resetSort(){sortArr=[64,34,25,12,22,11,90];si=0;sj=0;sortDone=false;sortedFrom=sortArr.length;renderBars();document.getElementById('sortResult').textContent='Press Step to watch bubble sort in action';}
+
+  const CHALLENGES={
+    1:{check:v=>v.trim().toLowerCase().includes('merge')},
+    2:{check:v=>parseInt(v)===5},
+    3:{check:v=>parseInt(v)===1},
+    4:{check:v=>v.trim().toLowerCase().includes('sort')},
+  };
+  function checkChallenge(n){const val=document.getElementById('c'+n+'-inp').value;const fb=document.getElementById('c'+n+'-fb');if(CHALLENGES[n].check(val)){fb.className='challenge-feedback correct';fb.textContent='✓ Correct!';awardXP(15,'c'+n);}else{fb.className='challenge-feedback wrong';fb.textContent='✗ Not quite. Try again.';}}
+  function showHint(n){const h=document.getElementById('c'+n+'-hint');h.style.display=h.style.display==='block'?'none':'block';}
+  const QUIZ={
+    1:{correct:'b',explain:'✓ Bubble sort is O(n²) — two nested loops each running up to n times.'},
+    2:{correct:'c',explain:'✓ Merge sort divides the array recursively then merges — classic divide and conquer.'},
+    3:{correct:'c',explain:'✓ Python uses Timsort — a hybrid of merge sort and insertion sort, always O(n log n).'},
+    4:{correct:'b',explain:'✓ Stability preserves relative order of equal elements — important for multi-key sorting.'},
+  };
+  function answerQuiz(n,opt){const card=document.getElementById('q'+n+'-card');if(card.dataset.answered)return;card.dataset.answered='true';const q=QUIZ[n];card.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;const l=['a','b','c','d'][i];if(l===q.correct)b.classList.add('correct');else if(l===opt)b.classList.add('wrong');});const fb=document.getElementById('q'+n+'-fb');if(opt===q.correct){fb.className='quiz-feedback correct';fb.textContent=q.explain;awardXP(20,'q'+n);}else{fb.className='quiz-feedback wrong';fb.textContent='✗ '+q.explain;}}
+  function completeModule(){const p=JSON.parse(localStorage.getItem('helix_cs_progress')||'{}');p.xp=(p.xp||0)+state.xp+120;p.completedLessons=(p.completedLessons||0)+4;p.modules=p.modules||{};p.modules.sorting={completed:true,completedAt:new Date().toISOString()};p.lastActivity=new Date().toISOString();localStorage.setItem('helix_cs_progress',JSON.stringify(p));showToast('+120 XP — Module Complete!');setTimeout(()=>{window.location.href='cs-theory.html';},1800);}
+  function scrollToLesson(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.lesson-item').forEach(el=>el.classList.remove('active'));const map={l1:0,l2:1,l3:2,l4:3,quiz:4};const items=document.querySelectorAll('.lesson-item');if(map[id]!==undefined&&items[map[id]])items[map[id]].classList.add('active');}
+</script>
+</body>
+</html>

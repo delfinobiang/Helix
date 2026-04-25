@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>How the Internet Works — Helix Web & Internet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#050816;--bg-2:#0C1022;--border:rgba(255,255,255,0.07);--amber:#F59E0B;--amber-l:#FCD34D;--primary:#6366F1;--cyan:#22D3EE;--green:#10B981;--red:#EF4444;--violet:#8B5CF6;--text:#EEF2F8;--text-2:#8892A4;--text-3:#2D3A4E;--nav-h:60px;--acc:#EC4899;--acc-l:#F472B6;--acc-d:#BE185D;}
+    html{scroll-behavior:smooth;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}button{font-family:inherit;}
+    .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;filter:blur(100px) saturate(120%);}
+    .orb{position:absolute;border-radius:50%;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 65%);top:-80px;right:0;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%);bottom:-150px;left:-100px;}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:var(--nav-h) 1fr;grid-template-areas:"nav nav" "sidebar main";min-height:100vh;position:relative;z-index:1;}
+    .topnav{grid-area:nav;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,8,22,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+    .nav-left{display:flex;align-items:center;gap:16px;}.nav-logo{font-size:1.05rem;font-weight:800;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
+    .nav-sep{color:var(--text-3);}.nav-title{font-size:0.85rem;font-weight:600;color:var(--acc);}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-xp{font-size:0.78rem;font-weight:700;color:var(--acc-l);background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);padding:4px 12px;border-radius:100px;}
+    .nav-back{font-size:0.8rem;color:var(--text-2);padding:5px 10px;border-radius:8px;transition:color 0.2s;}
+    .nav-back:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+    .sidebar{grid-area:sidebar;border-right:1px solid var(--border);background:rgba(8,10,25,0.7);padding:24px 0;overflow-y:auto;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;}
+    .sidebar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:8px;margin-top:20px;}
+    .sidebar-label:first-child{margin-top:0;}
+    .lesson-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background 0.15s;border-left:3px solid transparent;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);}
+    .lesson-item.active{background:rgba(236,72,153,0.07);border-left-color:var(--acc);}
+    .lesson-num{font-size:0.7rem;font-weight:700;color:var(--text-3);width:20px;flex-shrink:0;}
+    .lesson-item.active .lesson-num{color:var(--acc);}
+    .lesson-name{font-size:0.85rem;font-weight:500;color:var(--text-2);}
+    .lesson-item.active .lesson-name{color:var(--text);font-weight:600;}
+    .sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+    .progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;margin-top:8px;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--primary));border-radius:100px;transition:width 0.5s ease;}
+    .progress-label{font-size:0.72rem;color:var(--text-2);display:flex;justify-content:space-between;}
+    .main{grid-area:main;padding:40px 48px;overflow-y:auto;}
+    .lesson-section{max-width:780px;padding-bottom:80px;}
+    .lesson-section+.lesson-section{border-top:1px solid var(--border);padding-top:60px;}
+    .section-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .section-tag::before{content:'';display:block;width:20px;height:2px;background:var(--acc);border-radius:2px;}
+    h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:14px;line-height:1.2;}
+    .lead{font-size:1rem;color:var(--text-2);line-height:1.7;margin-bottom:28px;}
+    .info-box{border-radius:14px;padding:20px 22px;margin-bottom:24px;border:1px solid;}
+    .info-box.pink{background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.2);}
+    .info-box.amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+    .info-box.violet{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.2);}
+    .info-box.green{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.2);}
+    .info-box.cyan{background:rgba(34,211,238,0.07);border-color:rgba(34,211,238,0.2);}
+    .info-box-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+    .info-box.pink .info-box-title{color:var(--acc);}
+    .info-box.amber .info-box-title{color:var(--amber);}
+    .info-box.violet .info-box-title{color:var(--violet);}
+    .info-box.green .info-box-title{color:var(--green);}
+    .info-box.cyan .info-box-title{color:var(--cyan);}
+    .info-box p{font-size:0.9rem;color:var(--text-2);line-height:1.65;}
+    .info-box ul{font-size:0.9rem;color:var(--text-2);line-height:1.65;padding-left:1.25rem;}
+    .info-box li{margin-bottom:4px;}
+    .code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;margin:20px 0;white-space:pre;}
+    .c-comment{color:#4B5563;}.c-keyword{color:#C084FC;}.c-string{color:#86EFAC;}.c-fn{color:#60A5FA;}.c-num{color:var(--amber-l);}.c-op{color:var(--acc);}
+    .data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.88rem;}
+    .data-table th{background:rgba(236,72,153,0.08);color:var(--acc);font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(236,72,153,0.2);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .data-table td:first-child{color:var(--text);font-weight:600;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .widget{background:rgba(8,10,28,0.9);border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;}
+    .widget h4{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    .widget-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+    .widget-btn:hover{opacity:0.85;}
+    .flow-steps{display:flex;flex-direction:column;gap:0;}
+    .flow-step{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-radius:10px;border:1px solid var(--border);margin-bottom:6px;opacity:0.3;transition:all 0.4s ease;}
+    .flow-step.active{opacity:1;background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.25);}
+    .flow-step.done{opacity:0.65;background:rgba(16,185,129,0.04);border-color:rgba(16,185,129,0.15);}
+    .flow-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:rgba(255,255,255,0.05);}
+    .flow-step.active .flow-icon{background:rgba(236,72,153,0.15);}
+    .flow-step.done .flow-icon{background:rgba(16,185,129,0.12);}
+    .flow-label{font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+    .flow-desc{font-size:0.78rem;color:var(--text-2);line-height:1.5;}
+    .flow-controls{display:flex;gap:10px;margin-top:14px;}
+    .challenge{background:rgba(236,72,153,0.04);border:1px solid rgba(236,72,153,0.18);border-radius:14px;padding:22px 24px;margin:24px 0;}
+    .challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .challenge-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);background:rgba(236,72,153,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(236,72,153,0.25);}
+    .challenge-xp{font-size:0.68rem;font-weight:700;color:var(--amber-l);background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:6px;margin-left:auto;}
+    .challenge h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+    .challenge p{font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+    .challenge-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .challenge-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .challenge-input:focus{border-color:var(--acc);}
+    .challenge-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:opacity 0.2s;}
+    .challenge-feedback{font-size:0.85rem;margin-top:10px;min-height:22px;line-height:1.5;}
+    .challenge-feedback.correct{color:var(--green);}.challenge-feedback.wrong{color:var(--red);}
+    .challenge-hint-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:0.78rem;color:var(--text-2);cursor:pointer;}
+    .challenge-hint{font-size:0.82rem;color:var(--acc);margin-top:8px;display:none;}
+    .quiz-card{background:rgba(8,10,28,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;}
+    .quiz-q{font-size:0.95rem;font-weight:600;margin-bottom:16px;line-height:1.5;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:0.88rem;color:var(--text-2);cursor:pointer;text-align:left;transition:all 0.15s;}
+    .quiz-opt:hover:not(:disabled){background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--text);}
+    .quiz-opt.correct{background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green);}
+    .quiz-opt.wrong{background:rgba(239,68,68,0.12);border-color:var(--red);color:var(--red);}
+    .quiz-feedback{font-size:0.82rem;margin-top:10px;min-height:20px;color:var(--text-2);}
+    .quiz-feedback.correct{color:var(--green);}.quiz-feedback.wrong{color:var(--red);}
+    .complete-section{margin-top:60px;padding-top:40px;border-top:1px solid var(--border);text-align:center;}
+    .complete-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+    .complete-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .complete-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(236,72,153,0.25);}
+    .complete-note{font-size:0.8rem;color:var(--text-3);margin-top:12px;}
+    .xp-toast{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(99,102,241,0.15));border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:700;color:var(--acc-l);z-index:999;opacity:0;transform:translateY(16px);transition:all 0.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+    .xp-toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:860px){.app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}.sidebar{display:none;}.main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<div class="app">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#EC4899" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>Helix
+      </div>
+      <span class="nav-sep">/</span><span class="nav-title">How the Internet Works</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="web-internet.html" class="nav-back">← Web &amp; Internet</a>
+    </div>
+  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 01</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">What is the Internet?</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">DNS &amp; IP Addresses</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">TCP/IP &amp; Packets</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">The Request-Response Cycle</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Web &amp; Internet</div>
+    <h2>What is the Internet?</h2>
+    <p class="lead">The internet is a <strong>global network of networks</strong> — billions of devices connected by physical cables, fibre optics, and wireless links. Understanding its structure reveals why it's so resilient and why it works the way it does.</p>
+    <div class="info-box pink">
+      <div class="info-box-title">🌐 The Big Picture</div>
+      <p>The internet isn't one thing — it's a collection of independently-operated networks (called <strong>Autonomous Systems</strong>) that agree to exchange data using common protocols. No single entity owns it. It was designed to survive partial outages by routing around damage.</p>
+    </div>
+    <div class="info-box amber">
+      <div class="info-box-title">🏗️ Key Infrastructure Layers</div>
+      <ul>
+        <li><strong>Tier 1 ISPs</strong> — global backbone networks connected by undersea cables</li>
+        <li><strong>Tier 2 ISPs</strong> — regional providers who buy transit from Tier 1</li>
+        <li><strong>Tier 3 ISPs</strong> — local providers who sell broadband to end users</li>
+        <li><strong>CDNs</strong> — Content Delivery Networks that cache content close to users</li>
+      </ul>
+    </div>
+    <p style="font-size:0.9rem;color:var(--text-2);line-height:1.7;margin-bottom:20px;">When you load a webpage, your request might travel through dozens of different networks and physical locations — yet it all appears seamless. That abstraction is the internet's greatest achievement.</p>
+    <table class="data-table">
+      <thead><tr><th>Layer</th><th>Example</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>Physical</td><td>Fibre, copper, Wi-Fi</td><td>Transmit raw bits</td></tr>
+        <tr><td>Network</td><td>IP routers</td><td>Route packets globally</td></tr>
+        <tr><td>Transport</td><td>TCP, UDP</td><td>Reliable delivery</td></tr>
+        <tr><td>Application</td><td>HTTP, DNS, SMTP</td><td>User-facing protocols</td></tr>
+      </tbody>
+    </table>
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Network of Networks</h4>
+      <p>The internet is described as a "network of networks." What are these independently-operated networks called? Type: <strong>autonomous systems</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="your answer" style="width:200px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1,'autonomous systems')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(1)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-1">Think: AS — each ISP or large organisation manages one.</div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Web &amp; Internet</div>
+    <h2>DNS &amp; IP Addresses</h2>
+    <p class="lead">Every device on the internet has an <strong>IP address</strong> — a numerical label that identifies it. But humans prefer names like <em>google.com</em>. The <strong>Domain Name System (DNS)</strong> is the internet's phonebook, translating names into numbers.</p>
+    <div class="info-box pink">
+      <div class="info-box-title">📖 DNS Resolution Steps</div>
+      <ul>
+        <li><strong>1. Browser cache</strong> — check if the IP was looked up recently</li>
+        <li><strong>2. OS cache / hosts file</strong> — check local system records</li>
+        <li><strong>3. Recursive resolver</strong> — your ISP's DNS server</li>
+        <li><strong>4. Root nameserver</strong> — directs to the TLD server (.com, .org)</li>
+        <li><strong>5. TLD nameserver</strong> — directs to the authoritative nameserver</li>
+        <li><strong>6. Authoritative nameserver</strong> — returns the final IP address</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-comment"># IPv4 — 32-bit, ~4 billion addresses</span>
+<span class="c-num">142.250.80.14</span>      <span class="c-comment"># google.com (example)</span>
+
+<span class="c-comment"># IPv6 — 128-bit, virtually unlimited</span>
+<span class="c-num">2607:f8b0:4004:c08::71</span>  <span class="c-comment"># google.com IPv6</span>
+
+<span class="c-comment"># DNS record types</span>
+A      → maps domain to IPv4 address
+AAAA   → maps domain to IPv6 address
+CNAME  → alias pointing to another domain
+MX     → mail server for the domain
+TXT    → arbitrary text (used for verification)</div>
+    <div class="info-box violet">
+      <div class="info-box-title">⚡ TTL & Caching</div>
+      <p>Each DNS record has a <strong>Time To Live (TTL)</strong> — how many seconds it can be cached before re-querying. A TTL of 3600 means the IP is cached for an hour. This is why DNS changes can take time to propagate globally.</p>
+    </div>
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>DNS Record Type</h4>
+      <p>Which DNS record type maps a domain name to an IPv4 address? Type: <strong>A</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="record type" style="width:100px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2,'a')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(2)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-2">It's a single capital letter — literally the "address" record.</div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Web &amp; Internet</div>
+    <h2>TCP/IP &amp; Packets</h2>
+    <p class="lead">Data on the internet travels as <strong>packets</strong> — small chunks that may take different routes and arrive out of order. The <strong>TCP/IP protocol suite</strong> handles addressing, routing, and reassembly to give you a seamless experience.</p>
+    <div class="info-box cyan">
+      <div class="info-box-title">📦 How Packets Work</div>
+      <p>A large file is split into thousands of packets. Each packet carries: a <strong>header</strong> (source IP, destination IP, sequence number, checksum) and a <strong>payload</strong> (chunk of data). Routers forward each packet independently toward the destination, where TCP reassembles them in the correct order.</p>
+    </div>
+    <div class="code-block"><span class="c-comment"># TCP Three-Way Handshake (connection setup)</span>
+Client <span class="c-op">→</span> Server: <span class="c-string">SYN</span>       <span class="c-comment"># "I want to connect"</span>
+Server <span class="c-op">→</span> Client: <span class="c-string">SYN-ACK</span>   <span class="c-comment"># "OK, I'm ready"</span>
+Client <span class="c-op">→</span> Server: <span class="c-string">ACK</span>       <span class="c-comment"># "Great, let's go"</span>
+
+<span class="c-comment"># Connection is now established — data flows</span>
+
+<span class="c-comment"># TCP vs UDP</span>
+TCP: reliable, ordered, error-checked  → web, email, files
+UDP: fast, no guarantees              → video calls, games, DNS</div>
+    <div class="info-box amber">
+      <div class="info-box-title">🔢 The OSI Model</div>
+      <ul>
+        <li><strong>7 — Application</strong>: HTTP, FTP, SMTP</li>
+        <li><strong>4 — Transport</strong>: TCP, UDP (segments)</li>
+        <li><strong>3 — Network</strong>: IP (packets)</li>
+        <li><strong>2 — Data Link</strong>: Ethernet, Wi-Fi (frames)</li>
+        <li><strong>1 — Physical</strong>: bits on the wire</li>
+      </ul>
+    </div>
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>TCP vs UDP</h4>
+      <p>Video calls prioritise speed over perfect delivery. Which protocol should they use? Type: <strong>UDP</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="TCP or UDP" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3,'udp')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(3)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-3">A dropped frame in a video call is better than waiting for retransmission.</div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Web &amp; Internet</div>
+    <h2>The Request-Response Cycle</h2>
+    <p class="lead">Every time you load a page, your browser and a server have a structured conversation. Understanding this cycle is fundamental to everything in web development — from debugging to performance optimisation.</p>
+    <p style="font-size:0.9rem;color:var(--text-2);line-height:1.7;margin-bottom:20px;">Use the simulator below to walk through each step of a real browser request:</p>
+
+    <div class="widget">
+      <h4>🌐 Request Flow Simulator</h4>
+      <div class="flow-steps" id="flowSteps">
+        <div class="flow-step active" id="step-0">
+          <div class="flow-icon">🖥️</div>
+          <div><div class="flow-label">1. Browser — User types URL</div><div class="flow-desc">You type <code style="font-family:monospace;color:var(--acc-l)">https://example.com</code> and press Enter. The browser begins the process.</div></div>
+        </div>
+        <div class="flow-step" id="step-1">
+          <div class="flow-icon">🔍</div>
+          <div><div class="flow-label">2. DNS Lookup</div><div class="flow-desc">Browser asks DNS: "What IP is example.com?" DNS responds: <code style="font-family:monospace;color:var(--acc-l)">93.184.216.34</code></div></div>
+        </div>
+        <div class="flow-step" id="step-2">
+          <div class="flow-icon">🤝</div>
+          <div><div class="flow-label">3. TCP + TLS Handshake</div><div class="flow-desc">Browser opens a TCP connection on port 443. TLS negotiates encryption keys — the connection is now secure.</div></div>
+        </div>
+        <div class="flow-step" id="step-3">
+          <div class="flow-icon">📤</div>
+          <div><div class="flow-label">4. HTTP Request Sent</div><div class="flow-desc">Browser sends: <code style="font-family:monospace;color:var(--acc-l)">GET / HTTP/2</code> with headers (Host, User-Agent, Accept, etc.)</div></div>
+        </div>
+        <div class="flow-step" id="step-4">
+          <div class="flow-icon">⚙️</div>
+          <div><div class="flow-label">5. Server Processing</div><div class="flow-desc">Server receives request, processes it (database query, rendering, etc.) and prepares a response.</div></div>
+        </div>
+        <div class="flow-step" id="step-5">
+          <div class="flow-icon">📥</div>
+          <div><div class="flow-label">6. HTTP Response</div><div class="flow-desc">Server replies: <code style="font-family:monospace;color:var(--green)">200 OK</code> + HTML body. Browser begins rendering as bytes arrive.</div></div>
+        </div>
+        <div class="flow-step" id="step-6">
+          <div class="flow-icon">🎨</div>
+          <div><div class="flow-label">7. Browser Renders Page</div><div class="flow-desc">Browser parses HTML, fetches CSS/JS/images (more requests!), constructs the DOM, and paints pixels to your screen.</div></div>
+        </div>
+      </div>
+      <div class="flow-controls">
+        <button class="widget-btn" onclick="advanceFlow()">Next Step →</button>
+        <button class="widget-btn" style="background:rgba(255,255,255,0.08);color:var(--text-2);" onclick="resetFlow()">Reset</button>
+      </div>
+    </div>
+
+    <div class="info-box green">
+      <div class="info-box-title">✅ Key Takeaways</div>
+      <ul>
+        <li>A single page load can trigger <strong>dozens</strong> of HTTP requests (HTML, CSS, JS, images, fonts)</li>
+        <li>DNS resolution adds latency — browsers cache IPs to speed up repeat visits</li>
+        <li>TLS handshake adds ~1 RTT — HTTP/2 and HTTP/3 reduce this overhead significantly</li>
+        <li>The browser renders progressively — content appears before all resources finish loading</li>
+      </ul>
+    </div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Port Number</h4>
+      <p>HTTPS traffic uses TCP port <strong>443</strong> by default. What port does plain HTTP use? Type: <strong>80</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="port number" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4,'80')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(4)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-4">Think: 8-0, the classic web port before SSL became standard.</div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Practice · Web &amp; Internet</div>
+    <h2>Knowledge Check</h2>
+    <p class="lead">Test your understanding of how the internet works. Each correct answer earns XP.</p>
+
+    <div class="quiz-card" id="q1">
+      <div class="quiz-q">1. What does DNS stand for, and what is its primary function?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">a) Data Network Service — routes data packets between networks</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">b) Domain Name System — translates domain names to IP addresses</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">c) Dynamic Network System — assigns IP addresses to devices</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">d) Distributed Node Server — stores website files</button>
+      </div>
+      <div class="quiz-feedback" id="qf1"></div>
+    </div>
+
+    <div class="quiz-card" id="q2">
+      <div class="quiz-q">2. What is the purpose of the TCP three-way handshake?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">a) To encrypt the connection using TLS</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">b) To establish a reliable connection before data transfer begins</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">c) To resolve the domain name to an IP address</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">d) To compress packets for faster transmission</button>
+      </div>
+      <div class="quiz-feedback" id="qf2"></div>
+    </div>
+
+    <div class="quiz-card" id="q3">
+      <div class="quiz-q">3. You browse to google.com. In which order do these events occur first?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">a) TCP handshake → DNS lookup → HTTP request</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">b) HTTP request → DNS lookup → TCP handshake</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">c) DNS lookup → TCP handshake → HTTP request</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">d) DNS lookup → HTTP request → TCP handshake</button>
+      </div>
+      <div class="quiz-feedback" id="qf3"></div>
+    </div>
+
+    <div class="quiz-card" id="q4">
+      <div class="quiz-q">4. Why does the internet use packets instead of dedicated circuits for data transmission?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">a) Packets are easier to encrypt</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">b) Dedicated circuits are too expensive to manufacture</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">c) Packets allow multiple users to share bandwidth efficiently and route around failures</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">d) Packets can carry more data than circuits</button>
+      </div>
+      <div class="quiz-feedback" id="qf4"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Complete Module
+      </button>
+      <p class="complete-note" id="completeNote">Complete all 4 challenges and the quiz to unlock.</p>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ +<span id="toastAmt">15</span> XP</div>
+
+<script>
+const STORAGE_KEY='helix_web_progress';
+const MODULE_KEY='how';
+const MODULE_XP=140;
+let xp=0,challenges={},quizAnswers={},flowStep=0,totalSteps=7;
+
+function loadProgress(){
+  const s=JSON.parse(localStorage.getItem('helix_session')||'null');
+  if(!s){window.location.href='login.html';return;}
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  xp=p.xp||0;
+  document.getElementById('navXp').textContent=xp+' XP';
+  updateModuleProgress();
+}
+
+function saveXP(amt){
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  p.xp=(p.xp||0)+amt;
+  xp=p.xp;
+  p.lastActivity=new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(p));
+  document.getElementById('navXp').textContent=xp+' XP';
+  showToast(amt);
+}
+
+function showToast(amt){
+  const t=document.getElementById('xpToast');
+  document.getElementById('toastAmt').textContent=amt;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function checkChallenge(n,correct){
+  const inp=document.getElementById('c'+n+'-inp').value.trim().toLowerCase();
+  const fb=document.getElementById('c'+n+'-fb');
+  if(inp===correct.toLowerCase()){
+    if(!challenges[n]){challenges[n]=true;saveXP(15);updateModuleProgress();}
+    fb.textContent='✓ Correct!';fb.className='challenge-feedback correct';
+  } else {
+    fb.textContent='✗ Not quite — re-read the lesson and try again.';fb.className='challenge-feedback wrong';
+  }
+}
+
+function toggleHint(n){
+  const h=document.getElementById('hint-'+n);
+  h.style.display=h.style.display==='block'?'none':'block';
+}
+
+const QUIZ_CORRECT={1:'b',2:'b',3:'c',4:'c'};
+const QUIZ_EXPLAIN={
+  1:'DNS (Domain Name System) is the internet\'s phonebook — it translates human-readable domain names into IP addresses.',
+  2:'The three-way handshake (SYN → SYN-ACK → ACK) establishes a reliable TCP connection before any data is sent.',
+  3:'First DNS resolves the IP, then TCP connects, then the HTTP request is sent over that connection.',
+  4:'Packet switching lets many users share the same physical links efficiently and allows routing around network failures.'
+};
+
+function answerQuiz(n,choice){
+  if(quizAnswers[n])return;
+  quizAnswers[n]=choice;
+  const card=document.getElementById('q'+n);
+  const opts=card.querySelectorAll('.quiz-opt');
+  const correct=QUIZ_CORRECT[n];
+  opts.forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent.startsWith(correct+')')){btn.classList.add('correct');}
+    else if(btn.textContent.startsWith(choice+')')){btn.classList.add('wrong');}
+  });
+  const fb=document.getElementById('qf'+n);
+  if(choice===correct){
+    fb.textContent='✓ '+QUIZ_EXPLAIN[n];fb.className='quiz-feedback correct';
+    saveXP(20);
+  } else {
+    fb.textContent='✗ '+QUIZ_EXPLAIN[n];fb.className='quiz-feedback wrong';
+  }
+  updateModuleProgress();
+}
+
+function updateModuleProgress(){
+  const chalDone=Object.keys(challenges).length;
+  const quizDone=Object.keys(quizAnswers).length;
+  const total=8;
+  const done=chalDone+quizDone;
+  const pct=Math.round((done/total)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=pct+'%';
+  const allChal=chalDone>=4;
+  const allQuiz=quizDone>=4;
+  document.getElementById('completeBtn').disabled=!(allChal&&allQuiz);
+  if(allChal&&allQuiz)document.getElementById('completeNote').textContent='All done — mark this module complete!';
+}
+
+function completeModule(){
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(!p.modules)p.modules={};
+  if(!p.completedLessons)p.completedLessons=0;
+  if(!p.modules[MODULE_KEY]){
+    p.modules[MODULE_KEY]={completed:true,completedAt:new Date().toISOString()};
+    p.xp=(p.xp||0)+120;
+    p.completedLessons=(p.completedLessons||0)+1;
+    p.lastActivity=new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(p));
+    xp=p.xp;
+    document.getElementById('navXp').textContent=xp+' XP';
+    showToast(120);
+  }
+  setTimeout(()=>{window.location.href='web-internet.html';},1200);
+}
+
+function scrollToLesson(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.lesson-item').forEach(li=>li.classList.remove('active'));
+  const items=document.querySelectorAll('.lesson-item');
+  const map={l1:0,l2:1,l3:2,l4:3,quiz:5};
+  if(map[id]!==undefined)items[map[id]].classList.add('active');
+}
+
+// Flow simulator
+function advanceFlow(){
+  const steps=document.querySelectorAll('.flow-step');
+  if(flowStep<steps.length){
+    steps[flowStep].classList.remove('active');
+    steps[flowStep].classList.add('done');
+    flowStep++;
+    if(flowStep<steps.length)steps[flowStep].classList.add('active');
+  }
+}
+
+function resetFlow(){
+  flowStep=0;
+  document.querySelectorAll('.flow-step').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i===0)s.classList.add('active');
+  });
+}
+
+loadProgress();
+</script>
+</body>
+</html>

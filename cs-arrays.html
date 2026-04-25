@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Arrays &amp; Data Structures — Helix CS Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#050816; --bg-2:#0C1022; --border:rgba(255,255,255,0.07);
+      --amber:#F59E0B; --amber-l:#FCD34D; --orange:#F97316;
+      --primary:#6366F1; --cyan:#22D3EE; --green:#10B981;
+      --red:#EF4444; --violet:#8B5CF6;
+      --text:#EEF2F8; --text-2:#8892A4; --text-3:#2D3A4E;
+      --nav-h:60px;
+      --acc:#22D3EE; --acc-l:#67E8F9; --acc-d:#0891B2;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+    button { font-family:inherit; }
+    .aurora { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; filter:blur(100px) saturate(120%); }
+    .orb { position:absolute; border-radius:50%; }
+    .orb-1 { width:500px; height:500px; background:radial-gradient(circle,rgba(34,211,238,0.12) 0%,transparent 65%); top:-80px; right:0; }
+    .orb-2 { width:600px; height:600px; background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%); bottom:-150px; left:-100px; }
+    .orb-3 { width:400px; height:400px; background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 65%); top:40%; left:50%; }
+    .app { display:grid; grid-template-columns:280px 1fr; grid-template-rows:var(--nav-h) 1fr; grid-template-areas:"nav nav" "sidebar main"; min-height:100vh; position:relative; z-index:1; }
+    .topnav { grid-area:nav; display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:rgba(5,8,22,0.9); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); position:sticky; top:0; z-index:100; }
+    .nav-left { display:flex; align-items:center; gap:16px; }
+    .nav-logo { font-size:1.05rem; font-weight:800; letter-spacing:-0.03em; display:flex; align-items:center; gap:8px; }
+    .nav-sep { color:var(--text-3); }
+    .nav-title { font-size:0.85rem; font-weight:600; color:var(--acc); }
+    .nav-right { display:flex; align-items:center; gap:10px; }
+    .nav-xp { font-size:0.78rem; font-weight:700; color:var(--acc-l); background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.2); padding:4px 12px; border-radius:100px; }
+    .nav-back { font-size:0.8rem; color:var(--text-2); padding:5px 10px; border-radius:8px; transition:color 0.2s; }
+    .nav-back:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+    .sidebar { grid-area:sidebar; border-right:1px solid var(--border); background:rgba(8,10,25,0.7); padding:24px 0; overflow-y:auto; position:sticky; top:var(--nav-h); height:calc(100vh - var(--nav-h)); display:flex; flex-direction:column; }
+    .sidebar-label { font-size:0.65rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-3); padding:0 20px; margin-bottom:8px; margin-top:20px; }
+    .sidebar-label:first-child { margin-top:0; }
+    .lesson-item { display:flex; align-items:center; gap:10px; padding:10px 20px; cursor:pointer; transition:background 0.15s; border-left:3px solid transparent; }
+    .lesson-item:hover { background:rgba(255,255,255,0.03); }
+    .lesson-item.active { background:rgba(34,211,238,0.07); border-left-color:var(--acc); }
+    .lesson-num { font-size:0.7rem; font-weight:700; color:var(--text-3); width:20px; flex-shrink:0; }
+    .lesson-item.active .lesson-num { color:var(--acc); }
+    .lesson-name { font-size:0.85rem; font-weight:500; color:var(--text-2); }
+    .lesson-item.active .lesson-name { color:var(--text); font-weight:600; }
+    .lesson-done { margin-left:auto; font-size:0.7rem; color:var(--green); }
+    .sidebar-footer { margin-top:auto; padding:20px; border-top:1px solid var(--border); }
+    .progress-bar-wrap { background:rgba(255,255,255,0.06); border-radius:100px; height:6px; overflow:hidden; margin-top:8px; }
+    .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--acc),var(--primary)); border-radius:100px; transition:width 0.5s ease; }
+    .progress-label { font-size:0.72rem; color:var(--text-2); display:flex; justify-content:space-between; }
+    .main { grid-area:main; padding:40px 48px; overflow-y:auto; }
+    .lesson-section { max-width:780px; padding-bottom:80px; }
+    .lesson-section + .lesson-section { border-top:1px solid var(--border); padding-top:60px; }
+    .section-tag { font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--acc); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .section-tag::before { content:''; display:block; width:20px; height:2px; background:var(--acc); border-radius:2px; }
+    h2 { font-size:1.75rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:14px; line-height:1.2; }
+    .lead { font-size:1rem; color:var(--text-2); line-height:1.7; margin-bottom:28px; }
+    .info-box { border-radius:14px; padding:20px 22px; margin-bottom:24px; border:1px solid; }
+    .info-box.cyan   { background:rgba(34,211,238,0.06);  border-color:rgba(34,211,238,0.2); }
+    .info-box.amber  { background:rgba(245,158,11,0.07);  border-color:rgba(245,158,11,0.2); }
+    .info-box.violet { background:rgba(139,92,246,0.07);  border-color:rgba(139,92,246,0.2); }
+    .info-box.green  { background:rgba(16,185,129,0.07);  border-color:rgba(16,185,129,0.2); }
+    .info-box.red    { background:rgba(239,68,68,0.07);   border-color:rgba(239,68,68,0.2); }
+    .info-box-title  { font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
+    .info-box.cyan   .info-box-title { color:var(--acc); }
+    .info-box.amber  .info-box-title { color:var(--amber); }
+    .info-box.violet .info-box-title { color:var(--violet); }
+    .info-box.green  .info-box-title { color:var(--green); }
+    .info-box.red    .info-box-title { color:var(--red); }
+    .info-box p { font-size:0.9rem; color:var(--text-2); line-height:1.65; }
+    .info-box ul { font-size:0.9rem; color:var(--text-2); line-height:1.65; padding-left:1.25rem; }
+    .info-box li { margin-bottom:4px; }
+    .code-block { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:20px 22px; font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:1.7; overflow-x:auto; margin:20px 0; white-space:pre; }
+    .c-comment{color:#4B5563;} .c-keyword{color:#C084FC;} .c-string{color:#86EFAC;} .c-fn{color:#60A5FA;} .c-num{color:var(--amber-l);} .c-op{color:var(--acc);}
+    .data-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:0.88rem; }
+    .data-table th { background:rgba(34,211,238,0.08); color:var(--acc); font-size:0.72rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; padding:10px 14px; text-align:left; border-bottom:1px solid rgba(34,211,238,0.2); }
+    .data-table td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text-2); }
+    .data-table td:first-child { color:var(--text); font-weight:600; }
+    .data-table td code { font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--acc); background:rgba(34,211,238,0.08); padding:1px 6px; border-radius:4px; }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .widget { background:rgba(8,10,28,0.9); border:1px solid var(--border); border-radius:16px; padding:24px; margin:24px 0; }
+    .widget h4 { font-size:0.78rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+    .widget-input { background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:0.9rem; color:var(--text); outline:none; transition:border 0.2s; }
+    .widget-input:focus { border-color:var(--acc); }
+    .widget-btn { background:linear-gradient(135deg,var(--acc-d),var(--primary)); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:0.82rem; font-weight:700; cursor:pointer; transition:opacity 0.2s; }
+    .widget-btn:hover { opacity:0.85; }
+    /* Array visualizer */
+    .array-vis { display:flex; gap:4px; flex-wrap:wrap; margin:16px 0; align-items:flex-end; }
+    .arr-cell { min-width:44px; height:44px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(34,211,238,0.3); border-radius:8px; background:rgba(34,211,238,0.08); font-family:'JetBrains Mono',monospace; font-size:0.9rem; font-weight:700; color:var(--acc-l); transition:all 0.25s; position:relative; }
+    .arr-cell.highlight { background:rgba(34,211,238,0.22); border-color:var(--acc); box-shadow:0 0 12px rgba(34,211,238,0.3); }
+    .arr-cell.found { background:rgba(16,185,129,0.2); border-color:var(--green); color:var(--green); }
+    .arr-cell.removed { background:rgba(239,68,68,0.12); border-color:var(--red); color:var(--red); text-decoration:line-through; opacity:0.5; }
+    .arr-idx { position:absolute; bottom:-18px; font-size:0.6rem; color:var(--text-3); font-weight:600; }
+    .widget-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+    .widget-result { font-family:'JetBrains Mono',monospace; font-size:0.9rem; color:var(--acc-l); font-weight:700; margin-top:8px; min-height:22px; }
+    .challenge { background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.18); border-radius:14px; padding:22px 24px; margin:24px 0; }
+    .challenge-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .challenge-badge { font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--acc); background:rgba(34,211,238,0.1); padding:3px 10px; border-radius:100px; border:1px solid rgba(34,211,238,0.25); }
+    .challenge-xp { font-size:0.68rem; font-weight:700; color:var(--amber-l); background:rgba(245,158,11,0.1); padding:3px 8px; border-radius:6px; margin-left:auto; }
+    .challenge h4 { font-size:1rem; font-weight:700; margin-bottom:10px; }
+    .challenge p { font-size:0.88rem; color:var(--text-2); line-height:1.65; margin-bottom:14px; }
+    .challenge-input-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .challenge-input { background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-family:'JetBrains Mono',monospace; font-size:0.95rem; color:var(--text); outline:none; transition:border 0.2s; }
+    .challenge-input:focus { border-color:var(--acc); }
+    .challenge-btn { background:linear-gradient(135deg,var(--acc-d),var(--primary)); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:0.82rem; font-weight:800; cursor:pointer; transition:opacity 0.2s; }
+    .challenge-btn:hover { opacity:0.85; }
+    .challenge-feedback { font-size:0.85rem; margin-top:10px; min-height:22px; line-height:1.5; }
+    .challenge-feedback.correct { color:var(--green); }
+    .challenge-feedback.wrong   { color:var(--red); }
+    .challenge-hint-btn { background:none; border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:0.78rem; color:var(--text-2); cursor:pointer; transition:border-color 0.2s; }
+    .challenge-hint-btn:hover { border-color:var(--text-2); }
+    .challenge-hint { font-size:0.82rem; color:var(--acc); margin-top:8px; display:none; }
+    .quiz-card { background:rgba(8,10,28,0.8); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:18px; }
+    .quiz-q { font-size:0.95rem; font-weight:600; margin-bottom:16px; line-height:1.5; }
+    .quiz-q code { font-family:'JetBrains Mono',monospace; color:var(--acc); background:rgba(34,211,238,0.1); padding:1px 7px; border-radius:4px; font-size:0.88em; }
+    .quiz-options { display:flex; flex-direction:column; gap:8px; }
+    .quiz-opt { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:11px 16px; font-size:0.88rem; color:var(--text-2); cursor:pointer; text-align:left; transition:all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.15); color:var(--text); }
+    .quiz-opt.correct { background:rgba(16,185,129,0.12); border-color:var(--green); color:var(--green); }
+    .quiz-opt.wrong   { background:rgba(239,68,68,0.12);  border-color:var(--red);   color:var(--red); }
+    .quiz-feedback { font-size:0.82rem; margin-top:10px; min-height:20px; color:var(--text-2); }
+    .quiz-feedback.correct { color:var(--green); }
+    .quiz-feedback.wrong   { color:var(--red); }
+    .rw-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin:20px 0; }
+    .rw-card { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .rw-icon { font-size:1.4rem; margin-bottom:8px; }
+    .rw-title { font-size:0.82rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .rw-desc { font-size:0.78rem; color:var(--text-2); line-height:1.55; }
+    .complete-section { margin-top:60px; padding-top:40px; border-top:1px solid var(--border); text-align:center; }
+    .complete-btn { background:linear-gradient(135deg,var(--acc-d),var(--primary)); color:#fff; border:none; border-radius:14px; padding:16px 48px; font-size:1rem; font-weight:800; cursor:pointer; letter-spacing:-0.01em; transition:all 0.2s; display:inline-flex; align-items:center; gap:10px; }
+    .complete-btn:disabled { opacity:0.35; cursor:not-allowed; }
+    .complete-btn:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(34,211,238,0.25); }
+    .complete-note { font-size:0.8rem; color:var(--text-3); margin-top:12px; }
+    .xp-toast { position:fixed; bottom:32px; right:32px; background:linear-gradient(135deg,rgba(34,211,238,0.15),rgba(99,102,241,0.15)); border:1px solid rgba(34,211,238,0.3); border-radius:12px; padding:12px 20px; font-size:0.88rem; font-weight:700; color:var(--acc-l); z-index:999; opacity:0; transform:translateY(16px); transition:all 0.35s cubic-bezier(.34,1.56,.64,1); pointer-events:none; display:flex; align-items:center; gap:8px; }
+    .xp-toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width:860px) { .app { grid-template-columns:1fr; grid-template-areas:"nav" "main"; } .sidebar { display:none; } .main { padding:24px 20px; } }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#22D3EE" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>
+        Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Arrays &amp; Data Structures</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="cs-theory.html" class="nav-back">← CS Theory</a>
+    </div>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 02</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">Arrays &amp; Memory</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Linked Lists</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Stacks &amp; Queues</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Hash Tables</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · CS Theory</div>
+    <h2>Arrays &amp; Memory</h2>
+    <p class="lead">An <strong>array</strong> is a contiguous block of memory where each element sits at a predictable address. This makes index access O(1) — one of the most important properties in all of computing.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📦 How Arrays Work in Memory</div>
+      <p>If an array starts at address 1000 and each int takes 4 bytes, then <code>arr[3]</code> is at address 1000 + (3 × 4) = 1012. The CPU computes this in one operation — no searching required.</p>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Operation</th><th>Time</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Access by index</td><td>O(1)</td><td>Direct address calculation</td></tr>
+        <tr><td>Search (unsorted)</td><td>O(n)</td><td>May need to check every element</td></tr>
+        <tr><td>Search (sorted)</td><td>O(log n)</td><td>Binary search halves each step</td></tr>
+        <tr><td>Insert at end</td><td>O(1) amortized</td><td>Just append (Python list)</td></tr>
+        <tr><td>Insert at middle</td><td>O(n)</td><td>Must shift all elements right</td></tr>
+        <tr><td>Delete at middle</td><td>O(n)</td><td>Must shift all elements left</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Array Visualizer -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">🔢 Array Visualizer</h4>
+      <div class="array-vis" id="arrayVis"></div>
+      <div style="margin-top:26px;"></div>
+      <div class="widget-row">
+        <input class="widget-input" id="arrSearch" type="number" placeholder="search value" style="width:130px"/>
+        <button class="widget-btn" onclick="searchArr()">Search</button>
+        <button class="widget-btn" style="background:rgba(255,255,255,0.07);color:var(--text-2);" onclick="resetArr()">Reset</button>
+      </div>
+      <div class="widget-result" id="arrResult"></div>
+    </div>
+
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Array Address</h4>
+      <p>An array of integers starts at memory address 2000. Each integer takes 4 bytes. What is the address of <code>arr[5]</code>?</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" type="number" placeholder="address" style="width:110px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">address = base + (index × element_size) = 2000 + (5 × 4) = 2020</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · CS Theory</div>
+    <h2>Linked Lists</h2>
+    <p class="lead">A <strong>linked list</strong> stores elements as nodes, each pointing to the next. There's no contiguous memory — nodes can be scattered anywhere. This makes insertions fast but random access slow.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">🔗 Node Structure</div>
+      <p>Each node holds a <strong>value</strong> and a <strong>pointer</strong> to the next node. The last node points to <code>None</code>. Traversal means following pointers one by one — you can't jump to the middle directly.</p>
+    </div>
+
+    <div class="code-block"><span class="c-keyword">class</span> <span class="c-fn">Node</span>:
+    <span class="c-keyword">def</span> <span class="c-fn">__init__</span>(self, val):
+        self.val = val
+        self.next = <span class="c-keyword">None</span>
+
+<span class="c-keyword">class</span> <span class="c-fn">LinkedList</span>:
+    <span class="c-keyword">def</span> <span class="c-fn">__init__</span>(self):
+        self.head = <span class="c-keyword">None</span>
+
+    <span class="c-keyword">def</span> <span class="c-fn">append</span>(self, val):
+        node = <span class="c-fn">Node</span>(val)
+        <span class="c-keyword">if not</span> self.head:
+            self.head = node; <span class="c-keyword">return</span>
+        cur = self.head
+        <span class="c-keyword">while</span> cur.next:       <span class="c-comment"># O(n) — walk to end</span>
+            cur = cur.next
+        cur.next = node
+
+    <span class="c-keyword">def</span> <span class="c-fn">prepend</span>(self, val):  <span class="c-comment"># O(1) — just update head</span>
+        node = <span class="c-fn">Node</span>(val)
+        node.next = self.head
+        self.head = node</div>
+
+    <table class="data-table">
+      <thead><tr><th>Operation</th><th>Array</th><th>Linked List</th></tr></thead>
+      <tbody>
+        <tr><td>Access by index</td><td>O(1)</td><td>O(n)</td></tr>
+        <tr><td>Insert at front</td><td>O(n)</td><td>O(1)</td></tr>
+        <tr><td>Insert at end</td><td>O(1)</td><td>O(n) or O(1) with tail ptr</td></tr>
+        <tr><td>Delete at front</td><td>O(n)</td><td>O(1)</td></tr>
+        <tr><td>Search</td><td>O(n)</td><td>O(n)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Best Data Structure</h4>
+      <p>You need to frequently insert items at the front of a list. Which is better? Type <strong>array</strong> or <strong>linked list</strong>.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="answer" style="width:140px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Inserting at front of an array is O(n) — all elements shift. Linked list front insert is O(1).</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · CS Theory</div>
+    <h2>Stacks &amp; Queues</h2>
+    <p class="lead"><strong>Stacks</strong> and <strong>queues</strong> are abstract data types that restrict how you add and remove elements. These restrictions make them perfect tools for specific algorithmic patterns.</p>
+
+    <div class="info-box violet">
+      <div class="info-box-title">📚 Stack: Last In, First Out (LIFO)</div>
+      <p>A stack only allows push (add to top) and pop (remove from top). Think of a stack of plates — you can only add or remove from the top. Used in: function call stack, undo/redo, expression parsing.</p>
+    </div>
+
+    <div class="info-box green">
+      <div class="info-box-title">🚶 Queue: First In, First Out (FIFO)</div>
+      <p>A queue allows enqueue (add to back) and dequeue (remove from front). Think of a line at a shop — first person in is first served. Used in: BFS, job schedulers, event systems, print queues.</p>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Python: list as stack</span>
+stack = []
+stack.append(<span class="c-num">1</span>)  <span class="c-comment"># push</span>
+stack.append(<span class="c-num">2</span>)
+stack.pop()       <span class="c-comment"># → 2 (LIFO)</span>
+
+<span class="c-comment"># Python: deque as queue (O(1) both ends)</span>
+<span class="c-keyword">from</span> collections <span class="c-keyword">import</span> deque
+q = deque()
+q.append(<span class="c-num">1</span>)     <span class="c-comment"># enqueue</span>
+q.append(<span class="c-num">2</span>)
+q.popleft()       <span class="c-comment"># → 1 (FIFO)</span></div>
+
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Stack Sequence</h4>
+      <p>You push 1, 2, 3 onto a stack. You then pop twice. What is the second popped value? Type the number.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" type="number" placeholder="value" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">Stack is LIFO: 3 was pushed last, so first pop → 3, second pop → 2.</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · CS Theory</div>
+    <h2>Hash Tables</h2>
+    <p class="lead">A <strong>hash table</strong> maps keys to values using a hash function. It achieves average O(1) for insert, lookup, and delete — the magic behind Python dicts, JavaScript objects, and database indexes.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">🔑 How Hashing Works</div>
+      <p>A hash function converts any key into an integer index. <code>hash("hello") % 10 → 5</code> means store at slot 5. Collisions happen when two keys hash to the same slot — resolved by chaining (linked list in the slot) or open addressing.</p>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Python dicts are hash tables</span>
+d = {}
+d[<span class="c-string">"name"</span>] = <span class="c-string">"Alice"</span>   <span class="c-comment"># O(1) insert</span>
+d[<span class="c-string">"age"</span>]  = <span class="c-num">30</span>       <span class="c-comment"># O(1) insert</span>
+<span class="c-fn">print</span>(d[<span class="c-string">"name"</span>])      <span class="c-comment"># O(1) lookup</span>
+<span class="c-keyword">del</span> d[<span class="c-string">"age"</span>]         <span class="c-comment"># O(1) delete</span>
+
+<span class="c-comment"># Sets are hash tables (keys only)</span>
+seen = <span class="c-fn">set</span>()
+<span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr:
+    <span class="c-keyword">if</span> x <span class="c-keyword">in</span> seen:   <span class="c-comment"># O(1) — not O(n)!</span>
+        <span class="c-keyword">return</span> x
+    seen.add(x)</div>
+
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">📖</div><div class="rw-title">Dictionaries</div><div class="rw-desc">Python dicts, JS objects, JSON — all hash tables. The backbone of almost every real program.</div></div>
+      <div class="rw-card"><div class="rw-icon">🔐</div><div class="rw-title">Caching</div><div class="rw-desc">Redis and Memcached store key→value in memory using hash tables for O(1) lookups at massive scale.</div></div>
+      <div class="rw-card"><div class="rw-icon">🗄️</div><div class="rw-title">Database Indexes</div><div class="rw-desc">Hash indexes let databases find rows by primary key in O(1) without scanning the whole table.</div></div>
+      <div class="rw-card"><div class="rw-icon">✨</div><div class="rw-title">Deduplication</div><div class="rw-desc">Sets (hash tables) solve "find duplicates" in O(n) instead of O(n²). Used everywhere in data pipelines.</div></div>
+    </div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Lookup Complexity</h4>
+      <p>On average, what is the time complexity of looking up a key in a hash table? Type: <strong>O(1)</strong> or <strong>O(n)</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="O(...)" style="width:100px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">Hash tables compute the index directly via hash function — O(1) average (worst case O(n) with many collisions).</div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 02</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your data structure knowledge.</p>
+
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">What is the time complexity of accessing <code>arr[7]</code> in an array?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">O(n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">O(1)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">O(log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">O(7)</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">Which data structure uses Last In, First Out (LIFO) order?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">Queue</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">Linked List</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">Stack</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">Hash Table</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">Inserting at the front of a linked list is:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">O(n) — must shift elements</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">O(1) — just update head pointer</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">O(log n) — binary search needed</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">O(n²) — double traversal</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">Hash tables achieve O(1) lookups using a:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">Sorted list and binary search</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">Hash function that maps keys to array indexes</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">Pointer chain from head to value</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">Linear scan with early exit</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>🎉 Complete Module 02</button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+
+<script>
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  const state = { xp:0, done:{c1:false,c2:false,c3:false,c4:false,q1:false,q2:false,q3:false,q4:false} };
+  function awardXP(amount,key){if(state.done[key])return;state.done[key]=true;state.xp+=amount;document.getElementById('navXp').textContent=state.xp+' XP';showToast('+'+amount+' XP');updateProgress();checkComplete();}
+  function showToast(msg){const t=document.getElementById('xpToast');document.getElementById('toastXp').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+  function updateProgress(){const total=Object.keys(state.done).length;const done=Object.values(state.done).filter(Boolean).length;const pct=Math.round((done/total)*100);document.getElementById('prog-fill').style.width=pct+'%';document.getElementById('prog-label').textContent=pct+'%';}
+  function checkComplete(){const allDone=Object.values(state.done).every(Boolean);document.getElementById('completeBtn').disabled=!allDone;if(allDone)document.getElementById('complete-note').textContent='All challenges and quiz questions completed!';}
+
+  // Array visualizer
+  const arrData = [14, 3, 27, 8, 42, 19, 5, 31];
+  function renderArr(highlights={}) {
+    const vis = document.getElementById('arrayVis');
+    vis.innerHTML = arrData.map((v,i) => {
+      let cls = 'arr-cell';
+      if (highlights[i] === 'highlight') cls += ' highlight';
+      if (highlights[i] === 'found') cls += ' found';
+      return `<div class="${cls}">${v}<span class="arr-idx">[${i}]</span></div>`;
+    }).join('');
+  }
+  renderArr();
+  function searchArr() {
+    const target = parseInt(document.getElementById('arrSearch').value);
+    const res = document.getElementById('arrResult');
+    const h = {};
+    let found = -1;
+    for (let i = 0; i < arrData.length; i++) {
+      h[i] = 'highlight';
+      if (arrData[i] === target) { found = i; break; }
+    }
+    if (found >= 0) {
+      h[found] = 'found';
+      res.textContent = `Found ${target} at index [${found}] — checked ${found+1} element(s)`;
+      res.style.color = 'var(--green)';
+    } else {
+      res.textContent = `${target} not found — checked all ${arrData.length} elements`;
+      res.style.color = 'var(--red)';
+    }
+    renderArr(h);
+  }
+  function resetArr() { renderArr(); document.getElementById('arrResult').textContent = ''; document.getElementById('arrSearch').value = ''; }
+
+  const CHALLENGES = {
+    1: { check: v => parseInt(v) === 2020 },
+    2: { check: v => v.trim().toLowerCase().includes('linked') },
+    3: { check: v => parseInt(v) === 2 },
+    4: { check: v => v.trim().replace(/\s/g,'').toLowerCase() === 'o(1)' },
+  };
+  function checkChallenge(n){const val=document.getElementById('c'+n+'-inp').value;const fb=document.getElementById('c'+n+'-fb');if(CHALLENGES[n].check(val)){fb.className='challenge-feedback correct';fb.textContent='✓ Correct!';awardXP(15,'c'+n);}else{fb.className='challenge-feedback wrong';fb.textContent='✗ Not quite. Try again.';}}
+  function showHint(n){const h=document.getElementById('c'+n+'-hint');h.style.display=h.style.display==='block'?'none':'block';}
+
+  const QUIZ = {
+    1:{correct:'b',explain:'✓ Array index access is O(1) — direct memory address calculation.'},
+    2:{correct:'c',explain:'✓ Stack is LIFO — last pushed is first popped.'},
+    3:{correct:'b',explain:'✓ Just update the head pointer to the new node — O(1).'},
+    4:{correct:'b',explain:'✓ A hash function maps keys to array indexes for direct O(1) access.'},
+  };
+  function answerQuiz(n,opt){const card=document.getElementById('q'+n+'-card');if(card.dataset.answered)return;card.dataset.answered='true';const q=QUIZ[n];card.querySelectorAll('.quiz-opt').forEach((b,i)=>{b.disabled=true;const l=['a','b','c','d'][i];if(l===q.correct)b.classList.add('correct');else if(l===opt)b.classList.add('wrong');});const fb=document.getElementById('q'+n+'-fb');if(opt===q.correct){fb.className='quiz-feedback correct';fb.textContent=q.explain;awardXP(20,'q'+n);}else{fb.className='quiz-feedback wrong';fb.textContent='✗ '+q.explain;}}
+
+  function completeModule(){const p=JSON.parse(localStorage.getItem('helix_cs_progress')||'{}');p.xp=(p.xp||0)+state.xp+120;p.completedLessons=(p.completedLessons||0)+4;p.modules=p.modules||{};p.modules.arrays={completed:true,completedAt:new Date().toISOString()};p.lastActivity=new Date().toISOString();localStorage.setItem('helix_cs_progress',JSON.stringify(p));showToast('+120 XP — Module Complete!');setTimeout(()=>{window.location.href='cs-theory.html';},1800);}
+
+  function scrollToLesson(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.lesson-item').forEach(el=>el.classList.remove('active'));const map={l1:0,l2:1,l3:2,l4:3,quiz:4};const items=document.querySelectorAll('.lesson-item');if(map[id]!==undefined&&items[map[id]])items[map[id]].classList.add('active');}
+</script>
+</body>
+</html>

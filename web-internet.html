@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Web &amp; Internet — Helix</title>
+  <meta name="description" content="Understand how the internet works: DNS, HTTP, web security, and how browsers render pages." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050816; --bg-2: #0C1022; --bg-card: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.07);
+      --primary: #6366F1; --primary-l: #818CF8;
+      --pink: #EC4899; --pink-l: #F9A8D4; --pink-d: #BE185D;
+      --amber: #F59E0B; --amber-l: #FCD34D; --orange: #F97316;
+      --green: #10B981; --violet: #8B5CF6;
+      --text: #EEF2F8; --text-2: #8892A4; --text-3: #2D3A4E;
+      --nav-h: 64px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(236,72,153,0.18) 0%, transparent 65%); top: -100px; right: -50px; animation: drift1 22s ease-in-out alternate infinite; }
+    .orb-2 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 65%); bottom: -200px; left: -100px; animation: drift2 18s ease-in-out alternate infinite; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(190,24,93,0.1) 0%, transparent 65%); top: 50%; left: 40%; animation: drift3 25s ease-in-out alternate infinite; }
+    @keyframes drift1 { 0%{transform:translate(0,0)} 100%{transform:translate(-60px,80px)} }
+    @keyframes drift2 { 0%{transform:translate(0,0)} 100%{transform:translate(60px,-60px)} }
+    @keyframes drift3 { 0%{transform:translate(0,0)} 100%{transform:translate(-40px,60px)} }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+    .topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--nav-h); background: rgba(5,8,22,0.85); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.03em; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link { font-size: 0.875rem; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 8px; transition: color 0.2s, background 0.2s; }
+    .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-back { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#EC4899,#BE185D); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; cursor: pointer; overflow: hidden; border: 2px solid rgba(236,72,153,0.3); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .page { position: relative; z-index: 1; padding-top: calc(var(--nav-h) + 48px); padding-bottom: 80px; max-width: 1200px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+    .strand-hero { display: flex; align-items: flex-start; gap: 32px; margin-bottom: 48px; flex-wrap: wrap; }
+    .strand-hero-icon { font-size: 4rem; line-height: 1; flex-shrink: 0; filter: drop-shadow(0 0 30px rgba(236,72,153,0.4)); }
+    .strand-hero-text { flex: 1; min-width: 280px; }
+    .strand-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pink); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .strand-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--pink); }
+    .strand-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900; letter-spacing: -0.04em; margin-bottom: 12px; }
+    .strand-title span { background: linear-gradient(90deg, var(--pink), var(--pink-d)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .strand-desc { font-size: 0.95rem; color: var(--text-2); line-height: 1.65; max-width: 520px; margin-bottom: 20px; }
+    .strand-stats-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .strand-stat-pill { font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border-radius: 100px; background: rgba(236,72,153,0.1); border: 1px solid rgba(236,72,153,0.25); color: var(--pink-l); }
+    .overall-prog { background: rgba(236,72,153,0.05); border: 1px solid rgba(236,72,153,0.15); border-radius: 14px; padding: 18px 22px; margin-bottom: 44px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .prog-numbers { display: flex; gap: 28px; flex-shrink: 0; }
+    .prog-num { text-align: center; }
+    .prog-num-val { font-size: 1.6rem; font-weight: 800; color: var(--pink); letter-spacing: -0.03em; }
+    .prog-num-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); margin-top: 2px; }
+    .prog-bar-wrap { flex: 1; min-width: 200px; }
+    .prog-bar-lbl { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-2); margin-bottom: 7px; }
+    .prog-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .prog-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--pink-d)); border-radius: 100px; transition: width 1s ease; }
+    .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; margin-top: 40px; }
+    .sec-title { font-size: 1.05rem; font-weight: 700; }
+    .sec-sub { font-size: 0.8rem; color: var(--text-2); }
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .course-card { background: rgba(12,16,34,0.7); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s; display: flex; flex-direction: column; text-decoration: none; }
+    .course-card.available { cursor: pointer; }
+    .course-card.available:hover { border-color: rgba(236,72,153,0.4); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .course-card-top { padding: 22px 22px 16px; flex: 1; }
+    .course-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; color: var(--text-3); text-transform: uppercase; margin-bottom: 10px; }
+    .course-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+    .course-name { font-size: 1rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .course-desc { font-size: 0.82rem; color: var(--text-2); line-height: 1.55; margin-bottom: 14px; }
+    .course-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .course-tag { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 100px; background: rgba(236,72,153,0.08); border: 1px solid rgba(236,72,153,0.2); color: var(--pink-l); letter-spacing: 0.03em; }
+    .course-card-bottom { padding: 14px 22px 18px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .course-meta { font-size: 0.75rem; color: var(--text-2); }
+    .course-meta strong { color: var(--text); font-weight: 600; }
+    .course-btn { height: 32px; padding: 0 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; border: none; cursor: pointer; background: linear-gradient(135deg, var(--pink), var(--pink-d)); color: #fff; transition: opacity 0.2s; white-space: nowrap; }
+    .course-btn:hover { opacity: 0.85; }
+    .course-prog { margin-top: 10px; }
+    .course-prog-track { height: 3px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .course-prog-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--pink-d)); border-radius: 100px; transition: width 0.8s ease; }
+    .course-prog-lbl { font-size: 0.68rem; color: var(--text-2); margin-top: 5px; }
+    .fun-fact { margin: 48px 0 0; padding: 20px 24px; background: rgba(236,72,153,0.06); border: 1px solid rgba(236,72,153,0.15); border-radius: 14px; display: flex; gap: 14px; align-items: flex-start; }
+    .fun-fact-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .fun-fact-text { font-size: 0.875rem; color: var(--text-2); line-height: 1.6; }
+    .fun-fact-text strong { color: var(--text); }
+    @media (max-width: 680px) { .page { padding-left: 16px; padding-right: 16px; } .topnav { padding: 0 16px; } .courses-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+  <nav class="topnav">
+    <a class="nav-logo" href="index.html">
+      <svg width="28" height="18" viewBox="0 0 44 28" fill="none"><defs><linearGradient id="ng1" x1="0" y1="0" x2="44" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#EC4899"/><stop offset="50%" stop-color="#F9A8D4"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><linearGradient id="ng2" x1="0" y1="0" x2="44" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#F9A8D4"/><stop offset="50%" stop-color="#BE185D"/><stop offset="100%" stop-color="#F9A8D4"/></linearGradient></defs><path d="M0 14 Q5.5 4 11 14 Q16.5 24 22 14 Q27.5 4 33 14 Q38.5 24 44 14" stroke="url(#ng1)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M0 14 Q5.5 24 11 14 Q16.5 4 22 14 Q27.5 24 33 14 Q38.5 4 44 14" stroke="url(#ng2)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+      Helix
+    </a>
+    <div class="nav-right">
+      <a href="strands.html" class="nav-back">← Back to Strands</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <div class="nav-avatar" id="navAvatar" onclick="window.location.href='profile.html'"></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="strand-hero">
+      <div class="strand-hero-icon">🌐</div>
+      <div class="strand-hero-text">
+        <div class="strand-eyebrow">Web &amp; Internet Strand</div>
+        <h1 class="strand-title">The infrastructure your <span>code runs on.</span></h1>
+        <p class="strand-desc">Every web request you've ever made involves DNS lookups, TCP handshakes, HTTP headers, and TLS certificates. Stop treating the internet as magic — understand how it actually works, from packet to pixel.</p>
+        <div class="strand-stats-row">
+          <span class="strand-stat-pill">🎯 4 modules</span>
+          <span class="strand-stat-pill">📚 16 lessons</span>
+          <span class="strand-stat-pill">🏆 XP rewards</span>
+          <span class="strand-stat-pill">🧩 Interactive exercises</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="overall-prog">
+      <div class="prog-numbers">
+        <div class="prog-num"><div class="prog-num-val" id="webXP">0</div><div class="prog-num-lbl">XP Earned</div></div>
+        <div class="prog-num"><div class="prog-num-val" id="webDone">0</div><div class="prog-num-lbl">Lessons Done</div></div>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-lbl"><span>Web &amp; Internet Progress</span><span id="webPct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="webFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-title">All Modules</span><span class="sec-sub">— All 4 available now</span></div>
+    <div class="courses-grid">
+
+      <a href="web-how.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 01</div>
+          <span class="course-icon">🌍</span>
+          <div class="course-name">How the Internet Works</div>
+          <div class="course-desc">From IP addresses to the TCP handshake — understand the physical and logical infrastructure that connects every device on earth.</div>
+          <div class="course-tags"><span class="course-tag">TCP/IP</span><span class="course-tag">DNS</span><span class="course-tag">Packets</span><span class="course-tag">Routing</span></div>
+          <div class="course-prog"><div class="course-prog-track"><div class="course-prog-fill" id="prog-how" style="width:0%"></div></div><div class="course-prog-lbl" id="lbl-how">4 lessons · ~20 min</div></div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+      <a href="web-http.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 02</div>
+          <span class="course-icon">⚡</span>
+          <div class="course-name">HTTP &amp; APIs</div>
+          <div class="course-desc">The language browsers and servers use to talk. Learn GET/POST/DELETE, status codes, REST API design, and how JSON makes data portable.</div>
+          <div class="course-tags"><span class="course-tag">HTTP</span><span class="course-tag">REST</span><span class="course-tag">JSON</span><span class="course-tag">Status Codes</span></div>
+          <div class="course-prog"><div class="course-prog-track"><div class="course-prog-fill" id="prog-http" style="width:0%"></div></div><div class="course-prog-lbl" id="lbl-http">4 lessons · ~22 min</div></div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+      <a href="web-security.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 03</div>
+          <span class="course-icon">🔒</span>
+          <div class="course-name">Web Security</div>
+          <div class="course-desc">HTTPS, hashing, XSS, CSRF, SQL injection — the most critical attacks every web developer must understand and defend against.</div>
+          <div class="course-tags"><span class="course-tag">HTTPS · TLS</span><span class="course-tag">Hashing</span><span class="course-tag">XSS</span><span class="course-tag">SQL Injection</span></div>
+          <div class="course-prog"><div class="course-prog-track"><div class="course-prog-fill" id="prog-security" style="width:0%"></div></div><div class="course-prog-lbl" id="lbl-security">4 lessons · ~22 min</div></div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+      <a href="web-browser.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 04</div>
+          <span class="course-icon">🖥️</span>
+          <div class="course-name">Browsers &amp; the DOM</div>
+          <div class="course-desc">How a URL becomes a webpage. The critical rendering path, the Document Object Model, the CSS box model, and JavaScript's event loop.</div>
+          <div class="course-tags"><span class="course-tag">DOM</span><span class="course-tag">CSS Box Model</span><span class="course-tag">Event Loop</span><span class="course-tag">fetch()</span></div>
+          <div class="course-prog"><div class="course-prog-track"><div class="course-prog-fill" id="prog-browser" style="width:0%"></div></div><div class="course-prog-lbl" id="lbl-browser">4 lessons · ~20 min</div></div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="fun-fact">
+      <div class="fun-fact-icon">💡</div>
+      <div class="fun-fact-text">
+        <strong>Did you know?</strong> The first website ever created is still live at <strong>info.cern.ch</strong>. Built by Tim Berners-Lee in 1991 on a NeXT computer, it explains what the World Wide Web project is. The internet was only 22 years old when the web was invented — and the web has doubled in complexity roughly every 18 months since.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+    if (!session) { window.location.href = 'login.html'; }
+    const users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const me = users.find(u => u.id === session?.userId);
+    const avatarEl = document.getElementById('navAvatar');
+    if (me?.profilePic) { avatarEl.innerHTML = `<img src="${me.profilePic}" alt="avatar">`; }
+    else { avatarEl.textContent = (me?.username || 'U')[0].toUpperCase(); }
+
+    const webProg = JSON.parse(localStorage.getItem('helix_web_progress') || '{}');
+    const xp   = webProg.xp || 0;
+    const done = webProg.completedLessons || 0;
+    const pct  = Math.min(Math.round((done / 16) * 100), 100);
+    document.getElementById('webXP').textContent  = xp.toLocaleString();
+    document.getElementById('webDone').textContent = done;
+    document.getElementById('webPct').textContent  = pct + '%';
+    setTimeout(() => { document.getElementById('webFill').style.width = pct + '%'; }, 100);
+
+    const modules = webProg.modules || {};
+    [['how','prog-how','lbl-how'],['http','prog-http','lbl-http'],['security','prog-security','lbl-security'],['browser','prog-browser','lbl-browser']].forEach(([key,pid,lid], i) => {
+      const p = modules[key]?.completed ? 100 : 0;
+      setTimeout(() => { document.getElementById(pid).style.width = p + '%'; }, 200 + i * 50);
+      if (modules[key]?.completed) document.getElementById(lid).textContent = 'Completed ✓';
+    });
+  </script>
+</body>
+</html>

@@ -380,6 +380,14 @@
     .sc-cta-math { background: linear-gradient(135deg, #F59E0B, #F97316); color: white; box-shadow: 0 4px 18px rgba(245,158,11,0.22); }
     .sc-cta-math:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(245,158,11,0.35); }
     .sc-cta-soon { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); color: var(--text-2); cursor: default; }
+    .sc-cta-cs  { background: linear-gradient(135deg, #22D3EE, #10B981); color: white; box-shadow: 0 4px 18px rgba(34,211,238,0.22); }
+    .sc-cta-cs:hover  { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(34,211,238,0.35); }
+    .sc-cta-data { background: linear-gradient(135deg, #10B981, #06B6D4); color: white; box-shadow: 0 4px 18px rgba(16,185,129,0.22); }
+    .sc-cta-data:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(16,185,129,0.35); }
+    .sc-cta-web  { background: linear-gradient(135deg, #EC4899, #8B5CF6); color: white; box-shadow: 0 4px 18px rgba(236,72,153,0.22); }
+    .sc-cta-web:hover  { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(236,72,153,0.35); }
+    .strand-card-v2.full-width { grid-column: 1 / -1; }
+    .strand-card-v2.full-width .sc-module-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 
     /* ─── LESSON GRID ─────────────────────────────────────── */
     .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
@@ -923,7 +931,7 @@
         </div>
 
         <!-- ── CS THEORY STRAND ── -->
-        <div class="strand-card-v2 coming" style="--sc-grad: linear-gradient(90deg, #22D3EE, #06B6D4);">
+        <div class="strand-card-v2 live" style="--sc-grad: linear-gradient(90deg, #22D3EE, #10B981);">
           <div class="sc-head">
             <div class="sc-head-left">
               <div class="sc-icon-wrap">🔬</div>
@@ -932,18 +940,46 @@
                 <div class="sc-subdesc">Algorithms, data structures &amp; beyond</div>
               </div>
             </div>
-            <span class="sc-badge sc-badge-soon">Soon</span>
+            <span class="sc-badge sc-badge-live">Live</span>
           </div>
           <div class="sc-divider"></div>
-          <div class="sc-coming-body">
-            <div class="sc-coming-emoji">🚧</div>
-            <div class="sc-coming-text">Big-O notation, sorting algorithms, graphs, trees &amp; data structures. Being built now.</div>
+          <div class="sc-module-list">
+            <a class="sc-module-item" href="cs-bigO.html">
+              <span class="sc-mod-icon">📈</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Big O &amp; Complexity</div><div class="sc-mod-sub" id="cs-bigo-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="cs-bigo-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="cs-bigo-bar" style="width:0%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>
+            </a>
+            <a class="sc-module-item" href="cs-arrays.html">
+              <span class="sc-mod-icon">🗂️</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Arrays &amp; Data Structures</div><div class="sc-mod-sub" id="cs-arrays-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="cs-arrays-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="cs-arrays-bar" style="width:0%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>
+            </a>
+            <a class="sc-module-item" href="cs-sorting.html">
+              <span class="sc-mod-icon">🔀</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Sorting Algorithms</div><div class="sc-mod-sub" id="cs-sorting-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="cs-sorting-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="cs-sorting-bar" style="width:0%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>
+            </a>
+            <a class="sc-module-item" href="cs-trees.html">
+              <span class="sc-mod-icon">🌳</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Trees &amp; Hierarchies</div><div class="sc-mod-sub" id="cs-trees-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="cs-trees-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="cs-trees-bar" style="width:0%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>
+            </a>
+            <a class="sc-module-item" href="cs-graphs.html">
+              <span class="sc-mod-icon">🕸️</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Graphs &amp; Traversal</div><div class="sc-mod-sub" id="cs-graphs-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="cs-graphs-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="cs-graphs-bar" style="width:0%;background:linear-gradient(90deg,#22D3EE,#10B981)"></div></div>
+            </a>
           </div>
-          <span class="sc-cta sc-cta-soon">Coming soon</span>
+          <a class="sc-cta sc-cta-cs" href="cs-theory.html">Explore CS Theory →</a>
         </div>
 
         <!-- ── DATA & AI STRAND ── -->
-        <div class="strand-card-v2 coming" style="--sc-grad: linear-gradient(90deg, #10B981, #059669);">
+        <div class="strand-card-v2 live" style="--sc-grad: linear-gradient(90deg, #10B981, #06B6D4);">
           <div class="sc-head">
             <div class="sc-head-left">
               <div class="sc-icon-wrap">📊</div>
@@ -952,14 +988,78 @@
                 <div class="sc-subdesc">ML fundamentals &amp; neural networks</div>
               </div>
             </div>
-            <span class="sc-badge sc-badge-soon">Soon</span>
+            <span class="sc-badge sc-badge-live">Live</span>
           </div>
           <div class="sc-divider"></div>
-          <div class="sc-coming-body">
-            <div class="sc-coming-emoji">🤖</div>
-            <div class="sc-coming-text">Machine learning, neural networks, data analysis &amp; applied AI. On the roadmap.</div>
+          <div class="sc-module-list">
+            <a class="sc-module-item" href="data-intro.html">
+              <span class="sc-mod-icon">📋</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Intro to Data</div><div class="sc-mod-sub" id="data-intro-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="data-intro-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="data-intro-bar" style="width:0%;background:linear-gradient(90deg,#10B981,#06B6D4)"></div></div>
+            </a>
+            <a class="sc-module-item" href="data-stats.html">
+              <span class="sc-mod-icon">📉</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Statistics</div><div class="sc-mod-sub" id="data-stats-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="data-stats-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="data-stats-bar" style="width:0%;background:linear-gradient(90deg,#10B981,#06B6D4)"></div></div>
+            </a>
+            <a class="sc-module-item" href="data-ml.html">
+              <span class="sc-mod-icon">🤖</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">ML Basics</div><div class="sc-mod-sub" id="data-ml-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="data-ml-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="data-ml-bar" style="width:0%;background:linear-gradient(90deg,#10B981,#06B6D4)"></div></div>
+            </a>
+            <a class="sc-module-item" href="data-neural.html">
+              <span class="sc-mod-icon">🧠</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Neural Networks</div><div class="sc-mod-sub" id="data-neural-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="data-neural-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="data-neural-bar" style="width:0%;background:linear-gradient(90deg,#10B981,#06B6D4)"></div></div>
+            </a>
           </div>
-          <span class="sc-cta sc-cta-soon">Coming soon</span>
+          <a class="sc-cta sc-cta-data" href="data-ai.html">Explore Data &amp; AI →</a>
+        </div>
+
+        <!-- ── WEB & INTERNET STRAND ── -->
+        <div class="strand-card-v2 live full-width" style="--sc-grad: linear-gradient(90deg, #EC4899, #8B5CF6);">
+          <div class="sc-head">
+            <div class="sc-head-left">
+              <div class="sc-icon-wrap">🌐</div>
+              <div>
+                <div class="sc-name">Web &amp; Internet</div>
+                <div class="sc-subdesc">HTTP, DNS, APIs, security &amp; the browser</div>
+              </div>
+            </div>
+            <span class="sc-badge sc-badge-live">Live</span>
+          </div>
+          <div class="sc-divider"></div>
+          <div class="sc-module-list">
+            <a class="sc-module-item" href="web-how.html">
+              <span class="sc-mod-icon">🌍</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">How the Internet Works</div><div class="sc-mod-sub" id="web-how-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="web-how-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="web-how-bar" style="width:0%;background:linear-gradient(90deg,#EC4899,#8B5CF6)"></div></div>
+            </a>
+            <a class="sc-module-item" href="web-http.html">
+              <span class="sc-mod-icon">📡</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">HTTP &amp; APIs</div><div class="sc-mod-sub" id="web-http-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="web-http-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="web-http-bar" style="width:0%;background:linear-gradient(90deg,#EC4899,#8B5CF6)"></div></div>
+            </a>
+            <a class="sc-module-item" href="web-security.html">
+              <span class="sc-mod-icon">🔐</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Web Security</div><div class="sc-mod-sub" id="web-sec-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="web-sec-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="web-sec-bar" style="width:0%;background:linear-gradient(90deg,#EC4899,#8B5CF6)"></div></div>
+            </a>
+            <a class="sc-module-item" href="web-browser.html">
+              <span class="sc-mod-icon">🖥️</span>
+              <div class="sc-mod-text"><div class="sc-mod-name">Browsers &amp; DOM</div><div class="sc-mod-sub" id="web-browser-sub">0 / 140 XP</div></div>
+              <span class="sc-mod-pct" id="web-browser-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="web-browser-bar" style="width:0%;background:linear-gradient(90deg,#EC4899,#8B5CF6)"></div></div>
+            </a>
+          </div>
+          <a class="sc-cta sc-cta-web" href="web-internet.html">Explore Web &amp; Internet →</a>
         </div>
 
       </div>
@@ -1189,6 +1289,55 @@ function render() {
   document.getElementById('math-stats-bar').style.width  = statsPct + '%';
   document.getElementById('math-pseudo-pct').textContent = pseudoPct + '%';
   document.getElementById('math-pseudo-bar').style.width = pseudoPct + '%';
+
+  // CS Theory strand progress
+  const csProg = JSON.parse(localStorage.getItem('helix_cs_progress') || '{}');
+  const csMods = csProg.modules || {};
+  function csModPct(key, modXp) {
+    return csMods[key]?.completed ? 100 : 0;
+  }
+  function csModBar(key, elPct, elBar, elSub) {
+    const done = csMods[key]?.completed;
+    const p = done ? 100 : 0;
+    document.getElementById(elPct).textContent = p + '%';
+    document.getElementById(elBar).style.width = p + '%';
+    document.getElementById(elSub).textContent = done ? '140 / 140 XP' : '0 / 140 XP';
+  }
+  csModBar('bigO',    'cs-bigo-pct',    'cs-bigo-bar',    'cs-bigo-sub');
+  csModBar('arrays',  'cs-arrays-pct',  'cs-arrays-bar',  'cs-arrays-sub');
+  csModBar('sorting', 'cs-sorting-pct', 'cs-sorting-bar', 'cs-sorting-sub');
+  csModBar('trees',   'cs-trees-pct',   'cs-trees-bar',   'cs-trees-sub');
+  csModBar('graphs',  'cs-graphs-pct',  'cs-graphs-bar',  'cs-graphs-sub');
+
+  // Data & AI strand progress
+  const dataProg = JSON.parse(localStorage.getItem('helix_data_progress') || '{}');
+  const dataMods = dataProg.modules || {};
+  function dataModBar(key, elPct, elBar, elSub) {
+    const done = dataMods[key]?.completed;
+    const p = done ? 100 : 0;
+    document.getElementById(elPct).textContent = p + '%';
+    document.getElementById(elBar).style.width = p + '%';
+    document.getElementById(elSub).textContent = done ? '140 / 140 XP' : '0 / 140 XP';
+  }
+  dataModBar('intro',  'data-intro-pct',  'data-intro-bar',  'data-intro-sub');
+  dataModBar('stats',  'data-stats-pct',  'data-stats-bar',  'data-stats-sub');
+  dataModBar('ml',     'data-ml-pct',     'data-ml-bar',     'data-ml-sub');
+  dataModBar('neural', 'data-neural-pct', 'data-neural-bar', 'data-neural-sub');
+
+  // Web & Internet strand progress
+  const webProg = JSON.parse(localStorage.getItem('helix_web_progress') || '{}');
+  const webMods = webProg.modules || {};
+  function webModBar(key, elPct, elBar, elSub) {
+    const done = webMods[key]?.completed;
+    const p = done ? 100 : 0;
+    document.getElementById(elPct).textContent = p + '%';
+    document.getElementById(elBar).style.width = p + '%';
+    document.getElementById(elSub).textContent = done ? '140 / 140 XP' : '0 / 140 XP';
+  }
+  webModBar('how',      'web-how-pct',     'web-how-bar',     'web-how-sub');
+  webModBar('http',     'web-http-pct',    'web-http-bar',    'web-http-sub');
+  webModBar('security', 'web-sec-pct',     'web-sec-bar',     'web-sec-sub');
+  webModBar('browser',  'web-browser-pct', 'web-browser-bar', 'web-browser-sub');
 
   // lesson grid
   const grid = document.getElementById('lesson-grid');

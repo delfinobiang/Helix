@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Big O &amp; Complexity — Helix CS Theory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:#050816; --bg-2:#0C1022; --border:rgba(255,255,255,0.07);
+      --amber:#F59E0B; --amber-l:#FCD34D; --orange:#F97316;
+      --primary:#6366F1; --cyan:#22D3EE; --green:#10B981;
+      --red:#EF4444; --violet:#8B5CF6;
+      --text:#EEF2F8; --text-2:#8892A4; --text-3:#2D3A4E;
+      --nav-h:60px;
+      --acc:#22D3EE; --acc-l:#67E8F9; --acc-d:#0891B2;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+    a { color:inherit; text-decoration:none; }
+    button { font-family:inherit; }
+    .aurora { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; filter:blur(100px) saturate(120%); }
+    .orb { position:absolute; border-radius:50%; }
+    .orb-1 { width:500px; height:500px; background:radial-gradient(circle,rgba(34,211,238,0.12) 0%,transparent 65%); top:-80px; right:0; }
+    .orb-2 { width:600px; height:600px; background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%); bottom:-150px; left:-100px; }
+    .orb-3 { width:400px; height:400px; background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 65%); top:40%; left:50%; }
+    .app { display:grid; grid-template-columns:280px 1fr; grid-template-rows:var(--nav-h) 1fr; grid-template-areas:"nav nav" "sidebar main"; min-height:100vh; position:relative; z-index:1; }
+    .topnav { grid-area:nav; display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:rgba(5,8,22,0.9); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); position:sticky; top:0; z-index:100; }
+    .nav-left { display:flex; align-items:center; gap:16px; }
+    .nav-logo { font-size:1.05rem; font-weight:800; letter-spacing:-0.03em; display:flex; align-items:center; gap:8px; }
+    .nav-sep { color:var(--text-3); }
+    .nav-title { font-size:0.85rem; font-weight:600; color:var(--acc); }
+    .nav-right { display:flex; align-items:center; gap:10px; }
+    .nav-xp { font-size:0.78rem; font-weight:700; color:var(--acc-l); background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.2); padding:4px 12px; border-radius:100px; }
+    .nav-back { font-size:0.8rem; color:var(--text-2); padding:5px 10px; border-radius:8px; transition:color 0.2s; }
+    .nav-back:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+    .sidebar { grid-area:sidebar; border-right:1px solid var(--border); background:rgba(8,10,25,0.7); padding:24px 0; overflow-y:auto; position:sticky; top:var(--nav-h); height:calc(100vh - var(--nav-h)); display:flex; flex-direction:column; }
+    .sidebar-label { font-size:0.65rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-3); padding:0 20px; margin-bottom:8px; margin-top:20px; }
+    .sidebar-label:first-child { margin-top:0; }
+    .lesson-item { display:flex; align-items:center; gap:10px; padding:10px 20px; cursor:pointer; transition:background 0.15s; border-left:3px solid transparent; }
+    .lesson-item:hover { background:rgba(255,255,255,0.03); }
+    .lesson-item.active { background:rgba(34,211,238,0.07); border-left-color:var(--acc); }
+    .lesson-num { font-size:0.7rem; font-weight:700; color:var(--text-3); width:20px; flex-shrink:0; }
+    .lesson-item.active .lesson-num { color:var(--acc); }
+    .lesson-name { font-size:0.85rem; font-weight:500; color:var(--text-2); }
+    .lesson-item.active .lesson-name { color:var(--text); font-weight:600; }
+    .lesson-done { margin-left:auto; font-size:0.7rem; color:var(--green); }
+    .sidebar-footer { margin-top:auto; padding:20px; border-top:1px solid var(--border); }
+    .progress-bar-wrap { background:rgba(255,255,255,0.06); border-radius:100px; height:6px; overflow:hidden; margin-top:8px; }
+    .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--acc),var(--primary)); border-radius:100px; transition:width 0.5s ease; }
+    .progress-label { font-size:0.72rem; color:var(--text-2); display:flex; justify-content:space-between; }
+    .main { grid-area:main; padding:40px 48px; overflow-y:auto; }
+    .lesson-section { max-width:780px; padding-bottom:80px; }
+    .lesson-section + .lesson-section { border-top:1px solid var(--border); padding-top:60px; }
+    .section-tag { font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--acc); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .section-tag::before { content:''; display:block; width:20px; height:2px; background:var(--acc); border-radius:2px; }
+    h2 { font-size:1.75rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:14px; line-height:1.2; }
+    .lead { font-size:1rem; color:var(--text-2); line-height:1.7; margin-bottom:28px; }
+    .info-box { border-radius:14px; padding:20px 22px; margin-bottom:24px; border:1px solid; }
+    .info-box.cyan   { background:rgba(34,211,238,0.06);  border-color:rgba(34,211,238,0.2); }
+    .info-box.amber  { background:rgba(245,158,11,0.07);  border-color:rgba(245,158,11,0.2); }
+    .info-box.violet { background:rgba(139,92,246,0.07);  border-color:rgba(139,92,246,0.2); }
+    .info-box.green  { background:rgba(16,185,129,0.07);  border-color:rgba(16,185,129,0.2); }
+    .info-box.red    { background:rgba(239,68,68,0.07);   border-color:rgba(239,68,68,0.2); }
+    .info-box-title  { font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
+    .info-box.cyan   .info-box-title { color:var(--acc); }
+    .info-box.amber  .info-box-title { color:var(--amber); }
+    .info-box.violet .info-box-title { color:var(--violet); }
+    .info-box.green  .info-box-title { color:var(--green); }
+    .info-box.red    .info-box-title { color:var(--red); }
+    .info-box p { font-size:0.9rem; color:var(--text-2); line-height:1.65; }
+    .info-box ul { font-size:0.9rem; color:var(--text-2); line-height:1.65; padding-left:1.25rem; }
+    .info-box li { margin-bottom:4px; }
+    .code-block { background:rgba(0,0,0,0.4); border:1px solid var(--border); border-radius:12px; padding:20px 22px; font-family:'JetBrains Mono',monospace; font-size:0.82rem; line-height:1.7; overflow-x:auto; margin:20px 0; white-space:pre; }
+    .c-comment{color:#4B5563;} .c-keyword{color:#C084FC;} .c-string{color:#86EFAC;} .c-fn{color:#60A5FA;} .c-num{color:var(--amber-l);} .c-op{color:var(--acc);}
+    .data-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:0.88rem; }
+    .data-table th { background:rgba(34,211,238,0.08); color:var(--acc); font-size:0.72rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; padding:10px 14px; text-align:left; border-bottom:1px solid rgba(34,211,238,0.2); }
+    .data-table td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text-2); }
+    .data-table td:first-child { color:var(--text); font-weight:600; }
+    .data-table td code { font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--acc); background:rgba(34,211,238,0.08); padding:1px 6px; border-radius:4px; }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .widget { background:rgba(8,10,28,0.9); border:1px solid var(--border); border-radius:16px; padding:24px; margin:24px 0; }
+    .widget h4 { font-size:0.78rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+    .widget-btn { background:linear-gradient(135deg,var(--acc-d),var(--primary)); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:0.82rem; font-weight:700; cursor:pointer; transition:opacity 0.2s; }
+    .widget-btn:hover { opacity:0.85; }
+    .graph-btn { background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:0.78rem; color:var(--text-2); cursor:pointer; transition:all 0.15s; }
+    .graph-btn:hover { border-color:var(--acc); color:var(--acc); }
+    .graph-btn.active { border-color:var(--acc); color:var(--acc); background:rgba(34,211,238,0.08); }
+    .graph-controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+    .challenge { background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.18); border-radius:14px; padding:22px 24px; margin:24px 0; }
+    .challenge-header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .challenge-badge { font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--acc); background:rgba(34,211,238,0.1); padding:3px 10px; border-radius:100px; border:1px solid rgba(34,211,238,0.25); }
+    .challenge-xp { font-size:0.68rem; font-weight:700; color:var(--amber-l); background:rgba(245,158,11,0.1); padding:3px 8px; border-radius:6px; margin-left:auto; }
+    .challenge h4 { font-size:1rem; font-weight:700; margin-bottom:10px; }
+    .challenge p { font-size:0.88rem; color:var(--text-2); line-height:1.65; margin-bottom:14px; }
+    .challenge-input-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .challenge-input { background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-family:'JetBrains Mono',monospace; font-size:0.95rem; color:var(--text); outline:none; transition:border 0.2s; }
+    .challenge-input:focus { border-color:var(--acc); }
+    .challenge-btn { background:linear-gradient(135deg,var(--acc-d),var(--primary)); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:0.82rem; font-weight:800; cursor:pointer; transition:opacity 0.2s; }
+    .challenge-btn:hover { opacity:0.85; }
+    .challenge-feedback { font-size:0.85rem; margin-top:10px; min-height:22px; line-height:1.5; }
+    .challenge-feedback.correct { color:var(--green); }
+    .challenge-feedback.wrong   { color:var(--red); }
+    .challenge-hint-btn { background:none; border:1px solid var(--border); border-radius:7px; padding:7px 14px; font-size:0.78rem; color:var(--text-2); cursor:pointer; transition:border-color 0.2s; }
+    .challenge-hint-btn:hover { border-color:var(--text-2); }
+    .challenge-hint { font-size:0.82rem; color:var(--acc); margin-top:8px; display:none; }
+    .quiz-card { background:rgba(8,10,28,0.8); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:18px; }
+    .quiz-q { font-size:0.95rem; font-weight:600; margin-bottom:16px; line-height:1.5; }
+    .quiz-q code { font-family:'JetBrains Mono',monospace; color:var(--acc); background:rgba(34,211,238,0.1); padding:1px 7px; border-radius:4px; font-size:0.88em; }
+    .quiz-options { display:flex; flex-direction:column; gap:8px; }
+    .quiz-opt { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:11px 16px; font-size:0.88rem; color:var(--text-2); cursor:pointer; text-align:left; transition:all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.15); color:var(--text); }
+    .quiz-opt.correct { background:rgba(16,185,129,0.12); border-color:var(--green); color:var(--green); }
+    .quiz-opt.wrong   { background:rgba(239,68,68,0.12);  border-color:var(--red);   color:var(--red); }
+    .quiz-feedback { font-size:0.82rem; margin-top:10px; min-height:20px; color:var(--text-2); }
+    .quiz-feedback.correct { color:var(--green); }
+    .quiz-feedback.wrong   { color:var(--red); }
+    .rw-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin:20px 0; }
+    .rw-card { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .rw-icon { font-size:1.4rem; margin-bottom:8px; }
+    .rw-title { font-size:0.82rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .rw-desc { font-size:0.78rem; color:var(--text-2); line-height:1.55; }
+    .complete-section { margin-top:60px; padding-top:40px; border-top:1px solid var(--border); text-align:center; }
+    .complete-btn { background:linear-gradient(135deg,var(--acc-d),var(--primary)); color:#fff; border:none; border-radius:14px; padding:16px 48px; font-size:1rem; font-weight:800; cursor:pointer; letter-spacing:-0.01em; transition:all 0.2s; display:inline-flex; align-items:center; gap:10px; }
+    .complete-btn:disabled { opacity:0.35; cursor:not-allowed; }
+    .complete-btn:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(34,211,238,0.25); }
+    .complete-note { font-size:0.8rem; color:var(--text-3); margin-top:12px; }
+    .xp-toast { position:fixed; bottom:32px; right:32px; background:linear-gradient(135deg,rgba(34,211,238,0.15),rgba(99,102,241,0.15)); border:1px solid rgba(34,211,238,0.3); border-radius:12px; padding:12px 20px; font-size:0.88rem; font-weight:700; color:var(--acc-l); z-index:999; opacity:0; transform:translateY(16px); transition:all 0.35s cubic-bezier(.34,1.56,.64,1); pointer-events:none; display:flex; align-items:center; gap:8px; }
+    .xp-toast.show { opacity:1; transform:translateY(0); }
+    @media (max-width:860px) { .app { grid-template-columns:1fr; grid-template-areas:"nav" "main"; } .sidebar { display:none; } .main { padding:24px 20px; } }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#22D3EE" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>
+        Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Big O &amp; Complexity</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="cs-theory.html" class="nav-back">← CS Theory</a>
+    </div>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 01</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">Why Efficiency Matters</span><span class="lesson-done" id="done-1"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Big O Notation</span><span class="lesson-done" id="done-2"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Space Complexity</span><span class="lesson-done" id="done-3"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Analysing Code</span><span class="lesson-done" id="done-4"></span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ── LESSON 1 ── -->
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · CS Theory</div>
+    <h2>Why Efficiency Matters</h2>
+    <p class="lead">Two programs that produce the same output can differ by millions of times in speed. Understanding <strong>algorithmic efficiency</strong> is what separates code that works from code that scales.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">⚡ The Real Cost of Slow Code</div>
+      <p>A loop that runs n² times works fine for n=100 (10,000 steps). For n=1,000,000 it runs <strong>one trillion</strong> steps. No amount of fast hardware fixes bad algorithms at scale.</p>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>n (input size)</th><th>O(log n)</th><th>O(n)</th><th>O(n log n)</th><th>O(n²)</th></tr></thead>
+      <tbody>
+        <tr><td>10</td><td>3</td><td>10</td><td>33</td><td>100</td></tr>
+        <tr><td>100</td><td>7</td><td>100</td><td>664</td><td>10,000</td></tr>
+        <tr><td>1,000</td><td>10</td><td>1,000</td><td>9,966</td><td>1,000,000</td></tr>
+        <tr><td>1,000,000</td><td>20</td><td>1,000,000</td><td>~20M</td><td>10¹²</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box green">
+      <div class="info-box-title">📈 Growth Rates Ranked (best → worst)</div>
+      <ul>
+        <li>O(1) — Constant: same time regardless of input</li>
+        <li>O(log n) — Logarithmic: binary search, tree ops</li>
+        <li>O(n) — Linear: single loop over all elements</li>
+        <li>O(n log n) — Linearithmic: efficient sorting</li>
+        <li>O(n²) — Quadratic: nested loops</li>
+        <li>O(2ⁿ) — Exponential: avoid at all costs</li>
+      </ul>
+    </div>
+
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Spot the Bottleneck</h4>
+      <p>Algorithm A takes 5ms for n=10 and 50ms for n=100. Algorithm B takes 5ms for n=10 and 500ms for n=100. Which grows faster? Type <strong>A</strong> or <strong>B</strong>.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="A or B" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">A grew 10× when n grew 10× (linear). B grew 100× (quadratic). B grows faster.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 2 ── -->
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · CS Theory</div>
+    <h2>Big O Notation</h2>
+    <p class="lead"><strong>Big O notation</strong> describes the upper bound on how a function grows as its input grows. We drop constants and lower-order terms — only the dominant growth pattern matters.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📐 The Rule of Simplification</div>
+      <p>O(3n² + 5n + 100) simplifies to <strong>O(n²)</strong>. We keep only the fastest-growing term and drop constants. At large n, the n² term dominates everything else completely.</p>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># O(1) — constant time</span>
+<span class="c-keyword">def</span> <span class="c-fn">first_element</span>(arr):
+    <span class="c-keyword">return</span> arr[<span class="c-num">0</span>]  <span class="c-comment"># always 1 step</span>
+
+<span class="c-comment"># O(n) — linear time</span>
+<span class="c-keyword">def</span> <span class="c-fn">find_max</span>(arr):
+    <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr:   <span class="c-comment"># n steps</span>
+        <span class="c-keyword">if</span> x > best: best = x
+    <span class="c-keyword">return</span> best
+
+<span class="c-comment"># O(n²) — quadratic time</span>
+<span class="c-keyword">def</span> <span class="c-fn">bubble_sort</span>(arr):
+    <span class="c-keyword">for</span> i <span class="c-keyword">in</span> <span class="c-fn">range</span>(<span class="c-fn">len</span>(arr)):      <span class="c-comment"># n</span>
+        <span class="c-keyword">for</span> j <span class="c-keyword">in</span> <span class="c-fn">range</span>(<span class="c-fn">len</span>(arr)):  <span class="c-comment"># n → total n²</span>
+            <span class="c-keyword">if</span> arr[j] > arr[j+<span class="c-num">1</span>]: ...
+
+<span class="c-comment"># O(log n) — binary search</span>
+<span class="c-keyword">def</span> <span class="c-fn">binary_search</span>(arr, target):
+    lo, hi = <span class="c-num">0</span>, <span class="c-fn">len</span>(arr)-<span class="c-num">1</span>
+    <span class="c-keyword">while</span> lo &lt;= hi:
+        mid = (lo+hi)//<span class="c-num">2</span>
+        <span class="c-keyword">if</span> arr[mid] == target: <span class="c-keyword">return</span> mid
+        <span class="c-keyword">elif</span> arr[mid] &lt; target: lo = mid+<span class="c-num">1</span>
+        <span class="c-keyword">else</span>: hi = mid-<span class="c-num">1</span>   <span class="c-comment"># halves each step</span></div>
+
+    <!-- Complexity Chart Widget -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">📊 Complexity Curve Visualizer</h4>
+      <div class="graph-controls">
+        <button class="graph-btn active" id="cb-o1" onclick="toggleCurve('o1')">O(1)</button>
+        <button class="graph-btn active" id="cb-logn" onclick="toggleCurve('logn')">O(log n)</button>
+        <button class="graph-btn active" id="cb-n" onclick="toggleCurve('n')">O(n)</button>
+        <button class="graph-btn active" id="cb-nlogn" onclick="toggleCurve('nlogn')">O(n log n)</button>
+        <button class="graph-btn active" id="cb-n2" onclick="toggleCurve('n2')">O(n²)</button>
+      </div>
+      <canvas id="complexityCanvas" width="680" height="280" style="border:1px solid var(--border);border-radius:10px;background:#060919;display:block;max-width:100%;"></canvas>
+      <div style="font-size:0.78rem;color:var(--text-2);margin-top:8px;">Toggle curves on/off. Hover to see exact values at n.</div>
+    </div>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Simplify Big O</h4>
+      <p>An algorithm runs in O(5n² + 3n + 7) time. What is its simplified Big O? Type the answer like: <strong>O(n^2)</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="O(...)" style="width:130px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Drop constants and lower-order terms. n² dominates n, so it's O(n²) or O(n^2).</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 3 ── -->
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · CS Theory</div>
+    <h2>Space Complexity</h2>
+    <p class="lead">Big O applies to <strong>memory usage</strong> too, not just time. Space complexity measures how much extra memory an algorithm uses relative to its input size.</p>
+
+    <div class="info-box violet">
+      <div class="info-box-title">💾 Time vs Space Trade-offs</div>
+      <p>Faster algorithms often use more memory. Caching (memoization) trades space for speed. Streaming algorithms trade speed for minimal memory. Understanding both lets you choose the right tool.</p>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Algorithm</th><th>Time</th><th>Space</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Array access</td><td>O(1)</td><td>O(1)</td><td>Index directly into memory</td></tr>
+        <tr><td>Linear search</td><td>O(n)</td><td>O(1)</td><td>No extra memory needed</td></tr>
+        <tr><td>Merge sort</td><td>O(n log n)</td><td>O(n)</td><td>Needs auxiliary array</td></tr>
+        <tr><td>Quicksort</td><td>O(n log n)</td><td>O(log n)</td><td>Recursive call stack</td></tr>
+        <tr><td>Hash table lookup</td><td>O(1) avg</td><td>O(n)</td><td>Stores all elements</td></tr>
+        <tr><td>Fibonacci (naive)</td><td>O(2ⁿ)</td><td>O(n)</td><td>Call stack depth</td></tr>
+        <tr><td>Fibonacci (memoized)</td><td>O(n)</td><td>O(n)</td><td>Cache results</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block"><span class="c-comment"># O(1) space — in-place reversal</span>
+<span class="c-keyword">def</span> <span class="c-fn">reverse_inplace</span>(arr):
+    l, r = <span class="c-num">0</span>, <span class="c-fn">len</span>(arr)-<span class="c-num">1</span>
+    <span class="c-keyword">while</span> l &lt; r:
+        arr[l], arr[r] = arr[r], arr[l]
+        l += <span class="c-num">1</span>; r -= <span class="c-num">1</span>  <span class="c-comment"># no extra array!</span>
+
+<span class="c-comment"># O(n) space — creates new array</span>
+<span class="c-keyword">def</span> <span class="c-fn">reverse_copy</span>(arr):
+    <span class="c-keyword">return</span> arr[<span class="c-op">::</span>-<span class="c-num">1</span>]  <span class="c-comment"># new list of size n</span></div>
+
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Space Complexity</h4>
+      <p>A function creates a new list that grows with input n, storing one element per n. What is its space complexity? Type: <strong>O(n)</strong> or <strong>O(1)</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="O(...)" style="width:110px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">Memory that grows proportionally with input is O(n). Fixed memory regardless of input is O(1).</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 4 ── -->
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · CS Theory</div>
+    <h2>Analysing Code</h2>
+    <p class="lead">Reading code and determining its Big O is a core skill. There are simple rules that let you analyse almost any algorithm systematically.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📋 The Rules of Analysis</div>
+      <ul>
+        <li><strong>Single loop:</strong> O(n) — runs once per element</li>
+        <li><strong>Nested loops:</strong> O(n²) — outer × inner steps</li>
+        <li><strong>Halving each step:</strong> O(log n) — binary search, tree traversal</li>
+        <li><strong>Loop + halving:</strong> O(n log n) — merge sort, heap sort</li>
+        <li><strong>Sequential (not nested) loops:</strong> O(n) — add, then pick dominant</li>
+      </ul>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Analyse this: what's the Big O?</span>
+<span class="c-keyword">def</span> <span class="c-fn">mystery</span>(arr):
+    result = []                      <span class="c-comment"># O(1)</span>
+    <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr:                  <span class="c-comment"># O(n)</span>
+        <span class="c-keyword">for</span> y <span class="c-keyword">in</span> arr:              <span class="c-comment"># O(n) nested</span>
+            result.append(x * y)     <span class="c-comment"># → O(n²) total</span>
+    <span class="c-keyword">return</span> result
+
+<span class="c-comment"># What about this?</span>
+<span class="c-keyword">def</span> <span class="c-fn">two_loops</span>(arr):
+    s = <span class="c-num">0</span>
+    <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr: s += x       <span class="c-comment"># O(n)</span>
+    <span class="c-keyword">for</span> x <span class="c-keyword">in</span> arr: s -= x       <span class="c-comment"># O(n)</span>
+    <span class="c-keyword">return</span> s  <span class="c-comment"># O(n) + O(n) = O(2n) = O(n)</span></div>
+
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">🔍</div><div class="rw-title">Search Engines</div><div class="rw-desc">Google's index uses O(log n) lookups across billions of pages to return results instantly.</div></div>
+      <div class="rw-card"><div class="rw-icon">💳</div><div class="rw-title">Payments</div><div class="rw-desc">Stripe processes payments in O(1) — no matter how many customers exist, your charge takes the same time.</div></div>
+      <div class="rw-card"><div class="rw-icon">🗺️</div><div class="rw-title">Routing</div><div class="rw-desc">GPS apps use Dijkstra's O(n log n) algorithm to find shortest paths in road networks with millions of nodes.</div></div>
+      <div class="rw-card"><div class="rw-icon">📦</div><div class="rw-title">Databases</div><div class="rw-desc">B-tree indexes make O(log n) queries possible — finding one row in a billion-row table in microseconds.</div></div>
+    </div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Read the Complexity</h4>
+      <p>A function has one outer loop (n times) and inside it does binary search (log n). What is the overall Big O? Type: <strong>O(n log n)</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="O(...)" style="width:150px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">Nested work multiplies: O(n) outer × O(log n) inner = O(n log n).</div>
+    </div>
+  </section>
+
+  <!-- ── QUIZ ── -->
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 01</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your Big O knowledge.</p>
+
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">Accessing an element in an array by index is:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">O(n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">O(1)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">O(log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">O(n²)</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">A function with two nested loops, each running n times, has time complexity:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">O(2n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">O(n²)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">O(n log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">O(n)</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">Binary search on a sorted array of n elements runs in:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">O(n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">O(n²)</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">O(log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">O(1)</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">Which growth rate is the <em>slowest</em> (most efficient) for large n?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">O(n log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">O(log n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">O(n)</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">O(n²)</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>🎉 Complete Module 01</button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+
+<script>
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  const state = { xp:0, done:{c1:false,c2:false,c3:false,c4:false,q1:false,q2:false,q3:false,q4:false} };
+
+  function awardXP(amount, key) {
+    if (state.done[key]) return;
+    state.done[key] = true;
+    state.xp += amount;
+    document.getElementById('navXp').textContent = state.xp + ' XP';
+    showToast('+' + amount + ' XP');
+    updateProgress();
+    checkComplete();
+  }
+  function showToast(msg) {
+    const t = document.getElementById('xpToast');
+    document.getElementById('toastXp').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function updateProgress() {
+    const total = Object.keys(state.done).length;
+    const done  = Object.values(state.done).filter(Boolean).length;
+    const pct   = Math.round((done/total)*100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = pct + '%';
+  }
+  function checkComplete() {
+    const allDone = Object.values(state.done).every(Boolean);
+    document.getElementById('completeBtn').disabled = !allDone;
+    if (allDone) document.getElementById('complete-note').textContent = 'All challenges and quiz questions completed!';
+  }
+
+  const CHALLENGES = {
+    1: { check: v => v.trim().toUpperCase() === 'B' },
+    2: { check: v => v.trim().replace(/\s/g,'').toLowerCase() === 'o(n^2)' || v.trim().replace(/\s/g,'').toLowerCase() === 'o(n2)' },
+    3: { check: v => v.trim().replace(/\s/g,'').toLowerCase() === 'o(n)' },
+    4: { check: v => v.trim().replace(/\s/g,'').toLowerCase() === 'o(nlogn)' || v.trim().replace(/\s/g,'').toLowerCase() === 'o(nlog n)' },
+  };
+  function checkChallenge(n) {
+    const val = document.getElementById('c' + n + '-inp').value;
+    const fb = document.getElementById('c' + n + '-fb');
+    if (CHALLENGES[n].check(val)) {
+      fb.className = 'challenge-feedback correct'; fb.textContent = '✓ Correct!';
+      awardXP(15, 'c' + n);
+    } else {
+      fb.className = 'challenge-feedback wrong'; fb.textContent = '✗ Not quite. Try again.';
+    }
+  }
+  function showHint(n) {
+    const h = document.getElementById('c' + n + '-hint');
+    h.style.display = h.style.display === 'block' ? 'none' : 'block';
+  }
+
+  const QUIZ = {
+    1: { correct:'b', explain:'✓ Array index access is O(1) — direct memory address calculation.' },
+    2: { correct:'b', explain:'✓ Two nested n-loops multiply: n × n = n² steps.' },
+    3: { correct:'c', explain:'✓ Binary search halves the search space each step: O(log n).' },
+    4: { correct:'b', explain:'✓ O(log n) grows slowest — doubling n only adds 1 more step.' },
+  };
+  function answerQuiz(n, opt) {
+    const card = document.getElementById('q' + n + '-card');
+    if (card.dataset.answered) return;
+    card.dataset.answered = 'true';
+    const q = QUIZ[n];
+    card.querySelectorAll('.quiz-opt').forEach((b,i) => {
+      b.disabled = true;
+      const l = ['a','b','c','d'][i];
+      if (l === q.correct) b.classList.add('correct');
+      else if (l === opt) b.classList.add('wrong');
+    });
+    const fb = document.getElementById('q' + n + '-fb');
+    if (opt === q.correct) { fb.className='quiz-feedback correct'; fb.textContent=q.explain; awardXP(20,'q'+n); }
+    else { fb.className='quiz-feedback wrong'; fb.textContent='✗ '+q.explain; }
+  }
+
+  function completeModule() {
+    const p = JSON.parse(localStorage.getItem('helix_cs_progress') || '{}');
+    p.xp = (p.xp||0) + state.xp + 120;
+    p.completedLessons = (p.completedLessons||0) + 4;
+    p.modules = p.modules || {};
+    p.modules.bigO = { completed:true, completedAt:new Date().toISOString() };
+    p.lastActivity = new Date().toISOString();
+    localStorage.setItem('helix_cs_progress', JSON.stringify(p));
+    showToast('+120 XP — Module Complete!');
+    setTimeout(() => { window.location.href = 'cs-theory.html'; }, 1800);
+  }
+
+  function scrollToLesson(id) {
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+    const map = {l1:0,l2:1,l3:2,l4:3,quiz:4};
+    const items = document.querySelectorAll('.lesson-item');
+    if (map[id] !== undefined && items[map[id]]) items[map[id]].classList.add('active');
+  }
+
+  /* Complexity chart */
+  const curves = { o1:true, logn:true, n:true, nlogn:true, n2:true };
+  const colors = { o1:'#22D3EE', logn:'#10B981', n:'#6366F1', nlogn:'#F59E0B', n2:'#EF4444' };
+  const labels = { o1:'O(1)', logn:'O(log n)', n:'O(n)', nlogn:'O(n log n)', n2:'O(n²)' };
+  function toggleCurve(k) {
+    curves[k] = !curves[k];
+    document.getElementById('cb-' + k).classList.toggle('active', curves[k]);
+    drawComplexity();
+  }
+  function drawComplexity() {
+    const canvas = document.getElementById('complexityCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    const pad = {t:20,r:20,b:40,l:50};
+    const w = W-pad.l-pad.r, h = H-pad.t-pad.b;
+    const N = 50;
+    const fns = {
+      o1:   n => 1,
+      logn: n => Math.log2(n+1),
+      n:    n => n,
+      nlogn:n => n * Math.log2(n+1),
+      n2:   n => n*n
+    };
+    let maxY = 0;
+    for (let n=1; n<=N; n++) {
+      for (const k of Object.keys(fns)) {
+        if (curves[k]) maxY = Math.max(maxY, fns[k](n));
+      }
+    }
+    if (maxY === 0) maxY = 1;
+    // Axes
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    for (let i=0; i<=4; i++) {
+      const y = pad.t + h - (i/4)*h;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l+w, y); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '10px Inter';
+      ctx.textAlign = 'right';
+      ctx.fillText(Math.round((i/4)*maxY), pad.l-4, y+3);
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '11px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('n (input size)', pad.l + w/2, H-4);
+    // Curves
+    for (const k of Object.keys(fns)) {
+      if (!curves[k]) continue;
+      ctx.strokeStyle = colors[k];
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let n=1; n<=N; n++) {
+        const x = pad.l + ((n-1)/(N-1))*w;
+        const y = pad.t + h - (fns[k](n)/maxY)*h;
+        n===1 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      // Label at end
+      const endN = N;
+      const ex = pad.l + w;
+      const ey = pad.t + h - (fns[k](endN)/maxY)*h;
+      if (ey > pad.t && ey < pad.t+h) {
+        ctx.fillStyle = colors[k];
+        ctx.font = 'bold 10px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(labels[k], ex-50, ey-5);
+      }
+    }
+  }
+  drawComplexity();
+</script>
+</body>
+</html>

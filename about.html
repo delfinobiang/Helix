@@ -7,7 +7,7 @@
   <script src="analytics.js" defer></script>
   <link rel="canonical" href="https://learnhelix.org/about.html" />
   <title>About — Helix</title>
-  <meta name="description" content="Learning to code changed everything for us. We built Helix to pass that forward." />
+  <meta name="description" content="Learning to code changed everything for me. I built Helix to pass that forward." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -655,8 +655,10 @@
 
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr;
       gap: 24px;
+      max-width: 480px;
+      margin: 0 auto;
     }
 
     .team-card {
@@ -1034,7 +1036,7 @@
       .values-grid { grid-template-columns: repeat(2, 1fr); }
       .philosophy-grid { grid-template-columns: 1fr; gap: 48px; }
       .stats-card { position: static; }
-      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-grid { grid-template-columns: 1fr; }
       .cta-btn-group { flex-direction: column; align-items: center; }
     }
 
@@ -1053,7 +1055,7 @@
     @media (min-width: 901px) and (max-width: 1100px) {
       .values-grid { grid-template-columns: repeat(2, 1fr); }
       .philosophy-grid { grid-template-columns: 1fr 360px; gap: 48px; }
-      .team-grid { grid-template-columns: repeat(3, 1fr); }
+      .team-grid { grid-template-columns: 1fr; }
     }
 
   </style>
@@ -1137,11 +1139,11 @@
     <div class="container">
       <div class="page-badge">Our story</div>
       <h1 class="page-hero-h1">
-        Why we built<br />
+        Why I built<br />
         <span class="gradient-text">Helix.</span>
       </h1>
       <p class="page-hero-sub">
-        Learning to code changed everything for us. We built Helix to pass that forward.
+        Learning to code changed everything for me. I built Helix to pass that forward.
       </p>
     </div>
   </section>
@@ -1179,13 +1181,13 @@
           </h2>
           <div class="story-body">
             <p>
-              We were frustrated. Every platform we tried had the same problems: too much setup, too much theory, not enough <em>doing</em>. You'd spend forty minutes configuring a local environment before writing a single line of code. You'd read paragraphs of explanation before running your first function. <strong>Real learning happens when you run real code</strong> — not when you read about it, not when you watch it, and certainly not when you're still downloading dependencies.
+              I was frustrated. Every platform I tried had the same problems: too much setup, too much theory, not enough <em>doing</em>. You'd spend forty minutes configuring a local environment before writing a single line of code. You'd read paragraphs of explanation before running your first function. <strong>Real learning happens when you run real code</strong> — not when you read about it, not when you watch it, and certainly not when you're still downloading dependencies.
             </p>
             <p>
-              The double helix wasn't just a logo — it was the metaphor we kept coming back to. Two strands, intertwined and inseparable: <strong>knowledge and practice</strong>. Theory and execution. Problem and solution. One doesn't work without the other. They spiral forward together, each coil building on the last, always moving, never backtracking. That's how we learn. That's how the helix grows.
+              The double helix wasn't just a logo — it was the metaphor I kept coming back to. Two strands, intertwined and inseparable: <strong>knowledge and practice</strong>. Theory and execution. Problem and solution. One doesn't work without the other. They spiral forward together, each coil building on the last, always moving, never backtracking. That's how we learn. That's how the helix grows.
             </p>
             <p>
-              Today, Helix is live with <strong>6 languages</strong> and <strong>90 lessons</strong>, all running directly in your browser. Python through Pyodide. JavaScript through native execution. SQL, TypeScript, HTML, CSS, and C++ — the full coil. The first 5 strands of every track are free, forever. For those who want to go all the way, Pro unlocks the rest. No setup. No ceiling. Just the helix, spinning forward.
+              Today, Helix is live with <strong>6 languages</strong> and <strong>118 lessons</strong>, all running directly in your browser. Python through Pyodide. JavaScript through native execution. SQL, TypeScript, HTML, CSS, and C++ — the full coil. The first 5 strands of every track are free, forever. For those who want to go all the way, Pro unlocks the rest. No setup. No ceiling. Just the helix, spinning forward.
             </p>
           </div>
         </div>
@@ -1332,7 +1334,7 @@
             <p class="stats-card-label">Helix by the numbers</p>
             <div class="stats-grid">
               <div class="stat-item">
-                <div class="stat-number">90</div>
+                <div class="stat-number">118</div>
                 <div class="stat-label">Total lessons</div>
               </div>
               <div class="stat-item">
@@ -1363,42 +1365,22 @@
   <section class="team-section section" aria-labelledby="team-title">
     <div class="container">
       <div class="team-header">
-        <p class="team-label">The people behind the helix</p>
+        <p class="team-label">The person behind the helix</p>
         <h2 class="team-h2" id="team-title">
-          Meet the<br />
-          <span class="gradient-text">founding coil.</span>
+          The person<br />
+          <span class="gradient-text">behind it all.</span>
         </h2>
       </div>
 
       <div class="team-grid">
 
-        <!-- Alex Mercer -->
+        <!-- Delfino Biang -->
         <article class="team-card">
-          <div class="team-avatar avatar-indigo" aria-hidden="true">AM</div>
-          <h3 class="team-name">Alex Mercer</h3>
-          <span class="team-role">Co-founder &amp; CEO</span>
+          <div class="team-avatar" style="background:linear-gradient(135deg,#6366F1,#22D3EE);" aria-hidden="true">DB</div>
+          <h3 class="team-name">Delfino Biang</h3>
+          <span class="team-role">Founder &amp; Software Engineering Student</span>
           <p class="team-bio">
-            Former computer science teacher who got fed up watching students struggle with setup instead of learning to code.
-          </p>
-        </article>
-
-        <!-- Jordan Voss -->
-        <article class="team-card">
-          <div class="team-avatar avatar-cyan" aria-hidden="true">JV</div>
-          <h3 class="team-name">Jordan Voss</h3>
-          <span class="team-role">Co-founder &amp; CTO</span>
-          <p class="team-bio">
-            Built Helix's browser runtime from scratch. Obsessed with making Python run at native speed in a browser tab.
-          </p>
-        </article>
-
-        <!-- Priya Nair -->
-        <article class="team-card">
-          <div class="team-avatar avatar-violet" aria-hidden="true">PN</div>
-          <h3 class="team-name">Priya Nair</h3>
-          <span class="team-role">Head of Curriculum</span>
-          <p class="team-bio">
-            Designed every lesson arc on Helix. Believes the best programming lesson is one you finish, not one you skip.
+            A software engineering student who got tired of learning platforms that made coding feel inaccessible. Built Helix from scratch — every lesson, every widget, every line of code — to be the platform they always wished existed.
           </p>
         </article>
 
@@ -1428,7 +1410,7 @@
           <p class="timeline-date">Jan 2025</p>
           <h3 class="timeline-title">The idea</h3>
           <p class="timeline-body">
-            Two teachers, one whiteboard, one impossible question: why can't you just write code in your browser and have it work instantly?
+            A software engineering student, one laptop, one impossible question: why can't you just write code in your browser and have it work instantly?
           </p>
         </div>
 

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Data &amp; AI — Helix</title>
+  <meta name="description" content="Learn data science and AI — data cleaning, statistics, machine learning, and neural networks with interactive lessons." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #050816;
+      --bg-2:      #0C1022;
+      --bg-card:   rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.07);
+      --primary:   #6366F1;
+      --primary-l: #818CF8;
+      --cyan:      #22D3EE;
+      --amber:     #F59E0B;
+      --amber-l:   #FCD34D;
+      --orange:    #F97316;
+      --green:     #10B981;
+      --green-l:   #6EE7B7;
+      --green-d:   #059669;
+      --violet:    #8B5CF6;
+      --text:      #EEF2F8;
+      --text-2:    #8892A4;
+      --text-3:    #2D3A4E;
+      --nav-h:     64px;
+      --acc:       #10B981;
+      --acc-l:     #6EE7B7;
+      --acc-d:     #059669;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+
+    /* Aurora */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 65%); top: -100px; right: -50px; animation: drift1 22s ease-in-out alternate infinite; }
+    .orb-2 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(5,150,105,0.2) 0%, transparent 65%); bottom: -200px; left: -100px; animation: drift2 18s ease-in-out alternate infinite; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(110,231,183,0.1) 0%, transparent 65%); top: 50%; left: 40%; animation: drift3 25s ease-in-out alternate infinite; }
+    @keyframes drift1 { 0% { transform: translate(0,0); } 100% { transform: translate(-60px,80px); } }
+    @keyframes drift2 { 0% { transform: translate(0,0); } 100% { transform: translate(60px,-60px); } }
+    @keyframes drift3 { 0% { transform: translate(0,0); } 100% { transform: translate(-40px,60px); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* Nav */
+    .topnav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--nav-h); background: rgba(5,8,22,0.85); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 800; letter-spacing: -0.03em; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link { font-size: 0.875rem; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 8px; transition: color 0.2s, background 0.2s; }
+    .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-back { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 500; color: var(--text-2); padding: 6px 12px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#10B981,#059669); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; cursor: pointer; overflow: hidden; border: 2px solid rgba(16,185,129,0.3); }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Page */
+    .page { position: relative; z-index: 1; padding-top: calc(var(--nav-h) + 48px); padding-bottom: 80px; max-width: 1200px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+
+    /* Hero */
+    .strand-hero { display: flex; align-items: flex-start; gap: 32px; margin-bottom: 48px; flex-wrap: wrap; }
+    .strand-hero-icon { font-size: 4rem; line-height: 1; flex-shrink: 0; filter: drop-shadow(0 0 30px rgba(16,185,129,0.4)); }
+    .strand-hero-text { flex: 1; min-width: 280px; }
+    .strand-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .strand-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--acc); }
+    .strand-title { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900; letter-spacing: -0.04em; margin-bottom: 12px; }
+    .strand-title span { background: linear-gradient(90deg, #10B981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .strand-desc { font-size: 0.95rem; color: var(--text-2); line-height: 1.65; max-width: 520px; margin-bottom: 20px; }
+    .strand-stats-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .strand-stat-pill { font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border-radius: 100px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: var(--acc-l); }
+
+    /* Overall progress */
+    .overall-prog { background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.15); border-radius: 14px; padding: 18px 22px; margin-bottom: 44px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .prog-numbers { display: flex; gap: 28px; flex-shrink: 0; }
+    .prog-num { text-align: center; }
+    .prog-num-val { font-size: 1.6rem; font-weight: 800; color: var(--acc); letter-spacing: -0.03em; }
+    .prog-num-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); margin-top: 2px; }
+    .prog-bar-wrap { flex: 1; min-width: 200px; }
+    .prog-bar-lbl { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-2); margin-bottom: 7px; }
+    .prog-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .prog-fill { height: 100%; background: linear-gradient(90deg, #10B981, #059669); border-radius: 100px; transition: width 1s ease; }
+
+    /* Section */
+    .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; margin-top: 40px; }
+    .sec-title { font-size: 1.05rem; font-weight: 700; }
+    .sec-sub { font-size: 0.8rem; color: var(--text-2); }
+
+    /* Course grid */
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+    .course-card {
+      background: rgba(12,16,34,0.7);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+      display: flex; flex-direction: column;
+      text-decoration: none;
+    }
+    .course-card.available { cursor: pointer; }
+    .course-card.available:hover { border-color: rgba(16,185,129,0.4); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+    .course-card.locked { opacity: 0.55; cursor: default; }
+
+    .course-card-top { padding: 22px 22px 16px; flex: 1; }
+    .course-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; color: var(--text-3); text-transform: uppercase; margin-bottom: 10px; }
+    .course-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+    .course-name { font-size: 1rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .course-desc { font-size: 0.82rem; color: var(--text-2); line-height: 1.55; margin-bottom: 14px; }
+    .course-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .course-tag { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 100px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: var(--acc-l); letter-spacing: 0.03em; }
+    .course-tag.locked-tag { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: var(--text-3); }
+
+    .course-card-bottom { padding: 14px 22px 18px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .course-meta { font-size: 0.75rem; color: var(--text-2); }
+    .course-meta strong { color: var(--text); font-weight: 600; }
+    .course-btn { height: 32px; padding: 0 16px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; border: none; cursor: pointer; background: linear-gradient(135deg, #10B981, #059669); color: #fff; transition: opacity 0.2s; white-space: nowrap; }
+    .course-btn:hover { opacity: 0.85; }
+    .course-btn.locked-btn { background: rgba(255,255,255,0.06); color: var(--text-3); cursor: default; }
+    .course-btn.locked-btn:hover { opacity: 1; }
+
+    /* Progress bar inside card */
+    .course-prog { margin-top: 10px; }
+    .course-prog-track { height: 3px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .course-prog-fill { height: 100%; background: linear-gradient(90deg, #10B981, #059669); border-radius: 100px; transition: width 0.8s ease; }
+    .course-prog-lbl { font-size: 0.68rem; color: var(--text-2); margin-top: 5px; }
+
+    /* Completed badge */
+    .completed-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.68rem; font-weight: 600; padding: 3px 8px; border-radius: 100px; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+
+    /* Fun fact bar */
+    .fun-fact { margin: 48px 0 0; padding: 20px 24px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.15); border-radius: 14px; display: flex; gap: 14px; align-items: flex-start; }
+    .fun-fact-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .fun-fact-text { font-size: 0.875rem; color: var(--text-2); line-height: 1.6; }
+    .fun-fact-text strong { color: var(--text); }
+
+    @media (max-width: 680px) {
+      .page { padding-left: 16px; padding-right: 16px; }
+      .topnav { padding: 0 16px; }
+      .courses-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <nav class="topnav">
+    <a class="nav-logo" href="index.html">
+      <svg width="28" height="18" viewBox="0 0 44 28" fill="none">
+        <defs>
+          <linearGradient id="ng1" x1="0" y1="0" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#6366F1"/><stop offset="50%" stop-color="#22D3EE"/><stop offset="100%" stop-color="#6366F1"/>
+          </linearGradient>
+          <linearGradient id="ng2" x1="0" y1="0" x2="44" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#22D3EE"/><stop offset="50%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#22D3EE"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 14 Q5.5 4 11 14 Q16.5 24 22 14 Q27.5 4 33 14 Q38.5 24 44 14" stroke="url(#ng1)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M0 14 Q5.5 24 11 14 Q16.5 4 22 14 Q27.5 24 33 14 Q38.5 4 44 14" stroke="url(#ng2)" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      Helix
+    </a>
+    <div class="nav-right">
+      <a href="strands.html" class="nav-back">← Back to Strands</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <div class="nav-avatar" id="navAvatar" onclick="window.location.href='profile.html'"></div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <!-- Hero -->
+    <div class="strand-hero">
+      <div class="strand-hero-icon">📊</div>
+      <div class="strand-hero-text">
+        <div class="strand-eyebrow">Data &amp; AI Strand</div>
+        <h1 class="strand-title">The numbers that <span>power the machines.</span></h1>
+        <p class="strand-desc">Data drives every decision in modern tech. Learn how to collect it, clean it, understand it statistically, and train your first machine learning model — all with visual, interactive lessons.</p>
+        <div class="strand-stats-row">
+          <span class="strand-stat-pill">🎯 4 modules</span>
+          <span class="strand-stat-pill">📚 15 lessons</span>
+          <span class="strand-stat-pill">🏆 XP rewards</span>
+          <span class="strand-stat-pill">🧩 Interactive exercises</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="overall-prog">
+      <div class="prog-numbers">
+        <div class="prog-num">
+          <div class="prog-num-val" id="dataXP">0</div>
+          <div class="prog-num-lbl">XP Earned</div>
+        </div>
+        <div class="prog-num">
+          <div class="prog-num-val" id="dataDone">0</div>
+          <div class="prog-num-lbl">Lessons Done</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap">
+        <div class="prog-bar-lbl"><span>Data &amp; AI Progress</span><span id="dataPct">0%</span></div>
+        <div class="prog-track"><div class="prog-fill" id="dataFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- All Modules -->
+    <div class="sec-head">
+      <span class="sec-title">All Modules</span>
+      <span class="sec-sub">— All 4 available now</span>
+    </div>
+    <div class="courses-grid">
+
+      <!-- Module 1: Intro to Data -->
+      <a href="data-intro.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 01</div>
+          <span class="course-icon">🗂️</span>
+          <div class="course-name">Intro to Data</div>
+          <div class="course-desc">What even is data? Learn structured vs unstructured, data types, null values, CSV formats, and how to start exploring a dataset before building anything.</div>
+          <div class="course-tags">
+            <span class="course-tag">Data Types</span>
+            <span class="course-tag">Cleaning</span>
+            <span class="course-tag">CSV</span>
+            <span class="course-tag">Pandas</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-intro" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-intro">4 lessons · ~18 min</div>
+          </div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+      <!-- Module 2: Stats & Distributions -->
+      <a href="data-stats.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 02</div>
+          <span class="course-icon">📉</span>
+          <div class="course-name">Stats &amp; Distributions</div>
+          <div class="course-desc">Mean, median, mode, variance, and the normal distribution — the statistical tools every data scientist uses daily. Visualise bell curves interactively.</div>
+          <div class="course-tags">
+            <span class="course-tag">Mean</span>
+            <span class="course-tag">Variance</span>
+            <span class="course-tag">Normal</span>
+            <span class="course-tag">Skew</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-stats" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-stats">4 lessons · ~20 min</div>
+          </div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+      <!-- Module 3: Machine Learning Basics -->
+      <a href="data-ml.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 03</div>
+          <span class="course-icon">🤖</span>
+          <div class="course-name">Machine Learning Basics</div>
+          <div class="course-desc">From rule-based systems to learned models. Train your first classifier with K-Nearest Neighbours, understand features and labels, and avoid overfitting.</div>
+          <div class="course-tags">
+            <span class="course-tag">Features</span>
+            <span class="course-tag">Training</span>
+            <span class="course-tag">Overfitting</span>
+            <span class="course-tag">KNN</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-ml" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-ml">4 lessons · ~22 min</div>
+          </div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+      <!-- Module 4: Neural Networks Intro -->
+      <a href="data-neural.html" class="course-card available">
+        <div class="course-card-top">
+          <div class="course-num">Module 04</div>
+          <span class="course-icon">🧠</span>
+          <div class="course-name">Neural Networks Intro</div>
+          <div class="course-desc">Peek inside the brain of modern AI. Learn how artificial neurons work, how layers stack to form deep networks, and how backpropagation teaches them.</div>
+          <div class="course-tags">
+            <span class="course-tag">Neurons</span>
+            <span class="course-tag">Layers</span>
+            <span class="course-tag">Activation</span>
+            <span class="course-tag">Backprop</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-neural" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-neural">3 lessons · ~18 min</div>
+          </div>
+        </div>
+        <div class="course-card-bottom">
+          <div class="course-meta"><strong>3</strong> lessons · <strong>100</strong> XP</div>
+          <button class="course-btn">Start →</button>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Fun fact -->
+    <div class="fun-fact">
+      <div class="fun-fact-icon">💡</div>
+      <div class="fun-fact-text">
+        <strong>Did you know?</strong> The term "machine learning" was coined by Arthur Samuel in 1959. He taught an IBM computer to play checkers by having it play thousands of games against itself — an idea that still powers modern AI.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+    if (!session) { window.location.href = 'login.html'; }
+
+    const users = JSON.parse(localStorage.getItem('helix_users') || '[]');
+    const me = users.find(u => u.id === session?.userId);
+    const avatarEl = document.getElementById('navAvatar');
+    if (me?.profilePic) {
+      avatarEl.innerHTML = `<img src="${me.profilePic}" alt="avatar">`;
+    } else {
+      avatarEl.textContent = (me?.username || 'U')[0].toUpperCase();
+    }
+
+    /* Load data progress */
+    const dataProg = JSON.parse(localStorage.getItem('helix_data_progress') || '{}');
+    const xp       = dataProg.xp || 0;
+    const done     = dataProg.completedLessons || 0;
+    const pct      = Math.min(Math.round((done / 15) * 100), 100);
+
+    document.getElementById('dataXP').textContent  = xp.toLocaleString();
+    document.getElementById('dataDone').textContent = done;
+    document.getElementById('dataPct').textContent  = pct + '%';
+    setTimeout(() => { document.getElementById('dataFill').style.width = pct + '%'; }, 100);
+
+    /* Per-module progress */
+    const modules = dataProg.modules || {};
+
+    // Module 1: Intro to Data
+    const introPct = modules.intro?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-intro').style.width = introPct + '%'; }, 200);
+    if (modules.intro?.completed) {
+      document.getElementById('lbl-intro').textContent = 'Completed ✓';
+    }
+
+    // Module 2: Stats & Distributions
+    const statsPct = modules.stats?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-stats').style.width = statsPct + '%'; }, 250);
+    if (modules.stats?.completed) {
+      document.getElementById('lbl-stats').textContent = 'Completed ✓';
+    }
+
+    // Module 3: Machine Learning Basics
+    const mlPct = modules.ml?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-ml').style.width = mlPct + '%'; }, 300);
+    if (modules.ml?.completed) {
+      document.getElementById('lbl-ml').textContent = 'Completed ✓';
+    }
+
+    // Module 4: Neural Networks Intro
+    const neuralPct = modules.neural?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-neural').style.width = neuralPct + '%'; }, 350);
+    if (modules.neural?.completed) {
+      document.getElementById('lbl-neural').textContent = 'Completed ✓';
+    }
+  </script>
+</body>
+</html>

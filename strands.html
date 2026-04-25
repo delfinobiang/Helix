@@ -183,11 +183,20 @@
 
     /* Data card */
     .card-data { --c1: #10B981; --c2: #06B6D4; }
+    .card-data .strand-card-glow { background: radial-gradient(ellipse at 20% 20%, rgba(16,185,129,0.08), transparent 60%); }
+    .card-data:hover { border-color: rgba(16,185,129,0.3); }
     .card-data .strand-tag { color: #6ee7b7; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); }
+    .card-data .strand-btn { background: linear-gradient(135deg, #10B981, #06B6D4); color: #fff; }
+    .card-data .strand-progress-fill { background: linear-gradient(90deg, #10B981, #06B6D4); }
 
     /* Web card */
     .card-web { --c1: #EC4899; --c2: #8B5CF6; }
+    .card-web .strand-card-glow { background: radial-gradient(ellipse at 20% 20%, rgba(236,72,153,0.08), transparent 60%); }
+    .card-web:hover { border-color: rgba(236,72,153,0.3); }
     .card-web .strand-tag { color: #f9a8d4; border-color: rgba(236,72,153,0.3); background: rgba(236,72,153,0.08); }
+    .card-web .strand-btn { background: linear-gradient(135deg, #EC4899, #8B5CF6); color: #fff; }
+    .card-web .strand-progress-fill { background: linear-gradient(90deg, #EC4899, #8B5CF6); }
+    .card-cs .strand-progress-fill { background: linear-gradient(90deg, #22D3EE, #10B981); }
 
     /* Responsive */
     @media (max-width: 680px) {
@@ -267,7 +276,7 @@
     <!-- Active Strands -->
     <div class="sec-head">
       <span class="sec-title">Available Now</span>
-      <span class="sec-badge">2 strands</span>
+      <span class="sec-badge">5 strands</span>
     </div>
     <div class="strands-grid">
 
@@ -320,19 +329,10 @@
         </div>
       </a>
 
-    </div>
-
-    <!-- Coming Soon Strands -->
-    <div class="sec-head" style="margin-top: 16px;">
-      <span class="sec-title">Coming Soon</span>
-      <span class="sec-badge">3 strands</span>
-    </div>
-    <div class="strands-grid">
 
       <!-- CS Theory -->
-      <div class="strand-card card-cs locked">
+      <a href="cs-theory.html" class="strand-card card-cs">
         <div class="strand-card-glow"></div>
-        <div class="coming-soon-badge">Coming Soon</div>
         <div class="strand-card-top">
           <span class="strand-icon">🔬</span>
           <div class="strand-name">CS Theory</div>
@@ -341,41 +341,49 @@
             <span class="strand-tag">Algorithms</span>
             <span class="strand-tag">Data Structures</span>
             <span class="strand-tag">Big O</span>
-            <span class="strand-tag">Recursion</span>
+            <span class="strand-tag">Graphs</span>
+          </div>
+          <div class="strand-progress">
+            <div class="strand-progress-bar"><div class="strand-progress-fill" id="cs-prog" style="width:0%"></div></div>
+            <div class="strand-progress-lbl" id="cs-prog-lbl">Start your first lesson</div>
           </div>
         </div>
         <div class="strand-card-bottom">
-          <div class="strand-meta"><strong>8</strong> modules · <strong>40+</strong> lessons planned</div>
-          <button class="strand-btn locked-btn">🔒 Coming Soon</button>
+          <div class="strand-meta"><strong>5</strong> modules · <strong>20+</strong> lessons</div>
+          <button class="strand-btn">Enter Strand →</button>
         </div>
-      </div>
+      </a>
 
       <!-- Data & AI -->
-      <div class="strand-card card-data locked">
-        <div class="coming-soon-badge">Coming Soon</div>
+      <a href="data-ai.html" class="strand-card card-data">
+        <div class="strand-card-glow"></div>
         <div class="strand-card-top">
           <span class="strand-icon">📊</span>
-          <div class="strand-name">Data & AI</div>
+          <div class="strand-name">Data &amp; AI</div>
           <div class="strand-desc">Statistics, probability, data thinking, and the building blocks of machine learning — explained visually and interactively without the jargon.</div>
           <div class="strand-tags">
             <span class="strand-tag">Statistics</span>
-            <span class="strand-tag">Probability</span>
             <span class="strand-tag">ML Basics</span>
-            <span class="strand-tag">Data Thinking</span>
+            <span class="strand-tag">Neural Nets</span>
+            <span class="strand-tag">Data Wrangling</span>
+          </div>
+          <div class="strand-progress">
+            <div class="strand-progress-bar"><div class="strand-progress-fill" id="data-prog" style="width:0%"></div></div>
+            <div class="strand-progress-lbl" id="data-prog-lbl">Start your first lesson</div>
           </div>
         </div>
         <div class="strand-card-bottom">
-          <div class="strand-meta"><strong>6</strong> modules · <strong>30+</strong> lessons planned</div>
-          <button class="strand-btn locked-btn">🔒 Coming Soon</button>
+          <div class="strand-meta"><strong>4</strong> modules · <strong>16+</strong> lessons</div>
+          <button class="strand-btn">Enter Strand →</button>
         </div>
-      </div>
+      </a>
 
       <!-- Web & Internet -->
-      <div class="strand-card card-web locked">
-        <div class="coming-soon-badge">Coming Soon</div>
+      <a href="web-internet.html" class="strand-card card-web">
+        <div class="strand-card-glow"></div>
         <div class="strand-card-top">
           <span class="strand-icon">🌐</span>
-          <div class="strand-name">Web & Internet</div>
+          <div class="strand-name">Web &amp; Internet</div>
           <div class="strand-desc">How does a URL become a webpage? DNS, HTTP, APIs, browsers, security — understand the infrastructure your code runs on top of.</div>
           <div class="strand-tags">
             <span class="strand-tag">HTTP</span>
@@ -383,12 +391,16 @@
             <span class="strand-tag">APIs</span>
             <span class="strand-tag">Security</span>
           </div>
+          <div class="strand-progress">
+            <div class="strand-progress-bar"><div class="strand-progress-fill" id="web-prog" style="width:0%"></div></div>
+            <div class="strand-progress-lbl" id="web-prog-lbl">Start your first lesson</div>
+          </div>
         </div>
         <div class="strand-card-bottom">
-          <div class="strand-meta"><strong>5</strong> modules · <strong>25+</strong> lessons planned</div>
-          <button class="strand-btn locked-btn">🔒 Coming Soon</button>
+          <div class="strand-meta"><strong>4</strong> modules · <strong>16+</strong> lessons</div>
+          <button class="strand-btn">Enter Strand →</button>
         </div>
-      </div>
+      </a>
 
     </div>
   </main>
@@ -412,18 +424,27 @@
     /* XP stats */
     const prog = JSON.parse(localStorage.getItem('helix_progress') || '{}');
     const mathProg = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    const csProg = JSON.parse(localStorage.getItem('helix_cs_progress') || '{}');
+    const dataProg = JSON.parse(localStorage.getItem('helix_data_progress') || '{}');
+    const webProg = JSON.parse(localStorage.getItem('helix_web_progress') || '{}');
     const codingXP = prog.xp || 0;
     const mathXP = mathProg.xp || 0;
-    const totalXP = codingXP + mathXP;
+    const csXP = csProg.xp || 0;
+    const dataXP = dataProg.xp || 0;
+    const webXP = webProg.xp || 0;
+    const totalXP = codingXP + mathXP + csXP + dataXP + webXP;
     const codingLessons = Array.isArray(prog.completedLessons) ? prog.completedLessons.length : 0;
     const mathLessons = mathProg.completedLessons || 0;
-    const totalLessons = codingLessons + mathLessons;
+    const csLessons = csProg.completedLessons || 0;
+    const dataLessons = dataProg.completedLessons || 0;
+    const webLessons = webProg.completedLessons || 0;
+    const totalLessons = codingLessons + mathLessons + csLessons + dataLessons + webLessons;
 
     document.getElementById('totalXP').textContent = totalXP.toLocaleString();
     document.getElementById('totalLessons').textContent = totalLessons;
 
     /* Progress bars */
-    const maxLessons = 54;
+    const maxLessons = 118;
     const pct = Math.min(Math.round((totalLessons / maxLessons) * 100), 100);
     document.getElementById('xpPct').textContent = pct + '%';
     setTimeout(() => { document.getElementById('xpFill').style.width = pct + '%'; }, 100);
@@ -435,6 +456,18 @@
     const mathPct = Math.min(Math.round((mathLessons / 24) * 100), 100);
     setTimeout(() => { document.getElementById('math-prog').style.width = mathPct + '%'; }, 300);
     document.getElementById('math-prog-lbl').textContent = mathLessons > 0 ? `${mathLessons} lessons completed · ${mathXP} XP` : 'Start your first lesson';
+
+    const csPct = Math.min(Math.round((csLessons / 5) * 100), 100);
+    setTimeout(() => { document.getElementById('cs-prog').style.width = csPct + '%'; }, 400);
+    document.getElementById('cs-prog-lbl').textContent = csLessons > 0 ? `${csLessons} modules completed · ${csXP} XP` : 'Start your first lesson';
+
+    const dataPct = Math.min(Math.round((dataLessons / 4) * 100), 100);
+    setTimeout(() => { document.getElementById('data-prog').style.width = dataPct + '%'; }, 500);
+    document.getElementById('data-prog-lbl').textContent = dataLessons > 0 ? `${dataLessons} modules completed · ${dataXP} XP` : 'Start your first lesson';
+
+    const webPct = Math.min(Math.round((webLessons / 4) * 100), 100);
+    setTimeout(() => { document.getElementById('web-prog').style.width = webPct + '%'; }, 600);
+    document.getElementById('web-prog-lbl').textContent = webLessons > 0 ? `${webLessons} modules completed · ${webXP} XP` : 'Start your first lesson';
   </script>
 </body>
 </html>
