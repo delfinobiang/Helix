@@ -708,7 +708,7 @@ function renderCard(t, isEarned) {
   const tier   = `<span class="tc-tier ${t.tier}">${TIER_LABEL[t.tier]}</span>`;
   const icon   = `<div class="tc-icon">${isEarned ? t.icon : '🔒'}</div>`;
   const name   = `<div class="tc-name">${t.name}</div>`;
-  const desc   = `<div class="tc-desc">${isEarned ? t.desc : 'Keep learning to unlock'}</div>`;
+  const desc   = `<div class="tc-desc">${(isEarned || isPt) ? t.desc : 'Keep learning to unlock'}</div>`;
   const check  = isEarned ? `<div class="tc-check">✓</div>` : '';
 
   if (isPt) return `
