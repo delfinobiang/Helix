@@ -182,7 +182,7 @@
         <p class="strand-desc">Before there was code, there was math. Every loop, every algorithm, every decision your program makes is rooted in mathematical thinking. Learn it here — interactively, visually, and without the boring textbook.</p>
         <div class="strand-stats-row">
           <span class="strand-stat-pill">🎯 6 modules</span>
-          <span class="strand-stat-pill">📚 24+ lessons</span>
+          <span class="strand-stat-pill">📚 28 lessons</span>
           <span class="strand-stat-pill">🏆 XP rewards</span>
           <span class="strand-stat-pill">🧩 Interactive exercises</span>
         </div>
@@ -207,10 +207,10 @@
       </div>
     </div>
 
-    <!-- Available Modules -->
+    <!-- All Modules -->
     <div class="sec-head">
-      <span class="sec-title">Available Now</span>
-      <span class="sec-sub">— Start here</span>
+      <span class="sec-title">All Modules</span>
+      <span class="sec-sub">— All 6 available now</span>
     </div>
     <div class="courses-grid">
 
@@ -288,66 +288,77 @@
 
     </div>
 
-    <!-- Coming Soon Modules -->
-    <div class="sec-head">
-      <span class="sec-title">Coming Soon</span>
-      <span class="sec-sub">— More modules dropping soon</span>
-    </div>
-    <div class="courses-grid">
-
-      <div class="course-card locked">
+      <!-- Module 4: Discrete Mathematics -->
+      <a href="math-discrete.html" class="course-card available">
         <div class="course-card-top">
           <div class="course-num">Module 04</div>
           <span class="course-icon">🔗</span>
           <div class="course-name">Discrete Mathematics</div>
           <div class="course-desc">Sets, graphs, combinatorics, and the mathematical structures that underpin data structures and algorithms.</div>
           <div class="course-tags">
-            <span class="course-tag locked-tag">Sets</span>
-            <span class="course-tag locked-tag">Graphs</span>
-            <span class="course-tag locked-tag">Combinatorics</span>
+            <span class="course-tag">Sets &amp; Logic</span>
+            <span class="course-tag">Graph Theory</span>
+            <span class="course-tag">Combinatorics</span>
+            <span class="course-tag">Induction</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-discrete" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-discrete">5 lessons · ~22 min</div>
           </div>
         </div>
         <div class="course-card-bottom">
-          <div class="course-meta"><strong>6</strong> lessons planned</div>
-          <button class="course-btn locked-btn">🔒 Coming Soon</button>
+          <div class="course-meta"><strong>5</strong> lessons · <strong>130</strong> XP</div>
+          <button class="course-btn">Start →</button>
         </div>
-      </div>
+      </a>
 
-      <div class="course-card locked">
+      <!-- Module 5: Statistics & Probability -->
+      <a href="math-stats.html" class="course-card available">
         <div class="course-card-top">
           <div class="course-num">Module 05</div>
           <span class="course-icon">🎲</span>
-          <div class="course-name">Statistics & Probability</div>
+          <div class="course-name">Statistics &amp; Probability</div>
           <div class="course-desc">Why do algorithms have randomness? What makes a dataset meaningful? The math behind data, chance, and decision-making under uncertainty.</div>
           <div class="course-tags">
-            <span class="course-tag locked-tag">Probability</span>
-            <span class="course-tag locked-tag">Distributions</span>
-            <span class="course-tag locked-tag">Inference</span>
+            <span class="course-tag">Probability</span>
+            <span class="course-tag">Distributions</span>
+            <span class="course-tag">Bayes' Theorem</span>
+            <span class="course-tag">Normal Curve</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-stats" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-stats">5 lessons · ~24 min</div>
           </div>
         </div>
         <div class="course-card-bottom">
-          <div class="course-meta"><strong>5</strong> lessons planned</div>
-          <button class="course-btn locked-btn">🔒 Coming Soon</button>
+          <div class="course-meta"><strong>5</strong> lessons · <strong>130</strong> XP</div>
+          <button class="course-btn">Start →</button>
         </div>
-      </div>
+      </a>
 
-      <div class="course-card locked">
+      <!-- Module 6: Pseudocode & Flowcharts -->
+      <a href="math-pseudo.html" class="course-card available">
         <div class="course-card-top">
           <div class="course-num">Module 06</div>
           <span class="course-icon">🗺️</span>
-          <div class="course-name">Pseudocode & Flowcharts</div>
+          <div class="course-name">Pseudocode &amp; Flowcharts</div>
           <div class="course-desc">Think before you type. Design algorithms visually, translate them into pseudocode, then into real code. The professional's way to solve hard problems.</div>
           <div class="course-tags">
-            <span class="course-tag locked-tag">Pseudocode</span>
-            <span class="course-tag locked-tag">Flowcharts</span>
-            <span class="course-tag locked-tag">Algorithm Design</span>
+            <span class="course-tag">Pseudocode</span>
+            <span class="course-tag">Flowcharts</span>
+            <span class="course-tag">Algorithm Design</span>
+            <span class="course-tag">Sorting</span>
+          </div>
+          <div class="course-prog">
+            <div class="course-prog-track"><div class="course-prog-fill" id="prog-pseudo" style="width:0%"></div></div>
+            <div class="course-prog-lbl" id="lbl-pseudo">4 lessons · ~20 min</div>
           </div>
         </div>
         <div class="course-card-bottom">
-          <div class="course-meta"><strong>4</strong> lessons planned</div>
-          <button class="course-btn locked-btn">🔒 Coming Soon</button>
+          <div class="course-meta"><strong>4</strong> lessons · <strong>120</strong> XP</div>
+          <button class="course-btn">Start →</button>
         </div>
-      </div>
+      </a>
 
     </div>
 
@@ -377,7 +388,7 @@
     const mathProg = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
     const xp       = mathProg.xp || 0;
     const done     = mathProg.completedLessons || 0;
-    const pct      = Math.min(Math.round((done / 24) * 100), 100);
+    const pct      = Math.min(Math.round((done / 28) * 100), 100);
 
     document.getElementById('mathXP').textContent   = xp.toLocaleString();
     document.getElementById('mathDone').textContent  = done;
@@ -408,6 +419,27 @@
     setTimeout(() => { document.getElementById('prog-algebra').style.width = algDone + '%'; }, 300);
     if (modules.algebra?.completed) {
       document.getElementById('lbl-algebra').textContent = 'Completed ✓';
+    }
+
+    // Module 4: Discrete Mathematics
+    const discDone = modules.discrete?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-discrete').style.width = discDone + '%'; }, 350);
+    if (modules.discrete?.completed) {
+      document.getElementById('lbl-discrete').textContent = 'Completed ✓';
+    }
+
+    // Module 5: Statistics & Probability
+    const statsDone = modules.stats?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-stats').style.width = statsDone + '%'; }, 400);
+    if (modules.stats?.completed) {
+      document.getElementById('lbl-stats').textContent = 'Completed ✓';
+    }
+
+    // Module 6: Pseudocode & Flowcharts
+    const pseudoDone = modules.pseudo?.completed ? 100 : 0;
+    setTimeout(() => { document.getElementById('prog-pseudo').style.width = pseudoDone + '%'; }, 450);
+    if (modules.pseudo?.completed) {
+      document.getElementById('lbl-pseudo').textContent = 'Completed ✓';
     }
   </script>
 </body>

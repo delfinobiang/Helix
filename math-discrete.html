@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Discrete Mathematics — Helix Mathematics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #050816; --bg-2: #0C1022; --border: rgba(255,255,255,0.07);
+      --amber:   #F59E0B; --amber-l: #FCD34D; --orange: #F97316;
+      --primary: #6366F1; --cyan: #22D3EE; --green: #10B981;
+      --red:     #EF4444; --violet: #8B5CF6;
+      --text:    #EEF2F8; --text-2: #8892A4; --text-3: #2D3A4E;
+      --nav-h:   60px;
+      --acc:     #22D3EE; --acc-l: #67E8F9; --acc-d: #0891B2;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 65%); top: -80px; right: 0; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 65%); bottom: -150px; left: -100px; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(99,102,241,0.09) 0%, transparent 65%); top: 40%; left: 50%; }
+
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: var(--nav-h) 1fr; grid-template-areas: "nav nav" "sidebar main"; min-height: 100vh; position: relative; z-index: 1; }
+
+    .topnav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: rgba(5,8,22,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .nav-sep { color: var(--text-3); }
+    .nav-title { font-size: 0.85rem; font-weight: 600; color: var(--acc); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-xp { font-size: 0.78rem; font-weight: 700; color: var(--acc-l); background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.2); padding: 4px 12px; border-radius: 100px; }
+    .nav-back { font-size: 0.8rem; color: var(--text-2); padding: 5px 10px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    .sidebar { grid-area: sidebar; border-right: 1px solid var(--border); background: rgba(8,10,25,0.7); padding: 24px 0; overflow-y: auto; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 0 20px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .lesson-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; border-left: 3px solid transparent; }
+    .lesson-item:hover { background: rgba(255,255,255,0.03); }
+    .lesson-item.active { background: rgba(34,211,238,0.07); border-left-color: var(--acc); }
+    .lesson-num { font-size: 0.7rem; font-weight: 700; color: var(--text-3); width: 20px; flex-shrink: 0; }
+    .lesson-item.active .lesson-num { color: var(--acc); }
+    .lesson-name { font-size: 0.85rem; font-weight: 500; color: var(--text-2); }
+    .lesson-item.active .lesson-name { color: var(--text); font-weight: 600; }
+    .lesson-done { margin-left: auto; font-size: 0.7rem; color: var(--green); }
+    .sidebar-footer { margin-top: auto; padding: 20px; border-top: 1px solid var(--border); }
+    .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 100px; height: 6px; overflow: hidden; margin-top: 8px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--acc), var(--primary)); border-radius: 100px; transition: width 0.5s ease; }
+    .progress-label { font-size: 0.72rem; color: var(--text-2); display: flex; justify-content: space-between; }
+
+    .main { grid-area: main; padding: 40px 48px; overflow-y: auto; }
+    .lesson-section { max-width: 780px; padding-bottom: 80px; }
+    .lesson-section + .lesson-section { border-top: 1px solid var(--border); padding-top: 60px; }
+
+    .section-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .section-tag::before { content: ''; display: block; width: 20px; height: 2px; background: var(--acc); border-radius: 2px; }
+    h2 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 14px; line-height: 1.2; }
+    .lead { font-size: 1rem; color: var(--text-2); line-height: 1.7; margin-bottom: 28px; }
+
+    .info-box { border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; border: 1px solid; }
+    .info-box.cyan   { background: rgba(34,211,238,0.06);  border-color: rgba(34,211,238,0.2); }
+    .info-box.amber  { background: rgba(245,158,11,0.07);  border-color: rgba(245,158,11,0.2); }
+    .info-box.violet { background: rgba(139,92,246,0.07);  border-color: rgba(139,92,246,0.2); }
+    .info-box.green  { background: rgba(16,185,129,0.07);  border-color: rgba(16,185,129,0.2); }
+    .info-box.red    { background: rgba(239,68,68,0.07);   border-color: rgba(239,68,68,0.2);  }
+    .info-box-title  { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .info-box.cyan   .info-box-title { color: var(--acc); }
+    .info-box.amber  .info-box-title { color: var(--amber); }
+    .info-box.violet .info-box-title { color: var(--violet); }
+    .info-box.green  .info-box-title { color: var(--green); }
+    .info-box.red    .info-box-title { color: var(--red); }
+    .info-box p { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; }
+    .info-box ul { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; padding-left: 1.25rem; }
+    .info-box li { margin-bottom: 4px; }
+
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
+    .c-comment { color: #4B5563; }
+    .c-keyword { color: #C084FC; }
+    .c-string  { color: #86EFAC; }
+    .c-fn      { color: #60A5FA; }
+    .c-num     { color: var(--amber-l); }
+    .c-op      { color: var(--acc); }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .data-table th { background: rgba(34,211,238,0.08); color: var(--acc); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(34,211,238,0.2); }
+    .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+    .data-table td:first-child { color: var(--text); font-weight: 600; }
+    .data-table td code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--acc); background: rgba(34,211,238,0.08); padding: 1px 6px; border-radius: 4px; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Interactive widget base */
+    .widget { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .widget h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .widget-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text); outline: none; transition: border 0.2s; }
+    .widget-input:focus { border-color: var(--acc); }
+    .widget-btn { background: linear-gradient(135deg, var(--acc-d), var(--primary)); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    .widget-btn:hover { opacity: 0.85; }
+    .widget-result { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--acc-l); font-weight: 700; margin-top: 12px; min-height: 24px; }
+    .widget-sub { font-size: 0.82rem; color: var(--text-2); margin-top: 6px; }
+
+    /* Venn diagram */
+    .venn-wrap { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin: 20px 0; }
+    svg.venn { flex-shrink: 0; }
+    .venn-controls { flex: 1; min-width: 200px; }
+    .venn-controls label { font-size: 0.75rem; color: var(--text-2); font-weight: 600; display: block; margin-bottom: 6px; margin-top: 12px; }
+    .venn-controls label:first-child { margin-top: 0; }
+
+    /* Combo calculator */
+    .combo-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .combo-label { font-size: 0.82rem; font-weight: 600; color: var(--text-2); width: 24px; flex-shrink: 0; }
+    .combo-result-box { background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.18); border-radius: 12px; padding: 14px 18px; margin-top: 12px; }
+    .combo-result-box .formula { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--acc-l); display: block; margin-bottom: 4px; }
+    .combo-result-box .result-val { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+
+    /* Graph visualizer */
+    canvas.graph-canvas { border: 1px solid var(--border); border-radius: 10px; background: #060919; display: block; }
+    .graph-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .graph-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; color: var(--text-2); cursor: pointer; transition: all 0.15s; }
+    .graph-btn:hover { border-color: var(--acc); color: var(--acc); }
+    .graph-btn.active { border-color: var(--acc); color: var(--acc); background: rgba(34,211,238,0.08); }
+    .graph-info { font-size: 0.8rem; color: var(--text-2); margin-top: 10px; line-height: 1.6; }
+
+    /* Challenge */
+    .challenge { background: rgba(34,211,238,0.04); border: 1px solid rgba(34,211,238,0.18); border-radius: 14px; padding: 22px 24px; margin: 24px 0; }
+    .challenge-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .challenge-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acc); background: rgba(34,211,238,0.1); padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(34,211,238,0.25); }
+    .challenge-xp { font-size: 0.68rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); padding: 3px 8px; border-radius: 6px; margin-left: auto; }
+    .challenge h4 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .challenge p { font-size: 0.88rem; color: var(--text-2); line-height: 1.65; margin-bottom: 14px; }
+    .challenge-input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .challenge-input { background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); outline: none; transition: border 0.2s; }
+    .challenge-input:focus { border-color: var(--acc); }
+    .challenge-btn { background: linear-gradient(135deg, var(--acc-d), var(--primary)); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+    .challenge-btn:hover { opacity: 0.85; }
+    .challenge-feedback { font-size: 0.85rem; margin-top: 10px; min-height: 22px; line-height: 1.5; }
+    .challenge-feedback.correct { color: var(--green); }
+    .challenge-feedback.wrong   { color: var(--red); }
+    .challenge-hint-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; color: var(--text-2); cursor: pointer; transition: border-color 0.2s; }
+    .challenge-hint-btn:hover { border-color: var(--text-2); }
+    .challenge-hint { font-size: 0.82rem; color: var(--acc); margin-top: 8px; display: none; }
+
+    /* Quiz */
+    .quiz-card { background: rgba(8,10,28,0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 18px; }
+    .quiz-q { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+    .quiz-q code { font-family: 'JetBrains Mono', monospace; color: var(--acc); background: rgba(34,211,238,0.1); padding: 1px 7px; border-radius: 4px; font-size: 0.88em; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-opt { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: 0.88rem; color: var(--text-2); cursor: pointer; text-align: left; transition: all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .quiz-opt.correct { background: rgba(16,185,129,0.12); border-color: var(--green); color: var(--green); }
+    .quiz-opt.wrong   { background: rgba(239,68,68,0.12);  border-color: var(--red);   color: var(--red); }
+    .quiz-feedback { font-size: 0.82rem; margin-top: 10px; min-height: 20px; color: var(--text-2); }
+    .quiz-feedback.correct { color: var(--green); }
+    .quiz-feedback.wrong   { color: var(--red); }
+
+    .formula-block { text-align: center; margin: 20px 0; }
+    .formula { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--acc-l); background: rgba(34,211,238,0.07); border: 1px solid rgba(34,211,238,0.15); border-radius: 10px; padding: 10px 20px; }
+
+    .rw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+    .rw-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .rw-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .rw-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .rw-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; }
+
+    .complete-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--border); text-align: center; }
+    .complete-btn { background: linear-gradient(135deg, var(--acc-d), var(--primary)); color: #fff; border: none; border-radius: 14px; padding: 16px 48px; font-size: 1rem; font-weight: 800; cursor: pointer; letter-spacing: -0.01em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px; }
+    .complete-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .complete-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(34,211,238,0.25); }
+    .complete-note { font-size: 0.8rem; color: var(--text-3); margin-top: 12px; }
+
+    .xp-toast { position: fixed; bottom: 32px; right: 32px; background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(99,102,241,0.15)); border: 1px solid rgba(34,211,238,0.3); border-radius: 12px; padding: 12px 20px; font-size: 0.88rem; font-weight: 700; color: var(--acc-l); z-index: 999; opacity: 0; transform: translateY(16px); transition: all 0.35s cubic-bezier(.34,1.56,.64,1); pointer-events: none; display: flex; align-items: center; gap: 8px; }
+    .xp-toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "nav" "main"; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#22D3EE" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>
+        Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Discrete Mathematics</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="math.html" class="nav-back">← Math Strand</a>
+    </div>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 04</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">Sets &amp; Set Operations</span><span class="lesson-done" id="done-1"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Relations &amp; Functions</span><span class="lesson-done" id="done-2"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Graph Theory</span><span class="lesson-done" id="done-3"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Combinatorics</span><span class="lesson-done" id="done-4"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l5')"><span class="lesson-num">05</span><span class="lesson-name">Induction &amp; Proofs</span><span class="lesson-done" id="done-5"></span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('challenges')"><span class="lesson-num">🎯</span><span class="lesson-name">Challenges</span></div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ── LESSON 1: SETS ── -->
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Discrete Mathematics</div>
+    <h2>Sets &amp; Set Operations</h2>
+    <p class="lead">A <strong>set</strong> is an unordered collection of distinct objects. Sets are one of the most fundamental structures in mathematics — and they show up everywhere in programming: arrays, hash sets, databases, type systems.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📦 What is a Set?</div>
+      <p>A set contains unique elements with no duplicates and no defined order. We write sets with curly braces: <strong>A = {1, 2, 3}</strong>. The empty set is written <strong>∅</strong> or <strong>{}</strong>.</p>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Notation</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>{1, 2, 3}</td><td>Set literal</td><td>A set with three elements</td></tr>
+        <tr><td>x ∈ A</td><td>x is in set A</td><td>2 ∈ {1, 2, 3} → true</td></tr>
+        <tr><td>x ∉ A</td><td>x is not in set A</td><td>5 ∉ {1, 2, 3} → true</td></tr>
+        <tr><td>|A|</td><td>Cardinality (size)</td><td>|{1, 2, 3}| = 3</td></tr>
+        <tr><td>A ⊆ B</td><td>A is a subset of B</td><td>{1,2} ⊆ {1,2,3}</td></tr>
+        <tr><td>∅</td><td>Empty set</td><td>Set with no elements</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:1.1rem;font-weight:700;margin:28px 0 14px;">The Four Core Operations</h3>
+
+    <table class="data-table">
+      <thead><tr><th>Operation</th><th>Symbol</th><th>Meaning</th><th>Example A={1,2,3}, B={2,3,4}</th></tr></thead>
+      <tbody>
+        <tr><td>Union</td><td>A ∪ B</td><td>Elements in A or B (or both)</td><td>{1, 2, 3, 4}</td></tr>
+        <tr><td>Intersection</td><td>A ∩ B</td><td>Elements in both A and B</td><td>{2, 3}</td></tr>
+        <tr><td>Difference</td><td>A − B</td><td>Elements in A but not B</td><td>{1}</td></tr>
+        <tr><td>Complement</td><td>Aᶜ</td><td>Everything NOT in A</td><td>Depends on universal set</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box green">
+      <div class="info-box-title">💡 Sets in Python</div>
+      <p>Python has a built-in <code>set</code> type with these exact operations: <code>|</code> for union, <code>&amp;</code> for intersection, <code>-</code> for difference. <code>a = {1,2,3}; b = {2,3,4}; a | b</code> → <code>{1, 2, 3, 4}</code></p>
+    </div>
+
+    <!-- Venn Diagram Widget -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">🔵 Venn Diagram — Interactive Set Operations</h4>
+      <div class="venn-wrap">
+        <svg class="venn" width="300" height="200" viewBox="0 0 300 200" id="vennSvg">
+          <defs>
+            <clipPath id="clipA"><circle cx="120" cy="100" r="75"/></clipPath>
+            <clipPath id="clipB"><circle cx="180" cy="100" r="75"/></clipPath>
+          </defs>
+          <rect width="300" height="200" fill="rgba(8,10,28,0.8)" rx="8"/>
+          <text x="10" y="20" fill="rgba(255,255,255,0.3)" font-size="11" font-family="Inter">U (universal set)</text>
+          <circle id="circA" cx="120" cy="100" r="75" fill="rgba(34,211,238,0.15)" stroke="rgba(34,211,238,0.5)" stroke-width="1.5"/>
+          <circle id="circB" cx="180" cy="100" r="75" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.5)" stroke-width="1.5"/>
+          <rect id="highlightA" x="45" y="25" width="75" height="150" clip-path="url(#clipA)" fill="rgba(34,211,238,0)" rx="0"/>
+          <rect id="highlightB" x="180" y="25" width="75" height="150" clip-path="url(#clipB)" fill="rgba(139,92,246,0)" rx="0"/>
+          <circle id="highlightAB" cx="150" cy="100" r="45" fill="rgba(16,185,129,0)" clip-path="url(#clipA)"/>
+          <text x="95" y="105" fill="rgba(34,211,238,0.9)" font-size="13" font-family="Inter,sans-serif" font-weight="700">A</text>
+          <text x="195" y="105" fill="rgba(139,92,246,0.9)" font-size="13" font-family="Inter,sans-serif" font-weight="700">B</text>
+          <text x="144" y="105" fill="rgba(255,255,255,0.6)" font-size="11" font-family="Inter,sans-serif">A∩B</text>
+        </svg>
+        <div class="venn-controls">
+          <label>A = { <input id="setA" class="widget-input" style="width:120px" value="1, 2, 3" /> }</label>
+          <label>B = { <input id="setB" class="widget-input" style="width:120px" value="2, 3, 4" /> }</label>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="graph-btn active" id="opBtn-union" onclick="showOp('union')">A ∪ B</button>
+            <button class="graph-btn" id="opBtn-inter" onclick="showOp('inter')">A ∩ B</button>
+            <button class="graph-btn" id="opBtn-diff"  onclick="showOp('diff')">A − B</button>
+            <button class="graph-btn" id="opBtn-diffb" onclick="showOp('diffb')">B − A</button>
+          </div>
+          <div class="widget-result" id="vennResult" style="margin-top:14px;"></div>
+          <div class="widget-sub" id="vennSub"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header">
+        <span class="challenge-badge">Challenge 1</span>
+        <span class="challenge-xp">+15 XP</span>
+      </div>
+      <h4>Set Union</h4>
+      <p>A = {1, 2, 3} and B = {3, 4, 5}. How many elements are in A ∪ B?</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" type="number" placeholder="count" style="width:90px" />
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">Union combines both sets without duplicates: {1,2,3,4,5}</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 2: RELATIONS & FUNCTIONS ── -->
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Discrete Mathematics</div>
+    <h2>Relations &amp; Functions</h2>
+    <p class="lead">A <strong>relation</strong> describes a connection between elements of sets. A <strong>function</strong> is a special relation where every input has exactly one output — the mathematical foundation of every function you write in code.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📌 Functions as Mappings</div>
+      <p>A function f: A → B maps each element of set A (the <strong>domain</strong>) to exactly one element of set B (the <strong>codomain</strong>). The set of actual outputs is called the <strong>range</strong> (or image).</p>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Property</th><th>Meaning</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Domain</td><td>Set of all valid inputs</td><td>f(x) = √x → domain: x ≥ 0</td></tr>
+        <tr><td>Codomain</td><td>Set the function maps into</td><td>f: ℝ → ℝ</td></tr>
+        <tr><td>Range (Image)</td><td>Set of actual outputs</td><td>f(x) = x² → range: y ≥ 0</td></tr>
+        <tr><td>Injective (one-to-one)</td><td>Different inputs → different outputs</td><td>f(x) = 2x</td></tr>
+        <tr><td>Surjective (onto)</td><td>Every output has at least one input</td><td>f(x) = x³</td></tr>
+        <tr><td>Bijective</td><td>Both injective and surjective</td><td>f(x) = x + 1 over ℤ</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box violet">
+      <div class="info-box-title">🔑 Why Bijections Matter in CS</div>
+      <p>Hash functions aim to be bijective (no collisions). Encryption needs bijections — each plaintext maps to exactly one ciphertext and vice versa. Database primary keys are injective: every row has a unique ID.</p>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Python: functions are mathematical mappings</span>
+f = {<span class="c-num">1</span>: <span class="c-string">'a'</span>, <span class="c-num">2</span>: <span class="c-string">'b'</span>, <span class="c-num">3</span>: <span class="c-string">'c'</span>}   <span class="c-comment"># dict = mathematical function</span>
+
+<span class="c-comment"># domain: keys,  range: values</span>
+domain = <span class="c-fn">set</span>(f.keys())   <span class="c-comment"># {1, 2, 3}</span>
+rng    = <span class="c-fn">set</span>(f.values())  <span class="c-comment"># {'a', 'b', 'c'}</span>
+
+<span class="c-comment"># injective test: no two keys map to same value</span>
+injective = <span class="c-fn">len</span>(rng) == <span class="c-fn">len</span>(domain)
+<span class="c-fn">print</span>(injective)  <span class="c-comment"># True — it's injective</span></div>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header">
+        <span class="challenge-badge">Challenge 2</span>
+        <span class="challenge-xp">+15 XP</span>
+      </div>
+      <h4>Domain Size</h4>
+      <p>Function f maps {a, b, c, d} → {1, 2}. Is this function injective? Type <strong>yes</strong> or <strong>no</strong>.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="yes / no" style="width:100px" />
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Injective means different inputs → different outputs. With 4 inputs and only 2 possible outputs, at least two inputs must share an output.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 3: GRAPH THEORY ── -->
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Discrete Mathematics</div>
+    <h2>Graph Theory</h2>
+    <p class="lead">Graphs model <em>connections</em>. Social networks, road maps, the internet, compilers — all graphs. A graph G = (V, E) has a set of <strong>vertices</strong> (nodes) V and a set of <strong>edges</strong> E connecting them.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Term</th><th>Definition</th><th>Real-world analogy</th></tr></thead>
+      <tbody>
+        <tr><td>Vertex / Node</td><td>A point in the graph</td><td>City, user, web page</td></tr>
+        <tr><td>Edge</td><td>Connection between two vertices</td><td>Road, friendship, hyperlink</td></tr>
+        <tr><td>Degree</td><td>Number of edges at a vertex</td><td>Number of friends</td></tr>
+        <tr><td>Path</td><td>Sequence of connected vertices</td><td>Route A → B → C</td></tr>
+        <tr><td>Cycle</td><td>Path that returns to start</td><td>Circular route</td></tr>
+        <tr><td>Connected</td><td>Every vertex reachable from any other</td><td>One-piece network</td></tr>
+        <tr><td>Directed (digraph)</td><td>Edges have direction</td><td>One-way street, Twitter follow</td></tr>
+        <tr><td>Weighted</td><td>Edges have values</td><td>Road distances, latency</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Graph Visualizer -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">🕸️ Graph Visualizer</h4>
+      <div class="graph-controls">
+        <button class="graph-btn active" id="gb-undirected" onclick="setGraphType('undirected')">Undirected</button>
+        <button class="graph-btn" id="gb-directed" onclick="setGraphType('directed')">Directed</button>
+        <button class="graph-btn" id="gb-tree" onclick="setGraphType('tree')">Tree</button>
+        <button class="graph-btn" id="gb-complete" onclick="setGraphType('complete')">Complete K4</button>
+      </div>
+      <canvas class="graph-canvas" id="graphCanvas" width="520" height="260"></canvas>
+      <div class="graph-info" id="graphInfo">Vertices: 5 · Edges: 5 · An undirected graph with no direction on edges.</div>
+    </div>
+
+    <div class="info-box green">
+      <div class="info-box-title">🌳 Trees are Special Graphs</div>
+      <p>A tree is a connected graph with no cycles. It has exactly n−1 edges for n vertices. Binary search trees, file systems, DOM — all trees. Every tree is a graph, but not every graph is a tree.</p>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Adjacency list — most common graph representation</span>
+graph = {
+    <span class="c-string">'A'</span>: [<span class="c-string">'B'</span>, <span class="c-string">'C'</span>],
+    <span class="c-string">'B'</span>: [<span class="c-string">'A'</span>, <span class="c-string">'D'</span>],
+    <span class="c-string">'C'</span>: [<span class="c-string">'A'</span>, <span class="c-string">'D'</span>],
+    <span class="c-string">'D'</span>: [<span class="c-string">'B'</span>, <span class="c-string">'C'</span>],
+}
+
+<span class="c-comment"># BFS — find shortest path</span>
+<span class="c-keyword">from</span> collections <span class="c-keyword">import</span> deque
+
+<span class="c-keyword">def</span> <span class="c-fn">bfs</span>(graph, start, target):
+    queue, visited = deque([[start]]), {start}
+    <span class="c-keyword">while</span> queue:
+        path = queue.popleft()
+        node = path[-<span class="c-num">1</span>]
+        <span class="c-keyword">if</span> node == target: <span class="c-keyword">return</span> path
+        <span class="c-keyword">for</span> n <span class="c-keyword">in</span> graph[node]:
+            <span class="c-keyword">if</span> n <span class="c-keyword">not in</span> visited:
+                visited.add(n)
+                queue.append(path + [n])
+
+<span class="c-fn">print</span>(<span class="c-fn">bfs</span>(graph, <span class="c-string">'A'</span>, <span class="c-string">'D'</span>))  <span class="c-comment"># ['A', 'B', 'D']</span></div>
+
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header">
+        <span class="challenge-badge">Challenge 3</span>
+        <span class="challenge-xp">+15 XP</span>
+      </div>
+      <h4>Edge Count in a Tree</h4>
+      <p>A tree has 7 vertices. How many edges does it have?</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" type="number" placeholder="edges" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">A tree with n vertices always has exactly n − 1 edges.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 4: COMBINATORICS ── -->
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Discrete Mathematics</div>
+    <h2>Combinatorics</h2>
+    <p class="lead"><strong>Combinatorics</strong> is the mathematics of counting. How many passwords are possible? How many ways can you seat 5 people? How many test cases cover all combinations? These questions all have precise answers.</p>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📐 The Fundamental Counting Principle</div>
+      <p>If event A can happen in <em>m</em> ways and event B can happen in <em>n</em> ways, then both can happen in <strong>m × n</strong> ways. A 3-digit PIN with digits 0–9 has 10 × 10 × 10 = 1,000 possibilities.</p>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Operation</th><th>Formula</th><th>Meaning</th><th>Order matters?</th></tr></thead>
+      <tbody>
+        <tr><td>Factorial n!</td><td>n × (n−1) × … × 1</td><td>Ways to arrange n items</td><td>Yes</td></tr>
+        <tr><td>Permutation P(n,r)</td><td>n! / (n−r)!</td><td>r items from n, ordered</td><td>Yes</td></tr>
+        <tr><td>Combination C(n,r)</td><td>n! / (r! × (n−r)!)</td><td>r items from n, unordered</td><td>No</td></tr>
+      </tbody>
+    </table>
+
+    <div class="formula-block">
+      <div class="formula">P(n,r) = n! / (n−r)! &nbsp;&nbsp;&nbsp; C(n,r) = n! / (r! · (n−r)!)</div>
+    </div>
+
+    <!-- Combination Calculator -->
+    <div class="widget">
+      <h4 style="color:var(--violet);">🎲 Permutation &amp; Combination Calculator</h4>
+      <div class="combo-row">
+        <span class="combo-label">n =</span>
+        <input class="widget-input" id="combo-n" type="number" value="5" min="0" max="20" style="width:80px" oninput="calcCombo()"/>
+        <span style="font-size:0.85rem;color:var(--text-2);">total items</span>
+      </div>
+      <div class="combo-row">
+        <span class="combo-label">r =</span>
+        <input class="widget-input" id="combo-r" type="number" value="2" min="0" max="20" style="width:80px" oninput="calcCombo()"/>
+        <span style="font-size:0.85rem;color:var(--text-2);">items chosen</span>
+      </div>
+      <div class="combo-result-box" id="combo-result">
+        <span class="formula" id="cr-perm"></span>
+        <span class="formula" id="cr-comb" style="margin-top:8px;display:block;color:var(--violet);"></span>
+      </div>
+    </div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header">
+        <span class="challenge-badge">Challenge 4</span>
+        <span class="challenge-xp">+15 XP</span>
+      </div>
+      <h4>Counting Passwords</h4>
+      <p>A password uses exactly 3 characters from {A, B, C, D} without repetition, and order matters. How many passwords are possible? (Calculate P(4, 3))</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" type="number" placeholder="answer" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">P(4,3) = 4! / (4−3)! = 24 / 1 = 24</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 5: INDUCTION ── -->
+  <section class="lesson-section" id="l5">
+    <div class="section-tag">Lesson 05 · Discrete Mathematics</div>
+    <h2>Mathematical Induction &amp; Logic</h2>
+    <p class="lead"><strong>Mathematical induction</strong> is how we prove statements hold for all natural numbers. It's the mathematical equivalent of a recursive algorithm — prove the base case, then prove the inductive step.</p>
+
+    <div class="info-box violet">
+      <div class="info-box-title">🔁 The Two Steps of Induction</div>
+      <ul>
+        <li><strong>Base case</strong>: Prove the statement is true for n = 1 (or n = 0)</li>
+        <li><strong>Inductive step</strong>: Assume it's true for n = k (inductive hypothesis), then prove it's true for n = k + 1</li>
+      </ul>
+    </div>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📋 Classic Example: Sum Formula</div>
+      <p>Prove: 1 + 2 + 3 + … + n = n(n+1)/2</p>
+      <p style="margin-top:8px;"><strong>Base (n=1):</strong> 1 = 1(2)/2 = 1 ✓</p>
+      <p><strong>Inductive step:</strong> Assume 1+…+k = k(k+1)/2. Then 1+…+k+(k+1) = k(k+1)/2 + (k+1) = (k+1)(k+2)/2 ✓</p>
+    </div>
+
+    <h3 style="font-size:1.1rem;font-weight:700;margin:28px 0 14px;">Propositional Logic — Quick Review</h3>
+    <table class="data-table">
+      <thead><tr><th>Connective</th><th>Symbol</th><th>True when…</th></tr></thead>
+      <tbody>
+        <tr><td>AND (conjunction)</td><td>P ∧ Q</td><td>Both P and Q are true</td></tr>
+        <tr><td>OR (disjunction)</td><td>P ∨ Q</td><td>At least one is true</td></tr>
+        <tr><td>NOT (negation)</td><td>¬P</td><td>P is false</td></tr>
+        <tr><td>Implication</td><td>P → Q</td><td>If P then Q (false only when P=T, Q=F)</td></tr>
+        <tr><td>Biconditional</td><td>P ↔ Q</td><td>P and Q have the same value</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box green">
+      <div class="info-box-title">🔁 Induction = Recursion</div>
+      <p>Induction and recursion are the same idea. In induction: base case + inductive step. In recursion: base case + recursive call. Every recursive proof has a matching inductive proof.</p>
+    </div>
+
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">🕸️</div><div class="rw-title">Social Networks</div><div class="rw-desc">Graphs model friend connections. BFS finds shortest path between users.</div></div>
+      <div class="rw-card"><div class="rw-icon">🗺️</div><div class="rw-title">Maps &amp; GPS</div><div class="rw-desc">Dijkstra's algorithm finds shortest road routes in weighted graphs.</div></div>
+      <div class="rw-card"><div class="rw-icon">🔐</div><div class="rw-title">Cryptography</div><div class="rw-desc">Set theory and bijective functions power encryption algorithms.</div></div>
+      <div class="rw-card"><div class="rw-icon">📊</div><div class="rw-title">Databases</div><div class="rw-desc">SQL JOIN is set intersection. UNION is set union. The math is literal.</div></div>
+    </div>
+  </section>
+
+  <!-- ── QUIZ ── -->
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 04</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your discrete mathematics knowledge. Each correct answer earns XP.</p>
+
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">The intersection of A = {a, b, c} and B = {b, c, d} is:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">{ a, b, c, d }</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">{ b, c }</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">{ a, d }</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">{ a, b, c }</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">P(5, 2) — the number of ways to choose 2 items from 5 in order — equals:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">10</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">25</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">20</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">120</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">A connected graph with 6 vertices and no cycles is called a:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">Complete graph</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">Tree</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">Directed graph</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">Bipartite graph</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">C(6, 2) — the number of ways to choose 2 from 6 (order doesn't matter) — equals:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">30</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">12</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">15</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">36</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>
+        🎉 Complete Module 04
+      </button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+
+<script>
+  /* ── Auth gate ── */
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  /* ── State ── */
+  const state = {
+    xp: 0,
+    done: { c1:false, c2:false, c3:false, c4:false, q1:false, q2:false, q3:false, q4:false }
+  };
+
+  function awardXP(amount, key) {
+    if (state.done[key]) return;
+    state.done[key] = true;
+    state.xp += amount;
+    document.getElementById('navXp').textContent = state.xp + ' XP';
+    showToast('+' + amount + ' XP');
+    updateProgress();
+    checkComplete();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('xpToast');
+    document.getElementById('toastXp').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function updateProgress() {
+    const total = Object.keys(state.done).length;
+    const done  = Object.values(state.done).filter(Boolean).length;
+    const pct   = Math.round((done / total) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = pct + '%';
+  }
+
+  function checkComplete() {
+    const allDone = Object.values(state.done).every(Boolean);
+    document.getElementById('completeBtn').disabled = !allDone;
+    if (allDone) document.getElementById('complete-note').textContent = 'All challenges and quiz questions completed!';
+  }
+
+  /* ── Challenges ── */
+  const CHALLENGES = {
+    1: { answer: '5', check: v => parseInt(v) === 5 },
+    2: { answer: 'no', check: v => v.trim().toLowerCase() === 'no' },
+    3: { answer: '6', check: v => parseInt(v) === 6 },
+    4: { answer: '24', check: v => parseInt(v) === 24 },
+  };
+
+  function checkChallenge(n) {
+    const val = document.getElementById('c' + n + '-inp').value;
+    const c = CHALLENGES[n];
+    const fb = document.getElementById('c' + n + '-fb');
+    if (c.check(val)) {
+      fb.className = 'challenge-feedback correct';
+      fb.textContent = '✓ Correct!';
+      awardXP(15, 'c' + n);
+    } else {
+      fb.className = 'challenge-feedback wrong';
+      fb.textContent = '✗ Not quite. Try again.';
+    }
+  }
+
+  function showHint(n) {
+    const h = document.getElementById('c' + n + '-hint');
+    h.style.display = h.style.display === 'block' ? 'none' : 'block';
+  }
+
+  /* ── Quiz ── */
+  const QUIZ = {
+    1: { correct: 'b', explain: '✓ A ∩ B contains only elements in both sets: {b, c}' },
+    2: { correct: 'c', explain: '✓ P(5,2) = 5!/(5−2)! = 120/6 = 20' },
+    3: { correct: 'b', explain: '✓ A tree is connected with no cycles, and n−1 edges for n vertices' },
+    4: { correct: 'c', explain: '✓ C(6,2) = 6!/(2!×4!) = 720/(2×24) = 15' },
+  };
+
+  function answerQuiz(n, opt) {
+    const card = document.getElementById('q' + n + '-card');
+    if (card.dataset.answered) return;
+    card.dataset.answered = 'true';
+    const q = QUIZ[n];
+    const buttons = card.querySelectorAll('.quiz-opt');
+    buttons.forEach((b, i) => {
+      b.disabled = true;
+      const letter = ['a','b','c','d'][i];
+      if (letter === q.correct) b.classList.add('correct');
+      else if (letter === opt)  b.classList.add('wrong');
+    });
+    const fb = document.getElementById('q' + n + '-fb');
+    if (opt === q.correct) {
+      fb.className = 'quiz-feedback correct';
+      fb.textContent = q.explain;
+      awardXP(20, 'q' + n);
+    } else {
+      fb.className = 'quiz-feedback wrong';
+      fb.textContent = '✗ ' + q.explain;
+    }
+  }
+
+  /* ── Complete module ── */
+  function completeModule() {
+    const mp = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    mp.xp = (mp.xp || 0) + state.xp + 130;
+    mp.completedLessons = (mp.completedLessons || 0) + 5;
+    mp.modules = mp.modules || {};
+    mp.modules.discrete = { completed: true, xp: state.xp + 130, completedAt: new Date().toISOString() };
+    mp.lastActivity = new Date().toISOString();
+    localStorage.setItem('helix_math_progress', JSON.stringify(mp));
+    showToast('+130 XP — Module Complete!');
+    setTimeout(() => { window.location.href = 'math.html'; }, 1800);
+  }
+
+  /* ── Scroll helper ── */
+  function scrollToLesson(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+    const map = { l1:0, l2:1, l3:2, l4:3, l5:4, challenges:5, quiz:6 };
+    const items = document.querySelectorAll('.lesson-item');
+    if (map[id] !== undefined && items[map[id]]) items[map[id]].classList.add('active');
+  }
+
+  /* ── Venn diagram widget ── */
+  function parseSet(str) {
+    return new Set(str.split(',').map(s => s.trim()).filter(Boolean));
+  }
+  function setToStr(s) {
+    return '{ ' + [...s].join(', ') + ' }';
+  }
+  let currentOp = 'union';
+  function showOp(op) {
+    currentOp = op;
+    document.querySelectorAll('[id^="opBtn-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('opBtn-' + op).classList.add('active');
+    updateVenn();
+  }
+  function updateVenn() {
+    const A = parseSet(document.getElementById('setA').value);
+    const B = parseSet(document.getElementById('setB').value);
+    let result, label;
+    if (currentOp === 'union') {
+      result = new Set([...A, ...B]);
+      label = 'A ∪ B — elements in A or B';
+    } else if (currentOp === 'inter') {
+      result = new Set([...A].filter(x => B.has(x)));
+      label = 'A ∩ B — elements in both A and B';
+    } else if (currentOp === 'diff') {
+      result = new Set([...A].filter(x => !B.has(x)));
+      label = 'A − B — elements in A but not B';
+    } else {
+      result = new Set([...B].filter(x => !A.has(x)));
+      label = 'B − A — elements in B but not A';
+    }
+    document.getElementById('vennResult').textContent = setToStr(result);
+    document.getElementById('vennSub').textContent = label + ' · |result| = ' + result.size;
+  }
+  document.getElementById('setA').addEventListener('input', updateVenn);
+  document.getElementById('setB').addEventListener('input', updateVenn);
+  updateVenn();
+
+  /* ── Combination calculator ── */
+  function factorial(n) { return n <= 1 ? 1 : n * factorial(n - 1); }
+  function calcCombo() {
+    const n = parseInt(document.getElementById('combo-n').value) || 0;
+    const r = parseInt(document.getElementById('combo-r').value) || 0;
+    if (r > n) { document.getElementById('cr-perm').textContent = 'r must be ≤ n'; document.getElementById('cr-comb').textContent = ''; return; }
+    const perm = factorial(n) / factorial(n - r);
+    const comb = factorial(n) / (factorial(r) * factorial(n - r));
+    document.getElementById('cr-perm').textContent = 'P(' + n + ',' + r + ') = ' + perm + '   (ordered)';
+    document.getElementById('cr-comb').textContent = 'C(' + n + ',' + r + ') = ' + comb + '   (unordered)';
+  }
+  calcCombo();
+
+  /* ── Graph visualizer ── */
+  const GRAPHS = {
+    undirected: {
+      nodes: [{x:100,y:80},{x:250,y:50},{x:400,y:80},{x:160,y:200},{x:340,y:200}],
+      edges: [[0,1],[1,2],[0,3],[1,3],[1,4],[2,4],[3,4]],
+      directed: false,
+      info: 'Vertices: 5 · Edges: 7 · An undirected graph — edges have no direction.'
+    },
+    directed: {
+      nodes: [{x:100,y:130},{x:250,y:50},{x:400,y:130},{x:250,y:210}],
+      edges: [[0,1],[1,2],[2,3],[3,0],[1,3]],
+      directed: true,
+      info: 'Vertices: 4 · Edges: 5 · A directed graph (digraph) — each edge has a direction.'
+    },
+    tree: {
+      nodes: [{x:260,y:40},{x:140,y:120},{x:380,y:120},{x:80,y:210},{x:200,y:210},{x:320,y:210},{x:440,y:210}],
+      edges: [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]],
+      directed: false,
+      info: 'Vertices: 7 · Edges: 6 · A tree — connected, no cycles, n−1 edges for n vertices.'
+    },
+    complete: {
+      nodes: [{x:260,y:40},{x:440,y:170},{x:360,y:240},{x:160,y:240},{x:80,y:170}],
+      edges: [[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]],
+      directed: false,
+      info: 'Complete graph K5 — every vertex connected to every other. Edges = n(n−1)/2.'
+    }
+  };
+  let currentGraphType = 'undirected';
+  function setGraphType(type) {
+    currentGraphType = type;
+    document.querySelectorAll('[id^="gb-"]').forEach(b => b.classList.remove('active'));
+    document.getElementById('gb-' + type).classList.add('active');
+    drawGraph();
+    document.getElementById('graphInfo').textContent = GRAPHS[type].info;
+  }
+  function drawGraph() {
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const g = GRAPHS[currentGraphType];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(34,211,238,0.35)';
+    ctx.lineWidth = 1.5;
+    g.edges.forEach(([a, b]) => {
+      ctx.beginPath();
+      ctx.moveTo(g.nodes[a].x, g.nodes[a].y);
+      ctx.lineTo(g.nodes[b].x, g.nodes[b].y);
+      ctx.stroke();
+      if (g.directed) {
+        const dx = g.nodes[b].x - g.nodes[a].x;
+        const dy = g.nodes[b].y - g.nodes[a].y;
+        const len = Math.sqrt(dx*dx+dy*dy);
+        const ux = dx/len, uy = dy/len;
+        const mx = g.nodes[a].x + dx*0.6, my = g.nodes[a].y + dy*0.6;
+        ctx.beginPath();
+        ctx.moveTo(mx, my);
+        ctx.lineTo(mx - ux*10 + uy*6, my - uy*10 - ux*6);
+        ctx.lineTo(mx - ux*10 - uy*6, my - uy*10 + ux*6);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(34,211,238,0.5)';
+        ctx.fill();
+      }
+    });
+    g.nodes.forEach((n, i) => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 14, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(34,211,238,0.12)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(34,211,238,0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.font = 'bold 12px Inter';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String.fromCharCode(65 + i), n.x, n.y);
+    });
+  }
+  drawGraph();
+</script>
+</body>
+</html>

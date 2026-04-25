@@ -890,30 +890,33 @@
               <span class="sc-mod-pct" id="math-alg-pct">0%</span>
               <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-alg-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
             </a>
-            <div class="sc-module-item soon-item">
+            <a class="sc-module-item" href="math-discrete.html">
               <span class="sc-mod-icon">🔗</span>
               <div class="sc-mod-text">
                 <div class="sc-mod-name">Discrete Mathematics</div>
-                <div class="sc-mod-sub">Sets, Graphs, Combinatorics</div>
+                <div class="sc-mod-sub">5 lessons · Sets, Graphs, Combinatorics</div>
               </div>
-              <span class="sc-mod-pct" style="color:var(--text-3)">—</span>
-            </div>
-            <div class="sc-module-item soon-item">
+              <span class="sc-mod-pct" id="math-disc-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-disc-bar" style="width:0%;background:linear-gradient(90deg,#22D3EE,#06B6D4)"></div></div>
+            </a>
+            <a class="sc-module-item" href="math-stats.html">
               <span class="sc-mod-icon">🎲</span>
               <div class="sc-mod-text">
                 <div class="sc-mod-name">Statistics &amp; Probability</div>
-                <div class="sc-mod-sub">Distributions, Inference, Data</div>
+                <div class="sc-mod-sub">5 lessons · Distributions, Inference, Data</div>
               </div>
-              <span class="sc-mod-pct" style="color:var(--text-3)">—</span>
-            </div>
-            <div class="sc-module-item soon-item">
+              <span class="sc-mod-pct" id="math-stats-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-stats-bar" style="width:0%;background:linear-gradient(90deg,#10B981,#059669)"></div></div>
+            </a>
+            <a class="sc-module-item" href="math-pseudo.html">
               <span class="sc-mod-icon">🗺️</span>
               <div class="sc-mod-text">
                 <div class="sc-mod-name">Pseudocode &amp; Flowcharts</div>
-                <div class="sc-mod-sub">Algorithm Design, Visual Thinking</div>
+                <div class="sc-mod-sub">4 lessons · Algorithm Design, Visual Thinking</div>
               </div>
-              <span class="sc-mod-pct" style="color:var(--text-3)">—</span>
-            </div>
+              <span class="sc-mod-pct" id="math-pseudo-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-pseudo-bar" style="width:0%;background:linear-gradient(90deg,#8B5CF6,#7C3AED)"></div></div>
+            </a>
           </div>
 
           <a class="sc-cta sc-cta-math" href="math-logic.html">Explore maths →</a>
@@ -1177,6 +1180,15 @@ function render() {
   document.getElementById('math-num-bar').style.width   = numPct + '%';
   document.getElementById('math-alg-pct').textContent   = algPct + '%';
   document.getElementById('math-alg-bar').style.width   = algPct + '%';
+  const discPct   = mathMods.discrete?.completed ? 100 : 0;
+  const statsPct  = mathMods.stats?.completed ? 100 : 0;
+  const pseudoPct = mathMods.pseudo?.completed ? 100 : 0;
+  document.getElementById('math-disc-pct').textContent   = discPct + '%';
+  document.getElementById('math-disc-bar').style.width   = discPct + '%';
+  document.getElementById('math-stats-pct').textContent  = statsPct + '%';
+  document.getElementById('math-stats-bar').style.width  = statsPct + '%';
+  document.getElementById('math-pseudo-pct').textContent = pseudoPct + '%';
+  document.getElementById('math-pseudo-bar').style.width = pseudoPct + '%';
 
   // lesson grid
   const grid = document.getElementById('lesson-grid');

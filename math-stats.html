@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Statistics &amp; Probability — Helix Mathematics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050816; --bg-2: #0C1022; --border: rgba(255,255,255,0.07);
+      --amber: #F59E0B; --amber-l: #FCD34D; --orange: #F97316;
+      --primary: #6366F1; --cyan: #22D3EE; --green: #10B981;
+      --red: #EF4444; --violet: #8B5CF6;
+      --text: #EEF2F8; --text-2: #8892A4; --text-3: #2D3A4E;
+      --nav-h: 60px;
+      --acc: #10B981; --acc-l: #6EE7B7; --acc-d: #059669;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 65%); top: -80px; right: 0; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%); bottom: -150px; left: -100px; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 65%); top: 40%; left: 50%; }
+
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: var(--nav-h) 1fr; grid-template-areas: "nav nav" "sidebar main"; min-height: 100vh; position: relative; z-index: 1; }
+    .topnav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: rgba(5,8,22,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .nav-sep { color: var(--text-3); }
+    .nav-title { font-size: 0.85rem; font-weight: 600; color: var(--acc); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-xp { font-size: 0.78rem; font-weight: 700; color: var(--acc-l); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); padding: 4px 12px; border-radius: 100px; }
+    .nav-back { font-size: 0.8rem; color: var(--text-2); padding: 5px 10px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    .sidebar { grid-area: sidebar; border-right: 1px solid var(--border); background: rgba(8,10,25,0.7); padding: 24px 0; overflow-y: auto; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 0 20px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .lesson-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; border-left: 3px solid transparent; }
+    .lesson-item:hover { background: rgba(255,255,255,0.03); }
+    .lesson-item.active { background: rgba(16,185,129,0.07); border-left-color: var(--acc); }
+    .lesson-num { font-size: 0.7rem; font-weight: 700; color: var(--text-3); width: 20px; flex-shrink: 0; }
+    .lesson-item.active .lesson-num { color: var(--acc); }
+    .lesson-name { font-size: 0.85rem; font-weight: 500; color: var(--text-2); }
+    .lesson-item.active .lesson-name { color: var(--text); font-weight: 600; }
+    .lesson-done { margin-left: auto; font-size: 0.7rem; color: var(--green); }
+    .sidebar-footer { margin-top: auto; padding: 20px; border-top: 1px solid var(--border); }
+    .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 100px; height: 6px; overflow: hidden; margin-top: 8px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--acc), #0891B2); border-radius: 100px; transition: width 0.5s ease; }
+    .progress-label { font-size: 0.72rem; color: var(--text-2); display: flex; justify-content: space-between; }
+
+    .main { grid-area: main; padding: 40px 48px; overflow-y: auto; }
+    .lesson-section { max-width: 780px; padding-bottom: 80px; }
+    .lesson-section + .lesson-section { border-top: 1px solid var(--border); padding-top: 60px; }
+
+    .section-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .section-tag::before { content: ''; display: block; width: 20px; height: 2px; background: var(--acc); border-radius: 2px; }
+    h2 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 14px; line-height: 1.2; }
+    .lead { font-size: 1rem; color: var(--text-2); line-height: 1.7; margin-bottom: 28px; }
+
+    .info-box { border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; border: 1px solid; }
+    .info-box.green  { background: rgba(16,185,129,0.06);  border-color: rgba(16,185,129,0.2); }
+    .info-box.amber  { background: rgba(245,158,11,0.07);  border-color: rgba(245,158,11,0.2); }
+    .info-box.violet { background: rgba(139,92,246,0.07);  border-color: rgba(139,92,246,0.2); }
+    .info-box.cyan   { background: rgba(34,211,238,0.06);  border-color: rgba(34,211,238,0.2); }
+    .info-box.red    { background: rgba(239,68,68,0.07);   border-color: rgba(239,68,68,0.2);  }
+    .info-box-title  { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .info-box.green  .info-box-title { color: var(--acc); }
+    .info-box.amber  .info-box-title { color: var(--amber); }
+    .info-box.violet .info-box-title { color: var(--violet); }
+    .info-box.cyan   .info-box-title { color: var(--cyan); }
+    .info-box.red    .info-box-title { color: var(--red); }
+    .info-box p  { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; }
+    .info-box ul { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; padding-left: 1.25rem; }
+    .info-box li { margin-bottom: 4px; }
+
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
+    .c-comment { color: #4B5563; }
+    .c-keyword { color: #C084FC; }
+    .c-string  { color: #86EFAC; }
+    .c-fn      { color: #60A5FA; }
+    .c-num     { color: var(--amber-l); }
+    .c-op      { color: var(--acc); }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .data-table th { background: rgba(16,185,129,0.08); color: var(--acc); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(16,185,129,0.2); }
+    .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+    .data-table td:first-child { color: var(--text); font-weight: 600; }
+    .data-table td code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--acc); background: rgba(16,185,129,0.08); padding: 1px 6px; border-radius: 4px; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .formula-block { text-align: center; margin: 20px 0; }
+    .formula { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: var(--acc-l); background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.15); border-radius: 10px; padding: 10px 20px; }
+
+    /* Stats calculator widget */
+    .widget { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .widget h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .widget-input { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text); outline: none; transition: border 0.2s; width: 100%; }
+    .widget-input:focus { border-color: var(--acc); }
+    .widget-btn { background: linear-gradient(135deg, var(--acc-d), #0891B2); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; }
+    .widget-btn:hover { opacity: 0.85; }
+    .stats-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 16px; }
+    .stat-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; }
+    .stat-box-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 4px; }
+    .stat-box-val { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--acc-l); }
+
+    /* Bell curve canvas */
+    canvas.bell { border: 1px solid var(--border); border-radius: 10px; background: #060919; display: block; }
+    .bell-controls { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+    .bell-label { font-size: 0.78rem; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+    .bell-slider { -webkit-appearance: none; appearance: none; width: 120px; height: 4px; border-radius: 100px; background: var(--border); outline: none; }
+    .bell-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--acc); cursor: pointer; }
+    .bell-val { font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; color: var(--acc-l); min-width: 32px; }
+
+    /* Probability simulator */
+    .sim-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .sim-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px; font-size: 0.82rem; color: var(--text-2); cursor: pointer; transition: all 0.15s; }
+    .sim-btn:hover { border-color: var(--acc); color: var(--acc); background: rgba(16,185,129,0.08); }
+    .sim-result { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-2); margin-top: 10px; line-height: 1.8; }
+    .sim-outcome { display: inline-block; padding: 2px 8px; border-radius: 5px; margin: 2px; font-weight: 700; font-size: 0.85rem; }
+    .sim-outcome.heads { background: rgba(16,185,129,0.15); color: var(--green); }
+    .sim-outcome.tails { background: rgba(139,92,246,0.15); color: var(--violet); }
+    .sim-outcome.die   { background: rgba(34,211,238,0.12); color: var(--cyan); }
+
+    /* Challenge */
+    .challenge { background: rgba(16,185,129,0.04); border: 1px solid rgba(16,185,129,0.18); border-radius: 14px; padding: 22px 24px; margin: 24px 0; }
+    .challenge-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .challenge-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acc); background: rgba(16,185,129,0.1); padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(16,185,129,0.25); }
+    .challenge-xp { font-size: 0.68rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); padding: 3px 8px; border-radius: 6px; margin-left: auto; }
+    .challenge h4 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .challenge p { font-size: 0.88rem; color: var(--text-2); line-height: 1.65; margin-bottom: 14px; }
+    .challenge-input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .challenge-input { background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); outline: none; transition: border 0.2s; }
+    .challenge-input:focus { border-color: var(--acc); }
+    .challenge-btn { background: linear-gradient(135deg, var(--acc-d), #0891B2); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+    .challenge-btn:hover { opacity: 0.85; }
+    .challenge-feedback { font-size: 0.85rem; margin-top: 10px; min-height: 22px; line-height: 1.5; }
+    .challenge-feedback.correct { color: var(--green); }
+    .challenge-feedback.wrong   { color: var(--red); }
+    .challenge-hint-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; color: var(--text-2); cursor: pointer; }
+    .challenge-hint-btn:hover { border-color: var(--text-2); }
+    .challenge-hint { font-size: 0.82rem; color: var(--acc); margin-top: 8px; display: none; }
+
+    /* Quiz */
+    .quiz-card { background: rgba(8,10,28,0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 18px; }
+    .quiz-q { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+    .quiz-q code { font-family: 'JetBrains Mono', monospace; color: var(--acc); background: rgba(16,185,129,0.1); padding: 1px 7px; border-radius: 4px; font-size: 0.88em; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-opt { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: 0.88rem; color: var(--text-2); cursor: pointer; text-align: left; transition: all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .quiz-opt.correct { background: rgba(16,185,129,0.12); border-color: var(--green); color: var(--green); }
+    .quiz-opt.wrong   { background: rgba(239,68,68,0.12);  border-color: var(--red);   color: var(--red); }
+    .quiz-feedback { font-size: 0.82rem; margin-top: 10px; min-height: 20px; color: var(--text-2); }
+    .quiz-feedback.correct { color: var(--green); }
+    .quiz-feedback.wrong   { color: var(--red); }
+
+    .rw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+    .rw-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .rw-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .rw-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .rw-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; }
+
+    .complete-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--border); text-align: center; }
+    .complete-btn { background: linear-gradient(135deg, var(--acc-d), #0891B2); color: #fff; border: none; border-radius: 14px; padding: 16px 48px; font-size: 1rem; font-weight: 800; cursor: pointer; letter-spacing: -0.01em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px; }
+    .complete-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .complete-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(16,185,129,0.3); }
+    .complete-note { font-size: 0.8rem; color: var(--text-3); margin-top: 12px; }
+
+    .xp-toast { position: fixed; bottom: 32px; right: 32px; background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(8,145,178,0.15)); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 12px 20px; font-size: 0.88rem; font-weight: 700; color: var(--acc-l); z-index: 999; opacity: 0; transform: translateY(16px); transition: all 0.35s cubic-bezier(.34,1.56,.64,1); pointer-events: none; display: flex; align-items: center; gap: 8px; }
+    .xp-toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "nav" "main"; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#10B981" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>
+        Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Statistics &amp; Probability</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="math.html" class="nav-back">← Math Strand</a>
+    </div>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 05</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">Measures of Center</span><span class="lesson-done" id="done-1"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Spread &amp; Variance</span><span class="lesson-done" id="done-2"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Probability Basics</span><span class="lesson-done" id="done-3"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Conditional Probability</span><span class="lesson-done" id="done-4"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l5')"><span class="lesson-num">05</span><span class="lesson-name">Distributions</span><span class="lesson-done" id="done-5"></span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ── LESSON 1: MEASURES OF CENTER ── -->
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Statistics &amp; Probability</div>
+    <h2>Measures of Center</h2>
+    <p class="lead">Before you can understand data, you need to <em>summarize</em> it. The three core measures of center — mean, median, and mode — each tell a different story about where your data clusters.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Measure</th><th>How to Calculate</th><th>Best for</th><th>Weakness</th></tr></thead>
+      <tbody>
+        <tr><td>Mean (average)</td><td>Sum all values ÷ count</td><td>Symmetric data</td><td>Sensitive to outliers</td></tr>
+        <tr><td>Median</td><td>Middle value when sorted</td><td>Skewed data, income</td><td>Ignores extreme values</td></tr>
+        <tr><td>Mode</td><td>Most frequent value</td><td>Categorical data</td><td>May not exist or be unique</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box amber">
+      <div class="info-box-title">💡 Which to Use?</div>
+      <p>The mean salary at a company is $90,000 but the CEO earns $5M — that single outlier pulls the mean up massively. The <strong>median</strong> salary (the middle one) better represents the typical employee. For house prices, clothing sizes, most frequent purchases — think about which measure actually answers your question.</p>
+    </div>
+
+    <!-- Stats Calculator -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">📊 Statistics Calculator</h4>
+      <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:12px;">Enter comma-separated numbers to compute descriptive statistics:</p>
+      <input class="widget-input" id="stats-input" placeholder="e.g. 4, 8, 6, 5, 3, 2, 8, 9, 2, 5" value="4, 8, 6, 5, 3, 2, 8, 9, 2, 5" />
+      <button class="widget-btn" onclick="calcStats()">Calculate</button>
+      <div class="stats-results" id="stats-results"></div>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Python: statistics module</span>
+<span class="c-keyword">import</span> statistics <span class="c-keyword">as</span> stats
+
+data = [<span class="c-num">4</span>, <span class="c-num">8</span>, <span class="c-num">6</span>, <span class="c-num">5</span>, <span class="c-num">3</span>, <span class="c-num">2</span>, <span class="c-num">8</span>, <span class="c-num">9</span>, <span class="c-num">2</span>, <span class="c-num">5</span>]
+
+<span class="c-fn">print</span>(stats.<span class="c-fn">mean</span>(data))    <span class="c-comment"># 5.2</span>
+<span class="c-fn">print</span>(stats.<span class="c-fn">median</span>(data))  <span class="c-comment"># 5.0</span>
+<span class="c-fn">print</span>(stats.<span class="c-fn">mode</span>(data))    <span class="c-comment"># 2 (first mode found)</span>
+<span class="c-fn">print</span>(stats.<span class="c-fn">multimode</span>(data)) <span class="c-comment"># [2, 5, 8]</span></div>
+
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Find the Median</h4>
+      <p>Dataset: {3, 7, 2, 9, 1, 5, 8}. What is the median? (Sort first!)</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" type="number" placeholder="median" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">Sorted: {1, 2, 3, 5, 7, 8, 9} — 7 values, the 4th is the median.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 2: SPREAD & VARIANCE ── -->
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Statistics &amp; Probability</div>
+    <h2>Spread &amp; Variance</h2>
+    <p class="lead">Knowing where data centers is only half the story. How <em>spread out</em> is it? Two datasets can have the same mean but completely different shapes — variance and standard deviation capture the spread.</p>
+
+    <div class="info-box green">
+      <div class="info-box-title">📐 Key Formulas</div>
+      <ul>
+        <li><strong>Range</strong> = max − min (simple, but sensitive to outliers)</li>
+        <li><strong>Variance (σ²)</strong> = average of squared differences from mean</li>
+        <li><strong>Standard Deviation (σ)</strong> = √variance — same units as data</li>
+      </ul>
+    </div>
+
+    <div class="formula-block">
+      <div class="formula">σ = √[ Σ(xᵢ − μ)² / N ]</div>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Term</th><th>Symbol</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Population mean</td><td>μ (mu)</td><td>Average of entire population</td></tr>
+        <tr><td>Sample mean</td><td>x̄ (x-bar)</td><td>Average of a sample</td></tr>
+        <tr><td>Population variance</td><td>σ²</td><td>Average squared deviation (divide by N)</td></tr>
+        <tr><td>Sample variance</td><td>s²</td><td>Unbiased estimate (divide by N−1)</td></tr>
+        <tr><td>Standard deviation</td><td>σ or s</td><td>Square root of variance</td></tr>
+        <tr><td>IQR</td><td>Q3 − Q1</td><td>Range of middle 50% — robust to outliers</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">🤖 Why This Matters in ML</div>
+      <p>Feature normalization (StandardScaler) subtracts the mean and divides by standard deviation. Every neural network training pipeline starts with this. If your data has σ=1000 and another feature has σ=0.01, gradient descent will be completely unbalanced.</p>
+    </div>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Variance Concept</h4>
+      <p>Dataset A = {5, 5, 5, 5} and Dataset B = {1, 3, 7, 9}. Both have mean = 5. Which has higher variance? Type <strong>A</strong> or <strong>B</strong>.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" placeholder="A or B" style="width:80px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Dataset A has all identical values — zero variance. Dataset B has spread-out values — higher variance.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 3: PROBABILITY BASICS ── -->
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Statistics &amp; Probability</div>
+    <h2>Probability Basics</h2>
+    <p class="lead"><strong>Probability</strong> measures how likely an event is to occur. It ranges from 0 (impossible) to 1 (certain). Every random algorithm, machine learning model, and A/B test is built on this foundation.</p>
+
+    <div class="info-box green">
+      <div class="info-box-title">🎲 Core Definitions</div>
+      <ul>
+        <li><strong>Sample space (S)</strong>: all possible outcomes</li>
+        <li><strong>Event (E)</strong>: a subset of the sample space</li>
+        <li><strong>P(E)</strong> = |favorable outcomes| / |total outcomes|</li>
+        <li><strong>Complement P(Eᶜ)</strong> = 1 − P(E)</li>
+      </ul>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Rule</th><th>Formula</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td>Addition (OR)</td><td>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</td><td>A or B occurs</td></tr>
+        <tr><td>Multiplication (AND)</td><td>P(A ∩ B) = P(A) × P(B) [if independent]</td><td>Both A and B occur</td></tr>
+        <tr><td>Complement</td><td>P(Aᶜ) = 1 − P(A)</td><td>A does not occur</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Probability Simulator -->
+    <div class="widget">
+      <h4 style="color:var(--violet);">🎲 Probability Simulator</h4>
+      <div class="sim-controls">
+        <button class="sim-btn" onclick="simulate('coin', 1)">Flip 1 coin</button>
+        <button class="sim-btn" onclick="simulate('coin', 10)">Flip 10 coins</button>
+        <button class="sim-btn" onclick="simulate('die', 1)">Roll 1 die</button>
+        <button class="sim-btn" onclick="simulate('die', 10)">Roll 10 dice</button>
+        <button class="sim-btn" onclick="simulate('coin', 100)">100 coin flips</button>
+      </div>
+      <div class="sim-result" id="simResult">Press a button to run a simulation.</div>
+    </div>
+
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Probability of Complement</h4>
+      <p>The probability of rain tomorrow is 0.3. What is the probability it will <strong>NOT</strong> rain? Enter as a decimal (e.g. 0.7).</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="0.?" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">P(not rain) = 1 − P(rain) = 1 − 0.3 = 0.7</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 4: CONDITIONAL PROBABILITY ── -->
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Statistics &amp; Probability</div>
+    <h2>Conditional Probability &amp; Bayes' Theorem</h2>
+    <p class="lead"><strong>Conditional probability</strong> is the probability of event A given that event B has already occurred. It updates your beliefs when you have new information — and it's the engine behind spam filters, medical tests, and recommendation systems.</p>
+
+    <div class="formula-block">
+      <div class="formula">P(A | B) = P(A ∩ B) / P(B)</div>
+    </div>
+
+    <div class="info-box violet">
+      <div class="info-box-title">🔬 Bayes' Theorem</div>
+      <p>Bayes' theorem reverses the conditioning: given P(B|A), find P(A|B).</p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:var(--acc-l);margin-top:10px;">P(A|B) = [ P(B|A) × P(A) ] / P(B)</p>
+      <p style="margin-top:10px;"><strong>Prior</strong> P(A) = initial belief. <strong>Likelihood</strong> P(B|A) = evidence. <strong>Posterior</strong> P(A|B) = updated belief.</p>
+    </div>
+
+    <div class="info-box cyan">
+      <div class="info-box-title">📧 Real Example: Spam Filter</div>
+      <p>P(spam) = 0.2 (prior). P("free"|spam) = 0.7. P("free"|not spam) = 0.05. If an email contains "free", what's P(spam|"free")? Bayes gives us: P(spam|"free") ≈ 0.78 — the word "free" strongly updates our belief toward spam.</p>
+    </div>
+
+    <div class="code-block"><span class="c-comment"># Bayes' Theorem in Python</span>
+p_spam   = <span class="c-num">0.2</span>
+p_nospam = <span class="c-num">0.8</span>
+p_free_given_spam   = <span class="c-num">0.7</span>
+p_free_given_nospam = <span class="c-num">0.05</span>
+
+<span class="c-comment"># P("free") = P(free|spam)×P(spam) + P(free|¬spam)×P(¬spam)</span>
+p_free = p_free_given_spam * p_spam + p_free_given_nospam * p_nospam
+
+<span class="c-comment"># Bayes: P(spam|"free")</span>
+p_spam_given_free = (p_free_given_spam * p_spam) / p_free
+<span class="c-fn">print</span>(<span class="c-fn">round</span>(p_spam_given_free, <span class="c-num">3</span>))  <span class="c-comment"># 0.778</span></div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Independence</h4>
+      <p>A fair coin is flipped twice. What is P(heads AND heads) = P(both heads)? Enter as a fraction like <strong>1/4</strong>.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" placeholder="1/?" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">Each flip is independent. P(H∩H) = P(H) × P(H) = ½ × ½ = ¼</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 5: DISTRIBUTIONS ── -->
+  <section class="lesson-section" id="l5">
+    <div class="section-tag">Lesson 05 · Statistics &amp; Probability</div>
+    <h2>Probability Distributions</h2>
+    <p class="lead">A <strong>probability distribution</strong> tells you how likely each outcome is. Different phenomena follow different distributions — and recognizing which one your data follows is a superpower in data analysis and ML.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Distribution</th><th>Shape</th><th>When to use</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Uniform</td><td>Flat — all equal</td><td>All outcomes equally likely</td><td>Fair die rolls</td></tr>
+        <tr><td>Normal (Gaussian)</td><td>Bell curve</td><td>Natural variation, errors</td><td>Heights, IQ scores, noise</td></tr>
+        <tr><td>Binomial</td><td>Discrete, bell-ish</td><td>n independent yes/no trials</td><td>Number of heads in 10 flips</td></tr>
+        <tr><td>Poisson</td><td>Right-skewed</td><td>Count of rare events</td><td>Server requests/second</td></tr>
+        <tr><td>Exponential</td><td>Decaying</td><td>Time between events</td><td>Time between arrivals</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Bell Curve Visualizer -->
+    <div class="widget">
+      <h4 style="color:var(--acc);">🔔 Normal Distribution Visualizer</h4>
+      <div class="bell-controls">
+        <div class="bell-label">μ (mean): <input class="bell-slider" id="bell-mu" type="range" min="-3" max="3" step="0.1" value="0" oninput="drawBell()"/><span class="bell-val" id="bell-mu-val">0.0</span></div>
+        <div class="bell-label">σ (std dev): <input class="bell-slider" id="bell-sigma" type="range" min="0.3" max="3" step="0.1" value="1" oninput="drawBell()"/><span class="bell-val" id="bell-sigma-val">1.0</span></div>
+      </div>
+      <canvas class="bell" id="bellCanvas" width="500" height="220"></canvas>
+      <div class="widget-sub" id="bell-info" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="info-box green">
+      <div class="info-box-title">📏 The 68-95-99.7 Rule</div>
+      <p>For a normal distribution: <strong>68%</strong> of data falls within 1σ of the mean, <strong>95%</strong> within 2σ, and <strong>99.7%</strong> within 3σ. If test scores are normally distributed with μ=70 and σ=10, then 95% of students scored between 50 and 90.</p>
+    </div>
+
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">🤖</div><div class="rw-title">Machine Learning</div><div class="rw-desc">Gaussian Naive Bayes assumes features are normally distributed. Most activation functions were chosen based on distribution theory.</div></div>
+      <div class="rw-card"><div class="rw-icon">🧪</div><div class="rw-title">A/B Testing</div><div class="rw-desc">Statistical significance in A/B tests uses the normal distribution. p-values tell you if a result is likely by chance.</div></div>
+      <div class="rw-card"><div class="rw-icon">⚡</div><div class="rw-title">Server Monitoring</div><div class="rw-desc">Request rates follow Poisson. Response times follow exponential. Knowing this lets you set better alerts and capacity plans.</div></div>
+      <div class="rw-card"><div class="rw-icon">📈</div><div class="rw-title">Finance</div><div class="rw-desc">Stock returns are (approximately) normally distributed. Portfolio risk models are built entirely on variance and correlation.</div></div>
+    </div>
+  </section>
+
+  <!-- ── QUIZ ── -->
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 05</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your statistics and probability knowledge.</p>
+
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">The mode of the dataset {1, 2, 2, 3, 3, 3, 4} is:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">2</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">2.5</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">3</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">2 and 3</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">For two <em>independent</em> events A and B, P(A and B) equals:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">P(A) + P(B)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">P(A) × P(B)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">P(A) / P(B)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">P(A) − P(B)</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">Standard deviation measures:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">The average value of a dataset</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">The most frequent value</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">How spread out the data is from the mean</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">The maximum minus the minimum</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">The normal distribution is described by which two parameters?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">Mode and range</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">Mean (μ) and standard deviation (σ)</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">Median and variance</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">P(A) and P(B)</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>
+        🎉 Complete Module 05
+      </button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+
+<script>
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  const state = { xp: 0, done: { c1:false, c2:false, c3:false, c4:false, q1:false, q2:false, q3:false, q4:false } };
+
+  function awardXP(amount, key) {
+    if (state.done[key]) return;
+    state.done[key] = true; state.xp += amount;
+    document.getElementById('navXp').textContent = state.xp + ' XP';
+    showToast('+' + amount + ' XP'); updateProgress(); checkComplete();
+  }
+  function showToast(msg) {
+    const t = document.getElementById('xpToast');
+    document.getElementById('toastXp').textContent = msg;
+    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function updateProgress() {
+    const done = Object.values(state.done).filter(Boolean).length;
+    const pct = Math.round((done / 8) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = pct + '%';
+  }
+  function checkComplete() {
+    const allDone = Object.values(state.done).every(Boolean);
+    document.getElementById('completeBtn').disabled = !allDone;
+    if (allDone) document.getElementById('complete-note').textContent = 'All challenges and quiz questions completed!';
+  }
+
+  const CHALLENGES = {
+    1: { check: v => parseInt(v) === 5 },
+    2: { check: v => v.trim().toUpperCase() === 'B' },
+    3: { check: v => Math.abs(parseFloat(v) - 0.7) < 0.01 },
+    4: { check: v => v.trim() === '1/4' || Math.abs(parseFloat(v) - 0.25) < 0.01 },
+  };
+  function checkChallenge(n) {
+    const val = document.getElementById('c' + n + '-inp').value;
+    const fb = document.getElementById('c' + n + '-fb');
+    if (CHALLENGES[n].check(val)) { fb.className = 'challenge-feedback correct'; fb.textContent = '✓ Correct!'; awardXP(15, 'c' + n); }
+    else { fb.className = 'challenge-feedback wrong'; fb.textContent = '✗ Not quite. Try again.'; }
+  }
+  function showHint(n) { const h = document.getElementById('c' + n + '-hint'); h.style.display = h.style.display === 'block' ? 'none' : 'block'; }
+
+  const QUIZ = {
+    1: { correct: 'c', explain: '✓ The mode is 3 — it appears 3 times, more than any other value.' },
+    2: { correct: 'b', explain: '✓ For independent events, P(A ∩ B) = P(A) × P(B).' },
+    3: { correct: 'c', explain: '✓ Standard deviation measures the spread of data around the mean.' },
+    4: { correct: 'b', explain: '✓ The normal distribution N(μ, σ²) is fully described by mean μ and std dev σ.' },
+  };
+  function answerQuiz(n, opt) {
+    const card = document.getElementById('q' + n + '-card');
+    if (card.dataset.answered) return;
+    card.dataset.answered = 'true';
+    const q = QUIZ[n];
+    card.querySelectorAll('.quiz-opt').forEach((b, i) => {
+      b.disabled = true;
+      const letter = ['a','b','c','d'][i];
+      if (letter === q.correct) b.classList.add('correct');
+      else if (letter === opt) b.classList.add('wrong');
+    });
+    const fb = document.getElementById('q' + n + '-fb');
+    if (opt === q.correct) { fb.className = 'quiz-feedback correct'; fb.textContent = q.explain; awardXP(20, 'q' + n); }
+    else { fb.className = 'quiz-feedback wrong'; fb.textContent = '✗ ' + q.explain; }
+  }
+
+  function completeModule() {
+    const mp = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    mp.xp = (mp.xp || 0) + state.xp + 130;
+    mp.completedLessons = (mp.completedLessons || 0) + 5;
+    mp.modules = mp.modules || {};
+    mp.modules.stats = { completed: true, xp: state.xp + 130, completedAt: new Date().toISOString() };
+    mp.lastActivity = new Date().toISOString();
+    localStorage.setItem('helix_math_progress', JSON.stringify(mp));
+    showToast('+130 XP — Module Complete!');
+    setTimeout(() => { window.location.href = 'math.html'; }, 1800);
+  }
+
+  function scrollToLesson(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+    const map = {l1:0,l2:1,l3:2,l4:3,l5:4,quiz:5};
+    const items = document.querySelectorAll('.lesson-item');
+    if (map[id] !== undefined && items[map[id]]) items[map[id]].classList.add('active');
+  }
+
+  /* ── Stats Calculator ── */
+  function calcStats() {
+    const raw = document.getElementById('stats-input').value;
+    const nums = raw.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+    if (nums.length === 0) return;
+    const n = nums.length;
+    const mean = nums.reduce((a,b)=>a+b,0) / n;
+    const sorted = [...nums].sort((a,b)=>a-b);
+    const median = n % 2 === 0 ? (sorted[n/2-1]+sorted[n/2])/2 : sorted[Math.floor(n/2)];
+    const freq = {}; nums.forEach(x => freq[x] = (freq[x]||0)+1);
+    const maxF = Math.max(...Object.values(freq));
+    const modes = Object.entries(freq).filter(([,f])=>f===maxF).map(([v])=>v);
+    const variance = nums.reduce((a,x)=>a+(x-mean)**2,0)/n;
+    const std = Math.sqrt(variance);
+    const el = document.getElementById('stats-results');
+    el.innerHTML = [
+      ['Mean', mean.toFixed(3),'var(--acc-l)'],
+      ['Median', median,'var(--amber-l)'],
+      ['Mode', modes.join(', '),'var(--violet)'],
+      ['Std Dev', std.toFixed(3),'var(--cyan)'],
+      ['Variance', variance.toFixed(3),'rgba(255,255,255,0.7)'],
+      ['Count', n,'rgba(255,255,255,0.7)'],
+    ].map(([lbl,val,c])=>`<div class="stat-box"><div class="stat-box-lbl">${lbl}</div><div class="stat-box-val" style="color:${c}">${val}</div></div>`).join('');
+  }
+  calcStats();
+
+  /* ── Probability Simulator ── */
+  function simulate(type, n) {
+    const results = [];
+    let heads=0, tails=0, counts={};
+    for (let i=0; i<n; i++) {
+      if (type==='coin') {
+        const r = Math.random()<0.5 ? 'H':'T';
+        results.push(r); if(r==='H') heads++; else tails++;
+      } else {
+        const r = Math.floor(Math.random()*6)+1;
+        results.push(r); counts[r]=(counts[r]||0)+1;
+      }
+    }
+    const el = document.getElementById('simResult');
+    if (n <= 20) {
+      const chips = results.map(r => type==='coin'
+        ? `<span class="sim-outcome ${r==='H'?'heads':'tails'}">${r==='H'?'H':'T'}</span>`
+        : `<span class="sim-outcome die">${r}</span>`
+      ).join('');
+      el.innerHTML = chips + (type==='coin' ? `<br><span style="color:var(--text-3);font-size:0.78rem;">H: ${heads}  T: ${tails}  (${(heads/n*100).toFixed(0)}% heads)</span>` : '');
+    } else {
+      if (type==='coin') el.innerHTML = `<span style="color:var(--acc-l)">H: ${heads}/${n} (${(heads/n*100).toFixed(1)}%)  T: ${tails}/${n} (${(tails/n*100).toFixed(1)}%)</span><br><span style="color:var(--text-3);font-size:0.78rem;">Expected: 50% each — law of large numbers in action.</span>`;
+    }
+  }
+
+  /* ── Bell Curve ── */
+  function normalPDF(x, mu, sigma) {
+    return (1/(sigma*Math.sqrt(2*Math.PI))) * Math.exp(-0.5*((x-mu)/sigma)**2);
+  }
+  function drawBell() {
+    const mu = parseFloat(document.getElementById('bell-mu').value);
+    const sigma = parseFloat(document.getElementById('bell-sigma').value);
+    document.getElementById('bell-mu-val').textContent = mu.toFixed(1);
+    document.getElementById('bell-sigma-val').textContent = sigma.toFixed(1);
+    const canvas = document.getElementById('bellCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    const xMin=-6, xMax=6;
+    const yMax = normalPDF(mu, mu, sigma) * 1.15;
+    const toX = x => ((x-xMin)/(xMax-xMin)) * (W-60) + 30;
+    const toY = y => H - 30 - (y/yMax) * (H-50);
+    // Grid
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+    for(let gx=-5; gx<=5; gx+=1) { ctx.beginPath(); ctx.moveTo(toX(gx),20); ctx.lineTo(toX(gx),H-30); ctx.stroke(); }
+    // Axis
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(30,H-30); ctx.lineTo(W-30,H-30); ctx.stroke();
+    // σ regions
+    [[1,'rgba(16,185,129,0.2)'],[2,'rgba(16,185,129,0.12)'],[3,'rgba(16,185,129,0.06)']].reverse().forEach(([s,c])=>{
+      ctx.fillStyle=c;
+      ctx.beginPath(); ctx.moveTo(toX(mu-s*sigma),toY(0));
+      for(let x=mu-s*sigma; x<=mu+s*sigma; x+=0.05) ctx.lineTo(toX(x),toY(normalPDF(x,mu,sigma)));
+      ctx.lineTo(toX(mu+s*sigma),toY(0)); ctx.closePath(); ctx.fill();
+    });
+    // Curve
+    ctx.strokeStyle='rgba(16,185,129,0.9)'; ctx.lineWidth=2.5;
+    ctx.beginPath();
+    let first=true;
+    for(let x=xMin; x<=xMax; x+=0.05) {
+      const px=toX(x), py=toY(normalPDF(x,mu,sigma));
+      first ? ctx.moveTo(px,py) : ctx.lineTo(px,py); first=false;
+    }
+    ctx.stroke();
+    // Mean line
+    ctx.strokeStyle='rgba(245,158,11,0.7)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(toX(mu),20); ctx.lineTo(toX(mu),H-30); ctx.stroke();
+    ctx.setLineDash([]);
+    // Labels
+    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px Inter'; ctx.textAlign='center';
+    [-4,-2,0,2,4].forEach(x => ctx.fillText(x, toX(x), H-12));
+    ctx.fillStyle='rgba(245,158,11,0.7)'; ctx.fillText('μ='+mu.toFixed(1), toX(mu), 15);
+    document.getElementById('bell-info').textContent = `68% of values fall within μ±σ = [${(mu-sigma).toFixed(1)}, ${(mu+sigma).toFixed(1)}]   ·   95% within [${(mu-2*sigma).toFixed(1)}, ${(mu+2*sigma).toFixed(1)}]`;
+  }
+  drawBell();
+</script>
+</body>
+</html>

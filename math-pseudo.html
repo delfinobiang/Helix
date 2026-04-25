@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <script src="analytics.js" defer></script>
+  <title>Pseudocode &amp; Flowcharts — Helix Mathematics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050816; --bg-2: #0C1022; --border: rgba(255,255,255,0.07);
+      --amber: #F59E0B; --amber-l: #FCD34D; --orange: #F97316;
+      --primary: #6366F1; --cyan: #22D3EE; --green: #10B981;
+      --red: #EF4444; --violet: #8B5CF6;
+      --text: #EEF2F8; --text-2: #8892A4; --text-3: #2D3A4E;
+      --nav-h: 60px;
+      --acc: #8B5CF6; --acc-l: #C4B5FD; --acc-d: #7C3AED;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; filter: blur(100px) saturate(120%); }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 65%); top: -80px; right: 0; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%); bottom: -150px; left: -100px; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(34,211,238,0.07) 0%, transparent 65%); top: 40%; left: 50%; }
+
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: var(--nav-h) 1fr; grid-template-areas: "nav nav" "sidebar main"; min-height: 100vh; position: relative; z-index: 1; }
+    .topnav { grid-area: nav; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: rgba(5,8,22,0.9); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-logo { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .nav-sep { color: var(--text-3); }
+    .nav-title { font-size: 0.85rem; font-weight: 600; color: var(--acc); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-xp { font-size: 0.78rem; font-weight: 700; color: var(--acc-l); background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); padding: 4px 12px; border-radius: 100px; }
+    .nav-back { font-size: 0.8rem; color: var(--text-2); padding: 5px 10px; border-radius: 8px; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    .sidebar { grid-area: sidebar; border-right: 1px solid var(--border); background: rgba(8,10,25,0.7); padding: 24px 0; overflow-y: auto; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); display: flex; flex-direction: column; }
+    .sidebar-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 0 20px; margin-bottom: 8px; margin-top: 20px; }
+    .sidebar-label:first-child { margin-top: 0; }
+    .lesson-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; cursor: pointer; transition: background 0.15s; border-left: 3px solid transparent; }
+    .lesson-item:hover { background: rgba(255,255,255,0.03); }
+    .lesson-item.active { background: rgba(139,92,246,0.07); border-left-color: var(--acc); }
+    .lesson-num { font-size: 0.7rem; font-weight: 700; color: var(--text-3); width: 20px; flex-shrink: 0; }
+    .lesson-item.active .lesson-num { color: var(--acc); }
+    .lesson-name { font-size: 0.85rem; font-weight: 500; color: var(--text-2); }
+    .lesson-item.active .lesson-name { color: var(--text); font-weight: 600; }
+    .lesson-done { margin-left: auto; font-size: 0.7rem; color: var(--green); }
+    .sidebar-footer { margin-top: auto; padding: 20px; border-top: 1px solid var(--border); }
+    .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 100px; height: 6px; overflow: hidden; margin-top: 8px; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--acc-d), var(--primary)); border-radius: 100px; transition: width 0.5s ease; }
+    .progress-label { font-size: 0.72rem; color: var(--text-2); display: flex; justify-content: space-between; }
+
+    .main { grid-area: main; padding: 40px 48px; overflow-y: auto; }
+    .lesson-section { max-width: 780px; padding-bottom: 80px; }
+    .lesson-section + .lesson-section { border-top: 1px solid var(--border); padding-top: 60px; }
+
+    .section-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .section-tag::before { content: ''; display: block; width: 20px; height: 2px; background: var(--acc); border-radius: 2px; }
+    h2 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 14px; line-height: 1.2; }
+    .lead { font-size: 1rem; color: var(--text-2); line-height: 1.7; margin-bottom: 28px; }
+
+    .info-box { border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; border: 1px solid; }
+    .info-box.violet { background: rgba(139,92,246,0.07);  border-color: rgba(139,92,246,0.2); }
+    .info-box.amber  { background: rgba(245,158,11,0.07);  border-color: rgba(245,158,11,0.2); }
+    .info-box.green  { background: rgba(16,185,129,0.06);  border-color: rgba(16,185,129,0.2); }
+    .info-box.cyan   { background: rgba(34,211,238,0.06);  border-color: rgba(34,211,238,0.2); }
+    .info-box.red    { background: rgba(239,68,68,0.07);   border-color: rgba(239,68,68,0.2);  }
+    .info-box-title  { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .info-box.violet .info-box-title { color: var(--acc); }
+    .info-box.amber  .info-box-title { color: var(--amber); }
+    .info-box.green  .info-box-title { color: var(--green); }
+    .info-box.cyan   .info-box-title { color: var(--cyan); }
+    .info-box.red    .info-box-title { color: var(--red); }
+    .info-box p  { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; }
+    .info-box ul { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; padding-left: 1.25rem; }
+    .info-box li { margin-bottom: 4px; }
+
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; overflow-x: auto; margin: 20px 0; white-space: pre; }
+    .c-comment { color: #4B5563; }
+    .c-keyword { color: #C084FC; }
+    .c-string  { color: #86EFAC; }
+    .c-fn      { color: #60A5FA; }
+    .c-num     { color: var(--amber-l); }
+    .c-op      { color: var(--acc-l); }
+    .c-pseudo  { color: #F9A8D4; font-style: italic; }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .data-table th { background: rgba(139,92,246,0.08); color: var(--acc-l); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(139,92,246,0.2); }
+    .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+    .data-table td:first-child { color: var(--text); font-weight: 600; }
+    .data-table td code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--acc-l); background: rgba(139,92,246,0.08); padding: 1px 6px; border-radius: 4px; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Flowchart */
+    .flowchart-wrap { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin: 24px 0; }
+    .flowchart-select { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .fc-btn { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; color: var(--text-2); cursor: pointer; transition: all 0.15s; }
+    .fc-btn:hover { border-color: var(--acc); color: var(--acc); }
+    .fc-btn.active { border-color: var(--acc); color: var(--acc); background: rgba(139,92,246,0.08); }
+    canvas.fc-canvas { border: 1px solid var(--border); border-radius: 10px; background: #060919; display: block; }
+
+    /* Algorithm tracer */
+    .tracer-wrap { background: rgba(8,10,28,0.9); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin: 24px 0; }
+    .tracer-wrap h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--acc); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .tracer-controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tracer-btn { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); border-radius: 8px; padding: 7px 16px; font-size: 0.82rem; font-weight: 600; color: var(--acc-l); cursor: pointer; transition: all 0.15s; }
+    .tracer-btn:hover { background: rgba(139,92,246,0.2); }
+    .tracer-array { display: flex; gap: 6px; margin: 14px 0; flex-wrap: wrap; }
+    .tracer-cell { width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; border: 1px solid var(--border); background: rgba(255,255,255,0.03); transition: all 0.25s; }
+    .tracer-cell.comparing { border-color: var(--amber); background: rgba(245,158,11,0.15); color: var(--amber-l); }
+    .tracer-cell.swapped   { border-color: var(--acc); background: rgba(139,92,246,0.15); color: var(--acc-l); }
+    .tracer-cell.sorted    { border-color: var(--green); background: rgba(16,185,129,0.1); color: var(--green); }
+    .tracer-log { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-2); line-height: 1.8; max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .tracer-log .swap { color: var(--acc-l); }
+    .tracer-log .pass { color: var(--text-3); font-size: 0.72rem; }
+    .tracer-log .done { color: var(--green); font-weight: 700; }
+
+    /* Challenge */
+    .challenge { background: rgba(139,92,246,0.04); border: 1px solid rgba(139,92,246,0.18); border-radius: 14px; padding: 22px 24px; margin: 24px 0; }
+    .challenge-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .challenge-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acc-l); background: rgba(139,92,246,0.1); padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(139,92,246,0.25); }
+    .challenge-xp { font-size: 0.68rem; font-weight: 700; color: var(--amber-l); background: rgba(245,158,11,0.1); padding: 3px 8px; border-radius: 6px; margin-left: auto; }
+    .challenge h4 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .challenge p { font-size: 0.88rem; color: var(--text-2); line-height: 1.65; margin-bottom: 14px; }
+    .challenge-input-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .challenge-input { background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text); outline: none; transition: border 0.2s; }
+    .challenge-input:focus { border-color: var(--acc); }
+    .challenge-btn { background: linear-gradient(135deg, var(--acc-d), var(--primary)); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+    .challenge-btn:hover { opacity: 0.85; }
+    .challenge-feedback { font-size: 0.85rem; margin-top: 10px; min-height: 22px; line-height: 1.5; }
+    .challenge-feedback.correct { color: var(--green); }
+    .challenge-feedback.wrong   { color: var(--red); }
+    .challenge-hint-btn { background: none; border: 1px solid var(--border); border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; color: var(--text-2); cursor: pointer; }
+    .challenge-hint-btn:hover { border-color: var(--text-2); }
+    .challenge-hint { font-size: 0.82rem; color: var(--acc-l); margin-top: 8px; display: none; }
+
+    /* Quiz */
+    .quiz-card { background: rgba(8,10,28,0.8); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 18px; }
+    .quiz-q { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+    .quiz-q code { font-family: 'JetBrains Mono', monospace; color: var(--acc-l); background: rgba(139,92,246,0.1); padding: 1px 7px; border-radius: 4px; font-size: 0.88em; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-opt { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; font-size: 0.88rem; color: var(--text-2); cursor: pointer; text-align: left; transition: all 0.15s; }
+    .quiz-opt:hover:not(:disabled) { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .quiz-opt.correct { background: rgba(16,185,129,0.12); border-color: var(--green); color: var(--green); }
+    .quiz-opt.wrong   { background: rgba(239,68,68,0.12);  border-color: var(--red);   color: var(--red); }
+    .quiz-feedback { font-size: 0.82rem; margin-top: 10px; min-height: 20px; color: var(--text-2); }
+    .quiz-feedback.correct { color: var(--green); }
+    .quiz-feedback.wrong   { color: var(--red); }
+
+    .rw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 20px 0; }
+    .rw-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .rw-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .rw-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .rw-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; }
+
+    .complete-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--border); text-align: center; }
+    .complete-btn { background: linear-gradient(135deg, var(--acc-d), var(--primary)); color: #fff; border: none; border-radius: 14px; padding: 16px 48px; font-size: 1rem; font-weight: 800; cursor: pointer; letter-spacing: -0.01em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 10px; }
+    .complete-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .complete-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(139,92,246,0.3); }
+    .complete-note { font-size: 0.8rem; color: var(--text-3); margin-top: 12px; }
+
+    .xp-toast { position: fixed; bottom: 32px; right: 32px; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.15)); border: 1px solid rgba(139,92,246,0.3); border-radius: 12px; padding: 12px 20px; font-size: 0.88rem; font-weight: 700; color: var(--acc-l); z-index: 999; opacity: 0; transform: translateY(16px); transition: all 0.35s cubic-bezier(.34,1.56,.64,1); pointer-events: none; display: flex; align-items: center; gap: 8px; }
+    .xp-toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "nav" "main"; }
+      .sidebar { display: none; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="app">
+
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo">
+        <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4 C26 4 30 10 28 16 C26 22 20 26 20 26 C20 26 14 22 12 16 C10 10 14 4 20 4Z" fill="#8B5CF6" opacity="0.9"/>
+          <path d="M20 36 C14 36 10 30 12 24 C14 18 20 14 20 14 C20 14 26 18 28 24 C30 30 26 36 20 36Z" fill="#6366F1" opacity="0.9"/>
+        </svg>
+        Helix
+      </div>
+      <span class="nav-sep">/</span>
+      <span class="nav-title">Pseudocode &amp; Flowcharts</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-xp" id="navXp">0 XP</span>
+      <a href="math.html" class="nav-back">← Math Strand</a>
+    </div>
+  </nav>
+
+  <aside class="sidebar">
+    <div class="sidebar-label">Module 06</div>
+    <div class="lesson-item active" onclick="scrollToLesson('l1')"><span class="lesson-num">01</span><span class="lesson-name">What is an Algorithm?</span><span class="lesson-done" id="done-1"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l2')"><span class="lesson-num">02</span><span class="lesson-name">Pseudocode Conventions</span><span class="lesson-done" id="done-2"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l3')"><span class="lesson-num">03</span><span class="lesson-name">Flowchart Symbols</span><span class="lesson-done" id="done-3"></span></div>
+    <div class="lesson-item" onclick="scrollToLesson('l4')"><span class="lesson-num">04</span><span class="lesson-name">Common Algorithms</span><span class="lesson-done" id="done-4"></span></div>
+    <div class="sidebar-label">Practice</div>
+    <div class="lesson-item" onclick="scrollToLesson('quiz')"><span class="lesson-num">📝</span><span class="lesson-name">Quiz</span></div>
+    <div class="sidebar-footer">
+      <div class="progress-label"><span>Module progress</span><span id="prog-label">0%</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ── LESSON 1: WHAT IS AN ALGORITHM? ── -->
+  <section class="lesson-section" id="l1">
+    <div class="section-tag">Lesson 01 · Pseudocode &amp; Flowcharts</div>
+    <h2>What is an Algorithm?</h2>
+    <p class="lead">An <strong>algorithm</strong> is a finite, ordered set of unambiguous instructions that solves a problem. It's the <em>idea</em> behind code — language-independent, platform-independent, timeless. Every program you write executes an algorithm.</p>
+
+    <div class="info-box violet">
+      <div class="info-box-title">📋 Five Properties of a Good Algorithm</div>
+      <ul>
+        <li><strong>Finiteness</strong> — It must terminate after a finite number of steps</li>
+        <li><strong>Definiteness</strong> — Every step is clearly defined, no ambiguity</li>
+        <li><strong>Input</strong> — Zero or more inputs are provided</li>
+        <li><strong>Output</strong> — One or more outputs are produced</li>
+        <li><strong>Effectiveness</strong> — Every step is basic enough to be carried out exactly</li>
+      </ul>
+    </div>
+
+    <div class="info-box amber">
+      <div class="info-box-title">🍳 Everyday Algorithm: Making Tea</div>
+      <p>1. Boil water. 2. Place teabag in cup. 3. Pour boiling water over teabag. 4. Wait 3 minutes. 5. Remove teabag. 6. Add milk if desired. 7. Serve. — This is an algorithm: finite, ordered, unambiguous, produces output (tea).</p>
+    </div>
+
+    <h3 style="font-size:1.1rem;font-weight:700;margin:28px 0 14px;">Why Design Before You Code?</h3>
+    <p style="color:var(--text-2);font-size:0.9rem;line-height:1.7;margin-bottom:20px;">Professional engineers don't start with code. They start with the algorithm. Writing pseudocode first lets you solve the logical problem without worrying about syntax errors, language quirks, or compiler warnings. You think clearly, then you type.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Approach</th><th>Skip Design</th><th>Design First</th></tr></thead>
+      <tbody>
+        <tr><td>Bug location</td><td>Hard — logic + syntax mixed</td><td>Easy — logic already verified</td></tr>
+        <tr><td>Language change</td><td>Rewrite from scratch</td><td>Translate pseudocode to new language</td></tr>
+        <tr><td>Team communication</td><td>Must understand code</td><td>Anyone can read pseudocode</td></tr>
+        <tr><td>Complexity analysis</td><td>Needs code execution</td><td>Easy to count steps in pseudocode</td></tr>
+      </tbody>
+    </table>
+
+    <div class="challenge" id="chal-1">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 1</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Algorithm Properties</h4>
+      <p>An algorithm runs forever and never stops. Which required property does it violate? Type the property name.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c1-inp" placeholder="property" style="width:140px"/>
+        <button class="challenge-btn" onclick="checkChallenge(1)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(1)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c1-fb"></div>
+      <div class="challenge-hint" id="c1-hint">An algorithm must terminate after a finite number of steps.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 2: PSEUDOCODE ── -->
+  <section class="lesson-section" id="l2">
+    <div class="section-tag">Lesson 02 · Pseudocode &amp; Flowcharts</div>
+    <h2>Pseudocode Conventions</h2>
+    <p class="lead"><strong>Pseudocode</strong> is structured English that describes an algorithm step-by-step. There's no universal standard — different textbooks use different notation — but key constructs are universal.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Construct</th><th>Pseudocode</th><th>Python equivalent</th></tr></thead>
+      <tbody>
+        <tr><td>Assignment</td><td><code>SET x ← 5</code></td><td><code>x = 5</code></td></tr>
+        <tr><td>Input</td><td><code>READ name</code></td><td><code>name = input()</code></td></tr>
+        <tr><td>Output</td><td><code>PRINT "Hello"</code></td><td><code>print("Hello")</code></td></tr>
+        <tr><td>Conditional</td><td><code>IF x &gt; 0 THEN … ELSE … END IF</code></td><td><code>if x &gt; 0: … else: …</code></td></tr>
+        <tr><td>While loop</td><td><code>WHILE x &lt; 10 DO … END WHILE</code></td><td><code>while x &lt; 10: …</code></td></tr>
+        <tr><td>For loop</td><td><code>FOR i FROM 1 TO n DO … END FOR</code></td><td><code>for i in range(1, n+1): …</code></td></tr>
+        <tr><td>Function</td><td><code>FUNCTION name(params) … RETURN val</code></td><td><code>def name(params): return val</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block"><span class="c-pseudo">ALGORITHM: Find Maximum Value</span>
+<span class="c-pseudo">INPUT: list of numbers</span>
+<span class="c-pseudo">OUTPUT: the largest number</span>
+
+<span class="c-keyword">FUNCTION</span> <span class="c-fn">FindMax</span>(numbers)
+    <span class="c-keyword">SET</span> max ← numbers[<span class="c-num">0</span>]          <span class="c-comment">// start with first element</span>
+    <span class="c-keyword">FOR</span> i <span class="c-keyword">FROM</span> <span class="c-num">1</span> <span class="c-keyword">TO</span> LENGTH(numbers) - <span class="c-num">1</span> <span class="c-keyword">DO</span>
+        <span class="c-keyword">IF</span> numbers[i] &gt; max <span class="c-keyword">THEN</span>
+            <span class="c-keyword">SET</span> max ← numbers[i]
+        <span class="c-keyword">END IF</span>
+    <span class="c-keyword">END FOR</span>
+    <span class="c-keyword">RETURN</span> max
+<span class="c-keyword">END FUNCTION</span></div>
+
+    <div class="code-block"><span class="c-comment"># Python translation:</span>
+<span class="c-keyword">def</span> <span class="c-fn">find_max</span>(numbers):
+    max_val = numbers[<span class="c-num">0</span>]
+    <span class="c-keyword">for</span> i <span class="c-keyword">in</span> <span class="c-fn">range</span>(<span class="c-num">1</span>, <span class="c-fn">len</span>(numbers)):
+        <span class="c-keyword">if</span> numbers[i] > max_val:
+            max_val = numbers[i]
+    <span class="c-keyword">return</span> max_val</div>
+
+    <div class="info-box green">
+      <div class="info-box-title">✅ Good Pseudocode Rules</div>
+      <ul>
+        <li>Use UPPERCASE for keywords (IF, WHILE, RETURN)</li>
+        <li>Indent consistently — structure should be visually obvious</li>
+        <li>Be precise about data: use ← for assignment, = for comparison</li>
+        <li>Name things clearly: <code>FindMax</code> not <code>Proc1</code></li>
+        <li>Each line = one logical action</li>
+      </ul>
+    </div>
+
+    <div class="challenge" id="chal-2">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 2</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Reading Pseudocode</h4>
+      <p>What does the following pseudocode return for input n=5?</p>
+      <div class="code-block" style="margin-bottom:14px;"><span class="c-keyword">FUNCTION</span> <span class="c-fn">Mystery</span>(n)
+    <span class="c-keyword">SET</span> result ← <span class="c-num">0</span>
+    <span class="c-keyword">FOR</span> i <span class="c-keyword">FROM</span> <span class="c-num">1</span> <span class="c-keyword">TO</span> n <span class="c-keyword">DO</span>
+        <span class="c-keyword">SET</span> result ← result + i
+    <span class="c-keyword">END FOR</span>
+    <span class="c-keyword">RETURN</span> result
+<span class="c-keyword">END FUNCTION</span></div>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c2-inp" type="number" placeholder="result" style="width:90px"/>
+        <button class="challenge-btn" onclick="checkChallenge(2)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(2)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c2-fb"></div>
+      <div class="challenge-hint" id="c2-hint">Trace: result = 0+1+2+3+4+5 = 15. This computes the sum 1+2+…+n.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 3: FLOWCHARTS ── -->
+  <section class="lesson-section" id="l3">
+    <div class="section-tag">Lesson 03 · Pseudocode &amp; Flowcharts</div>
+    <h2>Flowchart Symbols</h2>
+    <p class="lead">A <strong>flowchart</strong> is a visual representation of an algorithm. Each shape has a specific meaning — using the right symbol makes your diagram unambiguous and universally readable.</p>
+
+    <table class="data-table">
+      <thead><tr><th>Shape</th><th>Name</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>⬭ Oval / Rounded rect</td><td>Terminal</td><td>START or END of the algorithm</td></tr>
+        <tr><td>▭ Rectangle</td><td>Process</td><td>An action or computation step</td></tr>
+        <tr><td>◇ Diamond</td><td>Decision</td><td>A YES/NO question — branches the flow</td></tr>
+        <tr><td>▱ Parallelogram</td><td>Input/Output</td><td>Read data (input) or display result (output)</td></tr>
+        <tr><td>→ Arrow</td><td>Flowline</td><td>Direction of flow between steps</td></tr>
+        <tr><td>⃝ Small circle</td><td>Connector</td><td>Continues flow on another part of diagram</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Flowchart Canvas -->
+    <div style="margin:24px 0;">
+      <div class="flowchart-select">
+        <button class="fc-btn active" id="fc-findmax" onclick="drawFlowchart('findmax')">Find Max</button>
+        <button class="fc-btn" id="fc-fizzbuzz" onclick="drawFlowchart('fizzbuzz')">FizzBuzz Step</button>
+        <button class="fc-btn" id="fc-search" onclick="drawFlowchart('search')">Linear Search</button>
+      </div>
+      <canvas class="fc-canvas" id="fcCanvas" width="520" height="320"></canvas>
+      <p style="font-size:0.78rem;color:var(--text-3);margin-top:8px;">Each symbol follows the ISO 5807 flowchart standard.</p>
+    </div>
+
+    <div class="challenge" id="chal-3">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 3</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Flowchart Symbols</h4>
+      <p>A diamond shape in a flowchart represents what type of step? Type: <strong>decision</strong>, <strong>process</strong>, or <strong>terminal</strong>.</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c3-inp" placeholder="type" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(3)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(3)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c3-fb"></div>
+      <div class="challenge-hint" id="c3-hint">The diamond asks a YES/NO question and branches the flow in two directions.</div>
+    </div>
+  </section>
+
+  <!-- ── LESSON 4: ALGORITHMS ── -->
+  <section class="lesson-section" id="l4">
+    <div class="section-tag">Lesson 04 · Pseudocode &amp; Flowcharts</div>
+    <h2>Common Algorithms in Pseudocode</h2>
+    <p class="lead">Let's look at two classic algorithms every programmer should know — Linear Search and Bubble Sort — in pseudocode, then watch them run step by step.</p>
+
+    <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 16px;">Linear Search</h3>
+    <div class="code-block"><span class="c-pseudo">ALGORITHM: Linear Search</span>
+<span class="c-keyword">FUNCTION</span> <span class="c-fn">LinearSearch</span>(list, target)
+    <span class="c-keyword">FOR</span> i <span class="c-keyword">FROM</span> <span class="c-num">0</span> <span class="c-keyword">TO</span> LENGTH(list) - <span class="c-num">1</span> <span class="c-keyword">DO</span>
+        <span class="c-keyword">IF</span> list[i] = target <span class="c-keyword">THEN</span>
+            <span class="c-keyword">RETURN</span> i          <span class="c-comment">// found at index i</span>
+        <span class="c-keyword">END IF</span>
+    <span class="c-keyword">END FOR</span>
+    <span class="c-keyword">RETURN</span> -<span class="c-num">1</span>            <span class="c-comment">// not found</span>
+<span class="c-keyword">END FUNCTION</span>
+
+<span class="c-comment">// Time complexity: O(n) — must check up to n elements</span></div>
+
+    <h3 style="font-size:1.1rem;font-weight:700;margin:28px 0 16px;">Bubble Sort</h3>
+    <div class="code-block"><span class="c-pseudo">ALGORITHM: Bubble Sort</span>
+<span class="c-keyword">FUNCTION</span> <span class="c-fn">BubbleSort</span>(list)
+    <span class="c-keyword">FOR</span> pass <span class="c-keyword">FROM</span> <span class="c-num">1</span> <span class="c-keyword">TO</span> LENGTH(list) - <span class="c-num">1</span> <span class="c-keyword">DO</span>
+        <span class="c-keyword">FOR</span> i <span class="c-keyword">FROM</span> <span class="c-num">0</span> <span class="c-keyword">TO</span> LENGTH(list) - pass - <span class="c-num">1</span> <span class="c-keyword">DO</span>
+            <span class="c-keyword">IF</span> list[i] &gt; list[i+<span class="c-num">1</span>] <span class="c-keyword">THEN</span>
+                <span class="c-keyword">SWAP</span> list[i] <span class="c-keyword">WITH</span> list[i+<span class="c-num">1</span>]
+            <span class="c-keyword">END IF</span>
+        <span class="c-keyword">END FOR</span>
+    <span class="c-keyword">END FOR</span>
+    <span class="c-keyword">RETURN</span> list
+<span class="c-keyword">END FUNCTION</span>
+
+<span class="c-comment">// Time complexity: O(n²) — nested loops</span></div>
+
+    <!-- Bubble Sort Tracer -->
+    <div class="tracer-wrap">
+      <h4>▶ Bubble Sort — Step-by-Step Tracer</h4>
+      <div class="tracer-controls">
+        <button class="tracer-btn" onclick="tracerReset()">↺ Reset</button>
+        <button class="tracer-btn" onclick="tracerStep()">Step →</button>
+        <button class="tracer-btn" onclick="tracerRun()">Run All</button>
+      </div>
+      <div class="tracer-array" id="tracer-array"></div>
+      <div class="tracer-log" id="tracer-log">Press "Step" to begin tracing bubble sort.</div>
+    </div>
+
+    <div class="info-box violet">
+      <div class="info-box-title">⏱️ Time Complexity: O(n) vs O(n²)</div>
+      <p>Linear search checks each element once — O(n). Bubble sort has nested loops — O(n²). For 1,000 elements: linear search does ~1,000 checks; bubble sort does ~1,000,000. Always ask: what's the worst case? Can I do better?</p>
+    </div>
+
+    <div class="rw-grid">
+      <div class="rw-card"><div class="rw-icon">🗂️</div><div class="rw-title">Code Reviews</div><div class="rw-desc">Reviewing pseudocode before code saves hours. You spot logic errors when there's no syntax to distract you.</div></div>
+      <div class="rw-card"><div class="rw-icon">🎓</div><div class="rw-title">Interviews</div><div class="rw-desc">Top tech companies expect candidates to explain their algorithm in plain English before writing any code.</div></div>
+      <div class="rw-card"><div class="rw-icon">🌐</div><div class="rw-title">Cross-Team Work</div><div class="rw-desc">Product managers, designers, and QA can all read pseudocode — it bridges technical and non-technical teams.</div></div>
+      <div class="rw-card"><div class="rw-icon">⚡</div><div class="rw-title">Optimization</div><div class="rw-desc">Counting steps in pseudocode makes Big-O complexity obvious without running the code.</div></div>
+    </div>
+
+    <div class="challenge" id="chal-4">
+      <div class="challenge-header"><span class="challenge-badge">Challenge 4</span><span class="challenge-xp">+15 XP</span></div>
+      <h4>Worst-Case Linear Search</h4>
+      <p>Using linear search on a list of 12 items, what is the maximum number of comparisons needed? (Worst case: item not in list.)</p>
+      <div class="challenge-input-row">
+        <input class="challenge-input" id="c4-inp" type="number" placeholder="comparisons" style="width:120px"/>
+        <button class="challenge-btn" onclick="checkChallenge(4)">Check</button>
+        <button class="challenge-hint-btn" onclick="showHint(4)">Hint</button>
+      </div>
+      <div class="challenge-feedback" id="c4-fb"></div>
+      <div class="challenge-hint" id="c4-hint">Linear search checks every element. For n=12, worst case = 12 comparisons.</div>
+    </div>
+  </section>
+
+  <!-- ── QUIZ ── -->
+  <section class="lesson-section" id="quiz">
+    <div class="section-tag">Knowledge Check · Module 06</div>
+    <h2>Quiz</h2>
+    <p class="lead">Test your pseudocode and algorithm design knowledge.</p>
+
+    <div class="quiz-card" id="q1-card">
+      <div class="quiz-q">Pseudocode is best described as:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(1,'a')">A specific programming language with strict syntax rules</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'b')">A language-independent, structured description of an algorithm</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'c')">A type of compiled code for fast execution</button>
+        <button class="quiz-opt" onclick="answerQuiz(1,'d')">A visual diagram using shapes and arrows</button>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q2-card">
+      <div class="quiz-q">An oval (terminal) shape in a flowchart represents:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(2,'a')">A computation or process step</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'b')">A decision (yes/no question)</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'c')">The start or end of the algorithm</button>
+        <button class="quiz-opt" onclick="answerQuiz(2,'d')">An input or output operation</button>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q3-card">
+      <div class="quiz-q">The time complexity O(n²) means the algorithm's run time:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(3,'a')">Is constant, regardless of input size</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'b')">Grows linearly with input size</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'c')">Grows quadratically — doubles input → 4× the time</button>
+        <button class="quiz-opt" onclick="answerQuiz(3,'d')">Halves with each step</button>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+
+    <div class="quiz-card" id="q4-card">
+      <div class="quiz-q">What is the first step in good algorithm design?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="answerQuiz(4,'a')">Write the code immediately</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'b')">Choose a programming language</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'c')">Understand the problem and define inputs/outputs clearly</button>
+        <button class="quiz-opt" onclick="answerQuiz(4,'d')">Optimise for performance</button>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+
+    <div class="complete-section">
+      <button class="complete-btn" id="completeBtn" onclick="completeModule()" disabled>
+        🎉 Complete Module 06
+      </button>
+      <div class="complete-note" id="complete-note">Complete all challenges and quiz questions to unlock.</div>
+    </div>
+  </section>
+
+  </main>
+</div>
+<div class="xp-toast" id="xpToast">⚡ <span id="toastXp">+15 XP</span></div>
+
+<script>
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
+  const state = { xp: 0, done: { c1:false, c2:false, c3:false, c4:false, q1:false, q2:false, q3:false, q4:false } };
+
+  function awardXP(amount, key) {
+    if (state.done[key]) return;
+    state.done[key] = true; state.xp += amount;
+    document.getElementById('navXp').textContent = state.xp + ' XP';
+    showToast('+' + amount + ' XP'); updateProgress(); checkComplete();
+  }
+  function showToast(msg) {
+    const t = document.getElementById('xpToast');
+    document.getElementById('toastXp').textContent = msg;
+    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function updateProgress() {
+    const done = Object.values(state.done).filter(Boolean).length;
+    const pct = Math.round((done / 8) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = pct + '%';
+  }
+  function checkComplete() {
+    const allDone = Object.values(state.done).every(Boolean);
+    document.getElementById('completeBtn').disabled = !allDone;
+    if (allDone) document.getElementById('complete-note').textContent = 'All challenges and quiz questions completed!';
+  }
+
+  const CHALLENGES = {
+    1: { check: v => v.trim().toLowerCase() === 'finiteness' || v.trim().toLowerCase() === 'finite' },
+    2: { check: v => parseInt(v) === 15 },
+    3: { check: v => v.trim().toLowerCase() === 'decision' },
+    4: { check: v => parseInt(v) === 12 },
+  };
+  function checkChallenge(n) {
+    const val = document.getElementById('c' + n + '-inp').value;
+    const fb = document.getElementById('c' + n + '-fb');
+    if (CHALLENGES[n].check(val)) { fb.className = 'challenge-feedback correct'; fb.textContent = '✓ Correct!'; awardXP(15, 'c' + n); }
+    else { fb.className = 'challenge-feedback wrong'; fb.textContent = '✗ Not quite. Try again.'; }
+  }
+  function showHint(n) { const h = document.getElementById('c' + n + '-hint'); h.style.display = h.style.display === 'block' ? 'none' : 'block'; }
+
+  const QUIZ = {
+    1: { correct: 'b', explain: '✓ Pseudocode is language-independent — it describes logic without syntax.' },
+    2: { correct: 'c', explain: '✓ Oval/terminal marks the START or END of a flowchart.' },
+    3: { correct: 'c', explain: '✓ O(n²) is quadratic — doubling input quadruples run time.' },
+    4: { correct: 'c', explain: '✓ Always understand the problem first — define what goes in and what comes out.' },
+  };
+  function answerQuiz(n, opt) {
+    const card = document.getElementById('q' + n + '-card');
+    if (card.dataset.answered) return;
+    card.dataset.answered = 'true';
+    const q = QUIZ[n];
+    card.querySelectorAll('.quiz-opt').forEach((b, i) => {
+      b.disabled = true;
+      const letter = ['a','b','c','d'][i];
+      if (letter === q.correct) b.classList.add('correct');
+      else if (letter === opt) b.classList.add('wrong');
+    });
+    const fb = document.getElementById('q' + n + '-fb');
+    if (opt === q.correct) { fb.className = 'quiz-feedback correct'; fb.textContent = q.explain; awardXP(20, 'q' + n); }
+    else { fb.className = 'quiz-feedback wrong'; fb.textContent = '✗ ' + q.explain; }
+  }
+
+  function completeModule() {
+    const mp = JSON.parse(localStorage.getItem('helix_math_progress') || '{}');
+    mp.xp = (mp.xp || 0) + state.xp + 120;
+    mp.completedLessons = (mp.completedLessons || 0) + 4;
+    mp.modules = mp.modules || {};
+    mp.modules.pseudo = { completed: true, xp: state.xp + 120, completedAt: new Date().toISOString() };
+    mp.lastActivity = new Date().toISOString();
+    localStorage.setItem('helix_math_progress', JSON.stringify(mp));
+    showToast('+120 XP — Module Complete!');
+    setTimeout(() => { window.location.href = 'math.html'; }, 1800);
+  }
+
+  function scrollToLesson(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.lesson-item').forEach(el => el.classList.remove('active'));
+    const map = {l1:0,l2:1,l3:2,l4:3,quiz:4};
+    const items = document.querySelectorAll('.lesson-item');
+    if (map[id] !== undefined && items[map[id]]) items[map[id]].classList.add('active');
+  }
+
+  /* ── Flowchart drawing ── */
+  let currentFc = 'findmax';
+  function drawFlowchart(type) {
+    currentFc = type;
+    document.querySelectorAll('.fc-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('fc-' + type).classList.add('active');
+    const canvas = document.getElementById('fcCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    function oval(x,y,w,h,text,color='rgba(139,92,246,0.7)') {
+      ctx.beginPath(); ctx.ellipse(x,y,w/2,h/2,0,0,Math.PI*2);
+      ctx.fillStyle='rgba(139,92,246,0.1)'; ctx.fill();
+      ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#EEF2F8'; ctx.font='bold 12px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(text,x,y);
+    }
+    function rect(x,y,w,h,text,color='rgba(99,102,241,0.6)') {
+      ctx.fillStyle='rgba(99,102,241,0.08)'; ctx.strokeStyle=color; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.roundRect(x-w/2,y-h/2,w,h,6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#EEF2F8'; ctx.font='12px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      // wrap text
+      const words = text.split('\n');
+      words.forEach((w,i) => ctx.fillText(w, x, y + (i - (words.length-1)/2)*16));
+    }
+    function diamond(x,y,w,h,text,color='rgba(245,158,11,0.7)') {
+      ctx.beginPath();
+      ctx.moveTo(x,y-h/2); ctx.lineTo(x+w/2,y); ctx.lineTo(x,y+h/2); ctx.lineTo(x-w/2,y); ctx.closePath();
+      ctx.fillStyle='rgba(245,158,11,0.08)'; ctx.fill();
+      ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#EEF2F8'; ctx.font='11px Inter'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      const words = text.split('\n');
+      words.forEach((w,i) => ctx.fillText(w, x, y + (i - (words.length-1)/2)*14));
+    }
+    function arrow(x1,y1,x2,y2,label='') {
+      ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy);
+      const ux=dx/len,uy=dy/len;
+      ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-ux*9+uy*5,y2-uy*9-ux*5); ctx.lineTo(x2-ux*9-uy*5,y2-uy*9+ux*5); ctx.closePath();
+      ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.fill();
+      if (label) { ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.font='11px Inter'; ctx.fillText(label, (x1+x2)/2+8, (y1+y2)/2-6); }
+    }
+
+    if (type === 'findmax') {
+      oval(260,30,140,36,'START');
+      arrow(260,48,260,76);
+      rect(260,94,200,36,'SET max ← list[0]');
+      arrow(260,112,260,140);
+      diamond(260,168,200,52,'list[i] > max?');
+      arrow(260,194,260,222);
+      rect(260,240,200,36,'SET max ← list[i]');
+      arrow(260,258,260,286);
+      rect(260,304,200,36,'i ← i + 1');
+      // arrows back and yes/no labels
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(260,322); ctx.lineTo(140,322); ctx.lineTo(140,168); ctx.lineTo(160,168); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px Inter'; ctx.fillText('YES', 215,212);
+      ctx.fillText('LOOP BACK', 165,306);
+      // NO arrow
+      arrow(360,168,440,168,'NO');
+      oval(480,168,80,36,'RETURN max');
+    } else if (type === 'fizzbuzz') {
+      oval(260,24,140,34,'n ← input');
+      arrow(260,41,260,64);
+      diamond(260,88,190,48,'n % 3 = 0?');
+      arrow(260,112,260,136,'YES');
+      diamond(260,160,190,48,'n % 5 = 0?');
+      arrow(260,184,260,208,'YES');
+      rect(260,228,160,34,'Print "FizzBuzz"');
+      arrow(360,88,460,88,'NO');
+      diamond(460,112,160,48,'n % 5 = 0?');
+      arrow(460,136,460,180,'YES');
+      rect(460,200,120,34,'Print "Buzz"');
+      arrow(560,112,620,112,'NO');
+      rect(620,112,120,34,'Print "Fizz"');
+      oval(260,270,120,34,'END');
+    } else if (type === 'search') {
+      oval(260,24,160,34,'INPUT list, target');
+      arrow(260,41,260,64);
+      rect(260,82,200,34,'SET i ← 0');
+      arrow(260,99,260,122);
+      diamond(260,148,200,52,'i < LENGTH?');
+      arrow(260,174,260,202,'YES');
+      diamond(260,228,200,52,'list[i] = target?');
+      arrow(260,254,260,280,'YES');
+      oval(260,298,160,34,'RETURN i (found)');
+      arrow(370,228,440,228,'NO');
+      rect(440,228,120,34,'i ← i + 1');
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(440,211); ctx.lineTo(440,148); ctx.lineTo(360,148); ctx.stroke();
+      ctx.setLineDash([]);
+      arrow(160,148,80,148,'NO');
+      oval(80,148,140,34,'RETURN -1');
+    }
+  }
+  drawFlowchart('findmax');
+
+  /* ── Bubble Sort Tracer ── */
+  let tracerData = [64, 34, 25, 12, 22, 11, 90];
+  let tracerSteps = [];
+  let tracerPos = 0;
+
+  function buildSteps(arr) {
+    const steps = [];
+    const a = [...arr];
+    const n = a.length;
+    for (let pass = 0; pass < n-1; pass++) {
+      steps.push({ type: 'pass', pass: pass+1, arr: [...a] });
+      for (let i = 0; i < n-pass-1; i++) {
+        steps.push({ type: 'compare', i, j: i+1, arr: [...a] });
+        if (a[i] > a[i+1]) {
+          [a[i], a[i+1]] = [a[i+1], a[i]];
+          steps.push({ type: 'swap', i, j: i+1, arr: [...a] });
+        }
+      }
+    }
+    steps.push({ type: 'done', arr: [...a] });
+    return steps;
+  }
+
+  function tracerReset() {
+    tracerData = [64, 34, 25, 12, 22, 11, 90];
+    tracerSteps = buildSteps(tracerData);
+    tracerPos = 0;
+    renderTracerArray(tracerData, -1, -1, []);
+    document.getElementById('tracer-log').innerHTML = 'Press "Step" to begin tracing bubble sort.';
+  }
+
+  function renderTracerArray(arr, ci, cj, sorted) {
+    const el = document.getElementById('tracer-array');
+    el.innerHTML = arr.map((v,i) => {
+      let cls = 'tracer-cell';
+      if (sorted.includes(i)) cls += ' sorted';
+      else if (i === ci || i === cj) cls += ' comparing';
+      return `<div class="${cls}">${v}</div>`;
+    }).join('');
+  }
+
+  function tracerStep() {
+    if (!tracerSteps.length) tracerSteps = buildSteps(tracerData);
+    if (tracerPos >= tracerSteps.length) return;
+    const step = tracerSteps[tracerPos++];
+    const log = document.getElementById('tracer-log');
+    const n = tracerData.length;
+
+    if (step.type === 'pass') {
+      renderTracerArray(step.arr, -1, -1, []);
+      log.innerHTML += `<div class="pass">── Pass ${step.pass} ──</div>`;
+    } else if (step.type === 'compare') {
+      renderTracerArray(step.arr, step.i, step.j, []);
+      log.innerHTML += `<div>Comparing [${step.i}]=${step.arr[step.i]} and [${step.j}]=${step.arr[step.j]}</div>`;
+    } else if (step.type === 'swap') {
+      renderTracerArray(step.arr, step.i, step.j, []);
+      log.innerHTML += `<div class="swap">↕ Swapped: [${step.i}]↔[${step.j}] → [${step.arr.join(', ')}]</div>`;
+    } else if (step.type === 'done') {
+      renderTracerArray(step.arr, -1, -1, [...Array(n).keys()]);
+      log.innerHTML += `<div class="done">✓ Sorted: [${step.arr.join(', ')}]</div>`;
+    }
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function tracerRun() {
+    if (!tracerSteps.length) tracerSteps = buildSteps(tracerData);
+    const remaining = tracerSteps.length - tracerPos;
+    for (let i = 0; i < remaining; i++) setTimeout(() => tracerStep(), i * 80);
+  }
+
+  tracerReset();
+</script>
+</body>
+</html>
