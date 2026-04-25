@@ -1149,7 +1149,7 @@
     <div>
       <div class="section-title-row">
         <div class="section-h">Trophies</div>
-        <a class="section-link" href="trophies.html">View all 44 →</a>
+        <a class="section-link" href="trophies.html">View all 94 →</a>
       </div>
       <div class="trophy-mini">
         <div class="tmi tmi-plat">
@@ -1171,7 +1171,7 @@
       </div>
       <a class="trophy-mini-cta" href="trophies.html">
         <div class="tmc-left">
-          🎖️ <span id="tmc-summary">0 / 44 trophies unlocked</span>
+          🎖️ <span id="tmc-summary">0 / 94 trophies unlocked</span>
         </div>
         <span style="color:var(--primary-l);font-size:0.8rem;">View all →</span>
       </a>
@@ -1202,59 +1202,114 @@ const CL_STRANDS = [
 
 // ─── Trophy mini-summary data ─────────────────────────────
 const DASH_TROPHIES = [
-  // Coding
-  { id:'c_b1', tier:'bronze',   check: d => d.ids.includes(1)     },
-  { id:'c_b2', tier:'bronze',   check: d => d.ids.length >= 3     },
-  { id:'c_b3', tier:'bronze',   check: d => d.ids.length >= 5     },
-  { id:'c_b4', tier:'bronze',   check: d => d.ids.length >= 8     },
-  { id:'c_s1', tier:'silver',   check: d => d.ids.length >= 10    },
-  { id:'c_s2', tier:'silver',   check: d => d.ids.includes(13)    },
-  { id:'c_s3', tier:'silver',   check: d => d.ids.includes(12)    },
-  { id:'c_g1', tier:'gold',     check: d => d.ids.length >= 15    },
-  { id:'c_g2', tier:'gold',     check: d => d.coding_xp >= 1000   },
+  // Python
+  { id:'py_b1', tier:'bronze', check: d => d.py.includes(1)    },
+  { id:'py_b2', tier:'bronze', check: d => d.py.length >= 3    },
+  { id:'py_b3', tier:'bronze', check: d => d.py.length >= 5    },
+  { id:'py_b4', tier:'bronze', check: d => d.py.length >= 8    },
+  { id:'py_s1', tier:'silver', check: d => d.py.length >= 10   },
+  { id:'py_s2', tier:'silver', check: d => d.py.includes(13)   },
+  { id:'py_s3', tier:'silver', check: d => d.py.includes(12)   },
+  { id:'py_g1', tier:'gold',   check: d => d.py.length >= 15   },
+  { id:'py_g2', tier:'gold',   check: d => d.pyXp >= 1000      },
+  // JavaScript
+  { id:'js_b1', tier:'bronze', check: d => d.js.includes(1)    },
+  { id:'js_b2', tier:'bronze', check: d => d.js.length >= 3    },
+  { id:'js_b3', tier:'bronze', check: d => d.js.length >= 5    },
+  { id:'js_b4', tier:'bronze', check: d => d.js.length >= 8    },
+  { id:'js_s1', tier:'silver', check: d => d.js.length >= 10   },
+  { id:'js_s2', tier:'silver', check: d => d.js.length >= 12   },
+  { id:'js_s3', tier:'silver', check: d => d.jsXp >= 500       },
+  { id:'js_g1', tier:'gold',   check: d => d.js.length >= 15   },
+  { id:'js_g2', tier:'gold',   check: d => d.jsXp >= 1000      },
+  // HTML & CSS
+  { id:'html_b1', tier:'bronze', check: d => d.html.includes(1)  },
+  { id:'html_b2', tier:'bronze', check: d => d.html.length >= 3  },
+  { id:'html_b3', tier:'bronze', check: d => d.html.length >= 5  },
+  { id:'html_b4', tier:'bronze', check: d => d.html.length >= 8  },
+  { id:'html_s1', tier:'silver', check: d => d.html.length >= 10 },
+  { id:'html_s2', tier:'silver', check: d => d.html.length >= 12 },
+  { id:'html_s3', tier:'silver', check: d => d.htmlXp >= 500     },
+  { id:'html_g1', tier:'gold',   check: d => d.html.length >= 15 },
+  { id:'html_g2', tier:'gold',   check: d => d.htmlXp >= 1000    },
+  // SQL
+  { id:'sql_b1', tier:'bronze', check: d => d.sql.includes(1)   },
+  { id:'sql_b2', tier:'bronze', check: d => d.sql.length >= 3   },
+  { id:'sql_b3', tier:'bronze', check: d => d.sql.length >= 5   },
+  { id:'sql_b4', tier:'bronze', check: d => d.sql.length >= 8   },
+  { id:'sql_s1', tier:'silver', check: d => d.sql.length >= 10  },
+  { id:'sql_s2', tier:'silver', check: d => d.sql.length >= 12  },
+  { id:'sql_s3', tier:'silver', check: d => d.sqlXp >= 500      },
+  { id:'sql_g1', tier:'gold',   check: d => d.sql.length >= 15  },
+  { id:'sql_g2', tier:'gold',   check: d => d.sqlXp >= 1000     },
+  // C++
+  { id:'cpp_b1', tier:'bronze', check: d => d.cpp.includes(1)   },
+  { id:'cpp_b2', tier:'bronze', check: d => d.cpp.length >= 3   },
+  { id:'cpp_b3', tier:'bronze', check: d => d.cpp.length >= 5   },
+  { id:'cpp_b4', tier:'bronze', check: d => d.cpp.length >= 8   },
+  { id:'cpp_s1', tier:'silver', check: d => d.cpp.length >= 10  },
+  { id:'cpp_s2', tier:'silver', check: d => d.cpp.length >= 12  },
+  { id:'cpp_s3', tier:'silver', check: d => d.cppXp >= 500      },
+  { id:'cpp_g1', tier:'gold',   check: d => d.cpp.length >= 15  },
+  { id:'cpp_g2', tier:'gold',   check: d => d.cppXp >= 1000     },
+  // TypeScript
+  { id:'ts_b1', tier:'bronze', check: d => d.ts.includes(1)    },
+  { id:'ts_b2', tier:'bronze', check: d => d.ts.length >= 3    },
+  { id:'ts_b3', tier:'bronze', check: d => d.ts.length >= 5    },
+  { id:'ts_b4', tier:'bronze', check: d => d.ts.length >= 8    },
+  { id:'ts_s1', tier:'silver', check: d => d.ts.length >= 10   },
+  { id:'ts_s2', tier:'silver', check: d => d.ts.length >= 12   },
+  { id:'ts_s3', tier:'silver', check: d => d.tsXp >= 500       },
+  { id:'ts_g1', tier:'gold',   check: d => d.ts.length >= 15   },
+  { id:'ts_g2', tier:'gold',   check: d => d.tsXp >= 1000      },
   // Math
-  { id:'m_b1', tier:'bronze',   check: d => d.math.logic?.completed      },
-  { id:'m_b2', tier:'bronze',   check: d => d.math.numbers?.completed    },
-  { id:'m_b3', tier:'bronze',   check: d => d.math.algebra?.completed    },
-  { id:'m_s1', tier:'silver',   check: d => d.math.discrete?.completed   },
-  { id:'m_s2', tier:'silver',   check: d => d.math.stats?.completed      },
-  { id:'m_g1', tier:'gold',     check: d => d.math.pseudo?.completed     },
-  { id:'m_g2', tier:'gold',     check: d => ['logic','numbers','algebra','discrete','stats','pseudo'].every(k=>d.math[k]?.completed) },
-  // CS
-  { id:'cs_b1', tier:'bronze',  check: d => d.cs.bigO?.completed    },
-  { id:'cs_b2', tier:'bronze',  check: d => d.cs.arrays?.completed  },
-  { id:'cs_s1', tier:'silver',  check: d => d.cs.sorting?.completed },
-  { id:'cs_s2', tier:'silver',  check: d => d.cs.trees?.completed   },
-  { id:'cs_g1', tier:'gold',    check: d => d.cs.graphs?.completed  },
-  { id:'cs_g2', tier:'gold',    check: d => ['bigO','arrays','sorting','trees','graphs'].every(k=>d.cs[k]?.completed) },
-  // Data
-  { id:'d_b1', tier:'bronze',   check: d => d.data.intro?.completed   },
-  { id:'d_b2', tier:'bronze',   check: d => d.data.stats?.completed   },
-  { id:'d_s1', tier:'silver',   check: d => d.data.ml?.completed      },
-  { id:'d_g1', tier:'gold',     check: d => d.data.neural?.completed  },
-  { id:'d_g2', tier:'gold',     check: d => ['intro','stats','ml','neural'].every(k=>d.data[k]?.completed) },
-  // Web
-  { id:'w_b1', tier:'bronze',   check: d => d.web.how?.completed      },
-  { id:'w_b2', tier:'bronze',   check: d => d.web.http?.completed     },
-  { id:'w_s1', tier:'silver',   check: d => d.web.security?.completed },
-  { id:'w_g1', tier:'gold',     check: d => d.web.browser?.completed  },
-  { id:'w_g2', tier:'gold',     check: d => ['how','http','security','browser'].every(k=>d.web[k]?.completed) },
+  { id:'m_b1', tier:'bronze', check: d => d.math.logic?.completed      },
+  { id:'m_b2', tier:'bronze', check: d => d.math.numbers?.completed    },
+  { id:'m_b3', tier:'bronze', check: d => d.math.algebra?.completed    },
+  { id:'m_s1', tier:'silver', check: d => d.math.discrete?.completed   },
+  { id:'m_s2', tier:'silver', check: d => d.math.stats?.completed      },
+  { id:'m_g1', tier:'gold',   check: d => d.math.pseudo?.completed     },
+  { id:'m_g2', tier:'gold',   check: d => ['logic','numbers','algebra','discrete','stats','pseudo'].every(k=>d.math[k]?.completed) },
+  // CS Theory
+  { id:'cs_b1', tier:'bronze', check: d => d.cs.bigO?.completed    },
+  { id:'cs_b2', tier:'bronze', check: d => d.cs.arrays?.completed  },
+  { id:'cs_s1', tier:'silver', check: d => d.cs.sorting?.completed },
+  { id:'cs_s2', tier:'silver', check: d => d.cs.trees?.completed   },
+  { id:'cs_g1', tier:'gold',   check: d => d.cs.graphs?.completed  },
+  { id:'cs_g2', tier:'gold',   check: d => ['bigO','arrays','sorting','trees','graphs'].every(k=>d.cs[k]?.completed) },
+  // Data & AI
+  { id:'d_b1', tier:'bronze', check: d => d.data.intro?.completed   },
+  { id:'d_b2', tier:'bronze', check: d => d.data.stats?.completed   },
+  { id:'d_s1', tier:'silver', check: d => d.data.ml?.completed      },
+  { id:'d_g1', tier:'gold',   check: d => d.data.neural?.completed  },
+  { id:'d_g2', tier:'gold',   check: d => ['intro','stats','ml','neural'].every(k=>d.data[k]?.completed) },
+  // Web & Internet
+  { id:'w_b1', tier:'bronze', check: d => d.web.how?.completed      },
+  { id:'w_b2', tier:'bronze', check: d => d.web.http?.completed     },
+  { id:'w_s1', tier:'silver', check: d => d.web.security?.completed },
+  { id:'w_g1', tier:'gold',   check: d => d.web.browser?.completed  },
+  { id:'w_g2', tier:'gold',   check: d => ['how','http','security','browser'].every(k=>d.web[k]?.completed) },
   // Helix global
-  { id:'h_b1', tier:'bronze',   check: d => d.totalXp >= 1          },
-  { id:'h_b2', tier:'bronze',   check: d => d.strandsStarted >= 2   },
-  { id:'h_s1', tier:'silver',   check: d => d.strandsWithMods >= 3  },
-  { id:'h_s2', tier:'silver',   check: d => d.totalXp >= 500        },
-  { id:'h_g1', tier:'gold',     check: d => d.strandsWithMods >= 5  },
-  { id:'h_g2', tier:'gold',     check: d => d.totalXp >= 2000       },
+  { id:'h_b1', tier:'bronze', check: d => d.totalXp >= 1          },
+  { id:'h_b2', tier:'bronze', check: d => d.strandsStarted >= 2   },
+  { id:'h_s1', tier:'silver', check: d => d.strandsWithMods >= 3  },
+  { id:'h_s2', tier:'silver', check: d => d.totalXp >= 500        },
+  { id:'h_g1', tier:'gold',   check: d => d.strandsWithMods >= 5  },
+  { id:'h_g2', tier:'gold',   check: d => d.totalXp >= 2000       },
 ];
-// Platinum trophies (per course) — each requires all same-course non-plat
+// Platinum groups (each requires all same-section non-plat to be earned)
 const PLAT_GROUPS = [
-  { id:'c_p',  ids: ['c_b1','c_b2','c_b3','c_b4','c_s1','c_s2','c_s3','c_g1','c_g2'] },
-  { id:'m_p',  ids: ['m_b1','m_b2','m_b3','m_s1','m_s2','m_g1','m_g2'] },
-  { id:'cs_p', ids: ['cs_b1','cs_b2','cs_s1','cs_s2','cs_g1','cs_g2'] },
-  { id:'d_p',  ids: ['d_b1','d_b2','d_s1','d_g1','d_g2'] },
-  { id:'w_p',  ids: ['w_b1','w_b2','w_s1','w_g1','w_g2'] },
-  { id:'h_p',  ids: ['h_b1','h_b2','h_s1','h_s2','h_g1','h_g2','c_p','m_p','cs_p','d_p','w_p'] },
+  { id:'py_p',   tier:'platinum', ids: ['py_b1','py_b2','py_b3','py_b4','py_s1','py_s2','py_s3','py_g1','py_g2'] },
+  { id:'js_p',   tier:'platinum', ids: ['js_b1','js_b2','js_b3','js_b4','js_s1','js_s2','js_s3','js_g1','js_g2'] },
+  { id:'html_p', tier:'platinum', ids: ['html_b1','html_b2','html_b3','html_b4','html_s1','html_s2','html_s3','html_g1','html_g2'] },
+  { id:'sql_p',  tier:'platinum', ids: ['sql_b1','sql_b2','sql_b3','sql_b4','sql_s1','sql_s2','sql_s3','sql_g1','sql_g2'] },
+  { id:'cpp_p',  tier:'platinum', ids: ['cpp_b1','cpp_b2','cpp_b3','cpp_b4','cpp_s1','cpp_s2','cpp_s3','cpp_g1','cpp_g2'] },
+  { id:'ts_p',   tier:'platinum', ids: ['ts_b1','ts_b2','ts_b3','ts_b4','ts_s1','ts_s2','ts_s3','ts_g1','ts_g2'] },
+  { id:'m_p',    tier:'platinum', ids: ['m_b1','m_b2','m_b3','m_s1','m_s2','m_g1','m_g2'] },
+  { id:'cs_p',   tier:'platinum', ids: ['cs_b1','cs_b2','cs_s1','cs_s2','cs_g1','cs_g2'] },
+  { id:'d_p',    tier:'platinum', ids: ['d_b1','d_b2','d_s1','d_g1','d_g2'] },
+  { id:'w_p',    tier:'platinum', ids: ['w_b1','w_b2','w_s1','w_g1','w_g2'] },
+  { id:'h_p',    tier:'platinum', ids: ['h_b1','h_b2','h_s1','h_s2','h_g1','h_g2','py_p','js_p','html_p','sql_p','cpp_p','ts_p','m_p','cs_p','d_p','w_p'] },
 ];
 
 // ─── State ───────────────────────────────────────────────
@@ -1531,40 +1586,45 @@ function render() {
   }
 
   // Trophy mini-summary
-  const mathRaw = JSON.parse(localStorage.getItem('helix_math_progress') || '{}').modules || {};
-  const csRaw   = JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}').modules || {};
-  const dataRaw = JSON.parse(localStorage.getItem('helix_data_progress') || '{}').modules || {};
-  const webRaw  = JSON.parse(localStorage.getItem('helix_web_progress')  || '{}').modules || {};
-  const mathXP  = JSON.parse(localStorage.getItem('helix_math_progress') || '{}').xp || 0;
-  const csXP    = JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}').xp || 0;
-  const dataXP  = JSON.parse(localStorage.getItem('helix_data_progress') || '{}').xp || 0;
-  const webXP   = JSON.parse(localStorage.getItem('helix_web_progress')  || '{}').xp || 0;
-  const totalXP = (state.xp||0) + mathXP + csXP + dataXP + webXP;
-  const modsDone= [
+  function _tRaw(key) { return JSON.parse(localStorage.getItem(key) || '{}'); }
+  const _jsR = _tRaw('helix_js_progress'), _htmlR = _tRaw('helix_html_progress');
+  const _sqlR = _tRaw('helix_sql_progress'), _cppR = _tRaw('helix_cpp_progress'), _tsR = _tRaw('helix_ts_progress');
+  const _mathR = _tRaw('helix_math_progress'), _csR = _tRaw('helix_cs_progress');
+  const _dataR = _tRaw('helix_data_progress'), _webR = _tRaw('helix_web_progress');
+  const _langXps = [(state.xp||0),_jsR.xp||0,_htmlR.xp||0,_sqlR.xp||0,_cppR.xp||0,_tsR.xp||0];
+  const _strandXps = [_langXps.reduce((a,b)=>a+b,0), _mathR.xp||0, _csR.xp||0, _dataR.xp||0, _webR.xp||0];
+  const _modsDone = [
     (state.completedIds||[]).length,
-    Object.values(mathRaw).filter(m=>m.completed).length,
-    Object.values(csRaw).filter(m=>m.completed).length,
-    Object.values(dataRaw).filter(m=>m.completed).length,
-    Object.values(webRaw).filter(m=>m.completed).length,
+    Object.values(_mathR.modules||{}).filter(m=>m.completed).length,
+    Object.values(_csR.modules||{}).filter(m=>m.completed).length,
+    Object.values(_dataR.modules||{}).filter(m=>m.completed).length,
+    Object.values(_webR.modules||{}).filter(m=>m.completed).length,
   ];
   const trophyData = {
-    ids: state.completedIds||[], coding_xp: state.xp||0,
-    math: mathRaw, cs: csRaw, data: dataRaw, web: webRaw,
-    totalXp: totalXP,
-    strandsStarted:  [(state.xp||0),mathXP,csXP,dataXP,webXP].filter(x=>x>0).length,
-    strandsWithMods: modsDone.filter(c=>c>0).length,
+    py: state.completedIds||[], pyXp: state.xp||0,
+    js: _jsR.completedIds||[], jsXp: _jsR.xp||0,
+    html: _htmlR.completedIds||[], htmlXp: _htmlR.xp||0,
+    sql: _sqlR.completedIds||[], sqlXp: _sqlR.xp||0,
+    cpp: _cppR.completedIds||[], cppXp: _cppR.xp||0,
+    ts: _tsR.completedIds||[], tsXp: _tsR.xp||0,
+    math: _mathR.modules||{}, cs: _csR.modules||{},
+    data: _dataR.modules||{}, web: _webR.modules||{},
+    totalXp: _strandXps.reduce((a,b)=>a+b,0),
+    strandsStarted:  _strandXps.filter(x=>x>0).length,
+    strandsWithMods: _modsDone.filter(c=>c>0).length,
   };
   const tEarned = {};
   DASH_TROPHIES.forEach(t => { tEarned[t.id] = !!t.check(trophyData); });
   PLAT_GROUPS.forEach(pg => { tEarned[pg.id] = pg.ids.every(id=>tEarned[id]); });
   const tCounts = { platinum:0, gold:0, silver:0, bronze:0 };
-  [...DASH_TROPHIES, ...PLAT_GROUPS.map(p=>({id:p.id,tier:'platinum'}))].forEach(t => { if (tEarned[t.id]) tCounts[t.tier]++; });
+  DASH_TROPHIES.forEach(t => { if (tEarned[t.id]) tCounts[t.tier]++; });
+  PLAT_GROUPS.forEach(pg => { if (tEarned[pg.id]) tCounts.platinum++; });
   const tTotal = Object.values(tCounts).reduce((a,b)=>a+b,0);
   document.getElementById('tmi-plat').textContent   = tCounts.platinum;
   document.getElementById('tmi-gold').textContent   = tCounts.gold;
   document.getElementById('tmi-silver').textContent = tCounts.silver;
   document.getElementById('tmi-bronze').textContent = tCounts.bronze;
-  document.getElementById('tmc-summary').textContent = `${tTotal} / 44 trophies unlocked`;
+  document.getElementById('tmc-summary').textContent = `${tTotal} / 94 trophies unlocked`;
 }
 
 render();

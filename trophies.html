@@ -119,10 +119,12 @@
     .ts-total-label { font-size: 0.68rem; color: var(--text-3); }
 
     /* ── Filter Pills ── */
-    .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-row.lang-sub { margin-top: 0; margin-bottom: 2rem; padding-left: 0.25rem; }
     .filter-pill { padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.78rem; font-weight: 600; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-2); cursor: pointer; transition: all 0.18s; font-family: inherit; }
     .filter-pill:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
     .filter-pill.active { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); color: var(--primary-l); }
+    .lang-pill { font-size: 0.72rem; padding: 0.3rem 0.8rem; }
 
     /* ── Course Section ── */
     .course-section { margin-bottom: 2.5rem; }
@@ -373,7 +375,7 @@
   <!-- Main -->
   <main class="main">
     <div class="page-title">🎖️ Trophies</div>
-    <div class="page-sub">Track your progress across every Helix course. Unlock Bronze → Silver → Gold → Platinum.</div>
+    <div class="page-sub">94 trophies across 11 courses — Bronze → Silver → Gold → Platinum. Each language has its own platinum.</div>
 
     <!-- Summary bar -->
     <div class="trophy-summary">
@@ -406,20 +408,30 @@
       </div>
       <div class="ts-divider"></div>
       <div class="ts-total">
-        <div class="ts-total-num"><span id="ts-earned">0</span>&thinsp;/&thinsp;44</div>
+        <div class="ts-total-num"><span id="ts-earned">0</span>&thinsp;/&thinsp;94</div>
         <div class="ts-total-label">trophies unlocked</div>
       </div>
     </div>
 
     <!-- Course filter -->
     <div class="filter-row">
-      <button class="filter-pill active" data-filter="all"    onclick="setFilter('all')">All</button>
-      <button class="filter-pill" data-filter="coding"        onclick="setFilter('coding')">💻 Coding</button>
-      <button class="filter-pill" data-filter="math"          onclick="setFilter('math')">🧮 Mathematics</button>
-      <button class="filter-pill" data-filter="cs"            onclick="setFilter('cs')">🔬 CS Theory</button>
-      <button class="filter-pill" data-filter="data"          onclick="setFilter('data')">📊 Data &amp; AI</button>
-      <button class="filter-pill" data-filter="web"           onclick="setFilter('web')">🌐 Web &amp; Internet</button>
-      <button class="filter-pill" data-filter="helix"         onclick="setFilter('helix')">🧬 Helix</button>
+      <button class="filter-pill active" data-filter="all"   onclick="setFilter('all')">All</button>
+      <button class="filter-pill" data-filter="coding"       onclick="setFilter('coding')">💻 Coding</button>
+      <button class="filter-pill" data-filter="math"         onclick="setFilter('math')">🧮 Mathematics</button>
+      <button class="filter-pill" data-filter="cs"           onclick="setFilter('cs')">🔬 CS Theory</button>
+      <button class="filter-pill" data-filter="data"         onclick="setFilter('data')">📊 Data &amp; AI</button>
+      <button class="filter-pill" data-filter="web"          onclick="setFilter('web')">🌐 Web &amp; Internet</button>
+      <button class="filter-pill" data-filter="helix"        onclick="setFilter('helix')">🧬 Helix</button>
+    </div>
+    <!-- Language sub-filter (shown when Coding is active) -->
+    <div class="filter-row lang-sub" id="lang-sub" style="display:none;">
+      <button class="filter-pill lang-pill active" data-lang="all"  onclick="setLang('all')">All Languages</button>
+      <button class="filter-pill lang-pill" data-lang="py"          onclick="setLang('py')">🐍 Python</button>
+      <button class="filter-pill lang-pill" data-lang="js"          onclick="setLang('js')">📜 JavaScript</button>
+      <button class="filter-pill lang-pill" data-lang="html"        onclick="setLang('html')">🎨 HTML &amp; CSS</button>
+      <button class="filter-pill lang-pill" data-lang="sql"         onclick="setLang('sql')">🗄️ SQL</button>
+      <button class="filter-pill lang-pill" data-lang="cpp"         onclick="setLang('cpp')">⚙️ C++</button>
+      <button class="filter-pill lang-pill" data-lang="ts"          onclick="setLang('ts')">🔷 TypeScript</button>
     </div>
 
     <!-- Trophy sections (JS-populated) -->
@@ -438,19 +450,100 @@ const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
 
 // ── Trophy definitions ────────────────────────────────────
 const TROPHY_DATA = [
+  // ── Python ───────────────────────────────────────────────
   {
-    id: 'coding', name: 'Python Fundamentals', icon: '💻', color: '#6366F1', rgb: '99,102,241',
+    id: 'py', name: 'Python', group: 'coding', icon: '🐍', color: '#6366F1', rgb: '99,102,241',
     trophies: [
-      { id:'c_b1', tier:'bronze',   icon:'👋', name:'Hello, World!',       desc:'Complete your first Python lesson',           check: d => d.coding.ids.includes(1)         },
-      { id:'c_b2', tier:'bronze',   icon:'📦', name:'Getting Comfortable',  desc:'Complete 3 lessons',                          check: d => d.coding.ids.length >= 3         },
-      { id:'c_b3', tier:'bronze',   icon:'🚀', name:'Building Momentum',   desc:'Complete 5 lessons',                          check: d => d.coding.ids.length >= 5         },
-      { id:'c_b4', tier:'bronze',   icon:'⚡', name:'Halfway There',        desc:'Complete 8 out of 15 lessons',                check: d => d.coding.ids.length >= 8         },
-      { id:'c_s1', tier:'silver',   icon:'🧠', name:'Deep Thinker',        desc:'Complete 10 lessons',                         check: d => d.coding.ids.length >= 10        },
-      { id:'c_s2', tier:'silver',   icon:'🏛️', name:'Object Oriented',    desc:'Complete the Classes & Objects lesson',       check: d => d.coding.ids.includes(13)        },
-      { id:'c_s3', tier:'silver',   icon:'🛡️', name:'Graceful Errors',    desc:'Complete the Error Handling lesson',          check: d => d.coding.ids.includes(12)        },
-      { id:'c_g1', tier:'gold',     icon:'🐍', name:'Full Python',         desc:'Complete all 15 lessons',                     check: d => d.coding.ids.length >= 15        },
-      { id:'c_g2', tier:'gold',     icon:'💰', name:'XP Grinder',          desc:'Earn 1,000 XP in Coding',                     check: d => d.coding.xp >= 1000             },
-      { id:'c_p',  tier:'platinum', icon:'⭐', name:'Pythonista',          desc:'Unlock every Coding trophy',                  isPlatinum: true },
+      { id:'py_b1', tier:'bronze',   icon:'👋', name:'Hello, World!',        desc:'Complete your first Python lesson',           check: d => d.py.ids.includes(1)        },
+      { id:'py_b2', tier:'bronze',   icon:'📦', name:'Getting Comfortable',  desc:'Complete 3 lessons',                          check: d => d.py.ids.length >= 3        },
+      { id:'py_b3', tier:'bronze',   icon:'🚀', name:'Building Momentum',    desc:'Complete 5 lessons',                          check: d => d.py.ids.length >= 5        },
+      { id:'py_b4', tier:'bronze',   icon:'⚡', name:'Halfway There',         desc:'Complete 8 out of 15 lessons',                check: d => d.py.ids.length >= 8        },
+      { id:'py_s1', tier:'silver',   icon:'🧠', name:'Deep Thinker',         desc:'Complete 10 lessons',                         check: d => d.py.ids.length >= 10       },
+      { id:'py_s2', tier:'silver',   icon:'🏛️', name:'Object Oriented',     desc:'Complete the Classes & Objects lesson',       check: d => d.py.ids.includes(13)       },
+      { id:'py_s3', tier:'silver',   icon:'🛡️', name:'Graceful Errors',     desc:'Complete the Error Handling lesson',          check: d => d.py.ids.includes(12)       },
+      { id:'py_g1', tier:'gold',     icon:'✅', name:'Full Python',          desc:'Complete all 15 lessons',                     check: d => d.py.ids.length >= 15       },
+      { id:'py_g2', tier:'gold',     icon:'💰', name:'XP Grinder',           desc:'Earn 1,000 XP in Python',                     check: d => d.py.xp >= 1000             },
+      { id:'py_p',  tier:'platinum', icon:'⭐', name:'Pythonista',           desc:'Unlock every Python trophy',                  isPlatinum: true },
+    ]
+  },
+  // ── JavaScript ───────────────────────────────────────────
+  {
+    id: 'js', name: 'JavaScript', group: 'coding', icon: '📜', color: '#F59E0B', rgb: '245,158,11',
+    trophies: [
+      { id:'js_b1', tier:'bronze',   icon:'👋', name:"console.log('Hello')", desc:'Complete your first JavaScript lesson',      check: d => d.js.ids.includes(1)        },
+      { id:'js_b2', tier:'bronze',   icon:'🔍', name:'Scope Explorer',       desc:'Complete 3 lessons',                          check: d => d.js.ids.length >= 3        },
+      { id:'js_b3', tier:'bronze',   icon:'📝', name:'Function Writer',      desc:'Complete 5 lessons',                          check: d => d.js.ids.length >= 5        },
+      { id:'js_b4', tier:'bronze',   icon:'🌐', name:'DOM Curious',          desc:'Complete 8 out of 15 lessons',                check: d => d.js.ids.length >= 8        },
+      { id:'js_s1', tier:'silver',   icon:'👂', name:'Event Listener',       desc:'Complete 10 lessons',                         check: d => d.js.ids.length >= 10       },
+      { id:'js_s2', tier:'silver',   icon:'⏳', name:'Async Adept',          desc:'Complete 12 lessons',                         check: d => d.js.ids.length >= 12       },
+      { id:'js_s3', tier:'silver',   icon:'🔗', name:'Prototype Chain',      desc:'Earn 500 XP in JavaScript',                   check: d => d.js.xp >= 500              },
+      { id:'js_g1', tier:'gold',     icon:'✅', name:'JavaScript Complete',  desc:'Complete all 15 lessons',                     check: d => d.js.ids.length >= 15       },
+      { id:'js_g2', tier:'gold',     icon:'⚡', name:'JS XP Legend',         desc:'Earn 1,000 XP in JavaScript',                 check: d => d.js.xp >= 1000             },
+      { id:'js_p',  tier:'platinum', icon:'📜', name:'JavaScriptista',       desc:'Unlock every JavaScript trophy',              isPlatinum: true },
+    ]
+  },
+  // ── HTML & CSS ───────────────────────────────────────────
+  {
+    id: 'html', name: 'HTML & CSS', group: 'coding', icon: '🎨', color: '#F97316', rgb: '249,115,22',
+    trophies: [
+      { id:'html_b1', tier:'bronze',   icon:'🏷️', name:'First Tag',         desc:'Complete your first HTML lesson',             check: d => d.html.ids.includes(1)      },
+      { id:'html_b2', tier:'bronze',   icon:'📋', name:'Markup Apprentice',  desc:'Complete 3 lessons',                          check: d => d.html.ids.length >= 3      },
+      { id:'html_b3', tier:'bronze',   icon:'🖌️', name:'Stylist',            desc:'Complete 5 lessons',                          check: d => d.html.ids.length >= 5      },
+      { id:'html_b4', tier:'bronze',   icon:'📐', name:'Layout Learner',     desc:'Complete 8 out of 15 lessons',                check: d => d.html.ids.length >= 8      },
+      { id:'html_s1', tier:'silver',   icon:'🔲', name:'Flexbox Wizard',     desc:'Complete 10 lessons',                         check: d => d.html.ids.length >= 10     },
+      { id:'html_s2', tier:'silver',   icon:'🗂️', name:'Grid Master',        desc:'Complete 12 lessons',                         check: d => d.html.ids.length >= 12     },
+      { id:'html_s3', tier:'silver',   icon:'✨', name:'Design XP',           desc:'Earn 500 XP in HTML & CSS',                   check: d => d.html.xp >= 500            },
+      { id:'html_g1', tier:'gold',     icon:'✅', name:'HTML & CSS Complete', desc:'Complete all 15 lessons',                    check: d => d.html.ids.length >= 15     },
+      { id:'html_g2', tier:'gold',     icon:'💅', name:'Design XP Legend',   desc:'Earn 1,000 XP in HTML & CSS',                 check: d => d.html.xp >= 1000           },
+      { id:'html_p',  tier:'platinum', icon:'🎨', name:'Web Designer',       desc:'Unlock every HTML & CSS trophy',              isPlatinum: true },
+    ]
+  },
+  // ── SQL ──────────────────────────────────────────────────
+  {
+    id: 'sql', name: 'SQL', group: 'coding', icon: '🗄️', color: '#14B8A6', rgb: '20,184,166',
+    trophies: [
+      { id:'sql_b1', tier:'bronze',   icon:'🔎', name:'First Query',         desc:'Complete your first SQL lesson',              check: d => d.sql.ids.includes(1)       },
+      { id:'sql_b2', tier:'bronze',   icon:'📋', name:'SELECT Learner',      desc:'Complete 3 lessons',                          check: d => d.sql.ids.length >= 3       },
+      { id:'sql_b3', tier:'bronze',   icon:'🔗', name:'JOIN Explorer',       desc:'Complete 5 lessons',                          check: d => d.sql.ids.length >= 5       },
+      { id:'sql_b4', tier:'bronze',   icon:'🗂️', name:'Table Builder',       desc:'Complete 8 out of 15 lessons',                check: d => d.sql.ids.length >= 8       },
+      { id:'sql_s1', tier:'silver',   icon:'🔄', name:'Subquery Savant',     desc:'Complete 10 lessons',                         check: d => d.sql.ids.length >= 10      },
+      { id:'sql_s2', tier:'silver',   icon:'📈', name:'Index Whisperer',     desc:'Complete 12 lessons',                         check: d => d.sql.ids.length >= 12      },
+      { id:'sql_s3', tier:'silver',   icon:'💾', name:'Query XP',            desc:'Earn 500 XP in SQL',                          check: d => d.sql.xp >= 500             },
+      { id:'sql_g1', tier:'gold',     icon:'✅', name:'SQL Complete',        desc:'Complete all 15 lessons',                     check: d => d.sql.ids.length >= 15      },
+      { id:'sql_g2', tier:'gold',     icon:'🗄️', name:'Database XP Legend', desc:'Earn 1,000 XP in SQL',                        check: d => d.sql.xp >= 1000            },
+      { id:'sql_p',  tier:'platinum', icon:'🏗️', name:'Database Architect', desc:'Unlock every SQL trophy',                     isPlatinum: true },
+    ]
+  },
+  // ── C++ ──────────────────────────────────────────────────
+  {
+    id: 'cpp', name: 'C++', group: 'coding', icon: '⚙️', color: '#8B5CF6', rgb: '139,92,246',
+    trophies: [
+      { id:'cpp_b1', tier:'bronze',   icon:'👋', name:'Hello, Pointer!',     desc:'Complete your first C++ lesson',              check: d => d.cpp.ids.includes(1)       },
+      { id:'cpp_b2', tier:'bronze',   icon:'💾', name:'Memory Aware',        desc:'Complete 3 lessons',                          check: d => d.cpp.ids.length >= 3       },
+      { id:'cpp_b3', tier:'bronze',   icon:'🏗️', name:'Object Builder',     desc:'Complete 5 lessons',                          check: d => d.cpp.ids.length >= 5       },
+      { id:'cpp_b4', tier:'bronze',   icon:'📦', name:'Stack & Heap',        desc:'Complete 8 out of 15 lessons',                check: d => d.cpp.ids.length >= 8       },
+      { id:'cpp_s1', tier:'silver',   icon:'🔧', name:'Template Tamer',      desc:'Complete 10 lessons',                         check: d => d.cpp.ids.length >= 10      },
+      { id:'cpp_s2', tier:'silver',   icon:'📚', name:'STL Explorer',        desc:'Complete 12 lessons',                         check: d => d.cpp.ids.length >= 12      },
+      { id:'cpp_s3', tier:'silver',   icon:'⚡', name:'Systems XP',          desc:'Earn 500 XP in C++',                          check: d => d.cpp.xp >= 500             },
+      { id:'cpp_g1', tier:'gold',     icon:'✅', name:'C++ Complete',        desc:'Complete all 15 lessons',                     check: d => d.cpp.ids.length >= 15      },
+      { id:'cpp_g2', tier:'gold',     icon:'🔩', name:'Systems XP Legend',   desc:'Earn 1,000 XP in C++',                        check: d => d.cpp.xp >= 1000            },
+      { id:'cpp_p',  tier:'platinum', icon:'🖥️', name:'Systems Programmer', desc:'Unlock every C++ trophy',                     isPlatinum: true },
+    ]
+  },
+  // ── TypeScript ───────────────────────────────────────────
+  {
+    id: 'ts', name: 'TypeScript', group: 'coding', icon: '🔷', color: '#3B82F6', rgb: '59,130,246',
+    trophies: [
+      { id:'ts_b1', tier:'bronze',   icon:'👋', name:'Type-Safe Hello',      desc:'Complete your first TypeScript lesson',       check: d => d.ts.ids.includes(1)        },
+      { id:'ts_b2', tier:'bronze',   icon:'📝', name:'Type Annotator',       desc:'Complete 3 lessons',                          check: d => d.ts.ids.length >= 3        },
+      { id:'ts_b3', tier:'bronze',   icon:'🏛️', name:'Interface Designer',  desc:'Complete 5 lessons',                          check: d => d.ts.ids.length >= 5        },
+      { id:'ts_b4', tier:'bronze',   icon:'🔍', name:'Type Detective',       desc:'Complete 8 out of 15 lessons',                check: d => d.ts.ids.length >= 8        },
+      { id:'ts_s1', tier:'silver',   icon:'🧙', name:'Generic Wizard',       desc:'Complete 10 lessons',                         check: d => d.ts.ids.length >= 10       },
+      { id:'ts_s2', tier:'silver',   icon:'🛡️', name:'Type Guard',          desc:'Complete 12 lessons',                         check: d => d.ts.ids.length >= 12       },
+      { id:'ts_s3', tier:'silver',   icon:'📘', name:'TS XP',                desc:'Earn 500 XP in TypeScript',                   check: d => d.ts.xp >= 500              },
+      { id:'ts_g1', tier:'gold',     icon:'✅', name:'TypeScript Complete',  desc:'Complete all 15 lessons',                     check: d => d.ts.ids.length >= 15       },
+      { id:'ts_g2', tier:'gold',     icon:'💎', name:'TS XP Legend',         desc:'Earn 1,000 XP in TypeScript',                 check: d => d.ts.xp >= 1000             },
+      { id:'ts_p',  tier:'platinum', icon:'🔷', name:'TypeScript Architect', desc:'Unlock every TypeScript trophy',              isPlatinum: true },
     ]
   },
   {
@@ -517,59 +610,92 @@ const TROPHY_DATA = [
 // ── Data loading ──────────────────────────────────────────
 function loadData() {
   const r = {
-    coding: JSON.parse(localStorage.getItem('helix_progress')      || '{}'),
-    math:   JSON.parse(localStorage.getItem('helix_math_progress') || '{}'),
-    cs:     JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}'),
-    data:   JSON.parse(localStorage.getItem('helix_data_progress') || '{}'),
-    web:    JSON.parse(localStorage.getItem('helix_web_progress')  || '{}'),
+    py:   JSON.parse(localStorage.getItem('helix_progress')      || '{}'),
+    js:   JSON.parse(localStorage.getItem('helix_js_progress')   || '{}'),
+    html: JSON.parse(localStorage.getItem('helix_html_progress') || '{}'),
+    sql:  JSON.parse(localStorage.getItem('helix_sql_progress')  || '{}'),
+    cpp:  JSON.parse(localStorage.getItem('helix_cpp_progress')  || '{}'),
+    ts:   JSON.parse(localStorage.getItem('helix_ts_progress')   || '{}'),
+    math: JSON.parse(localStorage.getItem('helix_math_progress') || '{}'),
+    cs:   JSON.parse(localStorage.getItem('helix_cs_progress')   || '{}'),
+    data: JSON.parse(localStorage.getItem('helix_data_progress') || '{}'),
+    web:  JSON.parse(localStorage.getItem('helix_web_progress')  || '{}'),
   };
-  const xps = [r.coding.xp||0, r.math.xp||0, r.cs.xp||0, r.data.xp||0, r.web.xp||0];
-  const modsDone = [
-    (r.coding.completedIds||[]).length,
+  const langXps   = [r.py.xp||0, r.js.xp||0, r.html.xp||0, r.sql.xp||0, r.cpp.xp||0, r.ts.xp||0];
+  const strandXps = [langXps.reduce((a,b)=>a+b,0), r.math.xp||0, r.cs.xp||0, r.data.xp||0, r.web.xp||0];
+  const strandModsDone = [
+    (r.py.completedIds||[]).length > 0 ? 1 : 0,
     Object.values(r.math.modules||{}).filter(m=>m.completed).length,
     Object.values(r.cs.modules||{}).filter(m=>m.completed).length,
     Object.values(r.data.modules||{}).filter(m=>m.completed).length,
     Object.values(r.web.modules||{}).filter(m=>m.completed).length,
   ];
   return {
-    coding: { xp: r.coding.xp||0,  ids:  r.coding.completedIds||[] },
-    math:   { xp: r.math.xp||0,    mods: r.math.modules||{}  },
-    cs:     { xp: r.cs.xp||0,      mods: r.cs.modules||{}    },
-    data:   { xp: r.data.xp||0,    mods: r.data.modules||{}  },
-    web:    { xp: r.web.xp||0,     mods: r.web.modules||{}   },
-    totalXp:        xps.reduce((a,b)=>a+b, 0),
-    strandsStarted: xps.filter(x=>x>0).length,
-    strandsWithMods: modsDone.filter(c=>c>0).length,
-    // expose raw for sidebar level
-    _py: r.coding,
+    py:   { xp: r.py.xp||0,   ids: r.py.completedIds||[]   },
+    js:   { xp: r.js.xp||0,   ids: r.js.completedIds||[]   },
+    html: { xp: r.html.xp||0, ids: r.html.completedIds||[] },
+    sql:  { xp: r.sql.xp||0,  ids: r.sql.completedIds||[]  },
+    cpp:  { xp: r.cpp.xp||0,  ids: r.cpp.completedIds||[]  },
+    ts:   { xp: r.ts.xp||0,   ids: r.ts.completedIds||[]   },
+    math: { xp: r.math.xp||0, mods: r.math.modules||{} },
+    cs:   { xp: r.cs.xp||0,   mods: r.cs.modules||{}   },
+    data: { xp: r.data.xp||0, mods: r.data.modules||{} },
+    web:  { xp: r.web.xp||0,  mods: r.web.modules||{}  },
+    totalXp:        strandXps.reduce((a,b)=>a+b, 0),
+    strandsStarted: strandXps.filter(x=>x>0).length,
+    strandsWithMods: strandModsDone.filter(c=>c>0).length,
+    _py: r.py,
   };
 }
 
 // ── Trophy evaluation ─────────────────────────────────────
 function evaluate(data) {
   const e = {};
-  // Pass 1: all non-platinum
+  // Pass 1: all non-platinum trophies
   TROPHY_DATA.forEach(course => course.trophies.filter(t=>!t.isPlatinum).forEach(t => { e[t.id] = !!t.check(data); }));
-  // Pass 2: course platinums
+  // Pass 2: individual course & language platinums (require all non-plat in same course)
   TROPHY_DATA.filter(c=>c.id!=='helix').forEach(course => {
     const pt = course.trophies.find(t=>t.isPlatinum);
     if (pt) e[pt.id] = course.trophies.filter(t=>!t.isPlatinum).every(t=>e[t.id]);
   });
-  // Pass 3: Helix Master — all Helix non-plat + all course platinums
-  const hc    = TROPHY_DATA.find(c=>c.id==='helix');
-  const hPt   = hc.trophies.find(t=>t.isPlatinum);
-  const hNonPt= hc.trophies.filter(t=>!t.isPlatinum);
-  const cPts  = TROPHY_DATA.filter(c=>c.id!=='helix').map(c=>c.trophies.find(t=>t.isPlatinum)).filter(Boolean);
-  e[hPt.id]   = hNonPt.every(t=>e[t.id]) && cPts.every(t=>e[t.id]);
+  // Pass 3: Helix Master — all Helix non-plat + ALL other platinums (6 languages + 4 strands)
+  const hc     = TROPHY_DATA.find(c=>c.id==='helix');
+  const hPt    = hc.trophies.find(t=>t.isPlatinum);
+  const hNonPt = hc.trophies.filter(t=>!t.isPlatinum);
+  const allPts = TROPHY_DATA.filter(c=>c.id!=='helix').map(c=>c.trophies.find(t=>t.isPlatinum)).filter(Boolean);
+  e[hPt.id]    = hNonPt.every(t=>e[t.id]) && allPts.every(t=>e[t.id]);
   return e;
 }
 
 // ── Filter ────────────────────────────────────────────────
 let currentFilter = 'all';
+let currentLang   = 'all';
+
 function setFilter(f) {
   currentFilter = f;
-  document.querySelectorAll('.filter-pill').forEach(p => p.classList.toggle('active', p.dataset.filter===f));
-  document.querySelectorAll('.course-section').forEach(s => { s.style.display = (f==='all'||s.dataset.course===f) ? '' : 'none'; });
+  currentLang   = 'all';
+  document.querySelectorAll('.filter-pill:not(.lang-pill)').forEach(p => p.classList.toggle('active', p.dataset.filter===f));
+  document.querySelectorAll('.lang-pill').forEach(p => p.classList.toggle('active', p.dataset.lang==='all'));
+  document.getElementById('lang-sub').style.display = (f==='coding') ? '' : 'none';
+  applyFilter();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-pill').forEach(p => p.classList.toggle('active', p.dataset.lang===lang));
+  applyFilter();
+}
+
+function applyFilter() {
+  const f = currentFilter, lang = currentLang;
+  document.querySelectorAll('.course-section').forEach(s => {
+    if (f === 'all') { s.style.display = ''; return; }
+    if (f === 'coding') {
+      s.style.display = (s.dataset.group==='coding' && (lang==='all'||s.dataset.course===lang)) ? '' : 'none';
+    } else {
+      s.style.display = s.dataset.course === f ? '' : 'none';
+    }
+  });
 }
 
 // ── Render helpers ────────────────────────────────────────
@@ -645,7 +771,7 @@ function render() {
   document.getElementById('ts-silver').textContent = counts.silver;
   document.getElementById('ts-bronze').textContent = counts.bronze;
   document.getElementById('ts-earned').textContent = totalEarned;
-  const overallPct = Math.round((totalEarned/44)*100);
+  const overallPct = Math.round((totalEarned/94)*100);
   document.getElementById('ts-pct').textContent      = overallPct+'%';
   document.getElementById('ts-prog-fill').style.width = overallPct+'%';
 
@@ -658,7 +784,7 @@ function render() {
     const platBadge   = pt ? `<div class="csh-plat ${platEarned?'earned':'locked'}">${platEarned?'🏆 Platinum':'🔒 Platinum'}</div>` : '';
     const cards       = course.trophies.map(t => renderCard(t, earned[t.id])).join('');
     return `
-      <div class="course-section" data-course="${course.id}">
+      <div class="course-section" data-course="${course.id}" data-group="${course.group||''}">
         <div class="csh" style="--csc:${course.color};">
           <span class="csh-icon">${course.icon}</span>
           <span class="csh-name">${course.name}</span>
