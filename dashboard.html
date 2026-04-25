@@ -256,36 +256,130 @@
     }
     .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--primary), var(--cyan)); transition: width 0.5s ease; }
 
-    /* ─── STRAND GROUPS ──────────────────────────────────── */
-    .strand-group { margin-bottom: 2rem; }
-    .strand-group-head {
-      display: flex; align-items: center; gap: 0.85rem;
-      padding: 0.85rem 1.1rem; margin-bottom: 0.75rem;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-left: 3px solid var(--sg-color, var(--primary));
+    /* ─── WELCOME HERO ───────────────────────────────────── */
+    .welcome-hero {
+      display: flex; align-items: center; gap: 1.5rem;
+      padding: 1.75rem 2rem; border-radius: 22px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(139,92,246,0.04) 100%);
+      border: 1px solid rgba(99,102,241,0.14);
+      margin-bottom: 2rem; position: relative; overflow: hidden;
     }
-    .sg-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; }
-    .sg-text { flex: 1; min-width: 0; }
-    .sg-name { font-size: 0.9rem; font-weight: 800; letter-spacing: -0.01em; }
-    .sg-sub  { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
-    .sg-badge {
-      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; padding: 3px 9px; border-radius: 100px;
-      flex-shrink: 0;
+    .welcome-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at -10% 50%, rgba(99,102,241,0.13) 0%, transparent 60%);
+      pointer-events: none;
     }
-    .sg-badge.live { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
-    .sg-badge.soon { background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid var(--border); }
-    .strand-group .course-card { margin-bottom: 0.6rem; }
-    .strand-group .course-card:last-child { margin-bottom: 0; }
-    .strand-coming {
-      background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.08);
-      border-radius: 14px; padding: 1.1rem 1.25rem;
-      display: flex; align-items: center; gap: 1rem;
-      font-size: 0.82rem; color: var(--text-3);
+    .welcome-hero-text { flex: 1; min-width: 0; position: relative; }
+    .welcome-hero-title {
+      font-size: 1.55rem; font-weight: 900; letter-spacing: -0.035em;
+      line-height: 1.2; margin-bottom: 0.45rem;
     }
-    .strand-coming-icon { font-size: 1.2rem; }
+    .welcome-hero-sub { font-size: 0.875rem; color: var(--text-2); line-height: 1.6; }
+    .welcome-hero-badges { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-top: 0.85rem; }
+    .hero-pill {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      color: var(--text-2); white-space: nowrap;
+    }
+    .hero-pill.active { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.22); color: var(--primary-l); }
+    .hero-pill.math   { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #FCD34D; }
+
+    /* ─── STRAND BENTO GRID ──────────────────────────────── */
+    .strand-bento {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.25rem; margin-bottom: 2.5rem;
+    }
+    @media (max-width: 820px) { .strand-bento { grid-template-columns: 1fr; } }
+
+    .strand-card-v2 {
+      border-radius: 22px; padding: 1.6rem 1.5rem;
+      position: relative; overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.22s;
+      display: flex; flex-direction: column;
+    }
+    .strand-card-v2.live {
+      background: rgba(255,255,255,0.028);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .strand-card-v2.live:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+    .strand-card-v2.coming {
+      background: rgba(255,255,255,0.012);
+      border: 1px dashed rgba(255,255,255,0.07);
+      opacity: 0.65;
+    }
+    .strand-card-v2::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: var(--sc-grad, linear-gradient(90deg, var(--primary), var(--cyan)));
+      border-radius: 22px 22px 0 0; opacity: 0.9;
+    }
+    .strand-card-v2.coming::before { opacity: 0.22; }
+
+    /* Card header */
+    .sc-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 0.75rem; margin-bottom: 1.1rem;
+    }
+    .sc-head-left { display: flex; align-items: center; gap: 0.85rem; }
+    .sc-icon-wrap {
+      width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    }
+    .sc-name { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
+    .sc-subdesc { font-size: 0.74rem; color: var(--text-2); }
+    .sc-badge {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 100px;
+      white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+    }
+    .sc-badge-live { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.22); }
+    .sc-badge-soon { background: rgba(255,255,255,0.04); color: var(--text-3); border: 1px solid var(--border); }
+
+    .sc-divider { height: 1px; background: rgba(255,255,255,0.055); margin-bottom: 1rem; }
+
+    /* Module list */
+    .sc-module-list { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; margin-bottom: 1.2rem; }
+    .sc-module-item {
+      display: flex; align-items: center; gap: 0.65rem;
+      padding: 0.55rem 0.7rem; border-radius: 10px;
+      text-decoration: none; color: inherit;
+      transition: background 0.18s; cursor: pointer;
+    }
+    a.sc-module-item:hover { background: rgba(255,255,255,0.045); }
+    .sc-module-item.soon-item { opacity: 0.38; pointer-events: none; }
+    .sc-mod-icon { font-size: 0.95rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .sc-mod-text { flex: 1; min-width: 0; }
+    .sc-mod-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sc-mod-sub  { font-size: 0.68rem; color: var(--text-3); margin-top: 1px; }
+    .sc-mod-pct  { font-size: 0.7rem; font-weight: 700; color: var(--text-2); flex-shrink: 0; min-width: 28px; text-align: right; }
+    .sc-mod-bar-wrap { width: 48px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; flex-shrink: 0; }
+    .sc-mod-bar  { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+
+    /* Coming soon body */
+    .sc-coming-body {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 1.75rem 0.5rem; gap: 0.6rem;
+    }
+    .sc-coming-emoji { font-size: 2.4rem; opacity: 0.45; }
+    .sc-coming-text  { font-size: 0.85rem; color: var(--text-2); line-height: 1.6; max-width: 220px; }
+
+    /* CTA */
+    .sc-cta {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.72rem 1.2rem; border-radius: 12px; border: none;
+      font-size: 0.83rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; text-decoration: none; transition: all 0.2s; width: 100%;
+    }
+    .sc-cta-code { background: linear-gradient(135deg, #6366F1, #7C3AED); color: white; box-shadow: 0 4px 18px rgba(99,102,241,0.28); }
+    .sc-cta-code:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(99,102,241,0.4); }
+    .sc-cta-math { background: linear-gradient(135deg, #F59E0B, #F97316); color: white; box-shadow: 0 4px 18px rgba(245,158,11,0.22); }
+    .sc-cta-math:hover { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(245,158,11,0.35); }
+    .sc-cta-soon { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); color: var(--text-2); cursor: default; }
 
     /* ─── LESSON GRID ─────────────────────────────────────── */
     .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
@@ -393,6 +487,9 @@
       .main { padding: 1.5rem; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .lesson-grid { grid-template-columns: 1fr 1fr; }
+      .strand-bento { grid-template-columns: 1fr; }
+      .welcome-hero { padding: 1.25rem 1.25rem; }
+      .welcome-hero-title { font-size: 1.25rem; }
     }
 
     /* ─── ONBOARDING MODAL ───────────────────────────────── */
@@ -597,8 +694,19 @@
 
   <!-- MAIN -->
   <main class="main">
-    <div class="page-title" id="dash-title">The helix kept spinning.</div>
-    <div class="page-sub">Pick up your strand — every rotation counts. Keep the coil in motion.</div>
+    <!-- Welcome Hero -->
+    <div class="welcome-hero">
+      <div class="welcome-hero-text">
+        <div class="welcome-hero-title" id="dash-title">The helix kept spinning.</div>
+        <div class="welcome-hero-sub">Every strand you master builds something larger. Pick your next one below — code, math, or both.</div>
+        <div class="welcome-hero-badges">
+          <span class="hero-pill active">💻 Coding</span>
+          <span class="hero-pill math">🧮 Mathematics</span>
+          <span class="hero-pill">🔬 CS Theory <span style="opacity:0.45">· Soon</span></span>
+          <span class="hero-pill">📊 Data &amp; AI <span style="opacity:0.45">· Soon</span></span>
+        </div>
+      </div>
+    </div>
 
     <!-- Stats row -->
     <div class="stats-row">
@@ -620,36 +728,15 @@
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div id="empty-state">
-      <div style="text-align:center; padding:64px 24px 48px; max-width:600px; margin:0 auto;">
-        <div style="margin:0 auto 28px; width:160px; height:42px; opacity:0.7;">
-          <svg width="160" height="42" viewBox="0 0 160 42" fill="none" aria-hidden="true" style="overflow:hidden;display:block;">
-            <defs><clipPath id="dna-empty-c"><rect width="160" height="42"/></clipPath></defs>
-            <g clip-path="url(#dna-empty-c)">
-              <path d="M-44,21 Q-38.5,5 -33,21 Q-27.5,37 -22,21 Q-16.5,5 -11,21 Q-5.5,37 0,21 Q5.5,5 11,21 Q16.5,37 22,21 Q27.5,5 33,21 Q38.5,37 44,21 Q49.5,5 55,21 Q60.5,37 66,21 Q71.5,5 77,21 Q82.5,37 88,21 Q93.5,5 99,21 Q104.5,37 110,21 Q115.5,5 121,21 Q126.5,37 132,21 Q137.5,5 143,21 Q148.5,37 154,21 Q159.5,5 165,21 Q170.5,37 176,21" stroke="white" stroke-linecap="round" fill="none">
-                <animate attributeName="stroke-width" values="2.5;1.2;2.5" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
-                <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
-                <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
-              </path>
-              <path d="M-44,21 Q-38.5,37 -33,21 Q-27.5,5 -22,21 Q-16.5,37 -11,21 Q-5.5,5 0,21 Q5.5,37 11,21 Q16.5,5 22,21 Q27.5,37 33,21 Q38.5,5 44,21 Q49.5,37 55,21 Q60.5,5 66,21 Q71.5,37 77,21 Q82.5,5 88,21 Q93.5,37 99,21 Q104.5,5 110,21 Q115.5,37 121,21 Q126.5,5 132,21 Q137.5,37 143,21 Q148.5,5 154,21 Q159.5,37 165,21 Q170.5,5 176,21" stroke="white" stroke-linecap="round" fill="none">
-                <animate attributeName="stroke-width" values="1.2;2.5;1.2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
-                <animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
-                <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
-              </path>
-            </g>
-          </svg>
+    <!-- First-lesson nudge banner (shown only before any lesson is completed) -->
+    <div id="empty-state" style="margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;gap:1rem;padding:0.95rem 1.3rem;border-radius:14px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);">
+        <span style="font-size:1.4rem;flex-shrink:0;">👋</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:2px;">No lessons yet — pick a strand below to start.</div>
+          <div style="font-size:0.78rem;color:var(--text-2);">Everything is open. Jump in anywhere that interests you.</div>
         </div>
-        <h2 style="font-size:1.8rem; font-weight:900; letter-spacing:-0.03em; margin-bottom:12px;">Your helix starts here.</h2>
-        <p style="color:var(--text-2); font-size:1rem; line-height:1.65; margin-bottom:36px;">You haven't started any lessons yet. Pick any strand below — code, math, or both — and write your first line.</p>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:480px; margin:0 auto;">
-          <a class="es-lang-card" href="lesson.html?id=1"><div class="es-lang-icon">🐍</div><div class="es-lang-name">Python</div><div class="es-lang-cta">Start →</div></a>
-          <a class="es-lang-card" href="lesson-js.html?id=1"><div class="es-lang-icon">⚡</div><div class="es-lang-name">JavaScript</div><div class="es-lang-cta">Start →</div></a>
-          <a class="es-lang-card" href="lesson-html.html?id=1"><div class="es-lang-icon">🌐</div><div class="es-lang-name">HTML & CSS</div><div class="es-lang-cta">Start →</div></a>
-          <a class="es-lang-card" href="lesson-sql.html?id=1"><div class="es-lang-icon">🗄️</div><div class="es-lang-name">SQL</div><div class="es-lang-cta">Start →</div></a>
-          <a class="es-lang-card" href="lesson-ts.html?id=1"><div class="es-lang-icon">📘</div><div class="es-lang-name">TypeScript</div><div class="es-lang-cta">Start →</div></a>
-          <a class="es-lang-card" href="lesson-cpp.html?id=1"><div class="es-lang-icon">⚙️</div><div class="es-lang-name">C++</div><div class="es-lang-cta">Start →</div></a>
-        </div>
+        <a href="lesson.html?id=1" style="flex-shrink:0;font-size:0.78rem;font-weight:700;color:var(--primary-l);text-decoration:none;white-space:nowrap;">Start now →</a>
       </div>
     </div>
 
@@ -678,237 +765,201 @@
       </a>
     </div>
 
-    <!-- Courses / Strands -->
+    <!-- Knowledge Strands Bento Grid -->
     <div id="courses-section">
       <div class="section-title-row">
-        <div class="section-h">All Strands</div>
+        <div class="section-h">Knowledge Strands</div>
+        <a href="strands.html" class="section-link">Explore all →</a>
       </div>
 
-      <!-- ── CODING STRAND ── -->
-      <div class="strand-group">
-        <div class="strand-group-head" style="--sg-color:#6366F1;">
-          <span class="sg-icon">💻</span>
-          <div class="sg-text">
-            <div class="sg-name">Coding</div>
-            <div class="sg-sub">6 languages — Python, JavaScript, HTML &amp; CSS, SQL, C++, TypeScript</div>
+      <div class="strand-bento">
+
+        <!-- ── CODING STRAND ── -->
+        <div class="strand-card-v2 live" style="--sc-grad: linear-gradient(90deg, #6366F1, #8B5CF6);">
+          <div class="sc-head">
+            <div class="sc-head-left">
+              <div class="sc-icon-wrap">💻</div>
+              <div>
+                <div class="sc-name">Coding</div>
+                <div class="sc-subdesc">6 languages · real-world projects</div>
+              </div>
+            </div>
+            <span class="sc-badge sc-badge-live">Live</span>
           </div>
-          <span class="sg-badge live">Live</span>
+          <div class="sc-divider"></div>
+
+          <div class="sc-module-list">
+            <a class="sc-module-item" href="lesson.html?id=1">
+              <span class="sc-mod-icon">🐍</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Python Fundamentals</div>
+                <div class="sc-mod-sub" id="course-lessons-count">0 / 15 lessons</div>
+              </div>
+              <span class="sc-mod-pct" id="course-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="course-bar" style="width:0%;background:linear-gradient(90deg,#6366F1,#8B5CF6)"></div></div>
+            </a>
+            <a class="sc-module-item" href="lesson-js.html?id=1">
+              <span class="sc-mod-icon">⚡</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">JavaScript Fundamentals</div>
+                <div class="sc-mod-sub" id="js-lessons-count">0 / 15 lessons</div>
+              </div>
+              <span class="sc-mod-pct" id="js-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="js-bar" style="width:0%;background:linear-gradient(90deg,#F7DF1E,#F59E0B)"></div></div>
+            </a>
+            <a class="sc-module-item" href="lesson-html.html?id=1">
+              <span class="sc-mod-icon">🌐</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">HTML &amp; CSS Essentials</div>
+                <div class="sc-mod-sub" id="html-lessons-count">0 / 15 lessons</div>
+              </div>
+              <span class="sc-mod-pct" id="html-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="html-bar" style="width:0%;background:linear-gradient(90deg,#E34F26,#F97316)"></div></div>
+            </a>
+            <a class="sc-module-item" href="lesson-sql.html?id=1">
+              <span class="sc-mod-icon">🗄️</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">SQL Fundamentals</div>
+                <div class="sc-mod-sub" id="sql-lessons-count">0 / 15 lessons</div>
+              </div>
+              <span class="sc-mod-pct" id="sql-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="sql-bar" style="width:0%;background:linear-gradient(90deg,#00758F,#22D3EE)"></div></div>
+            </a>
+            <a class="sc-module-item" href="lesson-cpp.html?id=1">
+              <span class="sc-mod-icon">⚙️</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">C++ Fundamentals</div>
+                <div class="sc-mod-sub" id="cpp-lessons-count">0 / 15 lessons</div>
+              </div>
+              <span class="sc-mod-pct" id="cpp-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="cpp-bar" style="width:0%;background:linear-gradient(90deg,#00599C,#3B82F6)"></div></div>
+            </a>
+            <a class="sc-module-item" href="lesson-ts.html?id=1">
+              <span class="sc-mod-icon">🔷</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">TypeScript Fundamentals</div>
+                <div class="sc-mod-sub" id="ts-lessons-count">0 / 15 lessons</div>
+              </div>
+              <span class="sc-mod-pct" id="ts-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="ts-bar" style="width:0%;background:linear-gradient(90deg,#3178C6,#6366F1)"></div></div>
+            </a>
+          </div>
+
+          <a class="sc-cta sc-cta-code" href="lesson.html?id=1">Start coding →</a>
         </div>
 
-        <a class="course-card" href="#lessons-section" style="--lc:#3776AB;">
-          <div class="course-icon">🐍</div>
-          <div class="course-info">
-            <div class="course-name">Python Fundamentals</div>
-            <div class="course-meta">
-              <span id="course-lessons-count">0 / 15 lessons</span>
-              <span class="course-tag ct-active">Active</span>
+        <!-- ── MATHEMATICS STRAND ── -->
+        <div class="strand-card-v2 live" style="--sc-grad: linear-gradient(90deg, #F59E0B, #F97316);">
+          <div class="sc-head">
+            <div class="sc-head-left">
+              <div class="sc-icon-wrap">🧮</div>
+              <div>
+                <div class="sc-name">Mathematics</div>
+                <div class="sc-subdesc">6 modules · for programmers &amp; engineers</div>
+              </div>
             </div>
+            <span class="sc-badge sc-badge-live">Live</span>
           </div>
-          <div class="course-right">
-            <div class="progress-pct" id="course-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="course-bar" style="width:0%"></div></div>
-          </div>
-        </a>
+          <div class="sc-divider"></div>
 
-        <a class="course-card" href="lesson-js.html?id=1" style="--lc:#F7DF1E;">
-          <div class="course-icon">⚡</div>
-          <div class="course-info">
-            <div class="course-name">JavaScript Fundamentals</div>
-            <div class="course-meta">
-              <span id="js-lessons-count">0 / 15 lessons</span>
-              <span class="course-tag ct-active">Active</span>
+          <div class="sc-module-list">
+            <a class="sc-module-item" href="math-logic.html">
+              <span class="sc-mod-icon">⚡</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Boolean Logic &amp; Truth Tables</div>
+                <div class="sc-mod-sub">5 lessons · AND, OR, NOT, XOR</div>
+              </div>
+              <span class="sc-mod-pct" id="math-logic-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-logic-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
+            </a>
+            <a class="sc-module-item" href="math-numbers.html">
+              <span class="sc-mod-icon">🔢</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Number Systems &amp; Binary</div>
+                <div class="sc-mod-sub">4 lessons · Binary, Hex, Bit Flipper</div>
+              </div>
+              <span class="sc-mod-pct" id="math-num-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-num-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
+            </a>
+            <a class="sc-module-item" href="math-algebra.html">
+              <span class="sc-mod-icon">📐</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Algebra for Programmers</div>
+                <div class="sc-mod-sub">5 lessons · Variables, Equations, Functions</div>
+              </div>
+              <span class="sc-mod-pct" id="math-alg-pct">0%</span>
+              <div class="sc-mod-bar-wrap"><div class="sc-mod-bar" id="math-alg-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
+            </a>
+            <div class="sc-module-item soon-item">
+              <span class="sc-mod-icon">🔗</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Discrete Mathematics</div>
+                <div class="sc-mod-sub">Sets, Graphs, Combinatorics</div>
+              </div>
+              <span class="sc-mod-pct" style="color:var(--text-3)">—</span>
+            </div>
+            <div class="sc-module-item soon-item">
+              <span class="sc-mod-icon">🎲</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Statistics &amp; Probability</div>
+                <div class="sc-mod-sub">Distributions, Inference, Data</div>
+              </div>
+              <span class="sc-mod-pct" style="color:var(--text-3)">—</span>
+            </div>
+            <div class="sc-module-item soon-item">
+              <span class="sc-mod-icon">🗺️</span>
+              <div class="sc-mod-text">
+                <div class="sc-mod-name">Pseudocode &amp; Flowcharts</div>
+                <div class="sc-mod-sub">Algorithm Design, Visual Thinking</div>
+              </div>
+              <span class="sc-mod-pct" style="color:var(--text-3)">—</span>
             </div>
           </div>
-          <div class="course-right">
-            <div class="progress-pct" id="js-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="js-bar" style="width:0%"></div></div>
-          </div>
-        </a>
 
-        <a class="course-card" href="lesson-html.html?id=1" style="--lc:#E34F26;">
-          <div class="course-icon">🏗️</div>
-          <div class="course-info">
-            <div class="course-name">HTML &amp; CSS Essentials</div>
-            <div class="course-meta">
-              <span id="html-lessons-count">0 / 15 lessons</span>
-              <span class="course-tag ct-active">Active</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" id="html-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="html-bar" style="width:0%"></div></div>
-          </div>
-        </a>
+          <a class="sc-cta sc-cta-math" href="math-logic.html">Explore maths →</a>
+        </div>
 
-        <a class="course-card" href="lesson-sql.html?id=1" style="--lc:#00758F;">
-          <div class="course-icon">🗄️</div>
-          <div class="course-info">
-            <div class="course-name">SQL Fundamentals</div>
-            <div class="course-meta">
-              <span id="sql-lessons-count">0 / 15 lessons</span>
-              <span class="course-tag ct-active">Active</span>
+        <!-- ── CS THEORY STRAND ── -->
+        <div class="strand-card-v2 coming" style="--sc-grad: linear-gradient(90deg, #22D3EE, #06B6D4);">
+          <div class="sc-head">
+            <div class="sc-head-left">
+              <div class="sc-icon-wrap">🔬</div>
+              <div>
+                <div class="sc-name">CS Theory</div>
+                <div class="sc-subdesc">Algorithms, data structures &amp; beyond</div>
+              </div>
             </div>
+            <span class="sc-badge sc-badge-soon">Soon</span>
           </div>
-          <div class="course-right">
-            <div class="progress-pct" id="sql-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="sql-bar" style="width:0%"></div></div>
+          <div class="sc-divider"></div>
+          <div class="sc-coming-body">
+            <div class="sc-coming-emoji">🚧</div>
+            <div class="sc-coming-text">Big-O notation, sorting algorithms, graphs, trees &amp; data structures. Being built now.</div>
           </div>
-        </a>
+          <span class="sc-cta sc-cta-soon">Coming soon</span>
+        </div>
 
-        <a class="course-card" href="lesson-cpp.html?id=1" style="--lc:#00599C;">
-          <div class="course-icon">⚙️</div>
-          <div class="course-info">
-            <div class="course-name">C++ Fundamentals</div>
-            <div class="course-meta">
-              <span id="cpp-lessons-count">0 / 15 lessons</span>
-              <span class="course-tag ct-active">Active</span>
+        <!-- ── DATA & AI STRAND ── -->
+        <div class="strand-card-v2 coming" style="--sc-grad: linear-gradient(90deg, #10B981, #059669);">
+          <div class="sc-head">
+            <div class="sc-head-left">
+              <div class="sc-icon-wrap">📊</div>
+              <div>
+                <div class="sc-name">Data &amp; AI</div>
+                <div class="sc-subdesc">ML fundamentals &amp; neural networks</div>
+              </div>
             </div>
+            <span class="sc-badge sc-badge-soon">Soon</span>
           </div>
-          <div class="course-right">
-            <div class="progress-pct" id="cpp-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="cpp-bar" style="width:0%"></div></div>
+          <div class="sc-divider"></div>
+          <div class="sc-coming-body">
+            <div class="sc-coming-emoji">🤖</div>
+            <div class="sc-coming-text">Machine learning, neural networks, data analysis &amp; applied AI. On the roadmap.</div>
           </div>
-        </a>
+          <span class="sc-cta sc-cta-soon">Coming soon</span>
+        </div>
 
-        <a class="course-card" href="lesson-ts.html?id=1" style="--lc:#3178C6;">
-          <div class="course-icon">🔷</div>
-          <div class="course-info">
-            <div class="course-name">TypeScript Fundamentals</div>
-            <div class="course-meta">
-              <span id="ts-lessons-count">0 / 15 lessons</span>
-              <span class="course-tag ct-active">Active</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" id="ts-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="ts-bar" style="width:0%"></div></div>
-          </div>
-        </a>
       </div>
-
-      <!-- ── MATHEMATICS STRAND ── -->
-      <div class="strand-group">
-        <div class="strand-group-head" style="--sg-color:#F59E0B;">
-          <span class="sg-icon">🧮</span>
-          <div class="sg-text">
-            <div class="sg-name">Mathematics</div>
-            <div class="sg-sub">6 modules — Logic, Numbers, Algebra, Discrete Math &amp; more</div>
-          </div>
-          <span class="sg-badge live">Live</span>
-        </div>
-
-        <a class="course-card" href="math-logic.html" style="--lc:#F59E0B;">
-          <div class="course-icon">⚡</div>
-          <div class="course-info">
-            <div class="course-name">Boolean Logic &amp; Truth Tables</div>
-            <div class="course-meta">
-              <span>5 lessons · AND, OR, NOT, XOR</span>
-              <span class="course-tag ct-active">Active</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" id="math-logic-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="math-logic-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
-          </div>
-        </a>
-
-        <a class="course-card" href="math-numbers.html" style="--lc:#F59E0B;">
-          <div class="course-icon">🔢</div>
-          <div class="course-info">
-            <div class="course-name">Number Systems &amp; Binary</div>
-            <div class="course-meta">
-              <span>4 lessons · Binary, Hex, Bit Flipper</span>
-              <span class="course-tag ct-active">Active</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" id="math-num-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="math-num-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
-          </div>
-        </a>
-
-        <a class="course-card" href="math-algebra.html" style="--lc:#F59E0B;">
-          <div class="course-icon">📐</div>
-          <div class="course-info">
-            <div class="course-name">Algebra for Programmers</div>
-            <div class="course-meta">
-              <span>5 lessons · Variables, Equations, Functions</span>
-              <span class="course-tag ct-active">Active</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" id="math-alg-pct">0%</div>
-            <div class="progress-bar"><div class="progress-fill" id="math-alg-bar" style="width:0%;background:linear-gradient(90deg,#F59E0B,#F97316)"></div></div>
-          </div>
-        </a>
-
-        <div class="course-card" style="--lc:#2D3A4E;opacity:0.5;pointer-events:none;">
-          <div class="course-icon">🔗</div>
-          <div class="course-info">
-            <div class="course-name">Discrete Mathematics</div>
-            <div class="course-meta">
-              <span>Sets, Graphs, Combinatorics</span>
-              <span class="course-tag ct-soon">Coming Soon</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" style="color:var(--text-3)">—</div>
-          </div>
-        </div>
-
-        <div class="course-card" style="--lc:#2D3A4E;opacity:0.5;pointer-events:none;">
-          <div class="course-icon">🎲</div>
-          <div class="course-info">
-            <div class="course-name">Statistics &amp; Probability</div>
-            <div class="course-meta">
-              <span>Distributions, Inference, Data</span>
-              <span class="course-tag ct-soon">Coming Soon</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" style="color:var(--text-3)">—</div>
-          </div>
-        </div>
-
-        <div class="course-card" style="--lc:#2D3A4E;opacity:0.5;pointer-events:none;">
-          <div class="course-icon">🗺️</div>
-          <div class="course-info">
-            <div class="course-name">Pseudocode &amp; Flowcharts</div>
-            <div class="course-meta">
-              <span>Algorithm Design, Visual Thinking</span>
-              <span class="course-tag ct-soon">Coming Soon</span>
-            </div>
-          </div>
-          <div class="course-right">
-            <div class="progress-pct" style="color:var(--text-3)">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── CS THEORY STRAND ── -->
-      <div class="strand-group">
-        <div class="strand-group-head" style="--sg-color:#22D3EE;opacity:0.55;">
-          <span class="sg-icon">🔬</span>
-          <div class="sg-text">
-            <div class="sg-name">CS Theory</div>
-            <div class="sg-sub">Big-O, Sorting, Graphs, Data Structures — coming soon</div>
-          </div>
-          <span class="sg-badge soon">Coming Soon</span>
-        </div>
-      </div>
-
-      <!-- ── DATA & AI STRAND ── -->
-      <div class="strand-group">
-        <div class="strand-group-head" style="--sg-color:#10B981;opacity:0.55;">
-          <span class="sg-icon">📊</span>
-          <div class="sg-text">
-            <div class="sg-name">Data &amp; AI</div>
-            <div class="sg-sub">ML fundamentals, neural networks, applied statistics — coming soon</div>
-          </div>
-          <span class="sg-badge soon">Coming Soon</span>
-        </div>
-      </div>
-
     </div>
 
     <!-- Lessons grid -->
@@ -1263,97 +1314,204 @@ function helixLogout() {
   if (normalContent) normalContent.style.display = 'block'; // always visible
 })();
 
-// ── Onboarding Modal ───────────────────────────────────────
+// ── Onboarding Questionnaire ──────────────────────────────
 (function() {
   if (localStorage.getItem('helix_onboarded')) return;
   var curSession = JSON.parse(localStorage.getItem('helix_session') || 'null');
   if (!curSession) return;
   var username = curSession.username || 'there';
-  var selectedLang = null;
 
-  var LANGS = [
-    { emoji: '🐍', name: 'Python',      desc: 'Great for beginners. Data, AI, scripting.', href: 'lesson.html' },
-    { emoji: '⚡', name: 'JavaScript',  desc: 'The language of the web.',                  href: 'lesson-js.html' },
-    { emoji: '🌐', name: 'HTML & CSS',  desc: 'Build your first webpage.',                 href: 'lesson-html.html' },
-    { emoji: '🗄️', name: 'SQL',         desc: 'Query databases like a pro.',               href: 'lesson-sql.html' },
-    { emoji: '📘', name: 'TypeScript',  desc: 'JavaScript with superpowers.',              href: 'lesson-ts.html' },
-    { emoji: '⚙️', name: 'C++',         desc: 'Speed and control.',                        href: 'lesson-cpp.html' },
-  ];
+  // User selections
+  var selectedStrand = null; // 'code' | 'math' | 'both'
+  var selectedLevel  = null; // 0=beginner, 1=some, 2=intermediate, 3=advanced
+
+  // Recommendation map [strand][level] → { title, emoji, href, lessonId, isFree }
+  var RECS = {
+    code: [
+      { title: 'Hello, World!',      emoji: '🐍', href: 'lesson.html',    lessonId: 1,  isFree: true  },
+      { title: 'Strings & Numbers',  emoji: '🐍', href: 'lesson.html',    lessonId: 4,  isFree: true  },
+      { title: 'Loops (for/while)',  emoji: '🐍', href: 'lesson.html',    lessonId: 6,  isFree: false },
+      { title: 'Classes & Objects',  emoji: '🐍', href: 'lesson.html',    lessonId: 13, isFree: false },
+    ],
+    math: [
+      { title: 'Logic Gates & Truth Tables', emoji: '⚡', href: 'math-logic.html',   lessonId: 1, isFree: true },
+      { title: 'Number Systems & Binary',    emoji: '🔢', href: 'math-numbers.html', lessonId: 1, isFree: true },
+      { title: 'Algebra for Programmers',    emoji: '📐', href: 'math-algebra.html', lessonId: 1, isFree: true },
+      { title: 'Algebra — Advanced Topics',  emoji: '📐', href: 'math-algebra.html', lessonId: 3, isFree: true },
+    ],
+  };
+
+  function sel(id) { return document.getElementById(id); }
 
   function showStep(n) {
-    var card = document.getElementById('onboarding-card');
+    var card = sel('onboarding-card');
     if (!card) return;
+
+    // Step 1 — Welcome
     if (n === 1) {
-      card.innerHTML = '<div class="ob-step">' +
-        '<svg width="60" height="30" viewBox="0 0 60 30" fill="none" aria-hidden="true" style="overflow:hidden;display:block;margin:0 auto;">' +
-          '<defs><clipPath id="dna-ob-c"><rect width="60" height="30"/></clipPath></defs>' +
-          '<g clip-path="url(#dna-ob-c)">' +
-            '<path d="M-44,15 Q-38.5,3 -33,15 Q-27.5,27 -22,15 Q-16.5,3 -11,15 Q-5.5,27 0,15 Q5.5,3 11,15 Q16.5,27 22,15 Q27.5,3 33,15 Q38.5,27 44,15 Q49.5,3 55,15 Q60.5,27 66,15 Q71.5,3 77,15 Q82.5,27 88,15" stroke="white" stroke-linecap="round" fill="none">' +
-              '<animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
-              '<animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
-              '<animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>' +
-            '</path>' +
-            '<path d="M-44,15 Q-38.5,27 -33,15 Q-27.5,3 -22,15 Q-16.5,27 -11,15 Q-5.5,3 0,15 Q5.5,27 11,15 Q16.5,3 22,15 Q27.5,27 33,15 Q38.5,3 44,15 Q49.5,27 55,15 Q60.5,3 66,15 Q71.5,27 77,15 Q82.5,3 88,15" stroke="white" stroke-linecap="round" fill="none">' +
-              '<animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
-              '<animate attributeName="opacity" values="0.55;1;0.55" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>' +
-              '<animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>' +
-            '</path>' +
-          '</g>' +
-        '</svg>' +
-        '<h2>Welcome to Helix, ' + username + '! 🧬</h2>' +
-        '<p>You\'re about to start your coding journey. Helix teaches you real programming — no setup, no fluff, just code that actually runs.</p>' +
-        '<p style="color:var(--text-2);font-size:0.875rem;">Takes about 30 seconds to get you set up.</p>' +
-        '<button class="ob-btn ob-btn-primary" id="ob-btn-1">Let\'s go →</button>' +
-      '</div>';
-      document.getElementById('ob-btn-1').onclick = function() { showStep(2); };
+      card.innerHTML =
+        '<div class="ob-step">' +
+          '<svg width="56" height="28" viewBox="0 0 56 28" fill="none" aria-hidden="true" style="overflow:hidden;display:block;margin:0 auto 2px;">' +
+            '<defs><clipPath id="dna-ob-c"><rect width="56" height="28"/></clipPath></defs>' +
+            '<g clip-path="url(#dna-ob-c)">' +
+              '<path d="M-44,14 Q-38.5,2 -33,14 Q-27.5,26 -22,14 Q-16.5,2 -11,14 Q-5.5,26 0,14 Q5.5,2 11,14 Q16.5,26 22,14 Q27.5,2 33,14 Q38.5,26 44,14 Q49.5,2 55,14 Q60.5,26 66,14 Q71.5,2 77,14" stroke="white" stroke-linecap="round" fill="none"><animate attributeName="stroke-width" values="2;1.1;2" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/><animate attributeName="opacity" values="1;0.5;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/><animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/></path>' +
+              '<path d="M-44,14 Q-38.5,26 -33,14 Q-27.5,2 -22,14 Q-16.5,26 -11,14 Q-5.5,2 0,14 Q5.5,26 11,14 Q16.5,2 22,14 Q27.5,26 33,14 Q38.5,2 44,14 Q49.5,26 55,14 Q60.5,2 66,14 Q71.5,26 77,14" stroke="white" stroke-linecap="round" fill="none"><animate attributeName="stroke-width" values="1.1;2;1.1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/><animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/><animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/></path>' +
+            '</g>' +
+          '</svg>' +
+          '<h2>Welcome, ' + username + '!</h2>' +
+          '<p>Helix isn\'t just for coders. We\'re building the place where you learn everything — code, math, CS, data &amp; AI — at your own pace.</p>' +
+          '<p style="font-size:0.82rem;color:var(--text-2);">Let\'s find where you should start. Takes 30 seconds.</p>' +
+          '<button class="ob-btn ob-btn-primary" id="ob-s1-next">Find my starting point →</button>' +
+        '</div>';
+      sel('ob-s1-next').onclick = function() { showStep(2); };
+
+    // Step 2 — Strand choice
     } else if (n === 2) {
-      card.innerHTML = '<div class="ob-step">' +
-        '<p class="step-label">Step 2 of 3</p>' +
-        '<h2>Pick your first language</h2>' +
-        '<p>Don\'t worry — you can come back and learn all of them. Just pick one to start.</p>' +
-        '<div class="ob-lang-grid" id="ob-lang-grid">' +
-          LANGS.map(function(l, i) {
-            return '<div class="ob-lang-card" data-i="' + i + '">' +
-              '<div class="ob-lang-icon">' + l.emoji + '</div>' +
-              '<div class="ob-lang-name">' + l.name + '</div>' +
-              '<div class="ob-lang-desc">' + l.desc + '</div>' +
-            '</div>';
-          }).join('') +
-        '</div>' +
-        '<button class="ob-btn ob-btn-primary" id="ob-btn-2" disabled>Next →</button>' +
-      '</div>';
-      document.getElementById('ob-lang-grid').addEventListener('click', function(e) {
-        var cardEl = e.target.closest('.ob-lang-card');
-        if (!cardEl) return;
-        document.querySelectorAll('.ob-lang-card').forEach(function(c) { c.classList.remove('selected'); });
-        cardEl.classList.add('selected');
-        selectedLang = LANGS[parseInt(cardEl.dataset.i)];
-        document.getElementById('ob-btn-2').disabled = false;
+      card.innerHTML =
+        '<div class="ob-step">' +
+          '<p class="step-label">Step 1 of 3</p>' +
+          '<h2>What do you want to learn?</h2>' +
+          '<p>You can explore everything later — just tell us where to point you first.</p>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:20px;" id="ob-strand-grid">' +
+            ob_strandCard('code', '💻', 'Coding', 'Python, JS, SQL & more') +
+            ob_strandCard('math', '🧮', 'Mathematics', 'Logic, numbers, algebra') +
+            ob_strandCard('both', '🌀', 'Both', 'A little of everything') +
+          '</div>' +
+          '<button class="ob-btn ob-btn-primary" id="ob-s2-next" disabled>Next →</button>' +
+        '</div>';
+      sel('ob-strand-grid').addEventListener('click', function(e) {
+        var c = e.target.closest('.ob-lang-card'); if (!c) return;
+        document.querySelectorAll('#ob-strand-grid .ob-lang-card').forEach(function(x) { x.classList.remove('selected'); });
+        c.classList.add('selected');
+        selectedStrand = c.dataset.strand;
+        sel('ob-s2-next').disabled = false;
       });
-      document.getElementById('ob-btn-2').onclick = function() { showStep(3); };
+      sel('ob-s2-next').onclick = function() { showStep(3); };
+
+    // Step 3 — Experience level
     } else if (n === 3) {
-      card.innerHTML = '<div class="ob-step">' +
-        '<p class="step-label">Step 3 of 3</p>' +
-        '<div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.12);border:2px solid rgba(16,185,129,0.35);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:1.8rem;color:var(--green);">✓</div>' +
-        '<h2>You\'re all set!</h2>' +
-        '<p>Starting you on <strong>' + (selectedLang ? selectedLang.name : '') + '</strong>. Your first lesson is ready and waiting.</p>' +
-        '<button class="ob-btn ob-btn-primary" id="ob-btn-3">Start learning →</button>' +
-      '</div>';
-      document.getElementById('ob-btn-3').onclick = function() {
-        localStorage.setItem('helix_onboarded', '1');
-        document.getElementById('onboarding-overlay').style.display = 'none';
-        if (selectedLang) window.location.href = selectedLang.href + '?id=1';
-      };
+      var strandLabel = selectedStrand === 'math' ? 'maths' : (selectedStrand === 'both' ? 'this topic' : 'coding');
+      card.innerHTML =
+        '<div class="ob-step">' +
+          '<p class="step-label">Step 2 of 3</p>' +
+          '<h2>How experienced are you?</h2>' +
+          '<p>Be honest — this helps us skip content you already know.</p>' +
+          '<div style="display:flex;flex-direction:column;gap:9px;margin-top:18px;" id="ob-level-grid">' +
+            ob_levelCard(0, '🌱', 'Complete Beginner', 'I\'m new to ' + strandLabel) +
+            ob_levelCard(1, '📖', 'Some Experience',   'I know the basics but want to go deeper') +
+            ob_levelCard(2, '🔧', 'Intermediate',      'I\'m comfortable — I want to level up') +
+            ob_levelCard(3, '🚀', 'Advanced',          'I know my stuff — show me advanced topics') +
+          '</div>' +
+          '<button class="ob-btn ob-btn-primary" id="ob-s3-next" disabled>See my recommendation →</button>' +
+        '</div>';
+      sel('ob-level-grid').addEventListener('click', function(e) {
+        var c = e.target.closest('.ob-level-card'); if (!c) return;
+        document.querySelectorAll('#ob-level-grid .ob-level-card').forEach(function(x) { x.classList.remove('selected'); });
+        c.classList.add('selected');
+        selectedLevel = parseInt(c.dataset.level);
+        sel('ob-s3-next').disabled = false;
+      });
+      sel('ob-s3-next').onclick = function() { showStep(4); };
+
+    // Step 4 — Recommendation
+    } else if (n === 4) {
+      var strandKey = (selectedStrand === 'math') ? 'math' : 'code';
+      var rec = RECS[strandKey][selectedLevel];
+      var isPro = !rec.isFree;
+
+      if (isPro) {
+        // Pro gate screen
+        card.innerHTML =
+          '<div class="ob-step">' +
+            '<p class="step-label">Step 3 of 3</p>' +
+            '<div style="width:60px;height:60px;border-radius:50%;background:rgba(245,158,11,0.1);border:2px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:1.7rem;">🔒</div>' +
+            '<h2>This lesson is Helix Pro</h2>' +
+            '<p>Based on your level, we\'d start you at <strong>' + rec.emoji + ' ' + rec.title + '</strong> — but that\'s a Pro lesson.</p>' +
+            '<div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.18);border-radius:14px;padding:1rem 1.1rem;text-align:left;margin:16px 0;font-size:0.83rem;">' +
+              '<div style="font-weight:700;color:#FCD34D;margin-bottom:6px;">✨ Helix Pro includes:</div>' +
+              '<div style="color:var(--text-2);display:flex;flex-direction:column;gap:4px;">' +
+                '<span>✓ All lessons in every strand unlocked</span>' +
+                '<span>✓ Advanced projects &amp; challenges</span>' +
+                '<span>✓ Priority access to new content</span>' +
+              '</div>' +
+            '</div>' +
+            '<a class="ob-btn ob-btn-primary" href="pro.html" style="display:block;text-align:center;text-decoration:none;" id="ob-pro-btn">Upgrade to Pro →</a>' +
+            '<button class="ob-btn" id="ob-free-btn" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-2);margin-top:8px;">Start from Lesson 1 (free)</button>' +
+          '</div>';
+        sel('ob-pro-btn').onclick = function() { localStorage.setItem('helix_onboarded', '1'); };
+        sel('ob-free-btn').onclick = function() {
+          localStorage.setItem('helix_onboarded', '1');
+          sel('onboarding-overlay').style.display = 'none';
+          window.location.href = (strandKey === 'math') ? 'math-logic.html' : 'lesson.html?id=1';
+        };
+      } else {
+        // Free lesson recommendation
+        card.innerHTML =
+          '<div class="ob-step">' +
+            '<p class="step-label">Step 3 of 3</p>' +
+            '<div style="width:60px;height:60px;border-radius:50%;background:rgba(16,185,129,0.1);border:2px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:1.7rem;">✓</div>' +
+            '<h2>Your starting point is ready</h2>' +
+            '<p>Based on your level, we recommend:</p>' +
+            '<div style="background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.2);border-radius:14px;padding:1rem 1.2rem;text-align:left;margin:16px 0;">' +
+              '<div style="font-size:1.3rem;margin-bottom:6px;">' + rec.emoji + '</div>' +
+              '<div style="font-size:1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">' + rec.title + '</div>' +
+              '<div style="font-size:0.78rem;color:var(--text-2);">Free lesson · Start immediately</div>' +
+            '</div>' +
+            '<button class="ob-btn ob-btn-primary" id="ob-go-btn">Start this lesson →</button>' +
+            '<button class="ob-btn" id="ob-browse-btn" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-2);margin-top:8px;">I\'ll browse on my own</button>' +
+          '</div>';
+        sel('ob-go-btn').onclick = function() {
+          localStorage.setItem('helix_onboarded', '1');
+          sel('onboarding-overlay').style.display = 'none';
+          window.location.href = rec.href + (rec.lessonId ? '?id=' + rec.lessonId : '');
+        };
+        sel('ob-browse-btn').onclick = function() {
+          localStorage.setItem('helix_onboarded', '1');
+          sel('onboarding-overlay').style.display = 'none';
+        };
+      }
     }
   }
 
+  // Helper: strand selection card HTML
+  function ob_strandCard(strand, emoji, name, desc) {
+    return '<div class="ob-lang-card" data-strand="' + strand + '">' +
+      '<div class="ob-lang-icon">' + emoji + '</div>' +
+      '<div class="ob-lang-name">' + name + '</div>' +
+      '<div class="ob-lang-desc">' + desc + '</div>' +
+    '</div>';
+  }
+
+  // Helper: level card HTML
+  function ob_levelCard(level, emoji, name, desc) {
+    return '<div class="ob-level-card" data-level="' + level + '" style="' +
+      'display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;' +
+      'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);cursor:pointer;' +
+      'transition:all 0.2s;text-align:left;">' +
+      '<span style="font-size:1.5rem;flex-shrink:0;">' + emoji + '</span>' +
+      '<div><div style="font-size:0.88rem;font-weight:700;">' + name + '</div>' +
+      '<div style="font-size:0.73rem;color:var(--text-2);margin-top:2px;">' + desc + '</div></div>' +
+    '</div>';
+  }
+
+  // Level card hover/selected style via JS (to avoid extra CSS)
+  document.addEventListener('mouseover', function(e) {
+    var c = e.target.closest('.ob-level-card');
+    if (c && !c.classList.contains('selected')) c.style.background = 'rgba(255,255,255,0.055)';
+  });
+  document.addEventListener('mouseout', function(e) {
+    var c = e.target.closest('.ob-level-card');
+    if (c && !c.classList.contains('selected')) c.style.background = 'rgba(255,255,255,0.03)';
+  });
+  // Selected style patch
+  var _styleOb = document.createElement('style');
+  _styleOb.textContent = '.ob-level-card.selected{background:rgba(99,102,241,0.12)!important;border-color:var(--primary)!important;box-shadow:0 0 14px rgba(99,102,241,0.18);}';
+  document.head.appendChild(_styleOb);
+
   setTimeout(function() {
-    var overlay = document.getElementById('onboarding-overlay');
-    if (overlay) {
-      overlay.style.display = 'flex';
-      showStep(1);
-    }
-  }, 300);
+    var overlay = sel('onboarding-overlay');
+    if (overlay) { overlay.style.display = 'flex'; showStep(1); }
+  }, 350);
 })();
 
 </script>

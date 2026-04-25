@@ -803,6 +803,10 @@ ys = [<span class="c-fn">f</span>(x) <span class="c-keyword">for</span> x <span 
 </div>
 
 <script>
+  /* ── Auth gate ── */
+  const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
+  if (!session) { window.location.href = 'login.html'; }
+
   /* ── State ── */
   const state = {
     xp: 0,
