@@ -392,39 +392,70 @@
     .strand-card-v2.full-width { grid-column: 1 / -1; }
     .strand-card-v2.full-width .sc-module-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 
-    /* ─── LESSON GRID ─────────────────────────────────────── */
-    .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
-    .lesson-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
-      padding: 1.2rem 1.2rem 1rem; cursor: pointer;
-      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
-      text-decoration: none; color: inherit;
-      display: flex; flex-direction: column; gap: 0.5rem;
+    /* ─── CONTINUE LEARNING ──────────────────────────────── */
+    .cl-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .cl-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.4rem 1.1rem 1.1rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.65rem;
       position: relative; overflow: hidden;
+      transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+      text-decoration: none; color: inherit;
+      cursor: pointer;
     }
-    .lesson-card.locked { opacity: 0.45; pointer-events: none; }
-    .lesson-card.completed::after {
-      content: '✓';
-      position: absolute; top: 0.75rem; right: 0.75rem;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--green); color: white;
-      font-size: 0.62rem; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
+    .cl-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, var(--cl-glow, rgba(99,102,241,0.06)) 0%, transparent 70%);
+      pointer-events: none;
     }
-    .lesson-card:not(.locked):hover {
-      border-color: rgba(99,102,241,0.25); transform: translateY(-3px);
-      box-shadow: 0 14px 32px rgba(0,0,0,0.3);
+    .cl-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
     }
-    .lesson-num { font-size: 0.68rem; font-weight: 700; color: var(--text-3); letter-spacing: 0.06em; }
-    .lesson-title { font-size: 0.9rem; font-weight: 700; line-height: 1.3; }
-    .lesson-desc  { font-size: 0.77rem; color: var(--text-2); line-height: 1.55; flex: 1; }
-    .lesson-xp {
-      display: inline-flex; align-items: center; gap: 0.25rem;
-      font-size: 0.68rem; font-weight: 700;
-      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.15);
-      color: var(--yellow); padding: 0.15rem 0.5rem; border-radius: 6px;
-      align-self: flex-start;
+    .cl-ring-wrap {
+      position: relative; width: 76px; height: 76px; flex-shrink: 0;
     }
+    .cl-ring-wrap svg { transform: rotate(-90deg); display: block; }
+    .cl-ring-bg  { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 5.5; }
+    .cl-ring-fill { fill: none; stroke-width: 5.5; stroke-linecap: round;
+      transition: stroke-dashoffset 1s cubic-bezier(0.34,1.56,0.64,1); }
+    .cl-ring-icon {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.5rem; line-height: 1;
+    }
+    .cl-strand-name {
+      font-size: 0.86rem; font-weight: 700;
+      color: var(--text-1); text-align: center; line-height: 1.25;
+    }
+    .cl-meta {
+      font-size: 0.7rem; color: var(--text-3);
+      text-align: center; line-height: 1.5;
+    }
+    .cl-pct {
+      font-size: 0.95rem; font-weight: 800;
+      text-align: center;
+    }
+    .cl-btn {
+      margin-top: 0.25rem; width: 100%;
+      padding: 0.48rem 0; border-radius: 9px;
+      font-size: 0.76rem; font-weight: 700;
+      text-align: center; text-decoration: none;
+      display: block;
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .cl-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+    .cl-card.not-started { opacity: 0.7; }
+    .cl-card.not-started:hover { opacity: 1; }
 
     /* ─── ACHIEVEMENTS ────────────────────────────────────── */
     .badge-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
@@ -497,10 +528,13 @@
     @media (max-width: 600px) {
       .main { padding: 1.5rem; }
       .stats-row { grid-template-columns: 1fr 1fr; }
-      .lesson-grid { grid-template-columns: 1fr 1fr; }
+      .cl-grid { grid-template-columns: 1fr 1fr; }
       .strand-bento { grid-template-columns: 1fr; }
       .welcome-hero { padding: 1.25rem 1.25rem; }
       .welcome-hero-title { font-size: 1.25rem; }
+    }
+    @media (max-width: 380px) {
+      .cl-grid { grid-template-columns: 1fr; }
     }
 
     /* ─── ONBOARDING MODAL ───────────────────────────────── */
@@ -1069,13 +1103,13 @@
       </div>
     </div>
 
-    <!-- Lessons grid -->
-    <div id="lessons-section" style="margin-top:2.5rem;">
+    <!-- Continue Learning -->
+    <div id="continue-section" style="margin-top:2.5rem;">
       <div class="section-title-row">
-        <div class="section-h">🐍 Python Fundamentals — Lessons</div>
-        <span style="font-size:0.78rem; color:var(--text-3);">Ordered from beginner to advanced</span>
+        <div class="section-h">Continue Learning</div>
+        <span style="font-size:0.78rem; color:var(--text-3);">All your strands — pick up where you left off</span>
       </div>
-      <div class="lesson-grid" id="lesson-grid">
+      <div class="cl-grid" id="cl-grid">
         <!-- populated by JS -->
       </div>
     </div>
@@ -1104,23 +1138,13 @@
 
 const session = JSON.parse(localStorage.getItem('helix_session') || 'null');
 
-// ─── Lesson data ─────────────────────────────────────────
-const LESSONS = [
-  { id:  1, title: "Hello, World!",          desc: "Write your very first Python program and print to the screen.",         xp:  50 },
-  { id:  2, title: "Variables",              desc: "Store and use data with named variables — the foundation of programs.", xp:  75 },
-  { id:  3, title: "User Input",             desc: "Make programs interactive by reading input from the user.",             xp:  75 },
-  { id:  4, title: "Strings & Numbers",      desc: "Work with text and numbers, and Python's core operators.",              xp: 100 },
-  { id:  5, title: "Conditions (if/else)",   desc: "Make decisions in code with if, elif, and else statements.",            xp: 125 },
-  { id:  6, title: "Loops (for/while)",      desc: "Repeat actions efficiently with for and while loops.",                  xp: 150 },
-  { id:  7, title: "Lists",                  desc: "Store multiple values in order and access them by index.",              xp: 150 },
-  { id:  8, title: "Dictionaries",           desc: "Map keys to values — Python's most versatile data structure.",          xp: 175 },
-  { id:  9, title: "Functions",              desc: "Write reusable blocks of code with def, parameters, and return.",       xp: 200 },
-  { id: 10, title: "String Methods",         desc: "Transform and analyse text with Python's powerful string toolkit.",     xp: 175 },
-  { id: 11, title: "List Comprehensions",    desc: "Build lists in a single expressive line — the Pythonic way.",           xp: 200 },
-  { id: 12, title: "Error Handling",         desc: "Catch and handle exceptions gracefully with try/except.",               xp: 200 },
-  { id: 13, title: "Classes & Objects",      desc: "Model the world with OOP — define classes, create objects.",            xp: 225 },
-  { id: 14, title: "Modules & Imports",      desc: "Use Python's standard library: math, random, and more.",               xp: 200 },
-  { id: 15, title: "File I/O",               desc: "Read and write files — make your programs persist data.",               xp: 250 },
+// ─── Strand data ─────────────────────────────────────────
+const CL_STRANDS = [
+  { key: 'coding', label: 'Coding',        icon: '💻', color: '#6366F1', rgb: '99,102,241',  hub: 'coding.html',       maxItems: 15, itemLabel: 'lessons' },
+  { key: 'math',   label: 'Mathematics',   icon: '🧮', color: '#F59E0B', rgb: '245,158,11',  hub: 'math.html',         maxItems: 6,  itemLabel: 'modules' },
+  { key: 'cs',     label: 'CS Theory',     icon: '🔬', color: '#22D3EE', rgb: '34,211,238',  hub: 'cs-theory.html',    maxItems: 5,  itemLabel: 'modules' },
+  { key: 'data',   label: 'Data & AI',     icon: '📊', color: '#10B981', rgb: '16,185,129',  hub: 'data-ai.html',      maxItems: 4,  itemLabel: 'modules' },
+  { key: 'web',    label: 'Web & Internet',icon: '🌐', color: '#EC4899', rgb: '236,72,153',  hub: 'web-internet.html', maxItems: 4,  itemLabel: 'modules' },
 ];
 
 const BADGES = [
@@ -1233,10 +1257,10 @@ function render() {
 
   // Python course progress
   const pyDone = (state.completedIds || []).length;
-  const cp = Math.round((pyDone / LESSONS.length) * 100);
+  const cp = Math.round((pyDone / 15) * 100);
   document.getElementById('course-pct').textContent           = cp + '%';
   document.getElementById('course-bar').style.width           = cp + '%';
-  document.getElementById('course-lessons-count').textContent = `${pyDone} / ${LESSONS.length} lessons`;
+  document.getElementById('course-lessons-count').textContent = `${pyDone} / 15 lessons`;
 
   // Other language progress
   function langPct(key) {
@@ -1343,18 +1367,41 @@ function render() {
   webModBar('security', 'web-sec-pct',     'web-sec-bar',     'web-sec-sub');
   webModBar('browser',  'web-browser-pct', 'web-browser-bar', 'web-browser-sub');
 
-  // lesson grid
-  const grid = document.getElementById('lesson-grid');
-  grid.innerHTML = LESSONS.map((l, i) => {
-    const done    = state.completedIds.includes(l.id);
-    const unlocked = i === 0 || state.completedIds.includes(LESSONS[i - 1].id);
-    const cls = done ? 'completed' : (!unlocked ? 'locked' : '');
+  // Continue Learning cards
+  function getStrandProg(strand) {
+    if (strand.key === 'coding') {
+      const s = JSON.parse(localStorage.getItem('helix_progress') || '{}');
+      const done = (s.completedIds || []).length;
+      return { pct: Math.round((done / 15) * 100), xp: s.xp || 0, done, started: done > 0 };
+    }
+    const s = JSON.parse(localStorage.getItem(`helix_${strand.key}_progress`) || '{}');
+    const mods = s.modules || {};
+    const done = Object.values(mods).filter(m => m.completed).length;
+    return { pct: Math.round((done / strand.maxItems) * 100), xp: s.xp || 0, done, started: done > 0 || (s.xp || 0) > 0 };
+  }
+  const CL_C = 2 * Math.PI * 28; // circumference r=28
+  const clGrid = document.getElementById('cl-grid');
+  clGrid.innerHTML = CL_STRANDS.map(strand => {
+    const prog   = getStrandProg(strand);
+    const offset = +(CL_C * (1 - prog.pct / 100)).toFixed(2);
+    const ns     = !prog.started ? ' not-started' : '';
     return `
-      <a class="lesson-card ${cls}" href="lesson.html?id=${l.id}" ${!unlocked ? 'tabindex="-1"' : ''}>
-        <div class="lesson-num">LESSON ${l.id}</div>
-        <div class="lesson-title">${l.title}</div>
-        <div class="lesson-desc">${l.desc}</div>
-        <div class="lesson-xp">+${l.xp} XP</div>
+      <a class="cl-card${ns}" href="${strand.hub}"
+        style="--cl-glow:rgba(${strand.rgb},0.08);border-color:rgba(${strand.rgb},${prog.started?'0.22':'0.1'});">
+        <div class="cl-ring-wrap">
+          <svg width="76" height="76" viewBox="0 0 76 76">
+            <circle class="cl-ring-bg" cx="38" cy="38" r="28"/>
+            <circle class="cl-ring-fill" cx="38" cy="38" r="28"
+              stroke="${strand.color}"
+              stroke-dasharray="${CL_C.toFixed(2)}"
+              stroke-dashoffset="${offset}"/>
+          </svg>
+          <div class="cl-ring-icon">${strand.icon}</div>
+        </div>
+        <div class="cl-strand-name">${strand.label}</div>
+        <div class="cl-pct" style="color:${strand.color};">${prog.pct}%</div>
+        <div class="cl-meta">${prog.xp.toLocaleString()} XP &nbsp;·&nbsp; ${prog.done}&thinsp;/&thinsp;${strand.maxItems} ${strand.itemLabel}</div>
+        <span class="cl-btn" style="background:rgba(${strand.rgb},0.12);color:${strand.color};">${prog.started ? 'Resume →' : 'Start →'}</span>
       </a>`;
   }).join('');
 
