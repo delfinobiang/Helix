@@ -360,6 +360,48 @@
     }
     .btn-modal-sec:hover { background: rgba(255,255,255,0.07); color: var(--text); }
 
+    /* ─── CHALLENGE STREAK BAR ───────────────────────────── */
+    .cstreak-bar {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 0 2rem 0.75rem;
+      padding: 0.75rem 1.1rem;
+      background: rgba(255,107,107,0.05); border: 1px solid rgba(255,107,107,0.14);
+      border-radius: 12px;
+    }
+    .cstreak-fire { font-size: 1.1rem; flex-shrink: 0; }
+    .cstreak-info { flex: 1; min-width: 0; }
+    .cstreak-count {
+      font-size: 0.88rem; font-weight: 800; color: var(--red);
+      white-space: nowrap;
+    }
+    .cstreak-count span { font-size: 1.05rem; }
+    .cstreak-next { font-size: 0.68rem; color: var(--text-3); margin-top: 1px; }
+    .cstreak-milestones {
+      display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;
+    }
+    .csm-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-weight: 800; flex-shrink: 0;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      color: var(--text-3); background: rgba(255,255,255,0.03);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .csm-dot.hit {
+      background: rgba(255,107,107,0.18); border-color: rgba(255,107,107,0.4);
+      color: var(--red);
+    }
+    .csm-dot.next-target {
+      border-color: rgba(255,107,107,0.28); border-style: dashed;
+      color: rgba(255,107,107,0.5);
+      animation: csm-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes csm-pulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
+      50%  { box-shadow: 0 0 0 3px rgba(255,107,107,0.15); }
+    }
+    @media (prefers-reduced-motion: reduce) { .csm-dot.next-target { animation: none; } }
+
     /* Already completed banner */
     .already-done-bar {
       display: none;
@@ -429,6 +471,21 @@
 </nav>
 
 <div class="top-bar"><div class="top-bar-fill" id="top-bar-fill"></div></div>
+
+<!-- ─── CHALLENGE STREAK BAR ─────────────────────────────── -->
+<div class="cstreak-bar" id="cstreak-bar">
+  <div class="cstreak-fire">🔥</div>
+  <div class="cstreak-info">
+    <div class="cstreak-count"><span id="cstreak-num">0</span> day challenge streak</div>
+    <div class="cstreak-next" id="cstreak-next">Complete today's challenge to start your streak!</div>
+  </div>
+  <div class="cstreak-milestones" id="cstreak-milestones">
+    <div class="csm-dot" data-target="3" title="3-day streak">3</div>
+    <div class="csm-dot" data-target="7" title="7-day streak">7</div>
+    <div class="csm-dot" data-target="14" title="14-day streak">14</div>
+    <div class="csm-dot" data-target="30" title="30-day streak">30</div>
+  </div>
+</div>
 
 <!-- ─── SPLIT ────────────────────────────────────────────── -->
 <div class="split">
@@ -754,8 +811,40 @@ function getLevel(xp) {
 
 const state0 = loadState();
 document.getElementById('nav-xp').textContent     = state0.xp;
-document.getElementById('nav-streak').textContent  = state0.challengeStreak || 1;
+document.getElementById('nav-streak').textContent  = state0.challengeStreak || 0;
 const alreadyDone = state0.lastChallenge === todayKey;
+
+// ── Challenge streak bar ────────────────────────────────
+const STREAK_MILESTONES = [3, 7, 14, 30];
+function renderChallengeStreakBar(streak) {
+  document.getElementById('cstreak-num').textContent = streak;
+  // Next milestone text
+  const next = STREAK_MILESTONES.find(m => m > streak);
+  const nextEl = document.getElementById('cstreak-next');
+  if (alreadyDone && streak > 0) {
+    nextEl.textContent = next
+      ? `${next - streak} day${next - streak !== 1 ? 's' : ''} to ${next}-day milestone 🎯`
+      : '🏆 All milestones reached! Legend streak!';
+  } else if (streak === 0) {
+    nextEl.textContent = 'Complete today\'s challenge to start your streak!';
+  } else {
+    nextEl.textContent = next
+      ? `${next - streak} day${next - streak !== 1 ? 's' : ''} to ${next}-day milestone 🎯`
+      : '🏆 All milestones reached! Legend streak!';
+  }
+  // Milestone dots
+  const dots = document.querySelectorAll('#cstreak-milestones .csm-dot');
+  dots.forEach(dot => {
+    const target = parseInt(dot.dataset.target);
+    dot.classList.remove('hit', 'next-target');
+    if (streak >= target) {
+      dot.classList.add('hit');
+    } else if (target === next) {
+      dot.classList.add('next-target');
+    }
+  });
+}
+renderChallengeStreakBar(state0.challengeStreak || 0);
 
 // ═══════════════════════════════════════════════════════════
 // RENDER CHALLENGE
@@ -908,23 +997,67 @@ function completeChallenge() {
   // Only award once per day
   if (state.lastChallenge === todayKey) { showModal(0); return; }
 
+  const prevStreak = state.challengeStreak || 0;
+
   // Extend streak if completed yesterday, else reset to 1
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
   const yKey = yesterday.toISOString().slice(0,10);
-  state.challengeStreak = (state.lastChallenge === yKey) ? (state.challengeStreak || 0) + 1 : 1;
+  state.challengeStreak = (state.lastChallenge === yKey) ? prevStreak + 1 : 1;
   state.lastChallenge   = todayKey;
   state.xp             += challenge.xp;
   state.level           = getLevel(state.xp);
+
+  // Track best challenge streak
+  if (state.challengeStreak > (state.bestChallengeStreak || 0)) {
+    state.bestChallengeStreak = state.challengeStreak;
+  }
+
   saveState(state);
+
   // Daily XP log (for weekly chart)
   (function() {
     const log = JSON.parse(localStorage.getItem('helix_xp_log') || '{}');
     log[todayKey] = (log[todayKey] || 0) + challenge.xp;
     localStorage.setItem('helix_xp_log', JSON.stringify(log));
   })();
+
   document.getElementById('nav-xp').textContent     = state.xp;
   document.getElementById('nav-streak').textContent  = state.challengeStreak;
+  renderChallengeStreakBar(state.challengeStreak);
+
+  // Milestone toast
+  const hitMilestone = STREAK_MILESTONES.find(m => state.challengeStreak === m);
+  if (hitMilestone) {
+    const msgs = { 3:'3-Day Challenger!', 7:'Weekly Warrior!', 14:'Fortnight Fighter!', 30:'Monthly Master!' };
+    setTimeout(() => showMilestoneToast(hitMilestone, msgs[hitMilestone]), 1800);
+  }
+
   showModal(challenge.xp, state.challengeStreak);
+}
+
+// Milestone toast (inline, reuses trophy-toast style if present, else simple banner)
+function showMilestoneToast(days, label) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `
+    position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#0C1022;border:1px solid rgba(255,107,107,0.3);
+    color:#EEF2F8;font-family:inherit;font-size:0.88rem;font-weight:700;
+    padding:0.7rem 1.4rem;border-radius:100px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    z-index:999;white-space:nowrap;opacity:0;
+    transition:opacity 0.25s,transform 0.25s;pointer-events:none;
+  `;
+  wrap.textContent = `🔥 ${days}-day challenge streak — ${label}`;
+  document.body.appendChild(wrap);
+  requestAnimationFrame(() => {
+    wrap.style.opacity = '1';
+    wrap.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  setTimeout(() => {
+    wrap.style.opacity = '0';
+    wrap.style.transform = 'translateX(-50%) translateY(20px)';
+    setTimeout(() => wrap.remove(), 350);
+  }, 4000);
 }
 
 // ═══════════════════════════════════════════════════════════

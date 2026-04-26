@@ -1682,7 +1682,10 @@ function render() {
   document.getElementById('daily-title').textContent = dc.title;
   document.getElementById('daily-xp').textContent    = done ? '✓ Done' : `+${dc.xp} XP`;
   document.getElementById('daily-xp').style.color    = done ? 'var(--green)' : 'var(--red)';
-  document.getElementById('daily-status').textContent = done ? 'Completed today' : 'Not done yet';
+  const cs = state.challengeStreak || 0;
+  document.getElementById('daily-status').textContent = done
+    ? `✓ Done · 🔥 ${cs} day streak`
+    : (cs > 0 ? `🔥 ${cs} day streak · Not done today` : 'Not done yet');
   document.getElementById('daily-tag').textContent   = done ? '✓ Done' : dc.difficulty;
   if (done) {
     document.getElementById('daily-tag').style.cssText = 'background:rgba(74,222,128,0.08);color:var(--green);border:1px solid rgba(74,222,128,0.18);font-size:0.67rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:7px;';
