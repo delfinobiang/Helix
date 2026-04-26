@@ -408,10 +408,24 @@
       body { overflow: auto; }
       .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
       .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
-      .panel-left-inner { overflow: visible; }
+      .panel-left-inner { overflow: visible; padding: 1.5rem 1.5rem 0.75rem; }
       .panel-right { min-height: 520px; flex: none; height: 520px; }
       .lesson-breadcrumb { display: none; }
       .output-panel { max-height: 180px; }
+    }
+    @media (max-width: 480px) {
+      .panel-right { height: 460px; min-height: 460px; }
+      .output-panel { max-height: 160px; }
+      .editor-fname { display: none; }
+      .btn-run { font-size: 0.78rem; padding: 0.4rem 0.85rem; }
+      .btn-clear { font-size: 0.72rem; padding: 0.4rem 0.65rem; }
+      .nav-right { gap: 0.5rem; }
+      .xp-badge { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
+      .trophy-toast { min-width: 0; max-width: calc(100vw - 2.5rem); }
+    }
+    @media (max-width: 380px) {
+      .btn-primary { font-size: 0.78rem; padding: 0.4rem 0.85rem; }
+      .panel-left-inner { padding: 1.25rem 1.25rem 0.5rem; }
     }
   </style>
 </head>

@@ -383,9 +383,23 @@
       body { overflow: auto; }
       .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
       .panel-left { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
-      .panel-left-inner { overflow: visible; }
+      .panel-left-inner { overflow: visible; padding: 1.5rem 1.5rem 0.75rem; }
+      .extras { padding: 0 1.5rem 1.25rem; }
       .panel-right { min-height: 520px; flex: none; height: 520px; }
       .output-panel { max-height: 180px; }
+      .challenge-title { font-size: 1.25rem; }
+    }
+    @media (max-width: 480px) {
+      .panel-right { height: 460px; min-height: 460px; }
+      .output-panel { max-height: 160px; }
+      .btn-run, .btn-submit { font-size: 0.78rem; padding: 0.4rem 0.85rem; }
+      .btn-clear { font-size: 0.72rem; padding: 0.4rem 0.65rem; }
+      .editor-fname { display: none; }
+      .nav-logo-name { display: none; }
+    }
+    @media (max-width: 380px) {
+      .xp-badge, .streak-badge { font-size: 0.72rem; padding: 0.25rem 0.55rem; }
+      .panel-left-inner { padding: 1.25rem 1.25rem 0.5rem; }
     }
   </style>
 </head>
