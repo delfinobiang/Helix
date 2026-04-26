@@ -374,6 +374,88 @@
     .tt-tier.gold     { background: rgba(234,179,8,0.12); color: #EAB308; border: 1px solid rgba(234,179,8,0.22); }
     .tt-tier.platinum { background: linear-gradient(135deg,rgba(129,140,248,0.14),rgba(56,189,248,0.14)); color: #818CF8; border: 1px solid rgba(129,140,248,0.28); }
 
+    /* ─── LESSON NAV PANEL ───────────────────────────────── */
+    .btn-lessons {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; transition: background 0.18s, color 0.18s, border-color 0.18s;
+    }
+    .btn-lessons:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .btn-lessons.active { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #FCD34D; }
+
+    .lesson-nav-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0); pointer-events: none;
+      transition: background 0.25s ease;
+    }
+    .lesson-nav-overlay.open { background: rgba(0,0,0,0.5); pointer-events: auto; }
+
+    .lesson-nav-panel {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 51;
+      width: 300px; max-width: 85vw;
+      background: #0C1022;
+      border-left: 1px solid rgba(245,158,11,0.2);
+      box-shadow: -8px 0 48px rgba(0,0,0,0.45);
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .lesson-nav-panel.open { transform: translateX(0); }
+
+    .lnp-header {
+      padding: 1rem 1.25rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .lnp-title { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+    .lnp-progress-text { font-size: 0.72rem; color: var(--text-2); font-weight: 500; }
+    .btn-lnp-close {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; transition: background 0.15s, color 0.15s;
+    }
+    .btn-lnp-close:hover { background: rgba(255,255,255,0.09); color: var(--text); }
+
+    .lnp-prog-bar { height: 3px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
+    .lnp-prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #F59E0B, #FBBF24);
+      transition: width 0.5s ease;
+    }
+
+    .lnp-list { flex: 1; overflow-y: auto; padding: 0.5rem 0; }
+    .lnp-list::-webkit-scrollbar { width: 4px; }
+    .lnp-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+    .lnp-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 1.25rem; cursor: pointer;
+      border: none; background: none; width: 100%; text-align: left;
+      font-family: inherit; transition: background 0.15s;
+      border-left: 2px solid transparent;
+    }
+    .lnp-item:hover { background: rgba(255,255,255,0.04); }
+    .lnp-item.current { background: rgba(245,158,11,0.07); border-left-color: #F59E0B; }
+
+    .lnp-status {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800;
+    }
+    .lnp-item.completed .lnp-status { background: rgba(16,185,129,0.15); border: 1.5px solid var(--green); color: var(--green); }
+    .lnp-item.current   .lnp-status { background: rgba(245,158,11,0.15); border: 1.5px solid #F59E0B; color: #FCD34D; }
+    .lnp-item:not(.completed):not(.current) .lnp-status { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); color: var(--text-3); }
+
+    .lnp-item-info { flex: 1; min-width: 0; }
+    .lnp-item-title { font-size: 0.82rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lnp-item.current .lnp-item-title { color: #FCD34D; }
+    .lnp-item-xp { font-size: 0.68rem; color: var(--text-2); margin-top: 1px; }
+
     /* ─── MOBILE ──────────────────────────────────────────── */
     @media (max-width: 768px) {
       body { overflow: auto; }
@@ -415,12 +497,27 @@
   <div class="nav-right">
     <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
     <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+    <button class="btn-lessons" id="btn-lessons" title="All lessons">☰ Lessons</button>
     <button class="btn-primary" id="btn-submit">Submit →</button>
   </div>
 </nav>
 
 <div class="lesson-progress">
   <div class="lesson-progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<!-- ─── LESSON NAV PANEL ─────────────────────────────────── -->
+<div class="lesson-nav-overlay" id="lnp-overlay"></div>
+<div class="lesson-nav-panel" id="lnp-panel" aria-label="All lessons">
+  <div class="lnp-header">
+    <div>
+      <div class="lnp-title">📜 JavaScript Lessons</div>
+      <div class="lnp-progress-text"><span id="lnp-done">0</span> / 15 completed</div>
+    </div>
+    <button class="btn-lnp-close" id="lnp-close" aria-label="Close">✕</button>
+  </div>
+  <div class="lnp-prog-bar"><div class="lnp-prog-fill" id="lnp-prog-fill" style="width:0%"></div></div>
+  <div class="lnp-list" id="lnp-list"></div>
 </div>
 
 <!-- ─── SPLIT ────────────────────────────────────────────── -->
@@ -1525,6 +1622,91 @@ function launchConfetti() {
   }
   requestAnimationFrame(draw);
 }
+
+// ═══════════════════════════════════════════════════════════
+// LESSON NAV PANEL
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const overlay  = document.getElementById('lnp-overlay');
+  const panel    = document.getElementById('lnp-panel');
+  const btnOpen  = document.getElementById('btn-lessons');
+  const btnClose = document.getElementById('lnp-close');
+  const list     = document.getElementById('lnp-list');
+
+  function buildPanel() {
+    const langProgress = loadLangProgress();
+    const completed    = langProgress.completedIds || [];
+    const total        = Object.keys(LESSONS).length;
+    const doneCount    = completed.length;
+
+    document.getElementById('lnp-done').textContent = doneCount;
+    document.getElementById('lnp-prog-fill').style.width = Math.round((doneCount / total) * 100) + '%';
+
+    list.innerHTML = '';
+    Object.keys(LESSONS).forEach(id => {
+      const num = parseInt(id);
+      const l = LESSONS[num];
+      const isDone    = completed.includes(num);
+      const isCurrent = num === lessonId;
+
+      const btn = document.createElement('button');
+      btn.className = 'lnp-item' + (isDone ? ' completed' : '') + (isCurrent ? ' current' : '');
+
+      const statusEl = document.createElement('div');
+      statusEl.className = 'lnp-status';
+      statusEl.textContent = isDone ? '✓' : (isCurrent ? '▶' : num);
+
+      const infoEl = document.createElement('div');
+      infoEl.className = 'lnp-item-info';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'lnp-item-title';
+      titleEl.textContent = l.title;
+
+      const xpEl = document.createElement('div');
+      xpEl.className = 'lnp-item-xp';
+      xpEl.textContent = (isDone ? '✓ Earned ' : '') + '+' + l.xp + ' XP';
+
+      infoEl.appendChild(titleEl);
+      infoEl.appendChild(xpEl);
+      btn.appendChild(statusEl);
+      btn.appendChild(infoEl);
+
+      btn.addEventListener('click', () => {
+        window.location.href = 'lesson-js.html?id=' + num;
+      });
+
+      list.appendChild(btn);
+    });
+
+    setTimeout(() => {
+      const cur = list.querySelector('.lnp-item.current');
+      if (cur) cur.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 320);
+  }
+
+  function openPanel() {
+    buildPanel();
+    overlay.classList.add('open');
+    panel.classList.add('open');
+    btnOpen.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePanel() {
+    overlay.classList.remove('open');
+    panel.classList.remove('open');
+    btnOpen.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  btnOpen.addEventListener('click', () => {
+    panel.classList.contains('open') ? closePanel() : openPanel();
+  });
+  btnClose.addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+})();
 </script>
 </body>
 </html>
