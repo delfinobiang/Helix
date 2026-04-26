@@ -1539,6 +1539,10 @@ function completeLesson() {
     if ((state.streak || 1) % 5 === 0 && !state.streakShield) {
       state.streakShield = true;
     }
+    // Track best streak
+    if ((state.streak || 1) > (state.bestStreak || 0)) {
+      state.bestStreak = state.streak;
+    }
 
     saveState(state);
     saveLangProgress(langProgress);
