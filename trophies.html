@@ -775,6 +775,13 @@ function render() {
   document.getElementById('ts-pct').textContent      = overallPct+'%';
   document.getElementById('ts-prog-fill').style.width = overallPct+'%';
 
+  // Cache counts for profile.html
+  localStorage.setItem('helix_trophy_cache', JSON.stringify({
+    bronze: counts.bronze, silver: counts.silver,
+    gold: counts.gold, platinum: counts.platinum,
+    total: totalEarned, updatedAt: Date.now()
+  }));
+
   // Build sections
   const container = document.getElementById('trophy-sections');
   container.innerHTML = TROPHY_DATA.map(course => {

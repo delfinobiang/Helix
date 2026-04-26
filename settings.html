@@ -292,6 +292,28 @@
       </div>
     </div>
 
+    <!-- Progress Backup -->
+    <div class="settings-section">
+      <div class="settings-section-title">Progress Backup</div>
+      <div class="settings-card" style="padding:1.4rem;">
+        <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:1.4rem;line-height:1.65;">
+          Helix stores all your progress locally in your browser. Export a backup file so you never lose your XP, streaks, or trophies — and import it to restore on any device.
+        </p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-primary" onclick="exportProgress()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Progress
+          </button>
+          <label class="btn btn-ghost" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import Progress
+            <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importProgress(event)">
+          </label>
+          <span style="font-size:0.75rem;color:var(--text-3);">Saved as <code style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;">helix-progress-YYYY-MM-DD.json</code></span>
+        </div>
+      </div>
+    </div>
+
     <!-- Danger Zone -->
     <div class="settings-section">
       <div class="settings-section-title" style="color:var(--red);">Danger Zone</div>
@@ -447,6 +469,55 @@
   function helixLogout() {
     localStorage.removeItem('helix_session');
     window.location.href = 'login.html';
+  }
+
+  /* ── Progress Export ──────────────────────────────────── */
+  const PROGRESS_KEYS = [
+    'helix_progress', 'helix_js_progress', 'helix_html_progress',
+    'helix_sql_progress', 'helix_cpp_progress', 'helix_ts_progress',
+    'helix_math_progress', 'helix_cs_progress', 'helix_data_progress',
+    'helix_web_progress', 'helix_trophy_cache'
+  ];
+
+  function exportProgress() {
+    const backup = { version: 1, exportedAt: new Date().toISOString(), data: {} };
+    PROGRESS_KEYS.forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v) { try { backup.data[k] = JSON.parse(v); } catch(e) {} }
+    });
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `helix-progress-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('success', '✓ Progress exported');
+  }
+
+  function importProgress(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const backup = JSON.parse(e.target.result);
+        if (!backup || !backup.data) throw new Error('Invalid file structure');
+        if (!confirm('This will overwrite your current progress data. Continue?')) return;
+        Object.keys(backup.data).forEach(k => {
+          if (PROGRESS_KEYS.includes(k)) {
+            localStorage.setItem(k, JSON.stringify(backup.data[k]));
+          }
+        });
+        showToast('success', '✓ Progress restored successfully');
+      } catch(err) {
+        showToast('error', '✗ Invalid or corrupted backup file');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
   }
 
   /* ── Toast ────────────────────────────────────────────── */
