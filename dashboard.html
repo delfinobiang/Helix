@@ -1430,8 +1430,31 @@ function render() {
   const lxp   = getLevelXP(level);
   const pct   = Math.round(((state.xp - lxp.cur) / (lxp.next - lxp.cur)) * 100);
 
+  // ── XP count-up animation ──────────────────────────────
+  const prevXP = parseInt(localStorage.getItem('helix_xp_prev') || '0', 10);
+  const curXP  = state.xp;
+  localStorage.setItem('helix_xp_prev', String(curXP));
+
+  function animateCount(el, from, to, duration) {
+    if (from >= to) { el.textContent = to; return; }
+    const start = performance.now();
+    const diff  = to - from;
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      el.textContent = Math.round(from + diff * ease);
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = to;
+    }
+    requestAnimationFrame(tick);
+  }
+
   // navbar
-  document.getElementById('nav-xp-val').textContent = state.xp;
+  if (prevXP < curXP) {
+    animateCount(document.getElementById('nav-xp-val'), prevXP, curXP, 900);
+  } else {
+    document.getElementById('nav-xp-val').textContent = curXP;
+  }
   document.getElementById('nav-streak').textContent  = state.streak;
   (function() {
     const badge = document.getElementById('streak-badge-nav');
@@ -1450,7 +1473,11 @@ function render() {
   })();
 
   // stats
-  document.getElementById('stat-xp').textContent      = state.xp;
+  if (prevXP < curXP) {
+    animateCount(document.getElementById('stat-xp'), prevXP, curXP, 1100);
+  } else {
+    document.getElementById('stat-xp').textContent = curXP;
+  }
   document.getElementById('stat-streak').textContent   = state.streak;
   document.getElementById('stat-level').textContent    = level;
   // total lessons = python + all other langs (computed here for accuracy)
@@ -1461,7 +1488,18 @@ function render() {
   // sidebar
   document.getElementById('sidebar-level').textContent   = `Level ${level} · ${getLevelTitle(level)}`;
   document.getElementById('sidebar-xp-label').textContent = `${state.xp} / ${lxp.next}`;
-  document.getElementById('sidebar-xp-bar').style.width   = pct + '%';
+  if (prevXP < curXP) {
+    const prevPct = Math.round(((Math.max(prevXP, lxp.cur) - lxp.cur) / (lxp.next - lxp.cur)) * 100);
+    const bar = document.getElementById('sidebar-xp-bar');
+    bar.style.width = prevPct + '%';
+    bar.style.transition = 'none';
+    requestAnimationFrame(() => {
+      bar.style.transition = 'width 1s cubic-bezier(0.4,0,0.2,1)';
+      requestAnimationFrame(() => { bar.style.width = pct + '%'; });
+    });
+  } else {
+    document.getElementById('sidebar-xp-bar').style.width = pct + '%';
+  }
 
   // dynamic dashboard greeting
   const name = (session?.username) || (state.name ? state.name.split(' ')[0] : null);
