@@ -178,6 +178,18 @@
     .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
     .collapsible-solution { border-color: rgba(74,222,128,0.18); }
     .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+    .collapsible-cheatsheet { border-color: rgba(99,102,241,0.2); }
+    .collapsible-cheatsheet .collapsible-header { color: rgba(129,140,248,0.85); }
+    .cs-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.1rem; }
+    .cs-table tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .cs-table tr:last-child { border-bottom: none; }
+    .cs-table td { padding: 0.45rem 0.75rem; vertical-align: top; line-height: 1.5; }
+    .cs-table td:first-child {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+      color: #C4B5FD; white-space: nowrap; width: 1%; padding-right: 1.2rem;
+      background: rgba(99,102,241,0.05);
+    }
+    .cs-table td:last-child { color: var(--text-2); }
 
     /* Locked solution state */
     .collapsible-solution.locked {
@@ -602,6 +614,12 @@
         </button>
         <div class="collapsible-body" id="solution-body"></div>
       </div>
+      <div class="collapsible collapsible-cheatsheet" id="cheatsheet-collapsible" style="display:none">
+        <button class="collapsible-header" id="cheatsheet-toggle">
+          📋 Key Syntax <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="cheatsheet-body"></div>
+      </div>
     </div>
   </div>
 
@@ -715,6 +733,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="st">"I am learning Python!"</span>)</div>`,
     starter: `# Print two lines below\n`,
     check: (out) => out.includes("Hello, World!") && out.includes("I am learning Python!"),
+    cheatsheet: [['print("text")', 'Display text to screen'], ['print(\'text\')', 'Single quotes also work'], ['# comment', 'Line comment (ignored by Python)']],
   },
 
   2: {
@@ -749,6 +768,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="vr">level</span>)</div>`,
     starter: `# Create your variables below\n\n`,
     check: (out, code) => /name\s*=\s*["'].+["']/.test(code) && /level\s*=/.test(code) && out.trim().split('\n').length >= 2,
+    cheatsheet: [['x = 42', 'Assign integer'], ['name = "Alice"', 'Assign string'], ['pi = 3.14', 'Assign float'], ['print(x)', 'Print variable value']],
   },
 
   3: {
@@ -775,6 +795,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="st">f"Hello, <span class="vr">{name}</span>! Welcome to Helix."</span>)</div>`,
     starter: `# Ask for the user's name then greet them\n\n`,
     check: (out) => out.toLowerCase().includes("hello") && out.toLowerCase().includes("welcome to helix"),
+    cheatsheet: [['input("prompt")', 'Read user input (returns string)'], ['f"Hello, {name}!"', 'f-string: embed variable'], ['"a" + "b"', 'String concatenation → "ab"'], ['int(x)', 'Convert string to integer']],
   },
 
   4: {
@@ -812,6 +833,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="vr">a</span> % <span class="vr">b</span>)   <span class="cm"># 2</span></div>`,
     starter: `a = 8\nb = 3\n# Print sum, product, remainder\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('11') && l.includes('24') && l.includes('2'); },
+    cheatsheet: [['int("42")', 'String → integer'], ['float("3.14")', 'String → float'], ['str(42)', 'Integer → string'], ['type(x)', 'Get type of variable'], ['+ - * /', 'Arithmetic operators'], ['// %', 'Floor division, modulo'], ['**', 'Exponentiation (2**3 = 8)']],
   },
 
   5: {
@@ -850,6 +872,7 @@ const LESSONS = {
     <span class="kw">print</span>(<span class="st">"Nice weather."</span>)</div>`,
     starter: `temperature = 35\n# Write your if/else below\n\n`,
     check: (out) => out.includes("It's hot!"),
+    cheatsheet: [['if x > 0:', 'If condition'], ['elif x == 0:', 'Else-if branch'], ['else:', 'Default branch'], ['and  or  not', 'Logical operators'], ['== != > < >= <=', 'Comparison operators']],
   },
 
   6: {
@@ -881,6 +904,7 @@ const LESSONS = {
     <span class="kw">print</span>(<span class="vr">i</span>)</div>`,
     starter: `# Print 1 through 5\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
+    cheatsheet: [['for i in range(5):', 'Loop 0-4'], ['for x in list:', 'Loop over list items'], ['while x < 10:', 'While loop'], ['break', 'Exit loop early'], ['continue', 'Skip to next iteration'], ['range(1, 6)', 'Range 1-5 inclusive']],
   },
 
   7: {
@@ -913,6 +937,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="vr">numbers</span>[-<span class="nm">1</span>])   <span class="cm"># 9</span></div>`,
     starter: `numbers = [3, 1, 4, 1, 5, 9]\n# Print length, first, and last element\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('6') && l.includes('3') && l.includes('9'); },
+    cheatsheet: [['nums = [1, 2, 3]', 'Create list'], ['nums[0]', 'First element (index 0)'], ['nums[-1]', 'Last element'], ['nums.append(4)', 'Add to end'], ['nums.remove(2)', 'Remove value'], ['len(nums)', 'Number of elements'], ['nums[1:3]', 'Slice index 1–2']],
   },
 
   8: {
@@ -945,6 +970,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="vr">student</span>[<span class="st">"grade"</span>])</div>`,
     starter: `# Create a student dict with "name" and "grade", then print both\n\n`,
     check: (out, code) => /student\s*=\s*\{/.test(code) && out.trim().split('\n').length >= 2,
+    cheatsheet: [['d = {"key": "val"}', 'Create dict'], ['d["key"]', 'Get value by key'], ['d["key"] = x', 'Set / update value'], ['"key" in d', 'Check if key exists'], ['d.keys()', 'All keys'], ['d.values()', 'All values'], ['d.items()', 'Key-value pairs']],
   },
 
   9: {
@@ -982,6 +1008,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="fn">square</span>(<span class="nm">9</span>))  <span class="cm"># 81</span></div>`,
     starter: `# Define square(n) and call it\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('25') && l.includes('81'); },
+    cheatsheet: [['def greet(name):', 'Define function'], ['return x', 'Return a value'], ['greet("Alice")', 'Call function'], ['def add(a, b=0):', 'Default parameter'], ['*args', 'Variable positional args'], ['**kwargs', 'Variable keyword args']],
   },
 
   10: {
@@ -1015,6 +1042,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">sentence</span>.split()))  <span class="cm"># 4</span></div>`,
     starter: `sentence = "the quick brown fox"\n# Print uppercase and word count\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('THE QUICK BROWN FOX') && l.includes('4'); },
+    cheatsheet: [['"hi".upper()', '"HI"'], ['"HI".lower()', '"hi"'], ['"hi".strip()', 'Remove whitespace'], ['"a,b".split(",")', '["a","b"]'], ['",".join(list)', 'Join list to string'], ['"hello".replace("l","r")', '"herro"'], ['len("hello")', '5'], ['"lo" in "hello"', 'True']],
   },
 
   11: {
@@ -1043,6 +1071,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="vr">cubes</span>)  <span class="cm"># [1, 8, 27, 64, 125]</span></div>`,
     starter: `# Create cubes list using a comprehension\n\n`,
     check: (out) => out.includes('[1, 8, 27, 64, 125]'),
+    cheatsheet: [['[x*2 for x in lst]', 'Double each item'], ['[x for x in lst if x>0]', 'Filter positive'], ['[f(x) for x in range(5)]', 'Apply function'], ['{k:v for k,v in d.items()}', 'Dict comprehension'], ['{x for x in lst}', 'Set comprehension']],
   },
 
   12: {
@@ -1078,6 +1107,7 @@ const LESSONS = {
     <span class="kw">print</span>(<span class="st">"Invalid number!"</span>)</div>`,
     starter: `# Try to convert "abc" to int and catch the error\n\n`,
     check: (out) => out.includes("Invalid number!"),
+    cheatsheet: [['try:', 'Start try block'], ['except ValueError:', 'Catch specific error'], ['except Exception as e:', 'Catch any error'], ['finally:', 'Always runs'], ['raise ValueError("msg")', 'Raise an error'], ['str(e)', 'Get error message']],
   },
 
   13: {
@@ -1120,6 +1150,7 @@ const LESSONS = {
 <span class="vr">c</span>.<span class="fn">area</span>()  <span class="cm"># 78.5</span></div>`,
     starter: `# Define class Circle with __init__(radius) and area()\n\n`,
     check: (out) => out.includes('78.5'),
+    cheatsheet: [['class Dog:', 'Define class'], ['def __init__(self, name):', 'Constructor'], ['self.name = name', 'Instance attribute'], ['d = Dog("Rex")', 'Create instance'], ['d.name', 'Access attribute'], ['def bark(self):', 'Instance method'], ['super().__init__()', 'Call parent constructor']],
   },
 
   14: {
@@ -1152,6 +1183,7 @@ const LESSONS = {
 <span class="kw">print</span>(<span class="fn">round</span>(math.pi, <span class="nm">2</span>)) <span class="cm"># 3.14</span></div>`,
     starter: `# Import math, print sqrt(144) and pi rounded to 2 decimals\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('12.0') && l.includes('3.14'); },
+    cheatsheet: [['import math', 'Import stdlib module'], ['from math import pi', 'Import specific name'], ['import random', 'Random numbers'], ['random.randint(1, 6)', 'Random int 1-6'], ['math.sqrt(x)', 'Square root'], ['math.floor(x)', 'Round down'], ['import datetime', 'Date/time module']],
   },
 
   15: {
@@ -1185,6 +1217,7 @@ const LESSONS = {
     <span class="kw">print</span>(<span class="vr">f</span>.read())</div>`,
     starter: `# Write to helix.txt, then read and print it\n\n`,
     check: (out) => out.includes("Helix is awesome!"),
+    cheatsheet: [['open("f.txt","r")', 'Open for reading'], ['open("f.txt","w")', 'Open for writing'], ['f.read()', 'Read whole file'], ['f.readlines()', 'Read as list of lines'], ['f.write("text")', 'Write to file'], ['with open(...) as f:', 'Auto-close file (preferred)'], ['f.close()', 'Manually close file']],
   },
 };
 
@@ -1317,6 +1350,24 @@ document.getElementById('lesson-content').innerHTML      = lesson.content;
 document.getElementById('hint-body').innerHTML           = lesson.hint;
 document.getElementById('solution-body').innerHTML       = lesson.solution;
 document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+// Cheat sheet
+(function() {
+  const cs = lesson.cheatsheet;
+  if (!cs || !cs.length) return;
+  const el = document.getElementById('cheatsheet-collapsible');
+  el.style.display = '';
+  document.getElementById('cheatsheet-body').innerHTML =
+    '<table class="cs-table">' +
+    cs.map(([code, desc]) => `<tr><td>${code}</td><td>${desc}</td></tr>`).join('') +
+    '</table>';
+  document.getElementById('cheatsheet-toggle').addEventListener('click', () => {
+    const body = document.getElementById('cheatsheet-body');
+    const btn  = document.getElementById('cheatsheet-toggle');
+    const open = body.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  });
+})();
 
 const editor = document.getElementById('editor');
 editor.value = lesson.starter || '';

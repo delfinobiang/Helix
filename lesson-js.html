@@ -178,6 +178,18 @@
     .collapsible-hint .collapsible-header   { color: rgba(255,179,71,0.8); }
     .collapsible-solution { border-color: rgba(74,222,128,0.18); }
     .collapsible-solution .collapsible-header { color: rgba(74,222,128,0.8); }
+    .collapsible-cheatsheet { border-color: rgba(245,158,11,0.2); }
+    .collapsible-cheatsheet .collapsible-header { color: rgba(253,212,77,0.85); }
+    .cs-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.1rem; }
+    .cs-table tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .cs-table tr:last-child { border-bottom: none; }
+    .cs-table td { padding: 0.45rem 0.75rem; vertical-align: top; line-height: 1.5; }
+    .cs-table td:first-child {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
+      color: #FCD34D; white-space: nowrap; width: 1%; padding-right: 1.2rem;
+      background: rgba(245,158,11,0.05);
+    }
+    .cs-table td:last-child { color: var(--text-2); }
 
     /* Locked solution state */
     .collapsible-solution.locked {
@@ -551,6 +563,12 @@
         </button>
         <div class="collapsible-body" id="solution-body"></div>
       </div>
+      <div class="collapsible collapsible-cheatsheet" id="cheatsheet-collapsible" style="display:none">
+        <button class="collapsible-header" id="cheatsheet-toggle">
+          📋 Key Syntax <span class="chevron">▼</span>
+        </button>
+        <div class="collapsible-body" id="cheatsheet-body"></div>
+      </div>
     </div>
   </div>
 
@@ -659,6 +677,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"I am learning JavaScript!"</span>);</div>`,
     starter: `// Print two lines below\n`,
     check: (out) => out.includes("Hello, World!") && out.includes("I am learning JavaScript!"),
+    cheatsheet: [['console.log("text")', 'Print to console'], ['// comment', 'Line comment'], ['/* block */', 'Block comment']],
   },
 
   2: {
@@ -696,6 +715,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">year</span>);</div>`,
     starter: `// Create your variables below\n\n`,
     check: (out) => out.trim().split('\n').filter(l => l.trim()).length >= 2,
+    cheatsheet: [['let x = 5', 'Block-scoped variable'], ['const PI = 3.14', 'Constant (no reassign)'], ['var y = 10', 'Function-scoped (legacy)'], ['let a, b = 2, 3', 'Multiple declarations'], ['x = x + 1', 'Reassign (let only)']],
   },
 
   3: {
@@ -737,6 +757,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="kw">typeof</span> <span class="vr">c</span>);  <span class="cm">// boolean</span></div>`,
     starter: `// Create 3 variables of different types and log their typeof\n\n`,
     check: (out) => out.includes("string") && out.includes("number"),
+    cheatsheet: [['typeof x', 'Returns "number","string","boolean","object","undefined"'], ['Number("3.14")', 'String → number'], ['String(42)', 'Number → string'], ['Boolean(0)', 'Falsy → false'], ['null', 'Intentionally empty'], ['undefined', 'Not yet assigned'], ['NaN', 'Not a Number']],
   },
 
   4: {
@@ -771,6 +792,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`\${<span class="vr">name</span>} scored \${<span class="vr">score</span>} points!\`</span>);</div>`,
     starter: `const name = "Alex";\nconst score = 98;\n// Use a template literal to print the message\n`,
     check: (out) => out.includes("Alex") && out.includes("98"),
+    cheatsheet: [['`Hello, ${name}!`', 'Template literal'], ['`${a} + ${b} = ${a+b}`', 'Embed expression'], ['`multi\nline`', 'Multi-line string'], ['"a" + "b"', 'Concatenation → "ab"'], ['str.length', 'String length'], ['str.toUpperCase()', 'Uppercase'], ['str.includes("x")', 'Contains substring?']],
   },
 
   5: {
@@ -815,6 +837,7 @@ Line three\`</span>;
 }</div>`,
     starter: `const speed = 85;\n// Write your if/else below\n\n`,
     check: (out) => out.includes("Too fast!"),
+    cheatsheet: [['if (x > 0) {}', 'If condition'], ['else if (x < 0) {}', 'Else-if'], ['else {}', 'Default'], ['&& || !', 'Logical AND, OR, NOT'], ['=== !==', 'Strict equality (preferred)'], ['== !=', 'Loose equality (avoid)'], ['x > y ? a : b', 'Ternary operator']],
   },
 
   6: {
@@ -852,6 +875,7 @@ Line three\`</span>;
 }</div>`,
     starter: `// Print 1 through 5 using a for loop\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
+    cheatsheet: [['for (let i=0; i<5; i++)', 'Classic for loop'], ['for (const x of arr)', 'For-of (values)'], ['for (const k in obj)', 'For-in (keys)'], ['while (x < 10) {}', 'While loop'], ['arr.forEach(x => ...)', 'Array forEach'], ['break / continue', 'Exit / skip iteration']],
   },
 
   7: {
@@ -885,6 +909,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">colors</span>[<span class="nm">0</span>]);       <span class="cm">// red</span></div>`,
     starter: `const colors = ["red", "green", "blue"];\n// Push "yellow", then log length and first element\n\n`,
     check: (out) => out.includes("4") && out.includes("red"),
+    cheatsheet: [['const a = [1,2,3]', 'Create array'], ['a[0]', 'First element'], ['a.length', 'Number of items'], ['a.push(4)', 'Add to end'], ['a.pop()', 'Remove last'], ['a.includes(2)', 'Contains value?'], ['a.indexOf(2)', 'Position of value'], ['a.slice(1,3)', 'Subarray (non-mut.)']],
   },
 
   8: {
@@ -928,6 +953,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">car</span>.electric); <span class="cm">// true</span></div>`,
     starter: `// Create a car object with brand, year, electric\n// Then log all three values\n\n`,
     check: (out) => out.trim().split('\n').filter(l => l.trim()).length >= 3,
+    cheatsheet: [['const obj = {a:1}', 'Create object'], ['obj.a', 'Dot notation'], ['obj["a"]', 'Bracket notation'], ['obj.a = 2', 'Set property'], ['"a" in obj', 'Property exists?'], ['Object.keys(obj)', 'All keys'], ['Object.values(obj)', 'All values'], ['{...obj}', 'Spread / shallow copy']],
   },
 
   9: {
@@ -960,6 +986,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">multiply</span>(<span class="nm">6</span>, <span class="nm">7</span>));  <span class="cm">// 42</span></div>`,
     starter: `// Write your multiply arrow function here\n\n`,
     check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('42'),
+    cheatsheet: [['function add(a,b) { return a+b; }', 'Declaration'], ['const add = (a,b) => a+b', 'Arrow function'], ['const fn = x => x*2', 'Single param, implicit return'], ['function hi(n="World") {}', 'Default parameter'], ['function sum(...nums) {}', 'Rest params'], ['(function(){})();', 'IIFE']],
   },
 
   10: {
@@ -991,6 +1018,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">evens</span>);  <span class="cm">// [2, 4]</span></div>`,
     starter: `const nums = [1, 2, 3, 4, 5];\n// Use .filter() to get even numbers and log the result\n\n`,
     check: (out) => out.includes("2") && out.includes("4"),
+    cheatsheet: [['arr.map(x => x*2)', 'Transform each → new array'], ['arr.filter(x => x>0)', 'Keep matching items'], ['arr.reduce((acc,x) => acc+x, 0)', 'Accumulate value'], ['arr.find(x => x>3)', 'First match (or undefined)'], ['arr.some(x => x>3)', 'Any match? → boolean'], ['arr.every(x => x>0)', 'All match? → boolean'], ['arr.sort((a,b) => a-b)', 'Sort ascending']],
   },
 
   11: {
@@ -1029,6 +1057,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">city</span>);  <span class="cm">// Paris</span></div>`,
     starter: `const obj = { name: "Sam", city: "Paris", age: 30 };\n// Destructure name and city, then log name\n\n`,
     check: (out) => out.includes("Sam"),
+    cheatsheet: [['const {a, b} = obj', 'Object destructuring'], ['const [x, y] = arr', 'Array destructuring'], ['const {a: alias} = obj', 'Rename on destructure'], ['const {a=1} = obj', 'Default on destructure'], ['[...arr, 4]', 'Spread into new array'], ['{...obj, key:val}', 'Spread + override'], ['const [first,...rest] = arr', 'Rest in destructure']],
   },
 
   12: {
@@ -1075,6 +1104,7 @@ Line three\`</span>;
 }</div>`,
     starter: `// Use try/catch to parse "not json" and handle the error\n\n`,
     check: (out) => out.includes("Parse failed!"),
+    cheatsheet: [['try { } catch(e) { }', 'Try-catch'], ['catch (e) { console.log(e.message) }', 'Error message'], ['finally { }', 'Always runs'], ['throw new Error("msg")', 'Throw error'], ['throw new TypeError("msg")', 'Typed error'], ['e instanceof TypeError', 'Check error type']],
   },
 
   13: {
@@ -1130,6 +1160,7 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">r</span>.<span class="fn">area</span>());  <span class="cm">// 20</span></div>`,
     starter: `// Define class Rectangle with constructor and area()\n\n`,
     check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('20'),
+    cheatsheet: [['class Animal { }', 'Define class'], ['constructor(name) {}', 'Constructor method'], ['this.name = name', 'Instance property'], ['new Animal("Cat")', 'Create instance'], ['greet() { }', 'Instance method'], ['class Dog extends Animal {}', 'Inheritance'], ['super(name)', 'Call parent constructor'], ['static count = 0', 'Static property']],
   },
 
   14: {
@@ -1182,6 +1213,7 @@ Line three\`</span>;
 <span class="fn">counter</span>();  <span class="cm">// 3</span></div>`,
     starter: `// Write makeCounter() that returns a counter function\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('1') && l.includes('2') && l.includes('3'); },
+    cheatsheet: [['function outer() { let x=1; return function() { return x; } }', 'Closure: inner accesses outer var'], ['let count = makeCounter()', 'Use closure factory'], ['const cache = {}; return (n) => cache[n] ??= f(n)', 'Memoization'], ['let x = 1; { let x = 2; }', 'Block scope (let)'], ['var y = 1', 'Function scope (hoisted)']],
   },
 
   15: {
@@ -1221,6 +1253,7 @@ Line three\`</span>;
 <span class="fn">getData</span>();  <span class="cm">// Helix data loaded</span></div>`,
     starter: `// Write async function getData() that logs "Helix data loaded"\n\n`,
     check: (out) => out.includes("Helix data loaded"),
+    cheatsheet: [['async function f() {}', 'Async function'], ['await promise', 'Wait for promise (inside async)'], ['const r = await fetch(url)', 'Fetch API'], ['const data = await r.json()', 'Parse JSON response'], ['Promise.resolve(val)', 'Resolved promise'], ['Promise.all([p1,p2])', 'Await multiple'], ['try/catch around await', 'Handle async errors']],
   },
 };
 
@@ -1337,6 +1370,24 @@ document.getElementById('lesson-content').innerHTML      = lesson.content;
 document.getElementById('hint-body').innerHTML           = lesson.hint;
 document.getElementById('solution-body').innerHTML       = lesson.solution;
 document.getElementById('progress-fill').style.width    = ((lessonId - 1) / TOTAL * 100) + '%';
+
+// Cheat sheet
+(function() {
+  const cs = lesson.cheatsheet;
+  if (!cs || !cs.length) return;
+  const el = document.getElementById('cheatsheet-collapsible');
+  el.style.display = '';
+  document.getElementById('cheatsheet-body').innerHTML =
+    '<table class="cs-table">' +
+    cs.map(([code, desc]) => `<tr><td>${code}</td><td>${desc}</td></tr>`).join('') +
+    '</table>';
+  document.getElementById('cheatsheet-toggle').addEventListener('click', () => {
+    const body = document.getElementById('cheatsheet-body');
+    const btn  = document.getElementById('cheatsheet-toggle');
+    const open = body.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  });
+})();
 
 const editor = document.getElementById('editor');
 editor.value = lesson.starter || '';
