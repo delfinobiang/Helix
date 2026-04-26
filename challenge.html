@@ -217,6 +217,11 @@
     .wd { width: 10px; height: 10px; border-radius: 50%; }
     .wd.r { background: #FF5F57; } .wd.y { background: #FFBD2E; } .wd.g { background: #28C840; }
     .editor-fname { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-3); margin-left: 0.4rem; flex: 1; }
+    .kbd-hint {
+      font-size: 0.62rem; color: var(--text-3); font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap; flex-shrink: 0; user-select: none; letter-spacing: 0.02em;
+    }
+    @media (max-width: 600px) { .kbd-hint { display: none; } }
     .btn-run {
       display: flex; align-items: center; gap: 0.45rem;
       background: linear-gradient(135deg, #22C55E, #16A34A);
@@ -530,6 +535,7 @@
         <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
       </div>
       <span class="editor-fname">challenge.py</span>
+      <span class="kbd-hint" id="kbd-hint" title="⌘↵ Run · ⇧⌘↵ Submit"></span>
       <button class="btn-clear" id="btn-reset">↺ Reset</button>
       <button class="btn-run"    id="btn-run"    disabled>▶ Run</button>
       <button class="btn-submit" id="btn-submit" disabled>Submit →</button>
@@ -903,6 +909,17 @@ editor.addEventListener('keydown', (e) => {
     editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
     editor.selectionStart = editor.selectionEnd = s + 4;
     updateLineNums();
+    return;
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    if (e.shiftKey) {
+      const btn = document.getElementById('btn-submit');
+      if (!btn.disabled) runCode(true);
+    } else {
+      const btn = document.getElementById('btn-run');
+      if (!btn.disabled) runCode(false);
+    }
   }
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
@@ -977,6 +994,13 @@ async function runCode(forSubmit = false) {
 
 document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
 document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// Keyboard shortcut hint
+(function() {
+  const isMac = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
+  const mod   = isMac ? '⌘' : 'Ctrl';
+  document.getElementById('kbd-hint').textContent = `${mod}↵ run · ⇧${mod}↵ submit`;
+})();
 
 // ═══════════════════════════════════════════════════════════
 // CHECK & COMPLETE
