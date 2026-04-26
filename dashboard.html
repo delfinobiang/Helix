@@ -1340,6 +1340,19 @@ function getLevelTitle(level) {
 // ─── Render ──────────────────────────────────────────────
 function render() {
   const state = loadState();
+
+  // ── Streak expiry: reset if last activity was more than 1 day ago ──
+  (function() {
+    if (!state.streakDate) return;
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    if (state.streakDate !== today && state.streakDate !== yesterday) {
+      state.streak = 0;
+      state.streakDate = null;
+      localStorage.setItem('helix_progress', JSON.stringify(state));
+    }
+  })();
+
   const level = getLevel(state.xp);
   const lxp   = getLevelXP(level);
   const pct   = Math.round(((state.xp - lxp.cur) / (lxp.next - lxp.cur)) * 100);
