@@ -1865,6 +1865,18 @@ function helixLogout() {
   var curSession = JSON.parse(localStorage.getItem('helix_session') || 'null');
   if (!curSession) return;
   var username = curSession.username || 'there';
+  var currentStep = 1;
+
+  function dismissOnboarding() {
+    localStorage.setItem('helix_onboarded', '1');
+    var overlay = sel('onboarding-overlay');
+    if (overlay) { overlay.style.opacity = '0'; overlay.style.transition = 'opacity 0.25s'; setTimeout(function() { overlay.style.display = 'none'; }, 260); }
+  }
+
+  // Escape key to skip
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') dismissOnboarding();
+  }, { once: true });
 
   // User selections
   var selectedStrand = null; // 'code' | 'math' | 'both'
@@ -1907,13 +1919,20 @@ function helixLogout() {
           '<p>Helix isn\'t just for coders. We\'re building the place where you learn everything — code, math, CS, data &amp; AI — at your own pace.</p>' +
           '<p style="font-size:0.82rem;color:var(--text-2);">Let\'s find where you should start. Takes 30 seconds.</p>' +
           '<button class="ob-btn ob-btn-primary" id="ob-s1-next">Find my starting point →</button>' +
+          '<button class="ob-btn" id="ob-s1-skip" style="background:none;border:none;color:var(--text-3);font-size:0.78rem;margin-top:6px;cursor:pointer;font-family:inherit;">Skip — I\'ll explore on my own</button>' +
         '</div>';
-      sel('ob-s1-next').onclick = function() { showStep(2); };
+      sel('ob-s1-next').onclick = function() { currentStep = 2; showStep(2); };
+      sel('ob-s1-skip').onclick = dismissOnboarding;
 
     // Step 2 — Strand choice
     } else if (n === 2) {
       card.innerHTML =
         '<div class="ob-step">' +
+          '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:14px;">' +
+            '<div style="width:20px;height:4px;border-radius:2px;background:var(--primary);"></div>' +
+            '<div style="width:20px;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>' +
+            '<div style="width:20px;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>' +
+          '</div>' +
           '<p class="step-label">Step 1 of 3</p>' +
           '<h2>What do you want to learn?</h2>' +
           '<p>You can explore everything later — just tell us where to point you first.</p>' +
@@ -1923,6 +1942,7 @@ function helixLogout() {
             ob_strandCard('both', '🌀', 'Both', 'A little of everything') +
           '</div>' +
           '<button class="ob-btn ob-btn-primary" id="ob-s2-next" disabled>Next →</button>' +
+          '<button class="ob-btn" id="ob-s2-skip" style="background:none;border:none;color:var(--text-3);font-size:0.78rem;margin-top:6px;cursor:pointer;font-family:inherit;">Skip setup</button>' +
         '</div>';
       sel('ob-strand-grid').addEventListener('click', function(e) {
         var c = e.target.closest('.ob-lang-card'); if (!c) return;
@@ -1931,13 +1951,19 @@ function helixLogout() {
         selectedStrand = c.dataset.strand;
         sel('ob-s2-next').disabled = false;
       });
-      sel('ob-s2-next').onclick = function() { showStep(3); };
+      sel('ob-s2-next').onclick = function() { currentStep = 3; showStep(3); };
+      sel('ob-s2-skip').onclick = dismissOnboarding;
 
     // Step 3 — Experience level
     } else if (n === 3) {
       var strandLabel = selectedStrand === 'math' ? 'maths' : (selectedStrand === 'both' ? 'this topic' : 'coding');
       card.innerHTML =
         '<div class="ob-step">' +
+          '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:14px;">' +
+            '<div style="width:20px;height:4px;border-radius:2px;background:var(--primary);opacity:0.35;"></div>' +
+            '<div style="width:20px;height:4px;border-radius:2px;background:var(--primary);"></div>' +
+            '<div style="width:20px;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>' +
+          '</div>' +
           '<p class="step-label">Step 2 of 3</p>' +
           '<h2>How experienced are you?</h2>' +
           '<p>Be honest — this helps us skip content you already know.</p>' +
@@ -1948,6 +1974,7 @@ function helixLogout() {
             ob_levelCard(3, '🚀', 'Advanced',          'I know my stuff — show me advanced topics') +
           '</div>' +
           '<button class="ob-btn ob-btn-primary" id="ob-s3-next" disabled>See my recommendation →</button>' +
+          '<button class="ob-btn" id="ob-s3-skip" style="background:none;border:none;color:var(--text-3);font-size:0.78rem;margin-top:6px;cursor:pointer;font-family:inherit;">Skip setup</button>' +
         '</div>';
       sel('ob-level-grid').addEventListener('click', function(e) {
         var c = e.target.closest('.ob-level-card'); if (!c) return;
@@ -1956,7 +1983,8 @@ function helixLogout() {
         selectedLevel = parseInt(c.dataset.level);
         sel('ob-s3-next').disabled = false;
       });
-      sel('ob-s3-next').onclick = function() { showStep(4); };
+      sel('ob-s3-next').onclick = function() { currentStep = 4; showStep(4); };
+      sel('ob-s3-skip').onclick = dismissOnboarding;
 
     // Step 4 — Recommendation
     } else if (n === 4) {
@@ -1964,10 +1992,13 @@ function helixLogout() {
       var rec = RECS[strandKey][selectedLevel];
       var isPro = !rec.isFree;
 
+      var dotsFull = '<div style="display:flex;justify-content:center;gap:6px;margin-bottom:14px;"><div style="width:20px;height:4px;border-radius:2px;background:var(--primary);opacity:0.35;"></div><div style="width:20px;height:4px;border-radius:2px;background:var(--primary);opacity:0.35;"></div><div style="width:20px;height:4px;border-radius:2px;background:var(--primary);"></div></div>';
+
       if (isPro) {
         // Pro gate screen
         card.innerHTML =
           '<div class="ob-step">' +
+            dotsFull +
             '<p class="step-label">Step 3 of 3</p>' +
             '<div style="width:60px;height:60px;border-radius:50%;background:rgba(245,158,11,0.1);border:2px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:1.7rem;">🔒</div>' +
             '<h2>This lesson is Helix Pro</h2>' +
@@ -1983,16 +2014,16 @@ function helixLogout() {
             '<a class="ob-btn ob-btn-primary" href="pro.html" style="display:block;text-align:center;text-decoration:none;" id="ob-pro-btn">Upgrade to Pro →</a>' +
             '<button class="ob-btn" id="ob-free-btn" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-2);margin-top:8px;">Start from Lesson 1 (free)</button>' +
           '</div>';
-        sel('ob-pro-btn').onclick = function() { localStorage.setItem('helix_onboarded', '1'); };
+        sel('ob-pro-btn').onclick = dismissOnboarding;
         sel('ob-free-btn').onclick = function() {
-          localStorage.setItem('helix_onboarded', '1');
-          sel('onboarding-overlay').style.display = 'none';
+          dismissOnboarding();
           window.location.href = (strandKey === 'math') ? 'math-logic.html' : 'lesson.html?id=1';
         };
       } else {
         // Free lesson recommendation
         card.innerHTML =
           '<div class="ob-step">' +
+            dotsFull +
             '<p class="step-label">Step 3 of 3</p>' +
             '<div style="width:60px;height:60px;border-radius:50%;background:rgba(16,185,129,0.1);border:2px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:1.7rem;">✓</div>' +
             '<h2>Your starting point is ready</h2>' +
@@ -2006,14 +2037,10 @@ function helixLogout() {
             '<button class="ob-btn" id="ob-browse-btn" style="background:none;border:1px solid rgba(255,255,255,0.1);color:var(--text-2);margin-top:8px;">I\'ll browse on my own</button>' +
           '</div>';
         sel('ob-go-btn').onclick = function() {
-          localStorage.setItem('helix_onboarded', '1');
-          sel('onboarding-overlay').style.display = 'none';
+          dismissOnboarding();
           window.location.href = rec.href + (rec.lessonId ? '?id=' + rec.lessonId : '');
         };
-        sel('ob-browse-btn').onclick = function() {
-          localStorage.setItem('helix_onboarded', '1');
-          sel('onboarding-overlay').style.display = 'none';
-        };
+        sel('ob-browse-btn').onclick = dismissOnboarding;
       }
     }
   }
