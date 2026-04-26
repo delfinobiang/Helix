@@ -115,7 +115,13 @@
       background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
       color: var(--red); font-size: 0.8rem; font-weight: 700;
       padding: 0.3rem 0.8rem; border-radius: 100px;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
+    .streak-badge.shielded {
+      background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3);
+      color: #818CF8;
+    }
+    .shield-icon { font-size: 0.75em; opacity: 0.9; }
     .avatar {
       width: 32px; height: 32px; border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -719,7 +725,7 @@
   </a>
   <div class="nav-right">
     <div class="xp-badge" id="nav-xp">⚡ <span id="nav-xp-val">0</span> XP</div>
-    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+    <div class="streak-badge" id="streak-badge-nav">🔥 <span id="nav-streak">1</span> day</div>
     <div class="avatar" id="nav-avatar">Y</div>
     <button class="hamburger" id="hamburger" aria-label="Open menu">
       <span></span><span></span><span></span>
@@ -1408,8 +1414,14 @@ function render() {
     const today     = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
     if (state.streakDate !== today && state.streakDate !== yesterday) {
-      state.streak = 0;
-      state.streakDate = null;
+      if (state.streakShield) {
+        // Shield absorbs one missed day — preserve streak, clear shield
+        state.streakShield = false;
+        state.streakDate   = yesterday; // mark as if active yesterday to avoid re-triggering
+      } else {
+        state.streak = 0;
+        state.streakDate = null;
+      }
       localStorage.setItem('helix_progress', JSON.stringify(state));
     }
   })();
@@ -1421,6 +1433,21 @@ function render() {
   // navbar
   document.getElementById('nav-xp-val').textContent = state.xp;
   document.getElementById('nav-streak').textContent  = state.streak;
+  (function() {
+    const badge = document.getElementById('streak-badge-nav');
+    if (state.streakShield) {
+      badge.classList.add('shielded');
+      badge.title = 'Streak Shield active — one missed day protected!';
+      if (!badge.querySelector('.shield-icon')) {
+        const si = document.createElement('span'); si.className = 'shield-icon'; si.textContent = '🛡️';
+        badge.appendChild(si);
+      }
+    } else {
+      badge.classList.remove('shielded');
+      badge.title = (state.streak || 0) < 5 ? 'Reach a 5-day streak to earn a Shield!' : '';
+      const si = badge.querySelector('.shield-icon'); if (si) si.remove();
+    }
+  })();
 
   // stats
   document.getElementById('stat-xp').textContent      = state.xp;

@@ -74,6 +74,18 @@
       color: var(--yellow); font-size: 0.78rem; font-weight: 700;
       padding: 0.28rem 0.7rem; border-radius: 100px;
     }
+    .streak-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      color: var(--red); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .streak-badge.shielded {
+      background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3);
+      color: var(--primary-l);
+    }
+    .shield-icon { font-size: 0.75em; opacity: 0.9; }
     .btn-primary {
       background: var(--primary);
       border: 1px solid rgba(255,255,255,0.1); color: white;
@@ -541,6 +553,7 @@
   </div>
   <div class="nav-right">
     <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <div class="streak-badge" id="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
     <button class="btn-lessons" id="btn-lessons" title="All lessons">☰ Lessons</button>
     <button class="btn-primary" id="btn-submit" disabled>Submit →</button>
   </div>
@@ -1303,6 +1316,25 @@ const editor = document.getElementById('editor');
 editor.value = lesson.starter || '';
 updateLineNums();
 document.getElementById('nav-xp').textContent = loadState().xp;
+(function updateStreakBadge() {
+  const s = loadState();
+  document.getElementById('nav-streak').textContent = s.streak || 1;
+  const badge = document.getElementById('streak-badge');
+  if (s.streakShield) {
+    badge.classList.add('shielded');
+    badge.title = 'Shield active — one missed day protected';
+    if (!badge.querySelector('.shield-icon')) {
+      const si = document.createElement('span');
+      si.className = 'shield-icon'; si.textContent = '🛡️';
+      badge.appendChild(si);
+    }
+  } else {
+    badge.classList.remove('shielded');
+    badge.title = (s.streak || 1) >= 5 ? '' : `Keep going! Shield unlocks at 5-day streak`;
+    const si = badge.querySelector('.shield-icon');
+    if (si) si.remove();
+  }
+})();
 
 // ═══════════════════════════════════════════════════════════
 // EDITOR
@@ -1489,9 +1521,19 @@ function completeLesson() {
       state.streak = (state.streak || 1) + 1;
       state.streakDate = today;
     } else {
-      // Gap > 1 day — streak broken
-      state.streak = 1;
-      state.streakDate = today;
+      // Gap > 1 day — shield absorbs if available
+      if (state.streakShield) {
+        state.streakShield = false;
+        state.streakDate = today;
+        // streak count preserved
+      } else {
+        state.streak = 1;
+        state.streakDate = today;
+      }
+    }
+    // Award shield at every 5-day streak milestone (5, 10, 15…)
+    if ((state.streak || 1) % 5 === 0 && !state.streakShield) {
+      state.streakShield = true;
     }
 
     saveState(state);
@@ -1554,7 +1596,22 @@ function showModal(xpEarned) {
   }, 28);
 
   document.getElementById('modal').classList.add('show');
-  document.getElementById('nav-xp').textContent = loadState().xp;
+  const _s = loadState();
+  document.getElementById('nav-xp').textContent = _s.xp;
+  document.getElementById('nav-streak').textContent = _s.streak || 1;
+  (function() {
+    const badge = document.getElementById('streak-badge');
+    if (_s.streakShield) {
+      badge.classList.add('shielded');
+      if (!badge.querySelector('.shield-icon')) {
+        const si = document.createElement('span'); si.className = 'shield-icon'; si.textContent = '🛡️';
+        badge.appendChild(si);
+      }
+    } else {
+      badge.classList.remove('shielded');
+      const si = badge.querySelector('.shield-icon'); if (si) si.remove();
+    }
+  })();
 
   if (xpEarned > 0) launchConfetti();
 }
