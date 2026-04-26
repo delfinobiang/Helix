@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script src="analytics.js" defer></script>
+  <title>Helix — Course</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 65%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,80px) scale(1.05); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-40px,-60px) scale(1.08); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 58px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.88); backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-left  { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .nav-logo { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; }
+    .nav-logo-name { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+
+    /* ── PAGE ────────────────────────────────────────────────── */
+    .page { max-width: 820px; margin: 0 auto; padding: 2.5rem 2rem 4rem; position: relative; z-index: 1; }
+
+    /* ── COURSE HERO ─────────────────────────────────────────── */
+    .course-hero {
+      display: flex; align-items: flex-start; gap: 1.5rem;
+      padding: 2rem 2.5rem; border-radius: 24px; margin-bottom: 2rem;
+      position: relative; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .course-hero::before {
+      content: ''; position: absolute; inset: 0; border-radius: 24px;
+      background: var(--hero-bg, radial-gradient(ellipse at 0% 60%, rgba(99,102,241,0.13) 0%, transparent 65%));
+      pointer-events: none;
+    }
+    .hero-icon {
+      width: 72px; height: 72px; border-radius: 20px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; position: relative; z-index: 1;
+    }
+    .hero-body { flex: 1; position: relative; z-index: 1; }
+    .hero-tag {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.13em;
+      color: var(--text-3); margin-bottom: 0.4rem;
+    }
+    .hero-title { font-size: 1.9rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 0.5rem; }
+    .hero-desc  { font-size: 0.875rem; color: var(--text-2); line-height: 1.6; margin-bottom: 1.25rem; }
+    .hero-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .hero-stat { text-align: left; }
+    .hero-stat-val { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hero-stat-lbl { font-size: 0.68rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.1rem; }
+
+    /* Course progress bar */
+    .hero-progress { margin-top: 1.25rem; }
+    .hero-progress-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 0.72rem; color: var(--text-3); margin-bottom: 0.4rem;
+    }
+    .hero-progress-top span:last-child { font-weight: 700; }
+    .hero-bar { height: 6px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }
+    .hero-bar-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(0.34,1.05,0.64,1); }
+
+    /* Continue button */
+    .btn-continue {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.65rem 1.5rem; border-radius: 12px;
+      font-size: 0.88rem; font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      position: relative; z-index: 1;
+      margin-top: 1.25rem;
+    }
+    .btn-continue:hover { transform: translateY(-2px); }
+    .btn-continue:active { transform: translateY(0); }
+
+    /* ── LESSON LIST ─────────────────────────────────────────── */
+    .section-h { font-size: 0.85rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+    .lesson-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .lesson-row {
+      display: grid; grid-template-columns: 44px 1fr auto;
+      align-items: center; gap: 1rem;
+      padding: 1rem 1.25rem; border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      text-decoration: none; color: inherit;
+      transition: border-color 0.18s, background 0.18s, transform 0.18s;
+      position: relative; overflow: hidden; cursor: pointer;
+    }
+    .lesson-row:hover { background: rgba(255,255,255,0.055); transform: translateX(3px); }
+    .lesson-row.done  { border-color: rgba(16,185,129,0.2); }
+    .lesson-row.done:hover  { border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.04); }
+    .lesson-row.current {
+      border-color: var(--accent-border, rgba(99,102,241,0.35));
+      background: var(--accent-bg, rgba(99,102,241,0.06));
+      box-shadow: 0 0 0 1px var(--accent-border, rgba(99,102,241,0.2));
+    }
+    .lesson-row.current:hover {
+      border-color: var(--accent-border-hi, rgba(99,102,241,0.55));
+      background: var(--accent-bg-hi, rgba(99,102,241,0.1));
+    }
+    .lesson-row.current::before {
+      content: ''; position: absolute;
+      left: 0; top: 0; bottom: 0; width: 3px;
+      background: var(--accent-stripe, linear-gradient(180deg, #6366F1, #818CF8));
+      border-radius: 2px 0 0 2px;
+    }
+
+    /* Status icon */
+    .lesson-status {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 700;
+    }
+    .ls-done    { background: rgba(16,185,129,0.12); border: 1.5px solid rgba(16,185,129,0.3); color: var(--green); }
+    .ls-current { border: 1.5px solid var(--accent-border, rgba(99,102,241,0.45)); color: var(--accent-color, var(--primary-l)); }
+    .ls-future  { background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); color: var(--text-3); }
+
+    /* Lesson info */
+    .lesson-info { min-width: 0; }
+    .lesson-num  { font-size: 0.62rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.18rem; }
+    .lesson-title-text { font-size: 0.92rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lesson-row.done .lesson-title-text { color: var(--text-2); }
+
+    /* Right side */
+    .lesson-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; flex-shrink: 0; }
+    .xp-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.18rem 0.6rem; border-radius: 100px;
+      background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.18);
+      color: var(--yellow); white-space: nowrap;
+    }
+    .lesson-row.done .xp-pill { opacity: 0.55; }
+    .btn-lesson {
+      font-size: 0.72rem; font-weight: 700; padding: 0.32rem 0.8rem; border-radius: 8px;
+      border: none; cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-lesson-start  { background: var(--btn-bg, rgba(99,102,241,0.1)); color: var(--btn-color, var(--primary-l)); }
+    .btn-lesson-start:hover { background: var(--btn-bg-hi, rgba(99,102,241,0.18)); }
+    .btn-lesson-review { background: rgba(255,255,255,0.04); color: var(--text-3); }
+    .btn-lesson-review:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
+    .btn-lesson-cta    { background: var(--accent-btn, linear-gradient(135deg, #6366F1, #818CF8)); color: white; box-shadow: 0 3px 12px rgba(99,102,241,0.25); }
+    .btn-lesson-cta:hover { box-shadow: 0 5px 20px rgba(99,102,241,0.38); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .nav-logo-name { display: none; }
+      .xp-badge { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
+      .page { padding: 1.5rem 1rem 3rem; }
+      .course-hero { padding: 1.5rem; gap: 1rem; flex-direction: column; }
+      .hero-icon { width: 56px; height: 56px; font-size: 1.6rem; border-radius: 16px; }
+      .hero-title { font-size: 1.5rem; }
+      .hero-stats { gap: 1rem; }
+      .lesson-row { grid-template-columns: 36px 1fr auto; gap: 0.65rem; padding: 0.85rem 1rem; }
+      .lesson-status { width: 30px; height: 30px; font-size: 0.8rem; }
+      .lesson-title-text { font-size: 0.85rem; }
+    }
+    @media (max-width: 400px) {
+      .lesson-right { display: none; }
+      .lesson-row { grid-template-columns: 36px 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="coding.html" id="back-btn">← Coding</a>
+    <a class="nav-logo" href="index.html">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-co-c"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-co-c)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.55">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="nav-logo-name">Helix</span>
+    </a>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ── COURSE HERO ── -->
+  <div class="course-hero" id="course-hero">
+    <div class="hero-icon" id="hero-icon">🐍</div>
+    <div class="hero-body">
+      <div class="hero-tag" id="hero-tag">Coding · Fundamentals</div>
+      <div class="hero-title" id="hero-title">Python</div>
+      <div class="hero-desc" id="hero-desc">Learn to code from scratch. No experience needed.</div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-done">0 / 15</div>
+          <div class="hero-stat-lbl">Lessons</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-xp" style="color:var(--yellow);">0 XP</div>
+          <div class="hero-stat-lbl">Earned</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="stat-total" style="color:var(--text-2);">2,350 XP</div>
+          <div class="hero-stat-lbl">Total available</div>
+        </div>
+      </div>
+      <div class="hero-progress">
+        <div class="hero-progress-top">
+          <span>Course progress</span>
+          <span id="stat-pct">0%</span>
+        </div>
+        <div class="hero-bar"><div class="hero-bar-fill" id="hero-bar-fill" style="width:0%"></div></div>
+      </div>
+      <a class="btn-continue" id="btn-continue" href="#">Start →</a>
+    </div>
+  </div>
+
+  <!-- ── LESSON LIST ── -->
+  <div class="section-h">All 15 Lessons</div>
+  <div class="lesson-list" id="lesson-list">
+    <!-- populated by JS -->
+  </div>
+
+</div>
+
+<script>
+// ── Course definitions ─────────────────────────────────────
+const COURSES = {
+  py: {
+    icon: '🐍', title: 'Python', tag: 'Coding · Fundamentals',
+    desc: 'Learn to code from scratch with Python. Variables, loops, functions, and beyond.',
+    color: '#6366F1', colorRgb: '99,102,241',
+    lessonFile: 'lesson.html',
+    storageKey: 'helix_progress',
+    getCompleted: s => (s.completedIds || []),
+    getXP: s => s.xp || 0,
+    lessons: [
+      { id:1,  title: "Hello, World!",           xp: 50  },
+      { id:2,  title: "Variables",               xp: 75  },
+      { id:3,  title: "User Input",              xp: 75  },
+      { id:4,  title: "Strings & Numbers",       xp: 100 },
+      { id:5,  title: "Conditions (if/else)",    xp: 125 },
+      { id:6,  title: "Loops (for/while)",       xp: 150 },
+      { id:7,  title: "Lists",                   xp: 150 },
+      { id:8,  title: "Dictionaries",            xp: 175 },
+      { id:9,  title: "Functions",               xp: 200 },
+      { id:10, title: "String Methods",          xp: 175 },
+      { id:11, title: "List Comprehensions",     xp: 200 },
+      { id:12, title: "Error Handling",          xp: 200 },
+      { id:13, title: "Classes & Objects",       xp: 225 },
+      { id:14, title: "Modules & Imports",       xp: 200 },
+      { id:15, title: "File I/O",                xp: 250 },
+    ],
+  },
+  js: {
+    icon: '📜', title: 'JavaScript', tag: 'Coding · Fundamentals',
+    desc: 'The language of the web. Runs everywhere — browser, server, app.',
+    color: '#F59E0B', colorRgb: '245,158,11',
+    lessonFile: 'lesson-js.html',
+    storageKey: 'helix_js_progress',
+    getCompleted: s => (s.completedIds || []),
+    getXP: s => s.xp || 0,
+    lessons: [
+      { id:1,  title: "Hello, World!",           xp: 50  },
+      { id:2,  title: "Variables",               xp: 75  },
+      { id:3,  title: "Data Types",              xp: 75  },
+      { id:4,  title: "Template Literals",       xp: 100 },
+      { id:5,  title: "Conditions (if/else)",    xp: 125 },
+      { id:6,  title: "Loops (for/while)",       xp: 150 },
+      { id:7,  title: "Arrays",                  xp: 150 },
+      { id:8,  title: "Objects",                 xp: 175 },
+      { id:9,  title: "Functions",               xp: 200 },
+      { id:10, title: "Array Methods",           xp: 175 },
+      { id:11, title: "Destructuring & Spread",  xp: 200 },
+      { id:12, title: "Error Handling",          xp: 200 },
+      { id:13, title: "Classes",                 xp: 225 },
+      { id:14, title: "Closures & Scope",        xp: 200 },
+      { id:15, title: "Async / Await",           xp: 250 },
+    ],
+  },
+};
+
+// ── Init ──────────────────────────────────────────────────
+const params   = new URLSearchParams(location.search);
+const langKey  = params.get('lang') || 'py';
+const course   = COURSES[langKey] || COURSES.py;
+
+if (!COURSES[langKey]) {
+  document.querySelector('.hero-title').textContent = 'Unknown course';
+}
+
+// Load progress
+const rawState   = localStorage.getItem(course.storageKey);
+const state      = rawState ? JSON.parse(rawState) : {};
+const completed  = course.getCompleted(state);
+const earnedXP   = course.getXP(state);
+const totalXP    = course.lessons.reduce((s, l) => s + l.xp, 0);
+const doneCnt    = completed.length;
+const pct        = Math.round((doneCnt / course.lessons.length) * 100);
+
+// Also show global XP in nav
+const pyState = JSON.parse(localStorage.getItem('helix_progress') || '{}');
+document.getElementById('nav-xp').textContent = pyState.xp || 0;
+
+// ── Apply course theme ────────────────────────────────────
+const c = course.color, rgb = course.colorRgb;
+document.documentElement.style.setProperty('--accent-color', c);
+document.documentElement.style.setProperty('--accent-border', `rgba(${rgb},0.38)`);
+document.documentElement.style.setProperty('--accent-border-hi', `rgba(${rgb},0.6)`);
+document.documentElement.style.setProperty('--accent-bg', `rgba(${rgb},0.06)`);
+document.documentElement.style.setProperty('--accent-bg-hi', `rgba(${rgb},0.1)`);
+document.documentElement.style.setProperty('--accent-stripe', `linear-gradient(180deg, ${c}, ${c}bb)`);
+document.documentElement.style.setProperty('--btn-bg', `rgba(${rgb},0.1)`);
+document.documentElement.style.setProperty('--btn-bg-hi', `rgba(${rgb},0.18)`);
+document.documentElement.style.setProperty('--btn-color', c);
+document.documentElement.style.setProperty('--accent-btn', `linear-gradient(135deg, ${c}, ${c}cc)`);
+
+// Hero BG
+document.getElementById('course-hero').style.setProperty('--hero-bg',
+  `radial-gradient(ellipse at 0% 60%, rgba(${rgb},0.12) 0%, transparent 65%)`);
+
+// ── Populate hero ─────────────────────────────────────────
+document.getElementById('hero-icon').textContent  = course.icon;
+document.getElementById('hero-icon').style.background = `rgba(${rgb},0.1)`;
+document.getElementById('hero-icon').style.border = `1px solid rgba(${rgb},0.2)`;
+document.getElementById('hero-tag').textContent   = course.tag;
+document.getElementById('hero-title').textContent = course.title;
+document.getElementById('hero-desc').textContent  = course.desc;
+document.getElementById('stat-done').textContent  = `${doneCnt} / ${course.lessons.length}`;
+document.getElementById('stat-xp').textContent    = earnedXP.toLocaleString() + ' XP';
+document.getElementById('stat-total').textContent = totalXP.toLocaleString() + ' XP';
+document.getElementById('stat-pct').textContent   = pct + '%';
+document.getElementById('hero-bar-fill').style.width      = pct + '%';
+document.getElementById('hero-bar-fill').style.background =
+  `linear-gradient(90deg, ${c}, ${c}99)`;
+
+// Continue button
+const nextLesson = course.lessons.find(l => !completed.includes(l.id));
+const continueBtn = document.getElementById('btn-continue');
+if (pct === 100) {
+  continueBtn.textContent = '✓ All done — Review →';
+  continueBtn.href = `${course.lessonFile}?id=1`;
+  continueBtn.style.background = 'rgba(16,185,129,0.12)';
+  continueBtn.style.color = 'var(--green)';
+  continueBtn.style.boxShadow = '0 3px 12px rgba(16,185,129,0.2)';
+} else if (doneCnt === 0) {
+  continueBtn.textContent = `Start Lesson 1 →`;
+  continueBtn.href = `${course.lessonFile}?id=1`;
+  continueBtn.style.background = `linear-gradient(135deg, ${c}, ${c}cc)`;
+  continueBtn.style.color = 'white';
+  continueBtn.style.boxShadow = `0 3px 14px rgba(${rgb},0.3)`;
+} else {
+  continueBtn.textContent = `Continue — Lesson ${nextLesson.id} →`;
+  continueBtn.href = `${course.lessonFile}?id=${nextLesson.id}`;
+  continueBtn.style.background = `linear-gradient(135deg, ${c}, ${c}cc)`;
+  continueBtn.style.color = 'white';
+  continueBtn.style.boxShadow = `0 3px 14px rgba(${rgb},0.3)`;
+}
+
+// ── Lesson list ──────────────────────────────────────────
+document.title = `Helix — ${course.title}`;
+
+const list = document.getElementById('lesson-list');
+list.innerHTML = course.lessons.map(lesson => {
+  const isDone    = completed.includes(lesson.id);
+  const isCurrent = !isDone && nextLesson && lesson.id === nextLesson.id;
+  const href      = `${course.lessonFile}?id=${lesson.id}`;
+
+  let rowClass    = 'lesson-row';
+  let statusClass = 'lesson-status ls-future';
+  let statusIcon  = lesson.id;
+  let btnClass    = 'btn-lesson btn-lesson-start';
+  let btnText     = 'Start';
+
+  if (isDone) {
+    rowClass    += ' done';
+    statusClass  = 'lesson-status ls-done';
+    statusIcon   = '✓';
+    btnClass     = 'btn-lesson btn-lesson-review';
+    btnText      = 'Review';
+  } else if (isCurrent) {
+    rowClass    += ' current';
+    statusClass  = 'lesson-status ls-current';
+    statusIcon   = '▶';
+    btnClass     = 'btn-lesson btn-lesson-cta';
+    btnText      = 'Start now';
+  }
+
+  return `
+    <a class="${rowClass}" href="${href}">
+      <div class="${statusClass}">${statusIcon}</div>
+      <div class="lesson-info">
+        <div class="lesson-num">Lesson ${lesson.id}</div>
+        <div class="lesson-title-text">${lesson.title}</div>
+      </div>
+      <div class="lesson-right">
+        <div class="xp-pill">⚡ ${lesson.xp} XP</div>
+        <button class="${btnClass}" tabindex="-1" aria-hidden="true">${btnText}</button>
+      </div>
+    </a>`;
+}).join('');
+</script>
+</body>
+</html>

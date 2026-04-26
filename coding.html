@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script src="analytics.js" defer></script>
+  <link rel="canonical" href="https://learnhelix.org/coding.html" />
+  <title>Helix — Coding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #050816;
+      --bg-2:     #0C1022;
+      --bg-card:  rgba(255,255,255,0.04);
+      --border:   rgba(255,255,255,0.07);
+      --primary:  #6366F1;
+      --primary-l: #818CF8;
+      --cyan:     #22D3EE;
+      --text:     #EEF2F8;
+      --text-2:   #8892A4;
+      --text-3:   #2D3A4E;
+      --green:    #10B981;
+      --yellow:   #F59E0B;
+      --red:      #EF4444;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Inter', sans-serif; line-height: 1.6;
+      overflow-x: hidden; min-height: 100vh;
+    }
+    .aurora {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+      filter: blur(100px) saturate(120%);
+    }
+    .orb { position: absolute; border-radius: 50%; }
+    .orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 65%); top: -150px; left: -100px; animation: drift1 25s ease-in-out infinite alternate; }
+    .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 65%); bottom: -100px; right: -100px; animation: drift2 20s ease-in-out infinite alternate; }
+    .orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 65%); top: 40%; right: 10%; animation: drift3 18s ease-in-out infinite alternate; }
+    @keyframes drift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(40px,80px) scale(1.05); } }
+    @keyframes drift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-40px,-60px) scale(1.08); } }
+    @keyframes drift3 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-60px,40px) scale(1.1); } }
+    @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 60px; padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(5,8,22,0.88); backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-left  { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-back {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 0.8rem; font-weight: 600;
+      padding: 0.38rem 0.9rem; border-radius: 8px;
+      font-family: inherit; text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .xp-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18);
+      color: var(--yellow); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+    .streak-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      color: var(--red); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
+
+    /* ── PAGE ────────────────────────────────────────────────── */
+    .page { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem 4rem; position: relative; z-index: 1; }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    .page-eyebrow {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--primary-l); margin-bottom: 0.5rem;
+    }
+    .page-title { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 0.5rem; }
+    .page-sub   { font-size: 0.92rem; color: var(--text-2); max-width: 580px; line-height: 1.65; margin-bottom: 2.5rem; }
+
+    /* ── COURSE GRID ─────────────────────────────────────────── */
+    .course-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.25rem; margin-bottom: 1.5rem;
+    }
+
+    .lang-card {
+      border-radius: 22px; padding: 1.75rem 1.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 1.1rem;
+      position: relative; overflow: hidden;
+      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s, background 0.22s;
+    }
+    .lang-card.active:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+    .lang-card.coming {
+      opacity: 0.65;
+      background: rgba(255,255,255,0.012);
+      border-style: dashed;
+    }
+    .lang-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      border-radius: 22px 22px 0 0;
+      background: var(--lang-grad, linear-gradient(90deg, var(--primary), var(--cyan)));
+      opacity: 0; transition: opacity 0.22s;
+    }
+    .lang-card.active:hover::before { opacity: 1; }
+
+    /* Card header */
+    .lc-head { display: flex; align-items: center; gap: 0.85rem; }
+    .lc-icon {
+      width: 52px; height: 52px; border-radius: 16px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; background: var(--icon-bg, rgba(99,102,241,0.1));
+      border: 1px solid var(--icon-border, rgba(99,102,241,0.2));
+    }
+    .lc-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+    .lc-tag  { font-size: 0.68rem; color: var(--text-3); margin-top: 0.15rem; }
+    .coming-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      color: var(--text-3); padding: 0.18rem 0.6rem; border-radius: 100px;
+      margin-top: 0.2rem;
+    }
+
+    /* Progress */
+    .lc-prog { }
+    .lc-prog-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 0.7rem; color: var(--text-3); margin-bottom: 0.4rem;
+    }
+    .lc-prog-top .lc-done { font-weight: 700; color: var(--text-2); }
+    .lc-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .lc-bar-fill { height: 100%; border-radius: 100px; transition: width 0.7s cubic-bezier(0.34,1.05,0.64,1); }
+
+    /* Stats row */
+    .lc-stats { display: flex; gap: 1.25rem; }
+    .lc-stat-val { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; }
+    .lc-stat-lbl { font-size: 0.64rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.1rem; }
+
+    /* CTA */
+    .lc-cta {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.55rem 1.15rem; border-radius: 10px; margin-top: auto;
+      font-size: 0.82rem; font-weight: 700;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    .lc-cta.go {
+      background: var(--cta-bg, rgba(99,102,241,0.12));
+      color: var(--cta-color, var(--primary-l));
+      border: 1px solid var(--cta-border, rgba(99,102,241,0.25));
+    }
+    .lang-card.active:hover .lc-cta.go {
+      background: var(--cta-bg-hi, rgba(99,102,241,0.2));
+      box-shadow: 0 4px 18px rgba(99,102,241,0.2);
+    }
+    .lc-cta.locked {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-3);
+      border: 1px solid var(--border);
+      cursor: default; pointer-events: none;
+    }
+
+    /* ── TOTAL PROGRESS BANNER ───────────────────────────────── */
+    .total-banner {
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+      padding: 1.25rem 1.75rem; border-radius: 18px; margin-bottom: 2.5rem;
+      background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.16);
+    }
+    .tb-stat { }
+    .tb-val  { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.04em; }
+    .tb-lbl  { font-size: 0.65rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .tb-div  { width: 1px; height: 36px; background: var(--border); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .course-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .nav-right { gap: 0.5rem; }
+      .xp-badge, .streak-badge { font-size: 0.72rem; padding: 0.25rem 0.6rem; gap: 0.3rem; }
+      .page { padding: 1.5rem 1rem 3rem; }
+      .page-title { font-size: 1.7rem; }
+      .nav-logo-name { display: none; }
+      .total-banner { gap: 1rem; padding: 1rem 1.25rem; }
+      .tb-div { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<nav>
+  <div class="nav-left">
+    <a class="btn-back" href="dashboard.html">← Dashboard</a>
+    <a class="nav-logo" href="index.html">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" aria-hidden="true" style="overflow:hidden">
+        <defs><clipPath id="dna-cd-c"><rect width="40" height="20"/></clipPath></defs>
+        <g clip-path="url(#dna-cd-c)">
+          <path d="M-44,10 Q-38.5,2 -33,10 Q-27.5,18 -22,10 Q-16.5,2 -11,10 Q-5.5,18 0,10 Q5.5,2 11,10 Q16.5,18 22,10 Q27.5,2 33,10 Q38.5,18 44,10 Q49.5,2 55,10 Q60.5,18 66,10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none">
+            <animate attributeName="opacity" values="1;0.55;1" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" keyTimes="0;0.5;1"/>
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M-44,10 Q-38.5,18 -33,10 Q-27.5,2 -22,10 Q-16.5,18 -11,10 Q-5.5,2 0,10 Q5.5,18 11,10 Q16.5,2 22,10 Q27.5,18 33,10 Q38.5,2 44,10 Q49.5,18 55,10 Q60.5,2 66,10" stroke="white" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.55">
+            <animateTransform attributeName="transform" type="translate" values="0,0;-22,0" dur="3s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </svg>
+      <span class="nav-logo-name">Helix</span>
+    </a>
+  </div>
+  <div class="nav-right">
+    <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-eyebrow">Knowledge Strand</div>
+  <div class="page-title">💻 Coding</div>
+  <div class="page-sub">Six languages, one platform. Start with Python or JavaScript — both are fully interactive in your browser. More languages coming soon.</div>
+
+  <!-- Total progress banner -->
+  <div class="total-banner">
+    <div class="tb-stat">
+      <div class="tb-val" id="tb-total-done" style="color:var(--primary-l);">0 / 30</div>
+      <div class="tb-lbl">Total lessons done</div>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-stat">
+      <div class="tb-val" id="tb-total-xp" style="color:var(--yellow);">0 XP</div>
+      <div class="tb-lbl">XP earned in Coding</div>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-stat">
+      <div class="tb-val" id="tb-pct" style="color:var(--text-2);">0%</div>
+      <div class="tb-lbl">Course completion</div>
+    </div>
+  </div>
+
+  <div class="course-grid" id="course-grid">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<script>
+const LANGS = [
+  {
+    key: 'py', name: 'Python', tag: '15 Lessons · Fundamentals', icon: '🐍',
+    color: '#6366F1', rgb: '99,102,241',
+    storageKey: 'helix_progress',
+    getCompleted: s => (s.completedIds || []).length,
+    getXP: s => s.xp || 0,
+    total: 15, active: true,
+    href: 'course.html?lang=py',
+    desc: 'The most beginner-friendly language. Perfect first choice.',
+  },
+  {
+    key: 'js', name: 'JavaScript', tag: '15 Lessons · Fundamentals', icon: '📜',
+    color: '#F59E0B', rgb: '245,158,11',
+    storageKey: 'helix_js_progress',
+    getCompleted: s => (s.completedIds || []).length,
+    getXP: s => s.xp || 0,
+    total: 15, active: true,
+    href: 'course.html?lang=js',
+    desc: 'The language of the web. Runs in every browser on the planet.',
+  },
+  {
+    key: 'html', name: 'HTML & CSS', tag: 'Coming Soon', icon: '🌐',
+    color: '#EC4899', rgb: '236,72,153',
+    total: 12, active: false,
+    href: null,
+    desc: 'Build and style web pages from scratch.',
+  },
+  {
+    key: 'sql', name: 'SQL', tag: 'Coming Soon', icon: '🗃️',
+    color: '#38BDF8', rgb: '56,189,248',
+    total: 12, active: false,
+    href: null,
+    desc: 'Query and manage databases — essential for every developer.',
+  },
+  {
+    key: 'cpp', name: 'C++', tag: 'Coming Soon', icon: '⚡',
+    color: '#EF4444', rgb: '239,68,68',
+    total: 12, active: false,
+    href: null,
+    desc: 'High-performance systems programming and competitive coding.',
+  },
+  {
+    key: 'ts', name: 'TypeScript', tag: 'Coming Soon', icon: '🔷',
+    color: '#818CF8', rgb: '129,140,248',
+    total: 12, active: false,
+    href: null,
+    desc: 'JavaScript with types. The language of large-scale web apps.',
+  },
+];
+
+// Load progress
+const pyState = JSON.parse(localStorage.getItem('helix_progress') || '{}');
+document.getElementById('nav-xp').textContent     = pyState.xp || 0;
+document.getElementById('nav-streak').textContent = pyState.streak || 1;
+
+let totalDone = 0, totalXP = 0;
+const TOTAL_LESSONS = 30; // Python (15) + JS (15)
+
+const grid = document.getElementById('course-grid');
+grid.innerHTML = LANGS.map(lang => {
+  let done = 0, xp = 0;
+  if (lang.active) {
+    const s = JSON.parse(localStorage.getItem(lang.storageKey) || '{}');
+    done = lang.getCompleted(s);
+    xp   = lang.getXP(s);
+    totalDone += done;
+    totalXP   += xp;
+  }
+  const pct = lang.active ? Math.round((done / lang.total) * 100) : 0;
+
+  const cardTag   = lang.active ? 'a' : 'div';
+  const hrefAttr  = lang.active ? `href="${lang.href}"` : '';
+  const cardClass = `lang-card ${lang.active ? 'active' : 'coming'}`;
+
+  const ctaText = lang.active
+    ? (done === 0 ? 'Start Course →' : done === lang.total ? '✓ Review →' : 'Continue →')
+    : 'Coming Soon';
+  const ctaClass = lang.active ? 'lc-cta go' : 'lc-cta locked';
+
+  const progHTML = lang.active ? `
+    <div class="lc-prog">
+      <div class="lc-prog-top">
+        <span class="lc-done">${done} / ${lang.total} lessons</span>
+        <span>${pct}%</span>
+      </div>
+      <div class="lc-bar">
+        <div class="lc-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${lang.color},${lang.color}99)"></div>
+      </div>
+    </div>
+    <div class="lc-stats">
+      <div class="lc-stat">
+        <div class="lc-stat-val" style="color:${lang.color};">${xp.toLocaleString()}</div>
+        <div class="lc-stat-lbl">XP earned</div>
+      </div>
+    </div>` : `<div style="font-size:0.82rem;color:var(--text-3);line-height:1.6;">${lang.desc}</div>`;
+
+  return `
+    <${cardTag} class="${cardClass}" ${hrefAttr}
+      style="--lang-grad:linear-gradient(90deg,${lang.color},${lang.color}99);
+             --icon-bg:rgba(${lang.rgb},0.1);--icon-border:rgba(${lang.rgb},0.22);
+             --cta-bg:rgba(${lang.rgb},0.1);--cta-bg-hi:rgba(${lang.rgb},0.18);
+             --cta-color:${lang.color};--cta-border:rgba(${lang.rgb},0.25);">
+      <div class="lc-head">
+        <div class="lc-icon">${lang.icon}</div>
+        <div>
+          <div class="lc-name">${lang.name}</div>
+          <div class="lc-tag">${lang.active ? lang.tag : ''}</div>
+          ${!lang.active ? '<span class="coming-badge">🔜 Coming Soon</span>' : ''}
+        </div>
+      </div>
+      ${lang.active ? `<div style="font-size:0.8rem;color:var(--text-2);">${lang.desc}</div>` : ''}
+      ${progHTML}
+      <div class="${ctaClass}">${ctaText}</div>
+    </${cardTag}>`;
+}).join('');
+
+// Update banner
+const overallPct = Math.round((totalDone / TOTAL_LESSONS) * 100);
+document.getElementById('tb-total-done').textContent = `${totalDone} / ${TOTAL_LESSONS}`;
+document.getElementById('tb-total-xp').textContent   = totalXP.toLocaleString() + ' XP';
+document.getElementById('tb-pct').textContent        = overallPct + '%';
+</script>
+</body>
+</html>

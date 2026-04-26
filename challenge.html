@@ -916,6 +916,12 @@ function completeChallenge() {
   state.xp             += challenge.xp;
   state.level           = getLevel(state.xp);
   saveState(state);
+  // Daily XP log (for weekly chart)
+  (function() {
+    const log = JSON.parse(localStorage.getItem('helix_xp_log') || '{}');
+    log[todayKey] = (log[todayKey] || 0) + challenge.xp;
+    localStorage.setItem('helix_xp_log', JSON.stringify(log));
+  })();
   document.getElementById('nav-xp').textContent     = state.xp;
   document.getElementById('nav-streak').textContent  = state.challengeStreak;
   showModal(challenge.xp, state.challengeStreak);

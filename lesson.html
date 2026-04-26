@@ -1383,6 +1383,14 @@ function completeLesson() {
 
     saveState(state);
 
+    // ── Daily XP log (for weekly chart) ────────────────
+    (function() {
+      const today = new Date().toISOString().slice(0, 10);
+      const log = JSON.parse(localStorage.getItem('helix_xp_log') || '{}');
+      log[today] = (log[today] || 0) + lesson.xp;
+      localStorage.setItem('helix_xp_log', JSON.stringify(log));
+    })();
+
     // ── Level-up badge ──────────────────────────────────
     const levelAfter = getLevel(state.xp);
     const lvlEl = document.getElementById('modal-level-up');

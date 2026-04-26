@@ -1281,6 +1281,14 @@ function completeLesson() {
     state.level = getLevel(state.xp);
     saveState(state);
     saveLangProgress(langProgress);
+
+    // Daily XP log (for weekly chart)
+    (function() {
+      const today = new Date().toISOString().slice(0, 10);
+      const log = JSON.parse(localStorage.getItem('helix_xp_log') || '{}');
+      log[today] = (log[today] || 0) + lesson.xp;
+      localStorage.setItem('helix_xp_log', JSON.stringify(log));
+    })();
   }
   document.getElementById('progress-fill').style.width = (lessonId / TOTAL * 100) + '%';
   showModal(earned ? lesson.xp : 0);
