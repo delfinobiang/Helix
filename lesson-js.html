@@ -74,6 +74,12 @@
       color: var(--yellow); font-size: 0.78rem; font-weight: 700;
       padding: 0.28rem 0.7rem; border-radius: 100px;
     }
+    .streak-badge {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      color: var(--red); font-size: 0.78rem; font-weight: 700;
+      padding: 0.28rem 0.7rem; border-radius: 100px;
+    }
     .btn-primary {
       background: var(--primary);
       border: 1px solid rgba(255,255,255,0.1); color: white;
@@ -341,15 +347,56 @@
     }
     #confetti-canvas.active { opacity: 1; }
 
+    /* ─── TROPHY TOAST ───────────────────────────────────── */
+    .trophy-toast {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.75rem 1rem 0.75rem 0.75rem;
+      background: rgba(5,8,22,0.97); backdrop-filter: blur(28px) saturate(160%);
+      border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.72), inset 0 0 0 1px rgba(255,255,255,0.03);
+      min-width: 230px; max-width: 290px;
+      transform: translateX(calc(100% + 2rem)); opacity: 0;
+      transition: transform 0.44s cubic-bezier(0.34,1.56,0.64,1), opacity 0.32s ease;
+      will-change: transform, opacity;
+    }
+    .trophy-toast.show { transform: translateX(0); opacity: 1; }
+    .trophy-toast.hide {
+      transform: translateX(calc(100% + 2rem)); opacity: 0;
+      transition: transform 0.28s ease-in, opacity 0.22s ease;
+    }
+    .tt-icon { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
+    .tt-body { flex: 1; min-width: 0; }
+    .tt-label { font-size: 0.57rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 2px; color: rgba(255,255,255,0.45); }
+    .tt-name  { font-size: 0.84rem; font-weight: 700; color: #EEF2F8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tt-tier  { font-size: 0.57rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 5px; flex-shrink: 0; }
+    .tt-tier.bronze   { background: rgba(205,127,50,0.15); color: #CD7F32; border: 1px solid rgba(205,127,50,0.25); }
+    .tt-tier.silver   { background: rgba(148,163,184,0.12); color: #94A3B8; border: 1px solid rgba(148,163,184,0.2); }
+    .tt-tier.gold     { background: rgba(234,179,8,0.12); color: #EAB308; border: 1px solid rgba(234,179,8,0.22); }
+    .tt-tier.platinum { background: linear-gradient(135deg,rgba(129,140,248,0.14),rgba(56,189,248,0.14)); color: #818CF8; border: 1px solid rgba(129,140,248,0.28); }
+
     /* ─── MOBILE ──────────────────────────────────────────── */
     @media (max-width: 768px) {
       body { overflow: auto; }
       .split { grid-template-columns: 1fr; overflow: visible; height: auto; flex: none; }
       .panel-left  { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
-      .panel-left-inner { overflow: visible; }
+      .panel-left-inner { overflow: visible; padding: 1.5rem 1.5rem 0.75rem; }
       .panel-right { min-height: 520px; flex: none; height: 520px; }
       .lesson-breadcrumb { display: none; }
       .output-panel { max-height: 180px; }
+    }
+    @media (max-width: 480px) {
+      .panel-right { height: 460px; min-height: 460px; }
+      .output-panel { max-height: 160px; }
+      .editor-fname { display: none; }
+      .btn-run { font-size: 0.78rem; padding: 0.4rem 0.85rem; }
+      .btn-clear { font-size: 0.72rem; padding: 0.4rem 0.65rem; }
+      .nav-right { gap: 0.5rem; }
+      .xp-badge, .streak-badge { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
+      .trophy-toast { min-width: 0; max-width: calc(100vw - 2.5rem); }
+    }
+    @media (max-width: 380px) {
+      .btn-primary { font-size: 0.78rem; padding: 0.4rem 0.85rem; }
+      .panel-left-inner { padding: 1.25rem 1.25rem 0.5rem; }
     }
   </style>
 </head>
@@ -367,6 +414,7 @@
   </div>
   <div class="nav-right">
     <div class="xp-badge">⚡ <span id="nav-xp">0</span> XP</div>
+    <div class="streak-badge">🔥 <span id="nav-streak">1</span> day</div>
     <button class="btn-primary" id="btn-submit">Submit →</button>
   </div>
 </nav>
@@ -456,6 +504,11 @@
     </div>
     <div class="modal-title">Lesson Complete! 🎉</div>
     <div class="modal-sub" id="modal-sub">Great work. Keep the streak going!</div>
+    <div id="modal-level-up" style="display:none;align-items:center;justify-content:center;gap:0.55rem;margin:0.75rem 0 0.25rem;padding:0.45rem 1.3rem;background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(34,211,238,0.07));border:1px solid rgba(129,140,248,0.22);border-radius:100px;">
+      <span style="font-size:0.95rem;">⬆️</span>
+      <span style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#818CF8;">Level Up!</span>
+      <span style="font-size:0.9rem;font-weight:800;background:linear-gradient(135deg,#818CF8,#38BDF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="modal-level-num">2</span>
+    </div>
     <div class="modal-xp-wrap">⚡ +<span class="modal-xp-count" id="modal-xp-count">0</span> XP</div>
     <div class="modal-actions">
       <button class="btn-modal-next" id="modal-next">Next Lesson →</button>
@@ -463,6 +516,8 @@
     </div>
   </div>
 </div>
+
+<div id="trophy-toast-wrap" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9000;display:flex;flex-direction:column-reverse;gap:0.6rem;pointer-events:none;align-items:flex-end;"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -1061,6 +1116,49 @@ Line three\`</span>;
 };
 
 // ═══════════════════════════════════════════════════════════
+// TROPHY POP-INS — JavaScript + Global trophies
+// ═══════════════════════════════════════════════════════════
+const TOAST_TROPHIES = [
+  // JavaScript
+  { id:'js_b1', tier:'bronze',   icon:'👋', name:"console.log('Hello')", check: (s,lp) => lp.completedIds.includes(1)   },
+  { id:'js_b2', tier:'bronze',   icon:'🔍', name:'Scope Explorer',       check: (s,lp) => lp.completedIds.length >= 3   },
+  { id:'js_b3', tier:'bronze',   icon:'📝', name:'Function Writer',      check: (s,lp) => lp.completedIds.length >= 5   },
+  { id:'js_b4', tier:'bronze',   icon:'🌐', name:'DOM Curious',          check: (s,lp) => lp.completedIds.length >= 8   },
+  { id:'js_s1', tier:'silver',   icon:'👂', name:'Event Listener',       check: (s,lp) => lp.completedIds.length >= 10  },
+  { id:'js_s2', tier:'silver',   icon:'⏳', name:'Async Adept',          check: (s,lp) => lp.completedIds.length >= 12  },
+  { id:'js_g1', tier:'gold',     icon:'✅', name:'Full JavaScript',      check: (s,lp) => lp.completedIds.length >= 15  },
+  { id:'js_p',  tier:'platinum', icon:'⭐', name:'JavaScriptist',        check: null },
+  // Global
+  { id:'h_b1',  tier:'bronze',   icon:'✨', name:'First Spark',          check: (s) => s.xp >= 1    },
+  { id:'h_s2',  tier:'silver',   icon:'🏹', name:'XP Hunter',            check: (s) => s.xp >= 500  },
+  { id:'h_g2',  tier:'gold',     icon:'💎', name:'XP Legend',            check: (s) => s.xp >= 2000 },
+];
+
+function evaluateTrophies(state, langProgress) {
+  const e = {};
+  const jsNonPt = TOAST_TROPHIES.filter(t => t.id.startsWith('js_') && t.tier !== 'platinum');
+  jsNonPt.forEach(t => { e[t.id] = t.check(state, langProgress); });
+  e['js_p'] = jsNonPt.every(t => e[t.id]);
+  TOAST_TROPHIES.filter(t => t.id.startsWith('h_')).forEach(t => { e[t.id] = t.check(state); });
+  return e;
+}
+
+let _toastQueue = [], _toastActive = false;
+function queueTrophyToasts(trophies) { _toastQueue.push(...trophies); if (!_toastActive) _showNextToast(); }
+function _showNextToast() {
+  if (_toastQueue.length === 0) { _toastActive = false; return; }
+  _toastActive = true;
+  const t = _toastQueue.shift();
+  const LABEL = { bronze:'Bronze', silver:'Silver', gold:'Gold', platinum:'Platinum' };
+  const toast = document.createElement('div');
+  toast.className = 'trophy-toast';
+  toast.innerHTML = `<div class="tt-icon">${t.icon}</div><div class="tt-body"><div class="tt-label">Trophy Unlocked</div><div class="tt-name">${t.name}</div></div><div class="tt-tier ${t.tier}">${LABEL[t.tier]}</div>`;
+  document.getElementById('trophy-toast-wrap').appendChild(toast);
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+  setTimeout(() => { toast.classList.add('hide'); setTimeout(() => { toast.remove(); _showNextToast(); }, 320); }, 4200);
+}
+
+// ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
 function loadState() {
@@ -1077,6 +1175,10 @@ function getLevel(xp) {
   const t = [0, 100, 250, 500, 900, 1400, 2000, 3000];
   for (let i = t.length - 1; i >= 0; i--) if (xp >= t[i]) return i + 1;
   return 1;
+}
+function getLevelTitle(level) {
+  const titles = ['', 'Novice', 'Coder', 'Builder', 'Engineer', 'Architect', 'Master', 'Legend'];
+  return titles[Math.min(level, titles.length - 1)] || 'Legend';
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1131,6 +1233,7 @@ const editor = document.getElementById('editor');
 editor.value = lesson.starter || '';
 updateLineNums();
 document.getElementById('nav-xp').textContent = loadState().xp;
+document.getElementById('nav-streak').textContent = loadState().streak || 1;
 
 // ═══════════════════════════════════════════════════════════
 // EDITOR
@@ -1271,14 +1374,40 @@ function checkAnswer() {
 }
 
 function completeLesson() {
-  const state = loadState();
+  const state        = loadState();
   const langProgress = loadLangProgress();
-  const earned = !langProgress.completedIds.includes(lessonId);
+  const levelBefore  = getLevel(state.xp);
+  const earned       = !langProgress.completedIds.includes(lessonId);
+
   if (earned) {
+    // Snapshot trophies BEFORE this lesson counts
+    const prevTrophies = evaluateTrophies(
+      { ...state },
+      { ...langProgress, completedIds: [...langProgress.completedIds] }
+    );
+
     langProgress.completedIds.push(lessonId);
+    langProgress.xp = (langProgress.xp || 0) + lesson.xp;
     state.xp += lesson.xp;
     state.lessonsCompleted = (state.completedIds || []).length + langProgress.completedIds.length;
     state.level = getLevel(state.xp);
+
+    // Streak update
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    if (!state.streakDate) {
+      state.streakDate = today;
+      state.streak = Math.max(1, state.streak || 1);
+    } else if (state.streakDate === today) {
+      // already active today
+    } else if (state.streakDate === yesterday) {
+      state.streak = (state.streak || 1) + 1;
+      state.streakDate = today;
+    } else {
+      state.streak = 1;
+      state.streakDate = today;
+    }
+
     saveState(state);
     saveLangProgress(langProgress);
 
@@ -1289,7 +1418,28 @@ function completeLesson() {
       log[today] = (log[today] || 0) + lesson.xp;
       localStorage.setItem('helix_xp_log', JSON.stringify(log));
     })();
+
+    // Level-up badge
+    const levelAfter = getLevel(state.xp);
+    const lvlEl = document.getElementById('modal-level-up');
+    if (levelAfter > levelBefore) {
+      document.getElementById('modal-level-num').textContent = `Level ${levelAfter} · ${getLevelTitle(levelAfter)}`;
+      lvlEl.style.display = 'flex';
+    } else {
+      lvlEl.style.display = 'none';
+    }
+
+    // Trophy pop-ins
+    const nowTrophies = evaluateTrophies(state, langProgress);
+    const newTrophies = TOAST_TROPHIES.filter(t => nowTrophies[t.id] && !prevTrophies[t.id]);
+    if (newTrophies.length > 0) setTimeout(() => queueTrophyToasts(newTrophies), 1800);
+
+    // Update nav streak
+    document.getElementById('nav-streak').textContent = state.streak || 1;
+  } else {
+    document.getElementById('modal-level-up').style.display = 'none';
   }
+
   document.getElementById('progress-fill').style.width = (lessonId / TOTAL * 100) + '%';
   showModal(earned ? lesson.xp : 0);
 }
@@ -1319,6 +1469,7 @@ function showModal(xpEarned) {
 
   document.getElementById('modal').classList.add('show');
   document.getElementById('nav-xp').textContent = loadState().xp;
+  document.getElementById('nav-streak').textContent = loadState().streak || 1;
 
   if (xpEarned > 0) launchConfetti();
 }
