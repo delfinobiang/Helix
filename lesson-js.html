@@ -145,7 +145,7 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.9; overflow-x: auto;
+      line-height: 1.9; overflow-x: auto; white-space: pre-wrap;
     }
     .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
     .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
@@ -225,7 +225,7 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
-      overflow-x: auto;
+      overflow-x: auto; white-space: pre-wrap;
     }
 
     /* ─── RIGHT PANEL ─────────────────────────────────────── */
@@ -1510,6 +1510,11 @@ const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 let outputLines = [];
 
 async function runCode(forSubmit = false) {
+  // Guard: empty editor should not count as a run
+  if (editor.value.trim() === '') {
+    setOutput([{type:'error', text:'⚠️  Write some code first before running!'}], 'error');
+    return;
+  }
   outputLines = [];
   setOutput([{type:'placeholder', text:''}], 'running');
   document.getElementById('btn-run').disabled    = true;
