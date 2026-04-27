@@ -133,21 +133,44 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.9; overflow-x: auto;
+      line-height: 1.9; overflow-x: auto; white-space: pre-wrap;
     }
     .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
     .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
 
-    .challenge-box {
+    .objective-box {
       margin: 1.5rem 0 0;
       background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
       border-radius: 14px; padding: 1.2rem 1.3rem;
     }
-    .challenge-label {
+    .objective-label {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
       color: var(--primary); margin-bottom: 0.6rem;
     }
-    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .objective-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    .bonus-box {
+      margin: 1rem 0 0;
+      background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.18);
+      border-radius: 14px; padding: 1.1rem 1.3rem;
+    }
+    .bonus-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 0.4rem;
+    }
+    .bonus-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+    .bonus-text { font-size: 0.87rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.85rem; }
+    .btn-bonus-submit {
+      background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.25);
+      color: var(--cyan); font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.45rem 1.1rem; border-radius: 9px;
+      transition: background 0.18s, box-shadow 0.18s;
+    }
+    .btn-bonus-submit:hover { background: rgba(34,211,238,0.16); box-shadow: 0 3px 12px rgba(34,211,238,0.14); }
+    .btn-bonus-submit:disabled { opacity: 0.4; pointer-events: none; }
+    .bonus-feedback { margin-top: 0.6rem; font-size: 0.82rem; font-weight: 600; display: none; padding: 0.35rem 0.6rem; border-radius: 7px; }
+    .bonus-feedback.success { color: var(--green); background: rgba(16,185,129,0.08); display: block; }
+    .bonus-feedback.fail    { color: var(--red); background: rgba(239,68,68,0.07); display: block; }
 
     /* Hint / solution */
     .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -200,7 +223,7 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
-      overflow-x: auto;
+      overflow-x: auto; white-space: pre-wrap;
     }
 
     /* ─── RIGHT PANEL ─────────────────────────────────────── */
@@ -241,15 +264,30 @@
       background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
       min-width: 44px; overflow: hidden; flex-shrink: 0;
     }
+    .editor-code-area {
+      flex: 1; position: relative; overflow: hidden; background: #050C1A;
+    }
+    .hl-pre {
+      position: absolute; inset: 0;
+      background: #050C1A; z-index: 0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 2;
+      white-space: pre-wrap; word-break: break-all;
+      overflow-y: auto; overflow-x: auto;
+      pointer-events: none;
+      color: #D4D4F8; margin: 0; border: none; outline: none;
+    }
     .editor-textarea {
+      position: relative; z-index: 1;
       flex: 1; resize: none; border: none; outline: none;
-      background: #050C1A; color: #D4D4F8;
+      background: transparent; color: transparent;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
       padding: 1.1rem 1.2rem; tab-size: 2;
       caret-color: var(--primary);
       overflow-y: auto; overflow-x: auto;
+      width: 100%; height: 100%;
     }
-    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::selection { background: rgba(99,102,241,0.25); }
     .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
     .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
 
@@ -383,6 +421,13 @@
         </button>
         <div class="collapsible-body" id="solution-body"></div>
       </div>
+      <div class="bonus-box" id="bonus-box" style="display:none">
+        <div class="bonus-label">⚡ Bonus Challenge · Extra XP</div>
+        <div class="bonus-title" id="bonus-title"></div>
+        <div class="bonus-text" id="bonus-desc"></div>
+        <button class="btn-bonus-submit" id="btn-bonus-submit">⚡ Submit Bonus</button>
+        <div class="bonus-feedback" id="bonus-feedback"></div>
+      </div>
     </div>
   </div>
 
@@ -397,10 +442,13 @@
     </div>
     <div class="editor-wrap">
       <div class="line-nums" id="line-nums">1</div>
-      <textarea
-        class="editor-textarea" id="editor"
-        spellcheck="false" autocorrect="off" autocapitalize="off"
-        placeholder="&lt;!-- Write your HTML &amp; CSS here --&gt;"></textarea>
+      <div class="editor-code-area">
+        <pre class="hl-pre" id="hl-pre"> </pre>
+        <textarea
+          class="editor-textarea" id="editor"
+          spellcheck="false" autocorrect="off" autocapitalize="off"
+          placeholder="&lt;!-- Write your HTML &amp; CSS here --&gt;"></textarea>
+      </div>
     </div>
     <div class="output-panel" style="flex:1;max-height:none;">
       <div class="output-header">
@@ -480,9 +528,11 @@ const LESSONS = {
           <li><code>&lt;body&gt;</code> — visible page content goes here</li>
         </ul>
         <p>The <code>&lt;title&gt;</code> tag sets the text shown in the browser tab.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a complete HTML page with <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, a <code>&lt;head&gt;</code> containing <code>&lt;title&gt;My Page&lt;/title&gt;</code>, and a <code>&lt;body&gt;</code> containing <code>&lt;p&gt;Hello, Helix!&lt;/p&gt;</code>.</div>
+        <h3>Head vs Body</h3>
+        <p>Think of <code>&lt;head&gt;</code> as backstage — metadata the browser reads but doesn't display. Think of <code>&lt;body&gt;</code> as the stage — everything visible to the user goes here. This separation keeps your code organised and helps search engines understand your page.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a complete HTML page with <code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, a <code>&lt;head&gt;</code> containing <code>&lt;title&gt;My Page&lt;/title&gt;</code>, and a <code>&lt;body&gt;</code> containing <code>&lt;p&gt;Hello, Helix!&lt;/p&gt;</code>.</div>
         </div>
       </div>`,
     hint: `<p>Build the full skeleton step by step:</p>
@@ -506,6 +556,12 @@ const LESSONS = {
 <span class="kw">&lt;/html&gt;</span></div>`,
     starter: `<!DOCTYPE html>\n<html>\n  <head>\n    \n  </head>\n  <body>\n    \n  </body>\n</html>`,
     check: (code) => /<!DOCTYPE\s+html>/i.test(code) && /<title>/i.test(code) && /Hello,\s*Helix!/i.test(code),
+    bonus: {
+      title: 'Add a meta charset tag',
+      desc: 'Inside your <head>, add <meta charset="UTF-8"> before the title. This tells the browser which character encoding to use.',
+      xp: 25,
+      check: (code) => /<!DOCTYPE\s+html>/i.test(code) && /<meta\s[^>]*charset/i.test(code) && /Hello,\s*Helix!/i.test(code),
+    },
   },
 
   2: {
@@ -523,9 +579,13 @@ const LESSONS = {
         <p>Use <code>&lt;br&gt;</code> to force a line break inside text without starting a new paragraph.</p>
         <div class="code-block"><span class="kw">&lt;p&gt;</span><span class="st">Line one.</span><span class="kw">&lt;br&gt;</span><span class="st">Line two.</span><span class="kw">&lt;/p&gt;</span></div>
         <p>Use <code>&lt;h1&gt;</code> for the main page title — only one per page. Use <code>&lt;h2&gt;</code>–<code>&lt;h6&gt;</code> for sections.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a page with an <code>&lt;h1&gt;</code> saying "Welcome", an <code>&lt;h2&gt;</code> saying "About", and a <code>&lt;p&gt;</code> saying "Learning HTML is fun!".</div>
+        <h3>Semantic hierarchy</h3>
+        <p>Headings aren't just for size — they define the <strong>outline</strong> of your page. Screen readers and search engines rely on heading order to understand structure. Never skip a level (e.g. going from <code>&lt;h1&gt;</code> directly to <code>&lt;h4&gt;</code>) — it breaks the outline.</p>
+        <h3>Inline text elements</h3>
+        <p>Inside a paragraph, use <code>&lt;strong&gt;</code> for bold important text and <code>&lt;em&gt;</code> for italic emphasis. Avoid using <code>&lt;b&gt;</code> or <code>&lt;i&gt;</code> — they are purely visual and carry no meaning.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a page with an <code>&lt;h1&gt;</code> saying "Welcome", an <code>&lt;h2&gt;</code> saying "About", and a <code>&lt;p&gt;</code> saying "Learning HTML is fun!".</div>
         </div>
       </div>`,
     hint: `<p>Put all three tags inside the <code>&lt;body&gt;</code>:</p>
@@ -540,6 +600,12 @@ const LESSONS = {
 <span class="kw">&lt;/body&gt;&lt;/html&gt;</span></div>`,
     starter: `<!-- Add your headings and paragraph below -->\n`,
     check: (code) => /<h1>/i.test(code) && /<h2>/i.test(code) && /Learning HTML is fun!/i.test(code),
+    bonus: {
+      title: 'Add an h3 with strong text',
+      desc: 'Add an <h3> heading with any text, and inside a <p> use <strong> to bold a word.',
+      xp: 30,
+      check: (code) => /<h3>/i.test(code) && /<strong>/i.test(code),
+    },
   },
 
   3: {
@@ -559,9 +625,13 @@ const LESSONS = {
         </ul>
         <h3>Open in a new tab</h3>
         <div class="code-block"><span class="kw">&lt;a</span> <span class="vr">href</span>=<span class="st">"https://helix.dev"</span> <span class="vr">target</span>=<span class="st">"_blank"</span><span class="kw">&gt;</span><span class="st">Open</span><span class="kw">&lt;/a&gt;</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a link to <code>https://helix.dev</code> with text "Visit Helix", and an <code>&lt;img&gt;</code> tag with <code>alt="logo"</code>.</div>
+        <h3>Relative vs absolute URLs</h3>
+        <p>An <strong>absolute URL</strong> like <code>https://example.com/photo.jpg</code> works from anywhere. A <strong>relative URL</strong> like <code>images/photo.jpg</code> is resolved relative to the current page — great for files on your own server.</p>
+        <h3>rel="noopener" for security</h3>
+        <p>When using <code>target="_blank"</code>, always add <code>rel="noopener noreferrer"</code>. Without it, the new tab can access the original tab via JavaScript — a security risk.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a link to <code>https://helix.dev</code> with text "Visit Helix", and an <code>&lt;img&gt;</code> tag with <code>alt="logo"</code>.</div>
         </div>
       </div>`,
     hint: `<p>Use <code>href</code> for the link and <code>alt</code> for the image:</p>
@@ -571,6 +641,12 @@ const LESSONS = {
 <span class="kw">&lt;img</span> <span class="vr">src</span>=<span class="st">"https://via.placeholder.com/100"</span> <span class="vr">alt</span>=<span class="st">"logo"</span><span class="kw">&gt;</span></div>`,
     starter: `<!-- Create a link and an image below -->\n`,
     check: (code) => /href=/i.test(code) && /alt=/i.test(code),
+    bonus: {
+      title: 'Open link safely in new tab',
+      desc: 'Add target="_blank" AND rel="noopener noreferrer" to your link. Both attributes must be present.',
+      xp: 30,
+      check: (code) => /target=["']_blank["']/i.test(code) && /rel=["'][^"']*noopener/i.test(code),
+    },
   },
 
   4: {
@@ -593,9 +669,19 @@ const LESSONS = {
 <span class="kw">&lt;/ol&gt;</span></div>
         <h3>Nested lists</h3>
         <p>You can nest a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code> inside any <code>&lt;li&gt;</code> to create sub-lists.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create an unordered list with 3 items: "HTML", "CSS", "JavaScript".</div>
+        <div class="code-block"><span class="kw">&lt;ul&gt;</span>
+  <span class="kw">&lt;li&gt;</span><span class="st">Fruits</span>
+    <span class="kw">&lt;ul&gt;</span>
+      <span class="kw">&lt;li&gt;</span><span class="st">Apple</span><span class="kw">&lt;/li&gt;</span>
+      <span class="kw">&lt;li&gt;</span><span class="st">Banana</span><span class="kw">&lt;/li&gt;</span>
+    <span class="kw">&lt;/ul&gt;</span>
+  <span class="kw">&lt;/li&gt;</span>
+<span class="kw">&lt;/ul&gt;</span></div>
+        <h3>Description lists</h3>
+        <p>There's a third list type: <code>&lt;dl&gt;</code> (description list), with <code>&lt;dt&gt;</code> (term) and <code>&lt;dd&gt;</code> (description). Use it for glossaries or key-value pairs.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create an unordered list with 3 items: "HTML", "CSS", "JavaScript".</div>
         </div>
       </div>`,
     hint: `<p>Use <code>&lt;ul&gt;</code> with three <code>&lt;li&gt;</code> items:</p>
@@ -611,6 +697,12 @@ const LESSONS = {
 <span class="kw">&lt;/ul&gt;</span></div>`,
     starter: `<!-- Create an unordered list with 3 items -->\n`,
     check: (code) => /<ul>/i.test(code) && /<li>/i.test(code) && /HTML/i.test(code) && /JavaScript/i.test(code),
+    bonus: {
+      title: 'Add an ordered list',
+      desc: 'Add an <ol> with 3 numbered steps (e.g. step-by-step instructions). Your code must contain both <ul> and <ol> tags.',
+      xp: 35,
+      check: (code) => /<ul>/i.test(code) && /<ol>/i.test(code) && (code.match(/<li>/gi)||[]).length >= 5,
+    },
   },
 
   5: {
@@ -634,9 +726,22 @@ const LESSONS = {
         </ul>
         <h3>Linking labels to inputs</h3>
         <p>The <code>for</code> attribute on <code>&lt;label&gt;</code> should match the <code>id</code> of the input. This makes the label clickable and helps screen readers.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a form with a text input (<code>id="name"</code>) labelled "Your Name:", and a submit button labelled "Send".</div>
+        <h3>More input types</h3>
+        <p>HTML5 added many useful types that trigger the right mobile keyboard and built-in validation:</p>
+        <ul>
+          <li><code>type="number"</code> — numeric input with up/down arrows</li>
+          <li><code>type="range"</code> — slider</li>
+          <li><code>type="date"</code> — date picker</li>
+          <li><code>type="color"</code> — colour picker</li>
+        </ul>
+        <h3>Textarea &amp; select</h3>
+        <div class="code-block"><span class="kw">&lt;textarea</span> <span class="vr">rows</span>=<span class="st">"4"</span> <span class="vr">name</span>=<span class="st">"message"</span><span class="kw">&gt;&lt;/textarea&gt;</span>
+<span class="kw">&lt;select</span> <span class="vr">name</span>=<span class="st">"country"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;option</span> <span class="vr">value</span>=<span class="st">"uk"</span><span class="kw">&gt;</span><span class="st">United Kingdom</span><span class="kw">&lt;/option&gt;</span>
+<span class="kw">&lt;/select&gt;</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a form with a text input (<code>id="name"</code>) labelled "Your Name:", and a submit button labelled "Send".</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;form&gt;</span>
@@ -651,6 +756,12 @@ const LESSONS = {
 <span class="kw">&lt;/form&gt;</span></div>`,
     starter: `<!-- Build your form below -->\n`,
     check: (code) => /<form/i.test(code) && /<input/i.test(code) && /<button/i.test(code),
+    bonus: {
+      title: 'Add a textarea',
+      desc: 'Add a <textarea> element inside your form with a rows attribute set to 4.',
+      xp: 35,
+      check: (code) => /<form/i.test(code) && /<textarea/i.test(code) && /rows/i.test(code),
+    },
   },
 
   6: {
@@ -678,9 +789,13 @@ const LESSONS = {
         </ul>
         <div class="code-block"><span class="fn">.highlight</span> { <span class="vr">background</span>: <span class="st">yellow</span>; }
 <span class="fn">#title</span>     { <span class="vr">font-weight</span>: <span class="st">bold</span>; }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Add a <code>&lt;style&gt;</code> block that sets the body <code>background</code> to <code>#1a1a2e</code> and makes <code>h1</code> color <code>#6366f1</code>. Include an <code>&lt;h1&gt;</code> in the body to preview it.</div>
+        <h3>Specificity</h3>
+        <p>When multiple rules target the same element, the most <strong>specific</strong> one wins. ID selectors (<code>#id</code>) beat class selectors (<code>.class</code>), which beat element selectors (<code>p</code>). Inline styles beat all. This is called <strong>specificity</strong>.</p>
+        <h3>The cascade</h3>
+        <p>The "C" in CSS stands for <em>Cascading</em> — styles flow down from general to specific. If two rules have equal specificity, the one that appears <strong>later</strong> in the stylesheet wins. Understanding this helps you debug unexpected styles.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Add a <code>&lt;style&gt;</code> block that sets the body <code>background</code> to <code>#1a1a2e</code> and makes <code>h1</code> color <code>#6366f1</code>. Include an <code>&lt;h1&gt;</code> in the body to preview it.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -695,6 +810,12 @@ const LESSONS = {
 <span class="kw">&lt;h1&gt;</span><span class="st">Hello CSS!</span><span class="kw">&lt;/h1&gt;</span></div>`,
     starter: `<!-- Add your <style> tag and HTML below -->\n`,
     check: (code) => /<style>/i.test(code) && /background/i.test(code) && /color/i.test(code),
+    bonus: {
+      title: 'Add a class selector',
+      desc: 'Add a CSS rule for a class (e.g. .highlight) and apply it to an HTML element with class="highlight". The rule must set a color or background.',
+      xp: 35,
+      check: (code) => /\.[a-zA-Z][\w-]*\s*\{/i.test(code) && /class=/i.test(code),
+    },
   },
 
   7: {
@@ -718,9 +839,16 @@ const LESSONS = {
 }</div>
         <p>Use <code>box-sizing: border-box</code> so padding and border are included in the total width — avoids surprises!</p>
         <div class="code-block">* { <span class="vr">box-sizing</span>: <span class="st">border-box</span>; }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a <code>&lt;div&gt;</code> with class <code>"box"</code>, and style it with <code>padding: 20px</code>, <code>margin: 10px</code>, <code>border: 2px solid #6366f1</code>, and <code>width: 200px</code>.</div>
+        <h3>Shorthand properties</h3>
+        <p>Padding and margin support shorthand: 1 value = all sides, 2 values = top/bottom + left/right, 4 values = top right bottom left (clockwise):</p>
+        <div class="code-block"><span class="vr">padding</span>: <span class="nm">10px</span>;                    <span class="cm">/* all sides */</span>
+<span class="vr">padding</span>: <span class="nm">10px</span> <span class="nm">20px</span>;           <span class="cm">/* vertical | horizontal */</span>
+<span class="vr">padding</span>: <span class="nm">10px</span> <span class="nm">20px</span> <span class="nm">5px</span> <span class="nm">15px</span>; <span class="cm">/* top right bottom left */</span></div>
+        <h3>Border radius</h3>
+        <p>Use <code>border-radius</code> to round corners. <code>border-radius: 50%</code> creates a perfect circle from a square element.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a <code>&lt;div&gt;</code> with class <code>"box"</code>, and style it with <code>padding: 20px</code>, <code>margin: 10px</code>, <code>border: 2px solid #6366f1</code>, and <code>width: 200px</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -745,6 +873,12 @@ const LESSONS = {
 <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;</span><span class="st">I am a box!</span><span class="kw">&lt;/div&gt;</span></div>`,
     starter: `<!-- Style a .box div with the box model properties -->\n`,
     check: (code) => /padding/i.test(code) && /border/i.test(code) && /box/i.test(code),
+    bonus: {
+      title: 'Add border-radius',
+      desc: 'Add border-radius: 12px to your .box style to give it rounded corners.',
+      xp: 35,
+      check: (code) => /padding/i.test(code) && /border/i.test(code) && /border-radius/i.test(code),
+    },
   },
 
   8: {
@@ -769,9 +903,16 @@ const LESSONS = {
         <h3>Background image</h3>
         <div class="code-block"><span class="vr">background-image</span>: <span class="st">url("bg.jpg")</span>;
 <span class="vr">background-size</span>:  <span class="st">cover</span>;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a div with a <code>linear-gradient</code> background going from <code>#6366f1</code> to <code>#22d3ee</code>. Give it some height so it's visible.</div>
+        <h3>rgba() — transparency</h3>
+        <p>The fourth value in <code>rgba(r, g, b, a)</code> is the <strong>alpha</strong> channel (0 = transparent, 1 = solid). Great for overlays:</p>
+        <div class="code-block"><span class="vr">background</span>: <span class="st">rgba(99, 102, 241, 0.15)</span>;  <span class="cm">/* semi-transparent purple */</span></div>
+        <h3>CSS custom properties (variables)</h3>
+        <p>Define colours once and reuse them everywhere with <code>var()</code>:</p>
+        <div class="code-block"><span class="fn">:root</span> { <span class="vr">--brand</span>: <span class="st">#6366f1</span>; }
+<span class="fn">h1</span> { <span class="vr">color</span>: <span class="st">var(--brand)</span>; }</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a div with a <code>linear-gradient</code> background going from <code>#6366f1</code> to <code>#22d3ee</code>. Give it some height so it's visible.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -791,6 +932,12 @@ const LESSONS = {
 <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"grad"</span><span class="kw">&gt;&lt;/div&gt;</span></div>`,
     starter: `<!-- Create a gradient div -->\n`,
     check: (code) => /linear-gradient/i.test(code) && /#6366f1/i.test(code),
+    bonus: {
+      title: 'Use rgba() for a semi-transparent colour',
+      desc: 'Add a second div (or modify your existing one) that uses rgba() with an alpha value less than 1 as its background colour.',
+      xp: 40,
+      check: (code) => /rgba\s*\([^)]+,[^)]+,[^)]+,\s*0\.\d/i.test(code),
+    },
   },
 
   9: {
@@ -815,9 +962,13 @@ const LESSONS = {
         <h3>text-decoration</h3>
         <div class="code-block"><span class="vr">text-decoration</span>: <span class="st">underline</span>;
 <span class="vr">text-decoration</span>: <span class="st">none</span>;    <span class="cm">/* removes link underline */</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Style a <code>&lt;p&gt;</code> element with <code>font-size: 18px</code>, <code>font-weight: bold</code>, <code>text-align: center</code>, and <code>color: #333</code>.</div>
+        <h3>Responsive text with rem</h3>
+        <p>Use <code>rem</code> units instead of <code>px</code> for font sizes. <code>1rem</code> = the browser's root font size (usually 16px). If a user increases their browser font size, <code>rem</code>-based text scales correctly — <code>px</code> stays fixed.</p>
+        <h3>Line-height &amp; readability</h3>
+        <p>A good line-height for body text is <strong>1.5–1.7</strong> (unitless values are proportional to the font size). Tight line-height (<code>1.0–1.2</code>) works for large headings but makes body text hard to read.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Style a <code>&lt;p&gt;</code> element with <code>font-size: 18px</code>, <code>font-weight: bold</code>, <code>text-align: center</code>, and <code>color: #333</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -841,6 +992,12 @@ const LESSONS = {
 <span class="kw">&lt;p&gt;</span><span class="st">Beautiful typography!</span><span class="kw">&lt;/p&gt;</span></div>`,
     starter: `<!-- Style a paragraph with typography properties -->\n`,
     check: (code) => /font-size/i.test(code) && /text-align/i.test(code) && /center/i.test(code),
+    bonus: {
+      title: 'Add line-height and letter-spacing',
+      desc: 'Add both line-height (at least 1.5) and letter-spacing (any value) to your paragraph style.',
+      xp: 40,
+      check: (code) => /font-size/i.test(code) && /line-height/i.test(code) && /letter-spacing/i.test(code),
+    },
   },
 
   10: {
@@ -865,9 +1022,14 @@ const LESSONS = {
           <li><code>space-between</code> — spread with gaps</li>
           <li><code>space-around</code> — equal space around each</li>
         </ul>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a div with <code>display: flex</code>, <code>justify-content: center</code>, <code>align-items: center</code>, <code>gap: 16px</code> containing 3 child divs.</div>
+        <h3>flex-grow, flex-shrink, flex-basis</h3>
+        <p>Child items have a shorthand: <code>flex: 1</code> means "grow to fill available space equally". Useful for equal-width columns:</p>
+        <div class="code-block"><span class="fn">.child</span> { <span class="vr">flex</span>: <span class="nm">1</span>; }  <span class="cm">/* all children share space equally */</span></div>
+        <h3>flex-direction: column</h3>
+        <p>Change the main axis to vertical with <code>flex-direction: column</code>. Now <code>justify-content</code> aligns vertically and <code>align-items</code> aligns horizontally — the axes swap.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a div with <code>display: flex</code>, <code>justify-content: center</code>, <code>align-items: center</code>, <code>gap: 16px</code> containing 3 child divs.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -892,6 +1054,12 @@ const LESSONS = {
 <span class="kw">&lt;/div&gt;</span></div>`,
     starter: `<!-- Create a flex container with 3 children -->\n`,
     check: (code) => /display\s*:\s*flex/i.test(code) && /justify-content/i.test(code),
+    bonus: {
+      title: 'Stack with flex-direction: column',
+      desc: 'Add a second flex container that uses flex-direction: column to stack its items vertically.',
+      xp: 40,
+      check: (code) => /display\s*:\s*flex/i.test(code) && /flex-direction\s*:\s*column/i.test(code),
+    },
   },
 
   11: {
@@ -915,9 +1083,15 @@ const LESSONS = {
         </ul>
         <div class="code-block"><span class="fn">.wide</span> { <span class="vr">grid-column</span>: <span class="st">span 2</span>; }</div>
         <p>Grid items automatically place themselves in the next available cell.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a container with <code>display: grid</code>, <code>grid-template-columns: repeat(3, 1fr)</code>, <code>gap: 16px</code>, containing 6 item divs.</div>
+        <h3>auto-fill and auto-fit</h3>
+        <p>Instead of a fixed column count, let the grid decide how many columns fit:</p>
+        <div class="code-block"><span class="vr">grid-template-columns</span>: <span class="st">repeat(auto-fill, minmax(</span><span class="nm">200px</span><span class="st">, 1fr))</span>;</div>
+        <p>This creates as many 200px-minimum columns as can fit — the layout is automatically responsive without any media queries.</p>
+        <h3>Grid vs Flexbox</h3>
+        <p>Use <strong>Grid</strong> for two-dimensional layouts (rows AND columns). Use <strong>Flexbox</strong> for one-dimensional layouts (either a row OR a column). When in doubt: for the overall page structure, reach for Grid; for items in a single line, reach for Flexbox.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a container with <code>display: grid</code>, <code>grid-template-columns: repeat(3, 1fr)</code>, <code>gap: 16px</code>, containing 6 item divs.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -944,6 +1118,12 @@ const LESSONS = {
 <span class="kw">&lt;/div&gt;</span></div>`,
     starter: `<!-- Create a 3-column grid with 6 items -->\n`,
     check: (code) => /display\s*:\s*grid/i.test(code) && /grid-template-columns/i.test(code),
+    bonus: {
+      title: 'Make one item span 2 columns',
+      desc: 'Add grid-column: span 2 to one of your grid items so it takes up two column slots.',
+      xp: 45,
+      check: (code) => /display\s*:\s*grid/i.test(code) && /grid-column\s*:\s*span\s*2/i.test(code),
+    },
   },
 
   12: {
@@ -969,9 +1149,18 @@ const LESSONS = {
   <span class="vr">z-index</span>: <span class="nm">10</span>;
 }</div>
         <p><code>z-index</code> controls the stacking order — higher values appear on top.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a parent div with <code>position: relative</code> and a child div with <code>position: absolute</code>, <code>top: 10px</code>, <code>right: 10px</code> inside it.</div>
+        <h3>position: sticky</h3>
+        <p><code>sticky</code> is a hybrid — it scrolls with the page until it reaches a threshold (<code>top: 0</code>), then it "sticks" in place. Perfect for sticky navigation headers that follow the user while reading.</p>
+        <div class="code-block"><span class="fn">nav</span> {
+  <span class="vr">position</span>: <span class="st">sticky</span>;
+  <span class="vr">top</span>: <span class="nm">0</span>;
+  <span class="vr">z-index</span>: <span class="nm">100</span>;
+}</div>
+        <h3>Stacking context</h3>
+        <p>A stacking context is created by any element with <code>position</code> set to anything other than <code>static</code> AND a <code>z-index</code> value. Elements in different stacking contexts are compared at the context level — not globally.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a parent div with <code>position: relative</code> and a child div with <code>position: absolute</code>, <code>top: 10px</code>, <code>right: 10px</code> inside it.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">&lt;style&gt;</span>
@@ -1001,6 +1190,12 @@ const LESSONS = {
 <span class="kw">&lt;/div&gt;</span></div>`,
     starter: `<!-- Create a relatively-positioned parent with an absolute child -->\n`,
     check: (code) => /position\s*:\s*absolute/i.test(code),
+    bonus: {
+      title: 'Add z-index to layer elements',
+      desc: 'Add z-index to both your parent (.parent) and child (.child) elements. Give the child z-index: 10.',
+      xp: 45,
+      check: (code) => /position\s*:\s*absolute/i.test(code) && /z-index\s*:\s*10/i.test(code),
+    },
   },
 
   13: {
@@ -1027,9 +1222,14 @@ const LESSONS = {
   <span class="vr">animation</span>: <span class="st">fadeIn 1s ease</span>;
 }</div>
         <p>You can also add keyframe stops: <code>0%, 50%, 100%</code>.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a button that changes <code>background-color</code> on <code>:hover</code> with a <code>transition</code> of <code>0.3s</code>, and a div that uses <code>@keyframes</code> to fade in.</div>
+        <h3>transition shorthand</h3>
+        <p>The <code>transition</code> shorthand is: <code>property duration easing delay</code>. You can transition multiple properties by separating with commas:</p>
+        <div class="code-block"><span class="vr">transition</span>: <span class="st">background 0.3s ease, transform 0.2s ease</span>;</div>
+        <h3>Performance tip</h3>
+        <p>Only animate <code>transform</code> and <code>opacity</code> for smooth 60fps animations — the browser handles these on the GPU. Animating <code>width</code>, <code>height</code>, or <code>margin</code> forces the browser to recalculate layout every frame, causing janky animations.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a button that changes <code>background-color</code> on <code>:hover</code> with a <code>transition</code> of <code>0.3s</code>, and a div that uses <code>@keyframes</code> to fade in.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="fn">@keyframes</span> <span class="vr">fadeIn</span> { <span class="nm">from</span> { <span class="vr">opacity</span>:<span class="nm">0</span> } <span class="nm">to</span> { <span class="vr">opacity</span>:<span class="nm">1</span> } }
@@ -1049,6 +1249,12 @@ const LESSONS = {
 <span class="kw">&lt;button</span> <span class="vr">class</span>=<span class="st">"btn"</span><span class="kw">&gt;</span><span class="st">Hover me</span><span class="kw">&lt;/button&gt;</span></div>`,
     starter: `<!-- Add transitions and @keyframes animation -->\n`,
     check: (code) => /@keyframes/i.test(code) && /transition/i.test(code),
+    bonus: {
+      title: 'Add transform to your keyframes',
+      desc: 'Modify your @keyframes animation to also animate a transform property (e.g. translateY or scale).',
+      xp: 45,
+      check: (code) => /@keyframes/i.test(code) && /transform/i.test(code) && /transition/i.test(code),
+    },
   },
 
   14: {
@@ -1070,9 +1276,18 @@ const LESSONS = {
 }</div>
         <h3>Mobile-first approach</h3>
         <p>Write base styles for mobile first, then use <code>min-width</code> media queries to add desktop styles.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a div that is <code>600px</code> wide on desktop but <code>100%</code> wide on screens narrower than <code>600px</code> using a <code>@media</code> query.</div>
+        <h3>Common breakpoints</h3>
+        <ul>
+          <li><code>max-width: 480px</code> — small phones</li>
+          <li><code>max-width: 768px</code> — tablets</li>
+          <li><code>min-width: 1024px</code> — desktop</li>
+        </ul>
+        <h3>Responsive images</h3>
+        <p>Set <code>max-width: 100%</code> on images so they never overflow their container on small screens. Add <code>height: auto</code> to maintain the aspect ratio.</p>
+        <div class="code-block"><span class="fn">img</span> { <span class="vr">max-width</span>: <span class="st">100%</span>; <span class="vr">height</span>: <span class="st">auto</span>; }</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a div that is <code>600px</code> wide on desktop but <code>100%</code> wide on screens narrower than <code>600px</code> using a <code>@media</code> query.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="fn">.box</span> { <span class="vr">width</span>: <span class="nm">600px</span>; <span class="vr">background</span>: <span class="st">#6366f1</span>; }
@@ -1094,6 +1309,12 @@ const LESSONS = {
 <span class="kw">&lt;div</span> <span class="vr">class</span>=<span class="st">"box"</span><span class="kw">&gt;</span><span class="st">Resize the preview!</span><span class="kw">&lt;/div&gt;</span></div>`,
     starter: `<!-- Create a responsive div with a media query -->\n`,
     check: (code) => /@media/i.test(code) && /max-width/i.test(code),
+    bonus: {
+      title: 'Add a min-width media query',
+      desc: 'Add a second @media query using min-width (instead of max-width) to apply styles on wider screens.',
+      xp: 50,
+      check: (code) => /@media/i.test(code) && /max-width/i.test(code) && /min-width/i.test(code),
+    },
   },
 
   15: {
@@ -1119,9 +1340,13 @@ const LESSONS = {
     <span class="kw">&lt;tr&gt;&lt;td&gt;</span><span class="st">Alice</span><span class="kw">&lt;/td&gt;&lt;td&gt;</span><span class="st">95</span><span class="kw">&lt;/td&gt;&lt;/tr&gt;</span>
   <span class="kw">&lt;/tbody&gt;</span>
 <span class="kw">&lt;/table&gt;</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a page with <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code>, plus a <code>&lt;table&gt;</code> inside main with a header row and 2 data rows.</div>
+        <h3>div vs semantic tags</h3>
+        <p>A <code>&lt;div&gt;</code> is a generic container with no meaning. Replacing it with the right semantic tag (<code>&lt;header&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;footer&gt;</code>) gives the content meaning — improving SEO rankings and accessibility for screen reader users.</p>
+        <h3>ARIA attributes</h3>
+        <p>When semantic HTML isn't enough, <strong>ARIA</strong> (Accessible Rich Internet Applications) attributes add accessibility metadata: <code>role="button"</code>, <code>aria-label="Close"</code>, <code>aria-hidden="true"</code>. Use semantic HTML first — ARIA is a last resort.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a page with <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, and <code>&lt;footer&gt;</code>, plus a <code>&lt;table&gt;</code> inside main with a header row and 2 data rows.</div>
         </div>
       </div>`,
     hint: `<p>Structure: semantic wrapper tags, then a complete table inside <code>&lt;main&gt;</code>.</p>
@@ -1151,6 +1376,12 @@ const LESSONS = {
 <span class="kw">&lt;footer&gt;</span><span class="st">&amp;copy; 2025 My Site</span><span class="kw">&lt;/footer&gt;</span></div>`,
     starter: `<!-- Build a semantic page with header, main, footer, and a table -->\n`,
     check: (code) => /<header/i.test(code) && /<footer/i.test(code) && /<table/i.test(code) && /<tbody/i.test(code),
+    bonus: {
+      title: 'Wrap table in an article',
+      desc: 'Wrap your <table> inside an <article> element, and place that article inside <main>. Both <article> and <main> must be present.',
+      xp: 50,
+      check: (code) => /<main/i.test(code) && /<article/i.test(code) && /<table/i.test(code),
+    },
   },
 };
 
@@ -1233,8 +1464,91 @@ function updateLineNums() {
   const n = editor.value.split('\n').length;
   document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
-editor.addEventListener('input', updateLineNums);
-editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+
+// ─── HTML/CSS Syntax Highlighter ────────────────────────────
+function htmlHighlight(src) {
+  let out = '', i = 0;
+  const n = src.length;
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  let inStyle = false, braceDepth = 0, afterColon = false;
+  while (i < n) {
+    // HTML comment
+    if (!inStyle && src.slice(i,i+4)==='<!--') {
+      let j=i+4; while(j<n && src.slice(j,j+3)!=='-->') j++;
+      j=Math.min(j+3,n);
+      out+=`<span class="cm">${esc(src.slice(i,j))}</span>`; i=j; continue;
+    }
+    // CSS block comment
+    if (inStyle && src[i]==='/' && i+1<n && src[i+1]==='*') {
+      let j=i+2; while(j<n-1 && !(src[j]==='*' && src[j+1]==='/')) j++;
+      j=Math.min(j+2,n);
+      out+=`<span class="cm">${esc(src.slice(i,j))}</span>`; i=j; continue;
+    }
+    // DOCTYPE declaration
+    if (!inStyle && /^<!DOCTYPE/i.test(src.slice(i))) {
+      let j=i+1; while(j<n && src[j]!=='>') j++; j=Math.min(j+1,n);
+      out+=`<span class="kw">${esc(src.slice(i,j))}</span>`; i=j; continue;
+    }
+    // HTML tag
+    if (src[i]==='<') {
+      if (inStyle && /^<\/style/i.test(src.slice(i))) { inStyle=false; braceDepth=0; afterColon=false; }
+      const openStyle = !inStyle && /^<style[\s\/>]/i.test(src.slice(i));
+      let j=i+1;
+      const isClose=src[j]==='/'; if(isClose)j++;
+      const tStart=j; while(j<n && /[\w:-]/.test(src[j])) j++;
+      out+=`<span class="kw">${esc(src[i])}${isClose?'/':''}${esc(src.slice(tStart,j))}</span>`;
+      while(j<n && src[j]!=='>') {
+        if(src[j]==='"'||src[j]==="'") {
+          const q=src[j]; let k=j+1; while(k<n&&src[k]!==q)k++; k=Math.min(k+1,n);
+          out+=`<span class="st">${esc(src.slice(j,k))}</span>`; j=k;
+        } else if(/[a-zA-Z]/.test(src[j])) {
+          let k=j; while(k<n&&/[\w:-]/.test(src[k]))k++;
+          out+=`<span class="vr">${esc(src.slice(j,k))}</span>`; j=k;
+        } else { out+=esc(src[j]); j++; }
+      }
+      if(j<n) { out+=`<span class="kw">&gt;</span>`; j++; }
+      if(openStyle) inStyle=true;
+      i=j; continue;
+    }
+    // CSS content (inside <style>)
+    if (inStyle) {
+      if(src[i]==='{'){ braceDepth++; afterColon=false; out+=src[i]; i++; continue; }
+      if(src[i]==='}'){ if(braceDepth>0)braceDepth--; afterColon=false; out+=src[i]; i++; continue; }
+      if(src[i]===':'&&!afterColon){ afterColon=true; out+=src[i]; i++; continue; }
+      if(src[i]===';'){ afterColon=false; out+=src[i]; i++; continue; }
+      if(/\d/.test(src[i])||(src[i]==='.'&&i+1<n&&/\d/.test(src[i+1]))) {
+        let j=i; while(j<n&&/[\d.]/.test(src[j]))j++; while(j<n&&/[a-zA-Z%]/.test(src[j]))j++;
+        out+=`<span class="nm">${esc(src.slice(i,j))}</span>`; i=j; continue;
+      }
+      if(src[i]==='"'||src[i]==="'") {
+        const q=src[i]; let j=i+1; while(j<n&&src[j]!==q)j++; j=Math.min(j+1,n);
+        out+=`<span class="st">${esc(src.slice(i,j))}</span>`; i=j; continue;
+      }
+      if(/[a-zA-Z_\-#.@*]/.test(src[i])) {
+        let j=i; while(j<n&&/[a-zA-Z0-9_\-#.@*:()\[\]]/.test(src[j]))j++;
+        const tok=src.slice(i,j);
+        if(braceDepth===0) out+=`<span class="fn">${esc(tok)}</span>`;
+        else if(!afterColon) out+=`<span class="vr">${esc(tok)}</span>`;
+        else out+=`<span class="st">${esc(tok)}</span>`;
+        i=j; continue;
+      }
+      out+=esc(src[i]); i++; continue;
+    }
+    // plain text
+    out+=esc(src[i]); i++;
+  }
+  return out;
+}
+const hlPre = document.getElementById('hl-pre');
+function updateHighlight() { hlPre.innerHTML = htmlHighlight(editor.value) + '\n'; }
+function syncScroll() {
+  hlPre.scrollTop = editor.scrollTop; hlPre.scrollLeft = editor.scrollLeft;
+  document.getElementById('line-nums').scrollTop = editor.scrollTop;
+}
+editor.addEventListener('input', () => { updateLineNums(); updateHighlight(); });
+editor.addEventListener('scroll', syncScroll);
+updateHighlight();
+
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') {
     e.preventDefault();
@@ -1246,7 +1560,7 @@ editor.addEventListener('keydown', (e) => {
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
   editor.value = lesson.starter || '';
-  updateLineNums();
+  updateLineNums(); updateHighlight();
   document.getElementById('preview-frame').srcdoc = '';
   const st = document.getElementById('output-status');
   st.className = 'output-status os-idle'; st.textContent = 'Ready';
@@ -1295,7 +1609,19 @@ solBtn.addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════
 let outputLines = [];
 
-function runCode(forSubmit = false) {
+function runCode(forSubmit = false, forBonus = false) {
+  const hasRealCode = editor.value.split('\n').some(l => {
+    const t = l.trim();
+    return t.length > 0 && !t.startsWith('<!--') && !t.startsWith('//');
+  });
+  if (!hasRealCode) {
+    const st = document.getElementById('output-status');
+    st.className = 'output-status os-error';
+    st.textContent = '⚠️ Write some code first!';
+    setTimeout(() => { st.className = 'output-status os-idle'; st.textContent = 'Ready'; }, 2500);
+    return;
+  }
+
   outputLines = [];
   const code = editor.value;
   const frame = document.getElementById('preview-frame');
@@ -1306,6 +1632,7 @@ function runCode(forSubmit = false) {
   st.textContent = 'Previewing';
 
   if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forBonus) { setTimeout(() => checkBonus(), 300); return; }
   if (forSubmit) {
     setTimeout(() => checkAnswerHTML(code), 300);
   }
@@ -1340,6 +1667,41 @@ function completeLesson() {
   }
   document.getElementById('progress-fill').style.width = (lessonId/TOTAL*100)+'%';
   showModal(earned ? lesson.xp : 0);
+}
+
+// ─── BONUS SYSTEM ───────────────────────────────────────────
+let bonusCompleted = false;
+(function() {
+  const b = lesson.bonus;
+  if (!b) return;
+  document.getElementById('bonus-box').style.display = '';
+  document.getElementById('bonus-title').textContent = b.title;
+  document.getElementById('bonus-desc').textContent  = b.desc;
+  document.getElementById('btn-bonus-submit').addEventListener('click', () => runCode(false, true));
+})();
+
+function checkBonus() {
+  if (!lesson.bonus || bonusCompleted) return;
+  const code = editor.value;
+  const fb   = document.getElementById('bonus-feedback');
+  const btn  = document.getElementById('btn-bonus-submit');
+  if (lesson.bonus.check(code)) {
+    bonusCompleted = true;
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP`;
+    fb.className = 'bonus-feedback success';
+    btn.disabled = true; btn.textContent = '✅ Done';
+    const bonusKey = `helix_html_bonus_${lessonId}`;
+    if (!localStorage.getItem(bonusKey)) {
+      localStorage.setItem(bonusKey, '1');
+      const state = loadState();
+      state.xp += lesson.bonus.xp; state.level = getLevel(state.xp);
+      saveState(state);
+      document.getElementById('nav-xp').textContent = state.xp;
+    }
+  } else {
+    fb.textContent = '✗ Not quite — read the bonus description carefully!';
+    fb.className = 'bonus-feedback fail';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
