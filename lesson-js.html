@@ -1510,8 +1510,12 @@ const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 let outputLines = [];
 
 async function runCode(forSubmit = false) {
-  // Guard: empty editor should not count as a run
-  if (editor.value.trim() === '') {
+  // Guard: only comments / whitespace = nothing written yet
+  const hasRealCode = editor.value.split('\n').some(l => {
+    const t = l.trim();
+    return t.length > 0 && !t.startsWith('//');
+  });
+  if (!hasRealCode) {
     setOutput([{type:'error', text:'⚠️  Write some code first before running!'}], 'error');
     return;
   }
