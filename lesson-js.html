@@ -296,17 +296,34 @@
     .output-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); flex: 1; }
     .output-status { font-size: 0.68rem; font-weight: 700; padding: 0.14rem 0.55rem; border-radius: 6px; }
     .os-running { background: rgba(255,179,71,0.1);  color: var(--yellow); }
-    .os-ok      { background: rgba(74,222,128,0.1);  color: var(--green);  }
+    .os-ok      {
+      background: rgba(52,211,153,0.1); color: #34D399;
+      text-shadow: 0 0 8px rgba(52,211,153,0.55);
+      box-shadow: 0 0 10px rgba(52,211,153,0.12);
+    }
     .os-error   { background: rgba(255,107,107,0.1); color: var(--red);    }
     .os-idle    { background: rgba(255,255,255,0.04); color: var(--text-3); }
     .output-body {
       flex: 1; overflow-y: auto; padding: 0.9rem 1.2rem;
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.85;
-      background: #040810;
+      background: #040810; transition: box-shadow 0.4s ease;
+    }
+    .output-body.glow-ok {
+      box-shadow: inset 0 0 40px rgba(52,211,153,0.05), inset 0 -1px 0 rgba(52,211,153,0.08);
     }
     .output-body::-webkit-scrollbar { width: 4px; }
     .output-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
-    .out-line        { color: var(--green); white-space: pre-wrap; word-break: break-word; display: block; }
+    @keyframes line-appear {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .out-line {
+      color: #34D399;
+      text-shadow: 0 0 10px rgba(52,211,153,0.6), 0 0 24px rgba(52,211,153,0.22);
+      white-space: pre-wrap; word-break: break-word; display: block;
+      animation: line-appear 0.18s ease-out both;
+    }
+    @media (prefers-reduced-motion: reduce) { .out-line { animation: none; } }
     .out-error       { color: var(--red);   white-space: pre-wrap; word-break: break-word; display: block; }
     .out-placeholder { color: var(--text-3); font-style: italic; }
 
@@ -1491,11 +1508,14 @@ solBtn.addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════
 function setOutput(lines, status) {
   const ob = document.getElementById('output-body');
+  let lineIdx = 0;
   ob.innerHTML = lines.map(l => {
     if (l.type === 'placeholder') return `<span class="out-placeholder">${l.text}</span>`;
     if (l.type === 'error')       return `<span class="out-error">${escHtml(l.text)}</span>`;
-    return `<span class="out-line">${escHtml(l.text)}</span>`;
+    const delay = (lineIdx++ * 55);
+    return `<span class="out-line" style="animation-delay:${delay}ms">${escHtml(l.text)}</span>`;
   }).join('');
+  ob.classList.toggle('glow-ok', status === 'ok');
   const st = document.getElementById('output-status');
   st.className = 'output-status';
   const map = {running:['os-running','Running…'], ok:['os-ok','Done'], error:['os-error','Error'], idle:['os-idle','Idle']};
