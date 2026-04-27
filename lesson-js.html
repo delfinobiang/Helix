@@ -150,16 +150,39 @@
     .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
     .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
 
-    .challenge-box {
+    .objective-box {
       margin: 1.5rem 0 0;
-      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2);
       border-radius: 14px; padding: 1.2rem 1.3rem;
     }
-    .challenge-label {
+    .objective-label {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--primary); margin-bottom: 0.6rem;
+      color: var(--accent); margin-bottom: 0.6rem;
     }
-    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .objective-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .bonus-box {
+      margin: 1rem 0 0;
+      background: rgba(34,211,238,0.04); border: 1px solid rgba(34,211,238,0.16);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .bonus-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 0.5rem;
+    }
+    .bonus-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+    .bonus-text { font-size: 0.87rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.85rem; }
+    .btn-bonus-submit {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(34,211,238,0.09); border: 1px solid rgba(34,211,238,0.26);
+      color: var(--cyan); font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .btn-bonus-submit:hover { background: rgba(34,211,238,0.16); box-shadow: 0 3px 12px rgba(34,211,238,0.14); }
+    .btn-bonus-submit:disabled { opacity: 0.4; pointer-events: none; }
+    .bonus-feedback { margin-top: 0.6rem; font-size: 0.82rem; font-weight: 600; display: none; padding: 0.35rem 0.6rem; border-radius: 7px; }
+    .bonus-feedback.success { color: var(--green); background: rgba(16,185,129,0.08); display: block; }
+    .bonus-feedback.fail    { color: var(--red); background: rgba(239,68,68,0.07); display: block; }
 
     /* Hint / solution */
     .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -271,17 +294,33 @@
       background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
       min-width: 44px; overflow: hidden; flex-shrink: 0;
     }
+    .editor-code-area {
+      flex: 1; position: relative; overflow: hidden; background: #050C1A;
+    }
     .editor-textarea {
-      flex: 1; resize: none; border: none; outline: none;
-      background: #050C1A; color: #D4D4F8;
+      position: absolute; inset: 0;
+      resize: none; border: none; outline: none;
+      background: transparent; color: transparent;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
       padding: 1.1rem 1.2rem; tab-size: 2;
-      caret-color: var(--primary);
-      overflow-y: auto; overflow-x: auto;
+      caret-color: var(--accent);
+      overflow-y: auto; overflow-x: hidden;
+      z-index: 1; white-space: pre-wrap; word-break: break-word;
+      width: 100%; height: 100%; box-sizing: border-box;
     }
-    .editor-textarea::selection { background: rgba(99,102,241,0.3); }
+    .editor-textarea::selection { background: rgba(245,158,11,0.25); }
     .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
     .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+    .hl-pre {
+      position: absolute; inset: 0; margin: 0; border: none; outline: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 2;
+      overflow: hidden; pointer-events: none;
+      white-space: pre-wrap; word-break: break-word;
+      background: #050C1A; color: #D4D4F8; z-index: 0;
+      width: 100%; height: 100%; box-sizing: border-box;
+    }
+    .editor-wrap { background: #050C1A; }
 
     /* Output */
     .output-panel {
@@ -586,6 +625,13 @@
         </button>
         <div class="collapsible-body" id="cheatsheet-body"></div>
       </div>
+      <div class="bonus-box" id="bonus-box" style="display:none">
+        <div class="bonus-label">⚡ Bonus Challenge · Extra XP</div>
+        <div class="bonus-title" id="bonus-title"></div>
+        <div class="bonus-text" id="bonus-desc"></div>
+        <button class="btn-bonus-submit" id="btn-bonus-submit">⚡ Submit Bonus</button>
+        <div class="bonus-feedback" id="bonus-feedback"></div>
+      </div>
     </div>
   </div>
 
@@ -601,10 +647,13 @@
     </div>
     <div class="editor-wrap">
       <div class="line-nums" id="line-nums">1</div>
-      <textarea
-        class="editor-textarea" id="editor"
-        spellcheck="false" autocorrect="off" autocapitalize="off"
-        placeholder="// Write your JavaScript here..."></textarea>
+      <div class="editor-code-area">
+        <pre class="hl-pre" id="hl-pre" aria-hidden="true"> </pre>
+        <textarea
+          class="editor-textarea" id="editor"
+          spellcheck="false" autocorrect="off" autocapitalize="off"
+          placeholder="// Write your JavaScript here..."></textarea>
+      </div>
     </div>
     <div class="output-panel">
       <div class="output-header">
@@ -681,10 +730,12 @@ const LESSONS = {
         <h3>Multiple outputs</h3>
         <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"First line"</span>);
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Second line"</span>);</div>
-        <p>Each <code>console.log()</code> call prints on its own line. The semicolons <code>;</code> are optional but considered good style.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Print exactly two lines:<br><code>Hello, World!</code><br><code>I am learning JavaScript!</code></div>
+        <p>Each <code>console.log()</code> call prints on its own line. The semicolons <code>;</code> are optional but considered good style in professional codebases — they prevent rare edge-case bugs.</p>
+        <h3>What is JavaScript?</h3>
+        <p>JavaScript is the language of the web. It runs directly in the browser, powers interactive websites, and with Node.js can run server-side too. Unlike Python, JS is event-driven — it reacts to user actions like clicks and keystrokes.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Print exactly two lines:<br><code>Hello, World!</code><br><code>I am learning JavaScript!</code></div>
         </div>
       </div>`,
     hint: `<p>Call <code>console.log()</code> twice — once per line:</p>
@@ -695,6 +746,12 @@ const LESSONS = {
     starter: `// Print two lines below\n`,
     check: (out) => out.includes("Hello, World!") && out.includes("I am learning JavaScript!"),
     cheatsheet: [['console.log("text")', 'Print to console'], ['// comment', 'Line comment'], ['/* block */', 'Block comment']],
+    bonus: {
+      title: 'Print a third line',
+      desc: 'After your two required lines, add a third line that prints exactly: I love coding!',
+      xp: 25,
+      check: (out) => out.includes("Hello, World!") && out.includes("I am learning JavaScript!") && out.includes("I love coding!"),
+    },
   },
 
   2: {
@@ -716,10 +773,12 @@ const LESSONS = {
 <span class="vr">score</span> = <span class="nm">200</span>;         <span class="cm">// let can be reassigned</span>
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">score</span>);  <span class="cm">// 200</span></div>
         <h3>Naming conventions</h3>
-        <p>Use <strong>camelCase</strong>: <code>myVariable</code>, <code>firstName</code>, <code>totalScore</code>.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a <code>const</code> called <code>name</code> with your name, and a <code>let</code> called <code>year</code> set to <code>2026</code>. Log both on separate lines.</div>
+        <p>Use <strong>camelCase</strong>: <code>myVariable</code>, <code>firstName</code>, <code>totalScore</code>. Constants that never change are often written in <strong>UPPER_SNAKE_CASE</strong>: <code>MAX_SIZE</code>, <code>API_URL</code>.</p>
+        <h3>Why prefer const?</h3>
+        <p>Declaring with <code>const</code> signals to other developers (and your future self) that this value should never change. It prevents accidental reassignment bugs. Only reach for <code>let</code> when you know you need to reassign — like a counter in a loop.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a <code>const</code> called <code>name</code> with your name, and a <code>let</code> called <code>year</code> set to <code>2026</code>. Log both on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Your Name"</span>;
@@ -733,6 +792,12 @@ const LESSONS = {
     starter: `// Create your variables below\n\n`,
     check: (out) => out.trim().split('\n').filter(l => l.trim()).length >= 2,
     cheatsheet: [['let x = 5', 'Block-scoped variable'], ['const PI = 3.14', 'Constant (no reassign)'], ['var y = 10', 'Function-scoped (legacy)'], ['let a, b = 2, 3', 'Multiple declarations'], ['x = x + 1', 'Reassign (let only)']],
+    bonus: {
+      title: 'Log the sum',
+      desc: 'Declare a const called total set to name.length + year. Log total. (e.g. if name is "Alex" and year is 2026, total would be 2030)',
+      xp: 30,
+      check: (out, code) => code.includes('total') && out.trim().split('\n').filter(l => l.trim()).length >= 3,
+    },
   },
 
   3: {
@@ -755,9 +820,13 @@ const LESSONS = {
           <li><strong>null</strong> — intentional absence of value</li>
           <li><strong>undefined</strong> — declared but not assigned</li>
         </ul>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create 3 variables of different types (string, number, boolean). Log the <code>typeof</code> each one. Output must include <code>"string"</code> and <code>"number"</code>.</div>
+        <h3>Dynamic typing</h3>
+        <p>JavaScript is <strong>dynamically typed</strong> — the same variable can hold a string today and a number tomorrow. This is flexible but can lead to bugs if you're not careful. TypeScript (a superset of JS) adds static types to catch these issues at compile time.</p>
+        <h3>Type coercion surprises</h3>
+        <p>JS will silently convert types in some operations. <code>"5" + 3</code> gives <code>"53"</code> (string) but <code>"5" - 3</code> gives <code>2</code> (number). Always use <code>===</code> (strict) over <code>==</code> (loose) to avoid coercion in comparisons.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create 3 variables of different types (string, number, boolean). Log the <code>typeof</code> each one. Output must include <code>"string"</code> and <code>"number"</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">a</span> = <span class="st">"hello"</span>;
@@ -775,6 +844,12 @@ const LESSONS = {
     starter: `// Create 3 variables of different types and log their typeof\n\n`,
     check: (out) => out.includes("string") && out.includes("number"),
     cheatsheet: [['typeof x', 'Returns "number","string","boolean","object","undefined"'], ['Number("3.14")', 'String → number'], ['String(42)', 'Number → string'], ['Boolean(0)', 'Falsy → false'], ['null', 'Intentionally empty'], ['undefined', 'Not yet assigned'], ['NaN', 'Not a Number']],
+    bonus: {
+      title: 'Log all five types',
+      desc: 'Create variables for all 5 types: string, number, boolean, null, undefined. Log typeof each. Your output must include "boolean", "object", and "undefined".',
+      xp: 35,
+      check: (out) => out.includes("string") && out.includes("number") && out.includes("boolean") && out.includes("object") && out.includes("undefined"),
+    },
   },
 
   4: {
@@ -795,10 +870,15 @@ Line two
 Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">msg</span>);</div>
         <h3>Expressions inside <code>\${}</code></h3>
-        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`2 + 2 = \${<span class="nm">2</span> + <span class="nm">2</span>}\`</span>);  <span class="cm">// 2 + 2 = 4</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>name = "Alex"</code> and <code>score = 98</code>, use a template literal to print:<br><code>Alex scored 98 points!</code></div>
+        <p>Anything inside <code>\${}</code> is a JavaScript <em>expression</em> — math, function calls, ternaries — all evaluated and inserted as a string:</p>
+        <div class="code-block"><span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`2 + 2 = \${<span class="nm">2</span> + <span class="nm">2</span>}\`</span>);  <span class="cm">// 2 + 2 = 4</span>
+<span class="kw">const</span> <span class="vr">pass</span> = <span class="kw">true</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`Result: \${<span class="vr">pass</span> ? <span class="st">"pass"</span> : <span class="st">"fail"</span>}\`</span>);  <span class="cm">// Result: pass</span></div>
+        <h3>Before template literals</h3>
+        <p>The old way was string concatenation with <code>+</code>, which became unreadable fast: <code>"Hi " + name + ", score " + score + "!"</code>. Template literals are always cleaner — use them.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>name = "Alex"</code> and <code>score = 98</code>, use a template literal to print:<br><code>Alex scored 98 points!</code></div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">name</span> = <span class="st">"Alex"</span>;
@@ -810,6 +890,15 @@ Line three\`</span>;
     starter: `const name = "Alex";\nconst score = 98;\n// Use a template literal to print the message\n`,
     check: (out) => out.includes("Alex") && out.includes("98"),
     cheatsheet: [['`Hello, ${name}!`', 'Template literal'], ['`${a} + ${b} = ${a+b}`', 'Embed expression'], ['`multi\nline`', 'Multi-line string'], ['"a" + "b"', 'Concatenation → "ab"'], ['str.length', 'String length'], ['str.toUpperCase()', 'Uppercase'], ['str.includes("x")', 'Contains substring?']],
+    bonus: {
+      title: 'Multi-line card',
+      desc: 'Using one template literal (backticks), print a 3-line "card" that shows: the name on line 1, the score on line 2, and a grade "A+" on line 3. Output must include "A+".',
+      xp: 35,
+      check: (out, code) => {
+        const lines = out.trim().split('\n').map(l => l.trim()).filter(Boolean);
+        return lines.length >= 3 && out.includes("A+") && (code.includes('`') || code.includes('\\n'));
+      },
+    },
   },
 
   5: {
@@ -834,10 +923,19 @@ Line three\`</span>;
   <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"C"</span>);
 }</div>
         <h3>Comparison operators</h3>
-        <p>Use <code>===</code> (strict equality) instead of <code>==</code>. Avoid <code>==</code> in modern JS.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Set <code>speed = 85</code>. If speed is greater than 80, print <code>Too fast!</code>. Otherwise print <code>All good.</code></div>
+        <p>Use <code>===</code> (strict equality) instead of <code>==</code>. Avoid <code>==</code> in modern JS — it does type coercion, causing surprises like <code>0 == false</code> being <code>true</code>.</p>
+        <div class="code-block"><span class="cm">// Common operators</span>
+<span class="nm">5</span> === <span class="nm">5</span>    <span class="cm">// true  — strict equality</span>
+<span class="nm">5</span> !== <span class="nm">6</span>    <span class="cm">// true  — strict not-equal</span>
+<span class="nm">10</span> >= <span class="nm">10</span>   <span class="cm">// true  — greater or equal</span>
+<span class="kw">true</span> && <span class="kw">false</span>  <span class="cm">// false — logical AND</span>
+<span class="kw">true</span> || <span class="kw">false</span>  <span class="cm">// true  — logical OR</span>
+!<span class="kw">true</span>          <span class="cm">// false — logical NOT</span></div>
+        <h3>Truthy & falsy values</h3>
+        <p>In JavaScript, <code>if</code> doesn't require a boolean. These values are <strong>falsy</strong>: <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>, <code>false</code>. Everything else is <strong>truthy</strong>. This lets you write <code>if (name) {}</code> to check if name is non-empty.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Set <code>speed = 85</code>. If speed is greater than 80, print <code>Too fast!</code>. Otherwise print <code>All good.</code></div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">speed</span> = <span class="nm">85</span>;
@@ -855,6 +953,12 @@ Line three\`</span>;
     starter: `const speed = 85;\n// Write your if/else below\n\n`,
     check: (out) => out.includes("Too fast!"),
     cheatsheet: [['if (x > 0) {}', 'If condition'], ['else if (x < 0) {}', 'Else-if'], ['else {}', 'Default'], ['&& || !', 'Logical AND, OR, NOT'], ['=== !==', 'Strict equality (preferred)'], ['== !=', 'Loose equality (avoid)'], ['x > y ? a : b', 'Ternary operator']],
+    bonus: {
+      title: 'Three-tier speed check',
+      desc: 'Extend your code with else-if so there are 3 branches: speed > 100 prints "Dangerous!", speed > 80 prints "Too fast!", else prints "All good." Output must include "Dangerous!" (set speed to 120 to test).',
+      xp: 40,
+      check: (out, code) => out.includes("Dangerous!") && (code.includes('else if') || code.includes('else\nif')),
+    },
   },
 
   6: {
@@ -878,9 +982,20 @@ Line three\`</span>;
 <span class="kw">for</span> (<span class="kw">const</span> <span class="vr">fruit</span> <span class="kw">of</span> <span class="vr">fruits</span>) {
   <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">fruit</span>);
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Use a <code>for</code> loop to print the numbers <strong>1 through 5</strong>, one per line.</div>
+        <h3>break and continue</h3>
+        <p><code>break</code> exits the loop entirely. <code>continue</code> skips the current iteration and moves to the next:</p>
+        <div class="code-block"><span class="kw">for</span> (<span class="kw">let</span> <span class="vr">i</span> = <span class="nm">0</span>; <span class="vr">i</span> < <span class="nm">5</span>; <span class="vr">i</span>++) {
+  <span class="kw">if</span> (<span class="vr">i</span> === <span class="nm">3</span>) <span class="kw">break</span>;      <span class="cm">// stops at 3 — prints 0 1 2</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">i</span>);
+}
+
+<span class="kw">for</span> (<span class="kw">let</span> <span class="vr">i</span> = <span class="nm">0</span>; <span class="vr">i</span> < <span class="nm">5</span>; <span class="vr">i</span>++) {
+  <span class="kw">if</span> (<span class="vr">i</span> === <span class="nm">2</span>) <span class="kw">continue</span>;   <span class="cm">// skips 2 — prints 0 1 3 4</span>
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">i</span>);
+}</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Use a <code>for</code> loop to print the numbers <strong>1 through 5</strong>, one per line.</div>
         </div>
       </div>`,
     hint: `<p>Start at <code>i = 1</code> and loop while <code>i &lt;= 5</code>:</p>
@@ -893,6 +1008,12 @@ Line three\`</span>;
     starter: `// Print 1 through 5 using a for loop\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
     cheatsheet: [['for (let i=0; i<5; i++)', 'Classic for loop'], ['for (const x of arr)', 'For-of (values)'], ['for (const k in obj)', 'For-in (keys)'], ['while (x < 10) {}', 'While loop'], ['arr.forEach(x => ...)', 'Array forEach'], ['break / continue', 'Exit / skip iteration']],
+    bonus: {
+      title: 'Sum 1 to 10',
+      desc: 'Use a for loop to calculate the sum of all integers from 1 to 10, then log the result. Output must include "55".',
+      xp: 40,
+      check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('55'),
+    },
   },
 
   7: {
@@ -911,9 +1032,15 @@ Line three\`</span>;
 <span class="vr">fruits</span>.<span class="fn">pop</span>();             <span class="cm">// remove last</span>
 <span class="vr">fruits</span>.<span class="fn">includes</span>(<span class="st">"apple"</span>); <span class="cm">// true</span>
 <span class="vr">fruits</span>.<span class="fn">indexOf</span>(<span class="st">"banana"</span>); <span class="cm">// 1</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create <code>colors = ["red", "green", "blue"]</code>. Push <code>"yellow"</code> onto it. Log the new <code>length</code> (should be 4) and the first element (<code>"red"</code>).</div>
+        <h3>Slicing and joining</h3>
+        <p><code>slice(start, end)</code> extracts a portion without changing the original. <code>join()</code> converts an array to a string:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">three</span> = <span class="vr">fruits</span>.<span class="fn">slice</span>(<span class="nm">0</span>, <span class="nm">2</span>);  <span class="cm">// ["apple", "banana"]</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">fruits</span>.<span class="fn">join</span>(<span class="st">", "</span>));    <span class="cm">// "apple, banana, cherry"</span></div>
+        <h3>Arrays are objects</h3>
+        <p>In JavaScript, arrays are a special kind of object — <code>typeof []</code> returns <code>"object"</code>. To properly check if something is an array, use <code>Array.isArray(value)</code>.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create <code>colors = ["red", "green", "blue"]</code>. Push <code>"yellow"</code> onto it. Log the new <code>length</code> (should be 4) and the first element (<code>"red"</code>).</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">colors</span> = [<span class="st">"red"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>];
@@ -927,6 +1054,12 @@ Line three\`</span>;
     starter: `const colors = ["red", "green", "blue"];\n// Push "yellow", then log length and first element\n\n`,
     check: (out) => out.includes("4") && out.includes("red"),
     cheatsheet: [['const a = [1,2,3]', 'Create array'], ['a[0]', 'First element'], ['a.length', 'Number of items'], ['a.push(4)', 'Add to end'], ['a.pop()', 'Remove last'], ['a.includes(2)', 'Contains value?'], ['a.indexOf(2)', 'Position of value'], ['a.slice(1,3)', 'Subarray (non-mut.)']],
+    bonus: {
+      title: 'Slice the middle',
+      desc: 'After pushing "yellow", use .slice(1, 3) to extract a sub-array containing ["green","blue"] and log it. Output must include "green" and "blue".',
+      xp: 40,
+      check: (out, code) => code.includes('slice') && out.includes("green") && out.includes("blue"),
+    },
   },
 
   8: {
@@ -947,9 +1080,16 @@ Line three\`</span>;
         <div class="code-block"><span class="vr">person</span>.age = <span class="nm">22</span>;                   <span class="cm">// update</span>
 <span class="vr">person</span>.city = <span class="st">"London"</span>;            <span class="cm">// add new key</span>
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">Object</span>.<span class="fn">keys</span>(<span class="vr">person</span>));  <span class="cm">// ["name","age","active","city"]</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a <code>car</code> object with <code>brand</code>, <code>year</code>, and <code>electric</code> properties. Log all three values on separate lines.</div>
+        <h3>Iterating over an object</h3>
+        <p>Use <code>for...in</code> to loop over keys, or combine <code>Object.entries()</code> with <code>for...of</code> to get both key and value at once:</p>
+        <div class="code-block"><span class="kw">for</span> (<span class="kw">const</span> [<span class="vr">key</span>, <span class="vr">val</span>] <span class="kw">of</span> <span class="fn">Object</span>.<span class="fn">entries</span>(<span class="vr">person</span>)) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">\`\${<span class="vr">key</span>}: \${<span class="vr">val</span>}\`</span>);
+}</div>
+        <h3>Objects vs arrays</h3>
+        <p>Use an <strong>array</strong> when order matters and items are similar (a list of numbers, a list of names). Use an <strong>object</strong> when items have different roles and you need to look them up by name (user profile, config settings).</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a <code>car</code> object with <code>brand</code>, <code>year</code>, and <code>electric</code> properties. Log all three values on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">car</span> = {
@@ -971,6 +1111,12 @@ Line three\`</span>;
     starter: `// Create a car object with brand, year, electric\n// Then log all three values\n\n`,
     check: (out) => out.trim().split('\n').filter(l => l.trim()).length >= 3,
     cheatsheet: [['const obj = {a:1}', 'Create object'], ['obj.a', 'Dot notation'], ['obj["a"]', 'Bracket notation'], ['obj.a = 2', 'Set property'], ['"a" in obj', 'Property exists?'], ['Object.keys(obj)', 'All keys'], ['Object.values(obj)', 'All values'], ['{...obj}', 'Spread / shallow copy']],
+    bonus: {
+      title: 'Log all keys',
+      desc: 'Add a fourth property "color" to your car object, then use Object.keys() to log all key names. Output must include "color".',
+      xp: 40,
+      check: (out, code) => code.includes('Object.keys') && out.includes("color"),
+    },
   },
 
   9: {
@@ -992,9 +1138,9 @@ Line three\`</span>;
         <div class="code-block"><span class="kw">const</span> <span class="fn">square</span> = (<span class="vr">n</span>) => {
   <span class="kw">return</span> <span class="vr">n</span> * <span class="vr">n</span>;
 };</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write an arrow function <code>multiply(a, b)</code> that returns <code>a * b</code>. Log <code>multiply(6, 7)</code> — it should output <code>42</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write an arrow function <code>multiply(a, b)</code> that returns <code>a * b</code>. Log <code>multiply(6, 7)</code> — it should output <code>42</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="fn">multiply</span> = (<span class="vr">a</span>, <span class="vr">b</span>) => <span class="vr">a</span> * <span class="vr">b</span>;
@@ -1004,6 +1150,12 @@ Line three\`</span>;
     starter: `// Write your multiply arrow function here\n\n`,
     check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('42'),
     cheatsheet: [['function add(a,b) { return a+b; }', 'Declaration'], ['const add = (a,b) => a+b', 'Arrow function'], ['const fn = x => x*2', 'Single param, implicit return'], ['function hi(n="World") {}', 'Default parameter'], ['function sum(...nums) {}', 'Rest params'], ['(function(){})();', 'IIFE']],
+    bonus: {
+      title: 'Power with a default',
+      desc: 'Write an arrow function power(base, exp = 2) that returns base raised to exp. Log power(5) — should output 25. Log power(2, 10) — should output 1024. Output must include both "25" and "1024".',
+      xp: 45,
+      check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('25') && l.includes('1024'); },
+    },
   },
 
   10: {
@@ -1022,9 +1174,19 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">evens</span>);    <span class="cm">// [2]</span></div>
         <h3>.forEach() — run code for each element</h3>
         <div class="code-block"><span class="vr">nums</span>.<span class="fn">forEach</span>(<span class="vr">n</span> => <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">n</span>));  <span class="cm">// 1, 2, 3</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>nums = [1, 2, 3, 4, 5]</code>, use <code>.filter()</code> to get the even numbers and log the result. Output must include <code>2</code> and <code>4</code>.</div>
+        <h3>.reduce() — collapse to a single value</h3>
+        <p><code>reduce()</code> is the most powerful array method. It walks the array, accumulating a result. The second argument is the starting value:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">sum</span> = <span class="vr">nums</span>.<span class="fn">reduce</span>((<span class="vr">acc</span>, <span class="vr">n</span>) => <span class="vr">acc</span> + <span class="vr">n</span>, <span class="nm">0</span>);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">sum</span>);  <span class="cm">// 6  (1+2+3)</span></div>
+        <h3>Chaining methods</h3>
+        <p>Since <code>map()</code> and <code>filter()</code> return new arrays, you can chain them:</p>
+        <div class="code-block"><span class="kw">const</span> <span class="vr">result</span> = [<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>,<span class="nm">4</span>,<span class="nm">5</span>]
+  .<span class="fn">filter</span>(<span class="vr">n</span> => <span class="vr">n</span> % <span class="nm">2</span> !== <span class="nm">0</span>)  <span class="cm">// [1,3,5] — keep odds</span>
+  .<span class="fn">map</span>(<span class="vr">n</span> => <span class="vr">n</span> * <span class="nm">10</span>);          <span class="cm">// [10,30,50]</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">result</span>);</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>nums = [1, 2, 3, 4, 5]</code>, use <code>.filter()</code> to get the even numbers and log the result. Output must include <code>2</code> and <code>4</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">nums</span> = [<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>];
@@ -1036,6 +1198,12 @@ Line three\`</span>;
     starter: `const nums = [1, 2, 3, 4, 5];\n// Use .filter() to get even numbers and log the result\n\n`,
     check: (out) => out.includes("2") && out.includes("4"),
     cheatsheet: [['arr.map(x => x*2)', 'Transform each → new array'], ['arr.filter(x => x>0)', 'Keep matching items'], ['arr.reduce((acc,x) => acc+x, 0)', 'Accumulate value'], ['arr.find(x => x>3)', 'First match (or undefined)'], ['arr.some(x => x>3)', 'Any match? → boolean'], ['arr.every(x => x>0)', 'All match? → boolean'], ['arr.sort((a,b) => a-b)', 'Sort ascending']],
+    bonus: {
+      title: 'Sum with reduce',
+      desc: 'Use .reduce() to calculate the sum of all numbers in nums = [1,2,3,4,5]. Log the result. Output must include "15".',
+      xp: 45,
+      check: (out, code) => code.includes('reduce') && out.trim().split('\n').map(s=>s.trim()).includes('15'),
+    },
   },
 
   11: {
@@ -1060,9 +1228,9 @@ Line three\`</span>;
 
 <span class="kw">const</span> <span class="vr">orig</span> = { <span class="vr">x</span>: <span class="nm">1</span> };
 <span class="kw">const</span> <span class="vr">copy</span> = { ...<span class="vr">orig</span>, <span class="vr">y</span>: <span class="nm">2</span> };  <span class="cm">// { x: 1, y: 2 }</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Destructure <code>name</code> and <code>city</code> from <code>{name:"Sam", city:"Paris", age:30}</code> and log <code>name</code>. Output must include <code>"Sam"</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Destructure <code>name</code> and <code>city</code> from <code>{name:"Sam", city:"Paris", age:30}</code> and log <code>name</code>. Output must include <code>"Sam"</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">obj</span> = { <span class="vr">name</span>: <span class="st">"Sam"</span>, <span class="vr">city</span>: <span class="st">"Paris"</span>, <span class="vr">age</span>: <span class="nm">30</span> };
@@ -1075,6 +1243,12 @@ Line three\`</span>;
     starter: `const obj = { name: "Sam", city: "Paris", age: 30 };\n// Destructure name and city, then log name\n\n`,
     check: (out) => out.includes("Sam"),
     cheatsheet: [['const {a, b} = obj', 'Object destructuring'], ['const [x, y] = arr', 'Array destructuring'], ['const {a: alias} = obj', 'Rename on destructure'], ['const {a=1} = obj', 'Default on destructure'], ['[...arr, 4]', 'Spread into new array'], ['{...obj, key:val}', 'Spread + override'], ['const [first,...rest] = arr', 'Rest in destructure']],
+    bonus: {
+      title: 'Merge two arrays with spread',
+      desc: 'Create arrays a = [1,2,3] and b = [4,5,6]. Use spread to merge them into a third array c, then log c. Output must include all 6 numbers.',
+      xp: 45,
+      check: (out, code) => code.includes('...') && ['1','2','3','4','5','6'].every(n => out.includes(n)),
+    },
   },
 
   12: {
@@ -1104,9 +1278,22 @@ Line three\`</span>;
 } <span class="kw">finally</span> {
   <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Always runs"</span>);
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Use <code>try/catch</code> to attempt <code>JSON.parse("not json")</code>. Catch the error and log <code>"Parse failed!"</code>.</div>
+        <h3>Throwing your own errors</h3>
+        <p>Use <code>throw new Error("message")</code> to raise an error intentionally — useful for validating inputs:</p>
+        <div class="code-block"><span class="kw">function</span> <span class="fn">divide</span>(<span class="vr">a</span>, <span class="vr">b</span>) {
+  <span class="kw">if</span> (<span class="vr">b</span> === <span class="nm">0</span>) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="st">"Cannot divide by zero"</span>);
+  <span class="kw">return</span> <span class="vr">a</span> / <span class="vr">b</span>;
+}
+<span class="kw">try</span> {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">divide</span>(<span class="nm">10</span>, <span class="nm">0</span>));
+} <span class="kw">catch</span> (<span class="vr">e</span>) {
+  <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">e</span>.message);  <span class="cm">// Cannot divide by zero</span>
+}</div>
+        <h3>Error types</h3>
+        <p>JavaScript has built-in error subtypes: <code>TypeError</code>, <code>RangeError</code>, <code>SyntaxError</code>. Use <code>instanceof</code> in catch to handle them differently when needed.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Use <code>try/catch</code> to attempt <code>JSON.parse("not json")</code>. Catch the error and log <code>"Parse failed!"</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">try</span> {
@@ -1122,6 +1309,12 @@ Line three\`</span>;
     starter: `// Use try/catch to parse "not json" and handle the error\n\n`,
     check: (out) => out.includes("Parse failed!"),
     cheatsheet: [['try { } catch(e) { }', 'Try-catch'], ['catch (e) { console.log(e.message) }', 'Error message'], ['finally { }', 'Always runs'], ['throw new Error("msg")', 'Throw error'], ['throw new TypeError("msg")', 'Typed error'], ['e instanceof TypeError', 'Check error type']],
+    bonus: {
+      title: 'Throw your own error',
+      desc: 'Write a function checkAge(age) that throws new Error("Too young!") if age < 18. Call it with 15 inside a try/catch and log the error message. Output must include "Too young!".',
+      xp: 50,
+      check: (out, code) => out.includes("Too young!") && code.includes('throw') && code.includes('catch'),
+    },
   },
 
   13: {
@@ -1148,9 +1341,9 @@ Line three\`</span>;
   }
 }
 <span class="kw">new</span> <span class="fn">Dog</span>(<span class="st">"Buddy"</span>).<span class="fn">speak</span>();  <span class="cm">// Buddy barks!</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a <code>class Rectangle</code> with a constructor taking <code>width</code> and <code>height</code>, and a method <code>area()</code> that returns <code>width * height</code>. Create an instance with width 4 and height 5, then log <code>area()</code> — should output <code>20</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a <code>class Rectangle</code> with a constructor taking <code>width</code> and <code>height</code>, and a method <code>area()</code> that returns <code>width * height</code>. Create an instance with width 4 and height 5, then log <code>area()</code> — should output <code>20</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Rectangle</span> {
@@ -1178,6 +1371,12 @@ Line three\`</span>;
     starter: `// Define class Rectangle with constructor and area()\n\n`,
     check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('20'),
     cheatsheet: [['class Animal { }', 'Define class'], ['constructor(name) {}', 'Constructor method'], ['this.name = name', 'Instance property'], ['new Animal("Cat")', 'Create instance'], ['greet() { }', 'Instance method'], ['class Dog extends Animal {}', 'Inheritance'], ['super(name)', 'Call parent constructor'], ['static count = 0', 'Static property']],
+    bonus: {
+      title: 'Add a perimeter method',
+      desc: 'Add a perimeter() method to your Rectangle class that returns 2 * (width + height). Log it for width=4, height=5. Output must include "18".',
+      xp: 50,
+      check: (out, code) => code.includes('perimeter') && out.trim().split('\n').map(s=>s.trim()).includes('18'),
+    },
   },
 
   14: {
@@ -1200,10 +1399,18 @@ Line three\`</span>;
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">inc</span>());  <span class="cm">// 3</span></div>
         <p>Each call to <code>inc()</code> increments the same <code>count</code> — it persists inside the closure.</p>
         <h3>Lexical scope</h3>
-        <p>Inner functions can always read and write variables from their outer scope. This is called <strong>lexical scoping</strong>.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a function <code>makeCounter()</code> that returns a function which increments and logs an internal counter. Call the returned function 3 times. Output must include <code>1</code>, <code>2</code>, and <code>3</code>.</div>
+        <p>Inner functions can always read and write variables from their outer scope. This is called <strong>lexical scoping</strong> — the scope is determined by where the function is <em>written</em>, not where it is called.</p>
+        <h3>Why closures matter</h3>
+        <p>Closures power some of JavaScript's most important patterns:</p>
+        <ul>
+          <li><strong>Data privacy</strong> — variables inside a closure can't be accessed from outside</li>
+          <li><strong>Factory functions</strong> — create customised functions on the fly (like <code>makeCounter()</code>)</li>
+          <li><strong>Memoisation</strong> — cache expensive function results using a closure-held object</li>
+          <li><strong>Event handlers</strong> — callbacks often close over variables from the surrounding component</li>
+        </ul>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a function <code>makeCounter()</code> that returns a function which increments and logs an internal counter. Call the returned function 3 times. Output must include <code>1</code>, <code>2</code>, and <code>3</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">makeCounter</span>() {
@@ -1231,6 +1438,15 @@ Line three\`</span>;
     starter: `// Write makeCounter() that returns a counter function\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('1') && l.includes('2') && l.includes('3'); },
     cheatsheet: [['function outer() { let x=1; return function() { return x; } }', 'Closure: inner accesses outer var'], ['let count = makeCounter()', 'Use closure factory'], ['const cache = {}; return (n) => cache[n] ??= f(n)', 'Memoization'], ['let x = 1; { let x = 2; }', 'Block scope (let)'], ['var y = 1', 'Function scope (hoisted)']],
+    bonus: {
+      title: 'Independent counters',
+      desc: 'Call makeCounter() twice to create two independent counters (counterA, counterB). Call counterA 3 times and counterB 2 times. Log all calls. Output must contain "3" from counterA and "2" from counterB running independently.',
+      xp: 50,
+      check: (out, code) => {
+        const lines = out.trim().split('\n').map(s=>s.trim()).filter(Boolean);
+        return lines.length >= 5 && lines.includes('3') && lines.includes('2') && (code.match(/makeCounter/g) || []).length >= 2;
+      },
+    },
   },
 
   15: {
@@ -1252,10 +1468,27 @@ Line three\`</span>;
   <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">result</span>);  <span class="cm">// data loaded</span>
 }
 <span class="fn">fetchData</span>();</div>
-        <p><code>await</code> pauses execution inside an <code>async</code> function until the Promise resolves. The rest of your code keeps running.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write an <code>async</code> function <code>getData()</code> that awaits <code>Promise.resolve("Helix data loaded")</code> and logs the result. Call it. Output must include <code>"Helix data loaded"</code>.</div>
+        <p><code>await</code> pauses execution inside an <code>async</code> function until the Promise resolves. The rest of your code keeps running — only that one function is paused.</p>
+        <h3>Handling errors in async code</h3>
+        <p>Wrap <code>await</code> calls in <code>try/catch</code> to handle failures gracefully:</p>
+        <div class="code-block"><span class="kw">async function</span> <span class="fn">load</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> <span class="vr">data</span> = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">reject</span>(<span class="kw">new</span> <span class="fn">Error</span>(<span class="st">"Network error"</span>));
+  } <span class="kw">catch</span> (<span class="vr">e</span>) {
+    <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">e</span>.message);  <span class="cm">// Network error</span>
+  }
+}
+<span class="fn">load</span>();</div>
+        <h3>Running tasks in parallel</h3>
+        <p><code>Promise.all()</code> runs multiple async tasks at the same time and waits for all of them. This is much faster than awaiting them one by one:</p>
+        <div class="code-block"><span class="kw">const</span> [<span class="vr">a</span>, <span class="vr">b</span>] = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">all</span>([
+  <span class="fn">Promise</span>.<span class="fn">resolve</span>(<span class="st">"first"</span>),
+  <span class="fn">Promise</span>.<span class="fn">resolve</span>(<span class="st">"second"</span>)
+]);
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">a</span>, <span class="vr">b</span>);  <span class="cm">// first second</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write an <code>async</code> function <code>getData()</code> that awaits <code>Promise.resolve("Helix data loaded")</code> and logs the result. Call it. Output must include <code>"Helix data loaded"</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">async function</span> <span class="fn">getData</span>() {
@@ -1271,6 +1504,12 @@ Line three\`</span>;
     starter: `// Write async function getData() that logs "Helix data loaded"\n\n`,
     check: (out) => out.includes("Helix data loaded"),
     cheatsheet: [['async function f() {}', 'Async function'], ['await promise', 'Wait for promise (inside async)'], ['const r = await fetch(url)', 'Fetch API'], ['const data = await r.json()', 'Parse JSON response'], ['Promise.resolve(val)', 'Resolved promise'], ['Promise.all([p1,p2])', 'Await multiple'], ['try/catch around await', 'Handle async errors']],
+    bonus: {
+      title: 'Await two promises',
+      desc: 'Use Promise.all() to await two promises at once: Promise.resolve("first") and Promise.resolve("second"). Destructure the results and log both. Output must include "first" and "second".',
+      xp: 55,
+      check: (out, code) => out.includes("first") && out.includes("second") && code.includes('Promise.all'),
+    },
   },
 };
 
@@ -1437,15 +1676,92 @@ function updateLineNums() {
   const n = editor.value.split('\n').length;
   document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
-editor.addEventListener('input', updateLineNums);
-editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+
+// ─── JavaScript Syntax Highlighter ──────────────────────────
+const JS_KEYWORDS = new Set(['break','case','catch','class','const','continue','debugger',
+  'default','delete','do','else','export','extends','false','finally','for','function',
+  'if','import','in','instanceof','let','new','null','return','static','super','switch',
+  'this','throw','true','try','typeof','undefined','var','void','while','with','yield',
+  'async','await','of']);
+const JS_BUILTINS = new Set(['console','Math','Array','Object','String','Number','Boolean',
+  'JSON','Promise','Date','Error','Map','Set','Symbol','parseInt','parseFloat','isNaN',
+  'isFinite','setTimeout','clearTimeout','setInterval','clearInterval','fetch',
+  'document','window','alert','confirm','log','warn','error','push','pop','map',
+  'filter','reduce','forEach','find','some','every','includes','length','keys','values']);
+
+function jsHighlight(src) {
+  let out = ''; let i = 0; const n = src.length;
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  while (i < n) {
+    // Line comment
+    if (src[i]==='/' && src[i+1]==='/') {
+      let j = i; while (j < n && src[j] !== '\n') j++;
+      out += `<span class="cm">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Block comment
+    if (src[i]==='/' && src[i+1]==='*') {
+      let j = i+2; while (j < n-1 && !(src[j]==='*' && src[j+1]==='/')) j++;
+      j += 2;
+      out += `<span class="cm">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Template literal
+    if (src[i]==='`') {
+      let j = i+1;
+      while (j < n && src[j]!=='`') { if (src[j]==='\\') j++; j++; }
+      j++;
+      out += `<span class="st">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // String literals
+    if (src[i]==='"' || src[i]==="'") {
+      const q = src[i]; let j = i+1;
+      while (j < n && src[j] !== q && src[j] !== '\n') { if (src[j]==='\\') j++; j++; }
+      j++;
+      out += `<span class="st">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Numbers
+    if (src[i] >= '0' && src[i] <= '9') {
+      let j = i;
+      while (j < n && (src[j] >= '0' && src[j] <= '9' || src[j]==='.' || src[j]==='x' ||
+             (src[j] >= 'a' && src[j] <= 'f') || (src[j] >= 'A' && src[j] <= 'F'))) j++;
+      out += `<span class="nm">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Identifiers
+    if ((src[i] >= 'a' && src[i] <= 'z') || (src[i] >= 'A' && src[i] <= 'Z') || src[i]==='_' || src[i]==='$') {
+      let j = i;
+      while (j < n && ((src[j] >= 'a' && src[j] <= 'z') || (src[j] >= 'A' && src[j] <= 'Z') ||
+             (src[j] >= '0' && src[j] <= '9') || src[j]==='_' || src[j]==='$')) j++;
+      const word = src.slice(i,j);
+      if (JS_KEYWORDS.has(word))       out += `<span class="kw">${esc(word)}</span>`;
+      else if (JS_BUILTINS.has(word))  out += `<span class="fn">${esc(word)}</span>`;
+      else out += `<span class="vr">${esc(word)}</span>`;
+      i = j; continue;
+    }
+    out += esc(src[i]); i++;
+  }
+  return out;
+}
+
+const hlPre = document.getElementById('hl-pre');
+function updateHighlight() {
+  hlPre.innerHTML = jsHighlight(editor.value) + '\n';
+}
+updateHighlight();
+
+function syncScroll() {
+  hlPre.scrollTop  = editor.scrollTop;
+  hlPre.scrollLeft = editor.scrollLeft;
+  document.getElementById('line-nums').scrollTop = editor.scrollTop;
+}
+
+editor.addEventListener('input', () => { updateLineNums(); updateHighlight(); });
+editor.addEventListener('scroll', syncScroll);
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') {
     e.preventDefault();
     const s = editor.selectionStart, end = editor.selectionEnd;
     editor.value = editor.value.substring(0, s) + '  ' + editor.value.substring(end);
     editor.selectionStart = editor.selectionEnd = s + 2;
-    updateLineNums();
+    updateLineNums(); updateHighlight();
     return;
   }
   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -1461,9 +1777,21 @@ editor.addEventListener('keydown', (e) => {
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
   editor.value = lesson.starter || '';
-  updateLineNums();
+  updateLineNums(); updateHighlight();
   setOutput([{type:'placeholder', text:'Code reset.'}], 'idle');
 });
+
+// ─── Bonus challenge ─────────────────────────────────────────
+let bonusCompleted = false;
+(function() {
+  const b = lesson.bonus;
+  if (!b) return;
+  const box = document.getElementById('bonus-box');
+  box.style.display = '';
+  document.getElementById('bonus-title').textContent = b.title;
+  document.getElementById('bonus-desc').textContent  = b.desc;
+  document.getElementById('btn-bonus-submit').addEventListener('click', () => runCode(false, true));
+})();
 
 // ═══════════════════════════════════════════════════════════
 // COLLAPSIBLES
@@ -1529,7 +1857,7 @@ const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 // ═══════════════════════════════════════════════════════════
 let outputLines = [];
 
-async function runCode(forSubmit = false) {
+async function runCode(forSubmit = false, forBonus = false) {
   // Guard: only comments / whitespace = nothing written yet
   const hasRealCode = editor.value.split('\n').some(l => {
     const t = l.trim();
@@ -1543,6 +1871,8 @@ async function runCode(forSubmit = false) {
   setOutput([{type:'placeholder', text:''}], 'running');
   document.getElementById('btn-run').disabled    = true;
   document.getElementById('btn-submit').disabled = true;
+  const bonusBtn = document.getElementById('btn-bonus-submit');
+  if (bonusBtn) bonusBtn.disabled = true;
 
   const origLog  = console.log;
   const origWarn = console.warn;
@@ -1568,9 +1898,41 @@ async function runCode(forSubmit = false) {
   setOutput(outputLines, hasErr ? 'error' : 'ok');
   document.getElementById('btn-run').disabled    = false;
   document.getElementById('btn-submit').disabled = false;
+  if (bonusBtn) bonusBtn.disabled = false;
 
   if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forBonus) { checkBonus(); return; }
   if (forSubmit) checkAnswer();
+}
+
+function checkBonus() {
+  if (!lesson.bonus || bonusCompleted) return;
+  const out  = outputLines.map(l=>l.text).join('\n');
+  const code = editor.value;
+  const fb   = document.getElementById('bonus-feedback');
+  const btn  = document.getElementById('btn-bonus-submit');
+  if (lesson.bonus.check(out, code)) {
+    bonusCompleted = true;
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP`;
+    fb.className = 'bonus-feedback success';
+    btn.disabled = true; btn.textContent = '✅ Done';
+    const state = loadState();
+    const bonusKey = `helix_js_bonus_${lessonId}`;
+    if (!localStorage.getItem(bonusKey)) {
+      localStorage.setItem(bonusKey, '1');
+      state.xp += lesson.bonus.xp; state.level = getLevel(state.xp);
+      saveState(state);
+      document.getElementById('nav-xp').textContent = state.xp;
+      const today = new Date().toISOString().slice(0,10);
+      const log = JSON.parse(localStorage.getItem('helix_xp_log') || '{}');
+      log[today] = (log[today] || 0) + lesson.bonus.xp;
+      localStorage.setItem('helix_xp_log', JSON.stringify(log));
+    }
+  } else {
+    fb.textContent = '✗ Not quite — read the bonus description carefully!';
+    fb.className = 'bonus-feedback fail';
+    setTimeout(() => { fb.className = 'bonus-feedback'; fb.style.display = 'none'; }, 2800);
+  }
 }
 
 document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
