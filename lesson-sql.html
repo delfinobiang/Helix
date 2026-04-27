@@ -133,21 +133,42 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.9; overflow-x: auto;
+      line-height: 1.9; overflow-x: auto; white-space: pre-wrap;
     }
     .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
     .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
 
-    .challenge-box {
+    .objective-box {
       margin: 1.5rem 0 0;
       background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
       border-radius: 14px; padding: 1.2rem 1.3rem;
     }
-    .challenge-label {
+    .objective-label {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
       color: var(--primary); margin-bottom: 0.6rem;
     }
-    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .objective-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    .bonus-box {
+      margin: 1.5rem 0 0;
+      background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.22);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .bonus-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 0.3rem;
+    }
+    .bonus-title { font-size: 0.9rem; color: var(--text); font-weight: 700; margin-bottom: 0.4rem; }
+    .bonus-text  { font-size: 0.85rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.9rem; }
+    .btn-bonus-submit {
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3);
+      color: var(--green); font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .btn-bonus-submit:hover { background: rgba(16,185,129,0.2); transform: translateY(-1px); }
+    .btn-bonus-submit:disabled { opacity: 0.4; pointer-events: none; }
+    .bonus-feedback { font-size: 0.82rem; margin-top: 0.6rem; min-height: 1.2em; font-weight: 600; }
 
     /* Hint / solution */
     .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -201,7 +222,7 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
-      overflow-x: auto;
+      overflow-x: auto; white-space: pre-wrap;
     }
 
     /* ─── RIGHT PANEL ─────────────────────────────────────── */
@@ -242,9 +263,21 @@
       background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
       min-width: 44px; overflow: hidden; flex-shrink: 0;
     }
+    .editor-code-area {
+      flex: 1; position: relative; overflow: hidden; min-height: 0;
+      background: #050C1A;
+    }
+    .hl-pre {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 4; white-space: pre-wrap;
+      word-break: break-all; overflow: hidden; margin: 0;
+      color: transparent; background: transparent;
+    }
     .editor-textarea {
-      flex: 1; resize: none; border: none; outline: none;
-      background: #050C1A; color: #D4D4F8;
+      position: absolute; inset: 0; z-index: 1;
+      resize: none; border: none; outline: none;
+      background: transparent; color: transparent;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
       padding: 1.1rem 1.2rem; tab-size: 4;
       caret-color: var(--primary);
@@ -410,6 +443,13 @@
         </button>
         <div class="collapsible-body" id="solution-body"></div>
       </div>
+      <div class="bonus-box" id="bonus-box" style="display:none">
+        <div class="bonus-label">⭐ Bonus Challenge</div>
+        <div class="bonus-title" id="bonus-title"></div>
+        <div class="bonus-text"  id="bonus-desc"></div>
+        <button class="btn-bonus-submit" id="btn-bonus-submit">Submit Bonus ⚡</button>
+        <div class="bonus-feedback" id="bonus-feedback"></div>
+      </div>
     </div>
   </div>
 
@@ -428,10 +468,13 @@
         <div class="py-loader-text">Loading SQL engine…</div>
       </div>
       <div class="line-nums" id="line-nums">1</div>
-      <textarea
-        class="editor-textarea" id="editor"
-        spellcheck="false" autocorrect="off" autocapitalize="off"
-        placeholder="-- Write your SQL here..."></textarea>
+      <div class="editor-code-area">
+        <pre class="hl-pre" id="hl-pre" aria-hidden="true"> </pre>
+        <textarea
+          class="editor-textarea" id="editor"
+          spellcheck="false" autocorrect="off" autocapitalize="off"
+          placeholder="-- Write your SQL here..."></textarea>
+      </div>
     </div>
     <div class="output-panel">
       <div class="output-header">
@@ -504,9 +547,13 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
         <p>This reads: "select all columns from the users table." The semicolon ends the statement.</p>
         <h3>The users table</h3>
         <p>For this lesson a table has already been created with three columns — <code>id</code>, <code>name</code>, and <code>age</code> — and three rows of data.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a query that selects <strong>all rows and all columns</strong> from the <code>users</code> table.</div>
+        <h3>Why SQL?</h3>
+        <p>Databases power almost every application you use — from social media feeds to e-commerce carts. SQL lets you ask precise questions: "show me all users older than 25" or "find the top-selling product last week." It's one of the most universally useful skills a developer can have.</p>
+        <h3>Statement structure</h3>
+        <p>Every SQL statement follows a predictable pattern. The most basic form is <code>SELECT columns FROM table</code>. SQL is case-insensitive, but writing keywords in uppercase (<code>SELECT</code>, <code>FROM</code>) is a widely followed convention that makes queries easier to scan.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a query that selects <strong>all rows and all columns</strong> from the <code>users</code> table.</div>
         </div>
       </div>`,
     hint: `<p>Use the wildcard <code>*</code> to select every column:</p>
@@ -516,6 +563,15 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
     check: (out, code, lines) => {
       const flat = lines.map(l => l.vals ? l.vals.join(' ') : (l.cols ? l.cols.join(' ') : '')).join(' ');
       return flat.includes('Alice') && flat.includes('Bob');
+    },
+    bonus: {
+      title: "Count the rows",
+      desc: "Use SELECT COUNT(*) FROM users to find out how many rows the table has. Your output should contain the number 3.",
+      xp: 25,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /COUNT/i.test(code) && flat.includes('3');
+      },
     },
   },
 
@@ -533,9 +589,13 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
         <h3>Column order</h3>
         <p>You control the order columns appear in the output by changing the order in your SELECT list:</p>
         <div class="code-block"><span class="kw">SELECT</span> <span class="vr">age</span>, <span class="vr">name</span> <span class="kw">FROM</span> <span class="vr">users</span>; <span class="cm">-- age column first</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select only the <code>name</code> and <code>age</code> columns from the <code>users</code> table (do <strong>not</strong> use <code>SELECT *</code>).</div>
+        <h3>Column aliases</h3>
+        <p>You can rename a column in the output with <code>AS</code>:</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">name</span> <span class="kw">AS</span> <span class="vr">full_name</span>, <span class="vr">age</span> <span class="kw">AS</span> <span class="vr">years</span> <span class="kw">FROM</span> <span class="vr">users</span>;</div>
+        <p>Aliases make output more readable, especially when working with calculated columns or joining tables where names would clash.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select only the <code>name</code> and <code>age</code> columns from the <code>users</code> table (do <strong>not</strong> use <code>SELECT *</code>).</div>
         </div>
       </div>`,
     hint: `<p>List the column names after SELECT, separated by a comma:</p>
@@ -545,6 +605,17 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
     check: (out, code, lines) => {
       const flat = lines.map(l => l.vals ? l.vals.join(' ') : (l.cols ? l.cols.join(' ') : '')).join(' ');
       return flat.includes('Alice') && /name/i.test(code) && !/SELECT\s+\*/i.test(code);
+    },
+    bonus: {
+      title: "Alias both columns",
+      desc: "Select name AS full_name and age AS years from users. Both aliased column names must appear in the header row.",
+      xp: 30,
+      check: (out, code, lines) => {
+        const header = lines.find(l => l.type === 'header');
+        if (!header) return false;
+        const cols = header.cols.join(' ').toLowerCase();
+        return cols.includes('full_name') && cols.includes('years');
+      },
     },
   },
 
@@ -566,9 +637,12 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
         </ul>
         <h3>Text comparison</h3>
         <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">name</span> = <span class="st">'Alice'</span>; <span class="cm">-- single quotes for strings</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select all users where <code>age &gt; 28</code>. Alice (30) and Carol (35) should appear; Bob (25) should not.</div>
+        <h3>LIKE — pattern matching</h3>
+        <p>Use <code>LIKE</code> to search text with wildcards. <code>%</code> matches any sequence of characters:</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span> <span class="kw">WHERE</span> <span class="vr">name</span> <span class="kw">LIKE</span> <span class="st">'A%'</span>; <span class="cm">-- names starting with A</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select all users where <code>age &gt; 28</code>. Alice (30) and Carol (35) should appear; Bob (25) should not.</div>
         </div>
       </div>`,
     hint: `<p>Add a WHERE clause after the table name:</p>
@@ -578,6 +652,15 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
     check: (out, code, lines) => {
       const flat = lines.map(l => l.vals ? l.vals.join(' ') : '').join(' ');
       return flat.includes('Alice') && flat.includes('Carol') && !flat.includes('Bob');
+    },
+    bonus: {
+      title: "Find users by name pattern",
+      desc: "Use WHERE name LIKE 'C%' to find users whose name starts with C. Only Carol should appear.",
+      xp: 30,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /LIKE/i.test(code) && flat.includes('Carol') && !flat.includes('Alice') && !flat.includes('Bob');
+      },
     },
   },
 
@@ -598,9 +681,12 @@ INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
         <h3>Sort by multiple columns</h3>
         <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
   <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>, <span class="vr">name</span> <span class="kw">ASC</span>;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select all players ordered by <code>score</code> descending (highest first). Bob (920) should come first.</div>
+        <p>The second sort column breaks ties — if two players have the same score, their names are sorted alphabetically.</p>
+        <h3>Sorting text</h3>
+        <p>ORDER BY works on text columns too, sorting alphabetically. <code>ORDER BY name ASC</code> gives A → Z; <code>DESC</code> gives Z → A.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select all players ordered by <code>score</code> descending (highest first). Bob (920) should come first.</div>
         </div>
       </div>`,
     hint: `<p>Use <code>ORDER BY score DESC</code> at the end of your query:</p>
@@ -614,6 +700,15 @@ INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
       if (rows.length < 2) return false;
       const firstRow = rows[0].vals.join(' ');
       return firstRow.includes('Bob');
+    },
+    bonus: {
+      title: "Sort by name alphabetically",
+      desc: "Select all players ordered by name ASC (A to Z). Alice should be in the first row.",
+      xp: 35,
+      check: (out, code, lines) => {
+        const rows = lines.filter(l => l.type === 'row');
+        return /ORDER\s+BY\s+name/i.test(code) && rows.length > 0 && rows[0].vals.join(' ').includes('Alice');
+      },
     },
   },
 
@@ -634,9 +729,11 @@ INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
         <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">players</span>
   <span class="kw">ORDER BY</span> <span class="vr">score</span> <span class="kw">DESC</span>
   <span class="kw">LIMIT</span> <span class="nm">2</span> <span class="kw">OFFSET</span> <span class="nm">1</span>; <span class="cm">-- rows 2 and 3</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select the <strong>top 2 players</strong> by score (highest first). Your result should have exactly 2 data rows.</div>
+        <h3>Real-world use: pagination</h3>
+        <p>Every social feed or search results page uses <code>LIMIT</code>/<code>OFFSET</code> behind the scenes. "Page 3 of results, 10 per page" translates to <code>LIMIT 10 OFFSET 20</code>.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select the <strong>top 2 players</strong> by score (highest first). Your result should have exactly 2 data rows.</div>
         </div>
       </div>`,
     hint: `<p>Combine ORDER BY DESC with LIMIT:</p>
@@ -650,6 +747,15 @@ INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
     check: (out, code, lines) => {
       const rows = lines.filter(l => l.type === 'row');
       return rows.length === 2 && /LIMIT/i.test(code);
+    },
+    bonus: {
+      title: "Page 2 of results",
+      desc: "Use LIMIT 1 OFFSET 1 to get the second-place player (Bob, 920 → skip; Carol, 780 → skip; Alice, 850 ordered DESC means Bob first). With ORDER BY score DESC, OFFSET 1 should give Alice.",
+      xp: 35,
+      check: (out, code, lines) => {
+        const rows = lines.filter(l => l.type === 'row');
+        return /OFFSET/i.test(code) && rows.length === 1 && rows[0].vals.join(' ').includes('Alice');
+      },
     },
   },
 
@@ -672,9 +778,13 @@ INSERT INTO products VALUES ('Apple',0.99,1),('Banana',0.5,1),('Cherry',2.99,0),
         <h3>Grouping with parentheses</h3>
         <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
   <span class="kw">WHERE</span> (<span class="vr">price</span> < <span class="nm">2</span> <span class="kw">OR</span> <span class="vr">price</span> > <span class="nm">4</span>) <span class="kw">AND</span> <span class="vr">in_stock</span> = <span class="nm">1</span>;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select products where <code>price &lt; 2</code> <strong>AND</strong> <code>in_stock = 1</code>. Apple and Banana should appear.</div>
+        <h3>NOT — exclude rows</h3>
+        <p>Prefix a condition with <code>NOT</code> to invert it:</p>
+        <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">products</span>
+  <span class="kw">WHERE</span> <span class="kw">NOT</span> <span class="vr">in_stock</span> = <span class="nm">0</span>; <span class="cm">-- same as in_stock = 1</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select products where <code>price &lt; 2</code> <strong>AND</strong> <code>in_stock = 1</code>. Apple and Banana should appear.</div>
         </div>
       </div>`,
     hint: `<p>Use AND to require both conditions:</p>
@@ -686,6 +796,15 @@ INSERT INTO products VALUES ('Apple',0.99,1),('Banana',0.5,1),('Cherry',2.99,0),
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return flat.includes('Apple') && flat.includes('Banana');
+    },
+    bonus: {
+      title: "Expensive OR out of stock",
+      desc: "Select all products where price > 3 OR in_stock = 0. Cherry (out of stock) and Date (expensive) should both appear.",
+      xp: 40,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /OR/i.test(code) && flat.includes('Cherry') && flat.includes('Date');
+      },
     },
   },
 
@@ -706,9 +825,11 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
         <div class="code-block"><span class="kw">INSERT INTO</span> <span class="vr">users</span> <span class="kw">VALUES</span>
   (<span class="nm">4</span>, <span class="st">'David'</span>, <span class="nm">28</span>),
   (<span class="nm">5</span>, <span class="st">'Eve'</span>, <span class="nm">22</span>);</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Insert a new user: id <code>4</code>, name <code>'David'</code>, age <code>28</code>. Then <code>SELECT *</code> from users to see all rows including David.</div>
+        <h3>Best practice: always name columns</h3>
+        <p>Explicitly listing column names is safer — if the table schema changes (columns added or reordered), your INSERT still works correctly. Relying on positional order is fragile.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Insert a new user: id <code>4</code>, name <code>'David'</code>, age <code>28</code>. Then <code>SELECT *</code> from users to see all rows including David.</div>
         </div>
       </div>`,
     hint: `<p>Write the INSERT first, then a SELECT to verify:</p>
@@ -720,6 +841,15 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return flat.includes('David');
+    },
+    bonus: {
+      title: "Insert two users at once",
+      desc: "Insert both David (id 4, age 28) and Eve (id 5, age 22) in a single INSERT statement, then SELECT * to confirm both appear.",
+      xp: 40,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return flat.includes('David') && flat.includes('Eve') && (code.match(/VALUES/gi)||[]).length === 1;
+      },
     },
   },
 
@@ -739,9 +869,11 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
         <div class="code-block"><span class="kw">UPDATE</span> <span class="vr">users</span>
   <span class="kw">SET</span> <span class="vr">age</span> = <span class="nm">31</span>, <span class="vr">name</span> = <span class="st">'Alicia'</span>
   <span class="kw">WHERE</span> <span class="vr">id</span> = <span class="nm">1</span>;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Update Alice's age to <code>31</code>, then <code>SELECT name, age FROM users WHERE name = 'Alice'</code> to confirm the change.</div>
+        <h3>Danger: UPDATE without WHERE</h3>
+        <p>Running <code>UPDATE users SET age = 0</code> with no WHERE clause sets <em>every</em> user's age to 0. Always add WHERE first, and test your condition with a SELECT before running UPDATE in production.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Update Alice's age to <code>31</code>, then <code>SELECT name, age FROM users WHERE name = 'Alice'</code> to confirm the change.</div>
         </div>
       </div>`,
     hint: `<p>Run UPDATE then SELECT to verify:</p>
@@ -762,6 +894,15 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return flat.includes('31');
     },
+    bonus: {
+      title: "Update multiple columns at once",
+      desc: "In a single UPDATE, change Carol's age to 36 AND set her id to 10. Then SELECT * to confirm both values appear.",
+      xp: 40,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /SET[\s\S]+,/.test(code) && flat.includes('36') && flat.includes('10');
+      },
+    },
   },
 
   9: {
@@ -780,9 +921,15 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
   <span class="kw">WHERE</span> <span class="vr">id</span> = <span class="nm">2</span>;
 
 <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="vr">users</span>; <span class="cm">-- should show Alice and Carol only</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Delete the user where <code>name = 'Bob'</code>, then <code>SELECT *</code> to show the remaining rows. Bob should no longer appear.</div>
+        <h3>DELETE vs TRUNCATE vs DROP</h3>
+        <ul>
+          <li><code>DELETE FROM table WHERE …</code> — removes specific rows</li>
+          <li><code>DELETE FROM table</code> — removes all rows (but table structure stays)</li>
+          <li><code>DROP TABLE table</code> — removes the entire table including its structure</li>
+        </ul>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Delete the user where <code>name = 'Bob'</code>, then <code>SELECT *</code> to show the remaining rows. Bob should no longer appear.</div>
         </div>
       </div>`,
     hint: `<p>DELETE then SELECT to confirm:</p>
@@ -794,6 +941,15 @@ INSERT INTO users VALUES (1,'Alice',30),(2,'Bob',25),(3,'Carol',35);`,
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return /DELETE/i.test(code) && !flat.includes('Bob');
+    },
+    bonus: {
+      title: "Delete users older than 30",
+      desc: "Use DELETE FROM users WHERE age > 30 to remove Carol (age 35), then SELECT * to confirm only Alice and Bob remain.",
+      xp: 40,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /DELETE[\s\S]+age/i.test(code) && flat.includes('Alice') && flat.includes('Bob') && !flat.includes('Carol');
+      },
     },
   },
 
@@ -818,9 +974,11 @@ INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
   <span class="fn">MAX</span>(<span class="vr">score</span>) <span class="kw">AS</span> <span class="vr">top_score</span>
 <span class="kw">FROM</span> <span class="vr">players</span>;</div>
         <p>The <code>AS</code> keyword renames the output column (an alias).</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select <code>COUNT(*)</code>, <code>AVG(score)</code>, and <code>MAX(score)</code> from the <code>players</code> table. The count should be 3 and the max should be 920.</div>
+        <h3>SUM vs COUNT</h3>
+        <p><code>COUNT(*)</code> counts rows; <code>SUM(col)</code> adds up numeric values. <code>COUNT(col)</code> (without *) counts non-NULL values in a specific column, which can differ from <code>COUNT(*)</code> when NULLs are present.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select <code>COUNT(*)</code>, <code>AVG(score)</code>, and <code>MAX(score)</code> from the <code>players</code> table. The count should be 3 and the max should be 920.</div>
         </div>
       </div>`,
     hint: `<p>Put all three aggregates in one SELECT:</p>
@@ -835,6 +993,15 @@ INSERT INTO players VALUES ('Alice',850),('Bob',920),('Carol',780);`,
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return flat.includes('3') && flat.includes('920');
+    },
+    bonus: {
+      title: "Find the lowest score",
+      desc: "Use MIN(score) to find the lowest score in the players table. Your result should include 780 (Carol's score).",
+      xp: 45,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /MIN/i.test(code) && flat.includes('780');
+      },
     },
   },
 
@@ -856,9 +1023,14 @@ INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Caro
 <span class="kw">FROM</span> <span class="vr">orders</span>
 <span class="kw">GROUP BY</span> <span class="vr">customer</span>
 <span class="kw">ORDER BY</span> <span class="vr">total</span> <span class="kw">DESC</span>; <span class="cm">-- biggest spenders first</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select <code>customer</code> and <code>SUM(amount) AS total</code> from orders, grouped by customer, ordered by total descending. Alice's total should be 130 (50 + 80).</div>
+        <h3>COUNT per group</h3>
+        <p>You can count how many orders each customer placed alongside their total:</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="vr">customer</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="vr">num_orders</span>, <span class="fn">SUM</span>(<span class="vr">amount</span>) <span class="kw">AS</span> <span class="vr">total</span>
+<span class="kw">FROM</span> <span class="vr">orders</span>
+<span class="kw">GROUP BY</span> <span class="vr">customer</span>;</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select <code>customer</code> and <code>SUM(amount) AS total</code> from orders, grouped by customer, ordered by total descending. Alice's total should be 130 (50 + 80).</div>
         </div>
       </div>`,
     hint: `<p>Group by customer, sum the amounts, then order:</p>
@@ -874,6 +1046,15 @@ INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Caro
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return flat.includes('Alice') && flat.includes('130');
+    },
+    bonus: {
+      title: "Count orders per customer",
+      desc: "Select customer and COUNT(*) AS num_orders, grouped by customer. Alice placed 2 orders, Bob placed 2, Carol placed 1.",
+      xp: 45,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /COUNT/i.test(code) && flat.includes('2') && flat.includes('1');
+      },
     },
   },
 
@@ -892,6 +1073,8 @@ INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Caro
 <span class="kw">WHERE</span> <span class="vr">amount</span> > <span class="nm">20</span>          <span class="cm">-- drop rows where amount ≤ 20</span>
 <span class="kw">GROUP BY</span> <span class="vr">customer</span>
 <span class="kw">HAVING</span> <span class="fn">SUM</span>(<span class="vr">amount</span>) > <span class="nm">60</span>; <span class="cm">-- keep groups whose total > 60</span></div>
+        <h3>Clause order matters</h3>
+        <p>SQL clauses must appear in this exact order: <code>SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT</code>. Breaking this order causes a syntax error.</p>
         <h3>Common mistake</h3>
         <p>You can't use aggregate functions in <code>WHERE</code> — that's what <code>HAVING</code> is for.</p>
         <div class="code-block"><span class="cm">-- ❌ WRONG — can't use SUM in WHERE:</span>
@@ -899,9 +1082,9 @@ INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Caro
 
 <span class="cm">-- ✅ CORRECT — use HAVING after GROUP BY:</span>
 <span class="kw">GROUP BY</span> <span class="vr">customer</span> <span class="kw">HAVING</span> <span class="fn">SUM</span>(<span class="vr">amount</span>) > <span class="nm">60</span>;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Select customer and <code>SUM(amount) AS total</code>, grouped by customer, but only show groups where <code>total &gt; 60</code>. Alice (130) and Carol (100) should appear, not Bob (75).</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Select customer and <code>SUM(amount) AS total</code>, grouped by customer, but only show groups where <code>total &gt; 60</code>. Alice (130) and Carol (100) should appear, not Bob (75).</div>
         </div>
       </div>`,
     hint: `<p>Add HAVING after GROUP BY:</p>
@@ -917,6 +1100,15 @@ INSERT INTO orders VALUES ('Alice',50),('Bob',30),('Alice',80),('Bob',45),('Caro
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return /HAVING/i.test(code) && flat.includes('Alice');
+    },
+    bonus: {
+      title: "Filter by order count",
+      desc: "Use GROUP BY customer HAVING COUNT(*) >= 2 to show only customers with 2 or more orders. Alice and Bob each have 2; Carol has only 1.",
+      xp: 45,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /HAVING[\s\S]+COUNT/i.test(code) && flat.includes('Alice') && flat.includes('Bob') && !flat.includes('Carol');
+      },
     },
   },
 
@@ -941,9 +1133,11 @@ INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1);`,
 <span class="kw">INNER JOIN</span> <span class="vr">departments</span> <span class="vr">d</span>
   <span class="kw">ON</span> <span class="vr">e</span>.<span class="vr">dept_id</span> = <span class="vr">d</span>.<span class="vr">id</span>;</div>
         <p>The <code>ON</code> clause specifies which columns link the two tables together — typically a primary key and a foreign key.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">INNER JOIN <code>employees</code> and <code>departments</code> on <code>dept_id = id</code>. Select each employee's name and their department name. Alice and Carol should show Engineering.</div>
+        <h3>How INNER JOIN works</h3>
+        <p>Think of it as a Venn diagram intersection. The database looks at every combination of rows from both tables, keeps only the pairs where the <code>ON</code> condition is true, and discards the rest. Any employee without a matching department is excluded entirely.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">INNER JOIN <code>employees</code> and <code>departments</code> on <code>dept_id = id</code>. Select each employee's name and their department name. Alice and Carol should show Engineering.</div>
         </div>
       </div>`,
     hint: `<p>Prefix column names with the table name to avoid ambiguity:</p>
@@ -959,6 +1153,15 @@ INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1);`,
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return flat.includes('Alice') && flat.includes('Engineering');
+    },
+    bonus: {
+      title: "Count employees per department",
+      desc: "JOIN employees to departments, then GROUP BY department name and COUNT(*) to show how many employees are in each. Engineering should have 2.",
+      xp: 50,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /COUNT/i.test(code) && /GROUP\s+BY/i.test(code) && flat.includes('2');
+      },
     },
   },
 
@@ -983,9 +1186,11 @@ INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1),('Dave',NULL);`,
           <li><strong>LEFT JOIN</strong> — all rows from left table (Dave appears with NULL department)</li>
         </ul>
         <p>A <code>NULL</code> department means the employee isn't assigned to any team yet — often important data to keep!</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">LEFT JOIN employees to departments. Dave (NULL dept_id) has no department — he should still appear in the results with NULL for the department name.</div>
+        <h3>Finding unmatched rows</h3>
+        <p>A common pattern: use LEFT JOIN + <code>WHERE right_table.id IS NULL</code> to find rows in the left table with no match on the right — for example, all employees with no department assigned.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">LEFT JOIN employees to departments. Dave (NULL dept_id) has no department — he should still appear in the results with NULL for the department name.</div>
         </div>
       </div>`,
     hint: `<p>Change INNER JOIN to LEFT JOIN — everything else stays the same:</p>
@@ -1001,6 +1206,15 @@ INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1),('Dave',NULL);`,
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return /LEFT\s+JOIN/i.test(code) && flat.includes('Dave');
+    },
+    bonus: {
+      title: "Find unassigned employees",
+      desc: "Use LEFT JOIN departments, then WHERE d.id IS NULL (or WHERE dept_id IS NULL) to show only employees with no department. Only Dave should appear.",
+      xp: 50,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /IS\s+NULL/i.test(code) && flat.includes('Dave') && !flat.includes('Alice') && !flat.includes('Bob');
+      },
     },
   },
 
@@ -1027,9 +1241,11 @@ INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1);`,
   <span class="kw">SELECT</span> <span class="vr">name</span>, <span class="vr">dept_id</span> <span class="kw">FROM</span> <span class="vr">employees</span>
 ) <span class="vr">sub</span>
 <span class="kw">WHERE</span> <span class="vr">sub</span>.<span class="vr">dept_id</span> = <span class="nm">1</span>;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Use a subquery to select the names of all employees whose <code>dept_id</code> matches the <code>id</code> of the <code>'Engineering'</code> department. Alice and Carol should appear.</div>
+        <h3>Subquery vs JOIN</h3>
+        <p>Often you can write the same query as either a subquery or a JOIN. JOINs are generally faster on large datasets; subqueries are sometimes more readable when the relationship is complex or you only need one value from the inner query.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Use a subquery to select the names of all employees whose <code>dept_id</code> matches the <code>id</code> of the <code>'Engineering'</code> department. Alice and Carol should appear.</div>
         </div>
       </div>`,
     hint: `<p>The inner SELECT finds the department's id; the outer SELECT uses it:</p>
@@ -1047,6 +1263,15 @@ INSERT INTO employees VALUES ('Alice',1),('Bob',2),('Carol',1);`,
     check: (out, code, lines) => {
       const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
       return /SELECT[\s\S]+SELECT/i.test(code) && flat.includes('Alice') && flat.includes('Carol');
+    },
+    bonus: {
+      title: "Subquery in FROM clause",
+      desc: "Write a subquery in the FROM clause: SELECT * FROM (SELECT name, dept_id FROM employees) sub WHERE sub.dept_id = 2. Only Bob (Marketing, id 2) should appear.",
+      xp: 55,
+      check: (out, code, lines) => {
+        const flat = lines.filter(l => l.type === 'row').map(l => l.vals.join(' ')).join(' ');
+        return /FROM\s*\([\s\S]+\)/i.test(code) && flat.includes('Bob') && !flat.includes('Alice');
+      },
     },
   },
 };
@@ -1124,13 +1349,146 @@ updateLineNums();
 document.getElementById('nav-xp').textContent = loadState().xp;
 
 // ═══════════════════════════════════════════════════════════
+// SQL SYNTAX HIGHLIGHTER
+// ═══════════════════════════════════════════════════════════
+function sqlHighlight(src) {
+  const KEYWORDS = /\b(SELECT|FROM|WHERE|ORDER\s+BY|GROUP\s+BY|HAVING|LIMIT|OFFSET|INSERT\s+INTO|VALUES|UPDATE|SET|DELETE\s+FROM|DELETE|INNER\s+JOIN|LEFT\s+JOIN|RIGHT\s+JOIN|JOIN|ON|AND|OR|NOT|NULL|AS|DISTINCT|CREATE\s+TABLE|CREATE|TABLE|DROP|ALTER|ADD|COLUMN|PRIMARY\s+KEY|FOREIGN\s+KEY|REFERENCES|ASC|DESC|IN|BETWEEN|LIKE|IS|EXISTS|CASE|WHEN|THEN|ELSE|END)\b/gi;
+  const FUNCTIONS = /\b(COUNT|SUM|AVG|MIN|MAX|COALESCE|IFNULL|LENGTH|UPPER|LOWER|TRIM|ROUND|ABS|STRFTIME|DATE)\s*(?=\()/gi;
+  const NUMBERS   = /\b(\d+(?:\.\d+)?)\b/g;
+  const STRINGS   = /'(?:[^'\\]|\\.)*'/g;
+  const COMMENTS  = /--[^\n]*/g;
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Tokenize character-by-character to avoid nested replacements
+  let result = '';
+  let i = 0;
+  const n = src.length;
+
+  while (i < n) {
+    // -- comment
+    if (src[i] === '-' && src[i+1] === '-') {
+      let end = src.indexOf('\n', i);
+      if (end === -1) end = n;
+      result += `<span class="cm">${esc(src.slice(i, end))}</span>`;
+      i = end;
+      continue;
+    }
+    // string literal
+    if (src[i] === "'") {
+      let j = i + 1;
+      while (j < n && !(src[j] === "'" && src[j-1] !== '\\')) j++;
+      j++;
+      result += `<span class="st">${esc(src.slice(i, j))}</span>`;
+      i = j;
+      continue;
+    }
+    // try to match a word (keyword, function, identifier, number)
+    const wordMatch = /^[A-Za-z_]\w*/.exec(src.slice(i));
+    const numMatch  = /^\d+(?:\.\d+)?/.exec(src.slice(i));
+
+    if (numMatch && (!wordMatch || numMatch[0].length <= wordMatch[0].length)) {
+      result += `<span class="nm">${esc(numMatch[0])}</span>`;
+      i += numMatch[0].length;
+      continue;
+    }
+    if (wordMatch) {
+      const word = wordMatch[0];
+      // peek ahead for compound keywords (ORDER BY, GROUP BY, INSERT INTO, DELETE FROM)
+      const rest = src.slice(i);
+      const compound = /^(ORDER\s+BY|GROUP\s+BY|INSERT\s+INTO|DELETE\s+FROM|INNER\s+JOIN|LEFT\s+JOIN|RIGHT\s+JOIN|CREATE\s+TABLE|PRIMARY\s+KEY|FOREIGN\s+KEY)/i.exec(rest);
+      if (compound) {
+        result += `<span class="kw">${esc(compound[0])}</span>`;
+        i += compound[0].length;
+        continue;
+      }
+      const kwTest = /^(SELECT|FROM|WHERE|HAVING|LIMIT|OFFSET|VALUES|UPDATE|SET|DELETE|INSERT|INTO|JOIN|ON|AND|OR|NOT|NULL|AS|DISTINCT|CREATE|TABLE|DROP|ALTER|ADD|COLUMN|ASC|DESC|IN|BETWEEN|LIKE|IS|EXISTS|CASE|WHEN|THEN|ELSE|END|ORDER|GROUP|BY)$/i;
+      const fnTest = /^(COUNT|SUM|AVG|MIN|MAX|COALESCE|IFNULL|LENGTH|UPPER|LOWER|TRIM|ROUND|ABS|STRFTIME|DATE)$/i;
+      if (fnTest.test(word) && src[i + word.length] === '(') {
+        result += `<span class="fn">${esc(word)}</span>`;
+      } else if (kwTest.test(word)) {
+        result += `<span class="kw">${esc(word)}</span>`;
+      } else {
+        result += `<span class="vr">${esc(word)}</span>`;
+      }
+      i += word.length;
+      continue;
+    }
+    result += esc(src[i]);
+    i++;
+  }
+  return result;
+}
+
+function updateHighlight() {
+  const pre = document.getElementById('hl-pre');
+  if (!pre) return;
+  pre.innerHTML = sqlHighlight(editor.value) + '\n';
+}
+
+updateHighlight();
+
+editor.addEventListener('scroll', () => {
+  const pre = document.getElementById('hl-pre');
+  if (pre) { pre.scrollTop = editor.scrollTop; pre.scrollLeft = editor.scrollLeft; }
+});
+
+// ═══════════════════════════════════════════════════════════
+// BONUS SYSTEM
+// ═══════════════════════════════════════════════════════════
+let bonusCompleted = false;
+
+;(function initBonus() {
+  if (!lesson.bonus) return;
+  bonusCompleted = !!localStorage.getItem(`helix_sql_bonus_${lessonId}`);
+  const box = document.getElementById('bonus-box');
+  box.style.display = '';
+  document.getElementById('bonus-title').textContent = lesson.bonus.title;
+  document.getElementById('bonus-desc').textContent  = lesson.bonus.desc;
+  const fb = document.getElementById('bonus-feedback');
+  if (bonusCompleted) {
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP earned.`;
+    fb.style.color = 'var(--green)';
+    document.getElementById('btn-bonus-submit').disabled = true;
+  }
+})();
+
+function checkBonus() {
+  if (!lesson.bonus || bonusCompleted) return;
+  const out  = outputLines.map(l => l.text || '').join('\n');
+  const code = editor.value;
+  if (lesson.bonus.check(out, code, outputLines)) {
+    bonusCompleted = true;
+    localStorage.setItem(`helix_sql_bonus_${lessonId}`, '1');
+    const state = loadState();
+    state.xp += lesson.bonus.xp;
+    state.level = getLevel(state.xp);
+    saveState(state);
+    document.getElementById('nav-xp').textContent = state.xp;
+    const fb = document.getElementById('bonus-feedback');
+    fb.textContent = `🎉 Bonus complete! +${lesson.bonus.xp} XP!`;
+    fb.style.color = 'var(--green)';
+    document.getElementById('btn-bonus-submit').disabled = true;
+  } else {
+    const fb = document.getElementById('bonus-feedback');
+    fb.textContent = '❌ Not quite — run your code first, then try again!';
+    fb.style.color = 'var(--red)';
+    setTimeout(() => { fb.textContent = ''; }, 2800);
+  }
+}
+
+document.getElementById('btn-bonus-submit').addEventListener('click', () => {
+  if (!hasRun) { runCode(false, true); } else { checkBonus(); }
+});
+
+// ═══════════════════════════════════════════════════════════
 // EDITOR
 // ═══════════════════════════════════════════════════════════
 function updateLineNums() {
   const n = editor.value.split('\n').length;
   document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
-editor.addEventListener('input', updateLineNums);
+editor.addEventListener('input', () => { updateLineNums(); updateHighlight(); });
 editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') {
@@ -1225,8 +1583,19 @@ async function loadSQL() {
 }
 loadSQL();
 
-function runCode(forSubmit = false) {
+function runCode(forSubmit = false, forBonus = false) {
   if (!SQL) return;
+
+  // Run guard — don't run if code is only comments/blanks
+  const meaningful = editor.value.split('\n').some(l => {
+    const t = l.trim();
+    return t.length > 0 && !t.startsWith('--');
+  });
+  if (!meaningful) {
+    setOutput([{type:'placeholder', text:'Write some SQL first!'}], 'idle');
+    return;
+  }
+
   outputLines = [];
   setOutput([{type:'placeholder',text:''}], 'running');
 
@@ -1250,6 +1619,7 @@ function runCode(forSubmit = false) {
   const hasErr = outputLines.some(l=>l.type==='error');
   setOutput(outputLines, hasErr ? 'error' : 'ok');
   if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forBonus) { checkBonus(); return; }
   if (forSubmit) checkAnswer();
 }
 
