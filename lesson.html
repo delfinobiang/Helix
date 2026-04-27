@@ -145,21 +145,12 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.9; overflow-x: auto;
+      line-height: 1.9; overflow-x: auto; white-space: pre-wrap;
     }
     .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
     .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
 
-    .challenge-box {
-      margin: 1.5rem 0 0;
-      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
-      border-radius: 14px; padding: 1.2rem 1.3rem;
-    }
-    .challenge-label {
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--primary); margin-bottom: 0.6rem;
-    }
-    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    /* challenge-box replaced by .objective-box (defined below) */
 
     /* Hint / solution */
     .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -225,7 +216,7 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
-      overflow-x: auto;
+      overflow-x: auto; white-space: pre-wrap;
     }
 
     /* ─── RIGHT PANEL ─────────────────────────────────────── */
@@ -273,15 +264,79 @@
     }
     .editor-textarea {
       flex: 1; resize: none; border: none; outline: none;
-      background: #050C1A; color: #D4D4F8;
+      background: transparent; color: transparent;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
       padding: 1.1rem 1.2rem; tab-size: 4;
       caret-color: var(--primary);
       overflow-y: auto; overflow-x: auto;
+      position: relative; z-index: 1; white-space: pre-wrap; word-break: break-word;
     }
     .editor-textarea::selection { background: rgba(99,102,241,0.3); }
     .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
     .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+    /* Syntax highlight overlay */
+    .hl-pre {
+      position: absolute; inset: 0; margin: 0; border: none; outline: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 4;
+      overflow: hidden; pointer-events: none;
+      white-space: pre-wrap; word-break: break-word;
+      background: #050C1A; color: #D4D4F8; z-index: 0;
+    }
+    .editor-wrap { background: #050C1A; }
+    /* Stdin mock section */
+    .stdin-section {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      padding: 0.5rem 1.2rem 0.6rem; background: rgba(0,0,0,0.08);
+    }
+    .stdin-label {
+      font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: rgba(255,179,71,0.7);
+      margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .stdin-textarea {
+      width: 100%; resize: none; border: 1px solid rgba(255,179,71,0.2);
+      border-radius: 8px; padding: 0.45rem 0.75rem;
+      background: rgba(255,179,71,0.04); color: var(--text);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.6;
+      outline: none; height: 48px; display: block;
+    }
+    .stdin-textarea:focus { border-color: rgba(255,179,71,0.4); }
+    .stdin-textarea::placeholder { color: var(--text-3); }
+    /* Bonus challenge */
+    .objective-box {
+      margin: 1.5rem 0 0;
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .objective-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.6rem;
+    }
+    .objective-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .bonus-box {
+      margin: 1rem 0 0;
+      background: rgba(34,211,238,0.04); border: 1px solid rgba(34,211,238,0.16);
+      border-radius: 14px; padding: 1.2rem 1.3rem;
+    }
+    .bonus-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--cyan); margin-bottom: 0.5rem;
+    }
+    .bonus-title { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+    .bonus-text { font-size: 0.87rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.85rem; }
+    .btn-bonus-submit {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(34,211,238,0.09); border: 1px solid rgba(34,211,238,0.26);
+      color: var(--cyan); font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.42rem 1.1rem; border-radius: 8px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .btn-bonus-submit:hover { background: rgba(34,211,238,0.16); box-shadow: 0 3px 12px rgba(34,211,238,0.14); }
+    .btn-bonus-submit:disabled { opacity: 0.4; pointer-events: none; }
+    .bonus-feedback { margin-top: 0.6rem; font-size: 0.82rem; font-weight: 600; display: none; padding: 0.35rem 0.6rem; border-radius: 7px; }
+    .bonus-feedback.success { color: var(--green); background: rgba(16,185,129,0.08); display: block; }
+    .bonus-feedback.fail    { color: var(--red); background: rgba(239,68,68,0.07); display: block; }
 
     /* Output */
     .output-panel {
@@ -620,6 +675,13 @@
         </button>
         <div class="collapsible-body" id="cheatsheet-body"></div>
       </div>
+      <div class="bonus-box" id="bonus-box" style="display:none">
+        <div class="bonus-label">⚡ Bonus Challenge · Extra XP</div>
+        <div class="bonus-title" id="bonus-title"></div>
+        <div class="bonus-text" id="bonus-desc"></div>
+        <button class="btn-bonus-submit" id="btn-bonus-submit" disabled>⚡ Submit Bonus</button>
+        <div class="bonus-feedback" id="bonus-feedback"></div>
+      </div>
     </div>
   </div>
 
@@ -639,10 +701,15 @@
         <div class="py-loader-text">Loading Python engine…</div>
       </div>
       <div class="line-nums" id="line-nums">1</div>
+      <pre class="hl-pre" id="hl-pre" aria-hidden="true"> </pre>
       <textarea
         class="editor-textarea" id="editor"
         spellcheck="false" autocorrect="off" autocapitalize="off"
         placeholder="# Write your code here..."></textarea>
+    </div>
+    <div class="stdin-section" id="stdin-section" style="display:none">
+      <div class="stdin-label">⌨️ Input (stdin) — one value per line</div>
+      <textarea class="stdin-textarea" id="stdin-input" placeholder="Enter values for input() calls…" spellcheck="false"></textarea>
     </div>
     <div class="output-panel">
       <div class="output-header">
@@ -715,15 +782,18 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 1 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Hello, World! 🐍</h1>
       <div class="lesson-body">
-        <p>Every programmer's journey starts here. In Python, <code>print()</code> displays text on the screen.</p>
-        <div class="code-block"><span class="kw">print</span>(<span class="st">"Hello, World!"</span>)  <span class="cm"># Hello, World!</span></div>
-        <p>The text inside quotes is called a <strong>string</strong>. You can use single <code>'</code> or double <code>"</code> quotes.</p>
-        <h3>Multiple prints</h3>
+        <p>Every programmer's journey starts here. The very first program anyone writes is <em>Hello, World!</em> — it proves Python is installed and running correctly.</p>
+        <p>In Python, <code>print()</code> is a built-in function that outputs text to the screen. Whatever you put between the parentheses gets displayed.</p>
+        <div class="code-block"><span class="kw">print</span>(<span class="st">"Hello, World!"</span>)  <span class="cm"># → Hello, World!</span></div>
+        <p>The text inside quotes is called a <strong>string</strong> — a sequence of characters. You can use single <code>'</code> or double <code>"</code> quotes, as long as they match.</p>
+        <h3>Printing multiple lines</h3>
+        <p>Each <code>print()</code> call outputs on its own line. Call it as many times as you need:</p>
         <div class="code-block"><span class="kw">print</span>(<span class="st">"Line 1"</span>)
 <span class="kw">print</span>(<span class="st">"Line 2"</span>)</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Print exactly two lines:<br><code>Hello, World!</code><br><code>I am learning Python!</code></div>
+        <p>Python reads your file top-to-bottom and runs each line in order, so the output will appear in the same order you wrote it.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Print exactly two lines:<br><code>Hello, World!</code><br><code>I am learning Python!</code></div>
         </div>
       </div>`,
     hint: `<p>Call <code>print()</code> twice — once per line:</p>
@@ -734,6 +804,12 @@ const LESSONS = {
     starter: `# Print two lines below\n`,
     check: (out) => out.includes("Hello, World!") && out.includes("I am learning Python!"),
     cheatsheet: [['print("text")', 'Display text to screen'], ['print(\'text\')', 'Single quotes also work'], ['# comment', 'Line comment (ignored by Python)']],
+    bonus: {
+      title: 'Print a third line',
+      desc: 'After your two required lines, print a third line that says: I love coding!',
+      xp: 25,
+      check: (out) => out.includes("Hello, World!") && out.includes("I am learning Python!") && out.includes("I love coding!"),
+    },
   },
 
   2: {
@@ -742,20 +818,29 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 2 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Variables 📦</h1>
       <div class="lesson-body">
-        <p>A <strong>variable</strong> is a labelled box that stores a value. Use <code>=</code> to assign:</p>
+        <p>A <strong>variable</strong> is a named container that stores a value in memory. Instead of retyping a value every time, you give it a name once and use that name everywhere.</p>
+        <p>Use the <code>=</code> operator to assign a value to a variable. Python figures out the type automatically — no need to declare it.</p>
         <div class="code-block"><span class="vr">name</span>  = <span class="st">"Alice"</span>
 <span class="vr">age</span>   = <span class="nm">21</span>
 <span class="kw">print</span>(<span class="vr">name</span>)   <span class="cm"># Alice</span>
 <span class="kw">print</span>(<span class="vr">age</span>)    <span class="cm"># 21</span></div>
+        <h3>Data types</h3>
+        <p>Python has three basic types you'll use constantly:</p>
+        <ul>
+          <li><strong>str</strong> (string) — text in quotes: <code>"hello"</code></li>
+          <li><strong>int</strong> (integer) — whole numbers: <code>42</code></li>
+          <li><strong>float</strong> — decimal numbers: <code>3.14</code></li>
+        </ul>
         <h3>Naming rules</h3>
         <ul>
           <li>Lowercase + underscores: <code>user_name</code></li>
           <li>No spaces or special characters</li>
-          <li>Must start with a letter</li>
+          <li>Must start with a letter or underscore</li>
+          <li>Case-sensitive: <code>Name</code> and <code>name</code> are different!</li>
         </ul>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a variable <code>name</code> with your name, and <code>level</code> = <code>1</code>. Print both on separate lines.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a variable <code>name</code> with your name, and <code>level</code> = <code>1</code>. Print both on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="vr">name</span>  = <span class="st">"Your Name"</span>
@@ -769,6 +854,12 @@ const LESSONS = {
     starter: `# Create your variables below\n\n`,
     check: (out, code) => /name\s*=\s*["'].+["']/.test(code) && /level\s*=/.test(code) && out.trim().split('\n').length >= 2,
     cheatsheet: [['x = 42', 'Assign integer'], ['name = "Alice"', 'Assign string'], ['pi = 3.14', 'Assign float'], ['print(x)', 'Print variable value']],
+    bonus: {
+      title: 'Use an f-string',
+      desc: 'Create a third variable score = 100. Then print all three variables in one single print() using an f-string, like: name is level 1 with 100 points',
+      xp: 35,
+      check: (out, code) => /score\s*=\s*100/.test(code) && /f["']/.test(code) && out.trim().split('\n').length >= 3,
+    },
   },
 
   3: {
@@ -777,16 +868,18 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 3 · Python Fundamentals</div>
       <h1 class="lesson-title-h">User Input ⌨️</h1>
       <div class="lesson-body">
-        <p><code>input()</code> pauses and waits for the user to type. It always returns a <strong>string</strong>.</p>
+        <p>Programs become truly useful when they can interact with the user. The <code>input()</code> function pauses execution and waits for the user to type something and press Enter.</p>
+        <p><strong>Important:</strong> <code>input()</code> <em>always</em> returns a string, even if the user types a number. You'll need to convert it if you want to do math.</p>
         <div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"Your name: "</span>)
-<span class="kw">print</span>(<span class="st">"Hello, "</span> + <span class="vr">name</span>)</div>
+<span class="kw">print</span>(<span class="st">"Hello, "</span> + <span class="vr">name</span>)  <span class="cm"># string concatenation</span></div>
         <h3>f-strings — the clean way</h3>
-        <p>Put <code>f</code> before the quote and wrap variables in <code>{}</code>:</p>
+        <p>Instead of joining strings with <code>+</code>, put <code>f</code> before the quote and wrap any variable in <code>{}</code>. Python replaces it with the value automatically:</p>
         <div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"Your name: "</span>)
-<span class="kw">print</span>(<span class="st">f"Welcome, <span class="vr">{name}</span>!"</span>)</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Ask for the user's name, then print: <code>Hello, [name]! Welcome to Helix.</code></div>
+<span class="kw">print</span>(<span class="st">f"Welcome, {name}!"</span>)  <span class="cm"># cleaner!</span></div>
+        <p>💡 <strong>Tip:</strong> Use the <em>Input (stdin)</em> box below the editor to pre-fill what <code>input()</code> will receive when you run your code here.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Ask for the user's name, then print: <code>Hello, [name]! Welcome to Helix.</code></div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="vr">name</span> = <span class="fn">input</span>(<span class="st">"Enter your name: "</span>)
@@ -796,6 +889,12 @@ const LESSONS = {
     starter: `# Ask for the user's name then greet them\n\n`,
     check: (out) => out.toLowerCase().includes("hello") && out.toLowerCase().includes("welcome to helix"),
     cheatsheet: [['input("prompt")', 'Read user input (returns string)'], ['f"Hello, {name}!"', 'f-string: embed variable'], ['"a" + "b"', 'String concatenation → "ab"'], ['int(x)', 'Convert string to integer']],
+    bonus: {
+      title: 'Ask for two inputs',
+      desc: 'Ask for both the user\'s name AND their city. Then print: Hello, [name] from [city]!',
+      xp: 35,
+      check: (out, code) => (code.match(/input\s*\(/g)||[]).length >= 2 && /from/.test(out),
+    },
   },
 
   4: {
@@ -804,20 +903,24 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 4 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Strings & Numbers 🔢</h1>
       <div class="lesson-body">
+        <p>Python strings come with many built-in methods — functions you can call directly on a string value using dot notation.</p>
         <h3>String methods</h3>
         <div class="code-block"><span class="vr">s</span> = <span class="st">"hello"</span>
 <span class="kw">print</span>(<span class="vr">s</span>.upper())          <span class="cm"># HELLO</span>
 <span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">s</span>))             <span class="cm"># 5</span>
 <span class="kw">print</span>(<span class="vr">s</span>.replace(<span class="st">"h"</span>,<span class="st">"j"</span>))  <span class="cm"># jello</span></div>
+        <p>Notice that string methods return a <em>new</em> string — they don't modify the original. <code>len()</code> is a built-in function (not a method) that works on strings, lists, and more.</p>
         <h3>Math operators</h3>
-        <div class="code-block"><span class="kw">print</span>(<span class="nm">10</span> + <span class="nm">3</span>)   <span class="cm"># 13</span>
-<span class="kw">print</span>(<span class="nm">10</span> * <span class="nm">3</span>)   <span class="cm"># 30</span>
-<span class="kw">print</span>(<span class="nm">10</span> ** <span class="nm">2</span>)  <span class="cm"># 100  (power)</span>
-<span class="kw">print</span>(<span class="nm">10</span> % <span class="nm">3</span>)   <span class="cm"># 1    (remainder)</span>
-<span class="kw">print</span>(<span class="nm">10</span> // <span class="nm">3</span>)  <span class="cm"># 3    (floor div)</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>a = 8</code> and <code>b = 3</code>, print their <strong>sum</strong>, <strong>product</strong>, and <strong>remainder</strong> on separate lines.</div>
+        <p>Python supports all standard arithmetic. The less obvious ones:</p>
+        <div class="code-block"><span class="kw">print</span>(<span class="nm">10</span> + <span class="nm">3</span>)   <span class="cm"># 13   — addition</span>
+<span class="kw">print</span>(<span class="nm">10</span> * <span class="nm">3</span>)   <span class="cm"># 30   — multiplication</span>
+<span class="kw">print</span>(<span class="nm">10</span> ** <span class="nm">2</span>)  <span class="cm"># 100  — power (10 squared)</span>
+<span class="kw">print</span>(<span class="nm">10</span> % <span class="nm">3</span>)   <span class="cm"># 1    — modulo (remainder)</span>
+<span class="kw">print</span>(<span class="nm">10</span> // <span class="nm">3</span>)  <span class="cm"># 3    — floor division (no decimal)</span></div>
+        <p>The <code>%</code> (modulo) operator is very handy — it tells you what's left over after division. For example, <code>10 % 2 == 0</code> means 10 is even.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>a = 8</code> and <code>b = 3</code>, print their <strong>sum</strong>, <strong>product</strong>, and <strong>remainder</strong> on separate lines.</div>
         </div>
       </div>`,
     hint: `<p>Use +, *, and % operators:</p>
@@ -834,6 +937,12 @@ const LESSONS = {
     starter: `a = 8\nb = 3\n# Print sum, product, remainder\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('11') && l.includes('24') && l.includes('2'); },
     cheatsheet: [['int("42")', 'String → integer'], ['float("3.14")', 'String → float'], ['str(42)', 'Integer → string'], ['type(x)', 'Get type of variable'], ['+ - * /', 'Arithmetic operators'], ['// %', 'Floor division, modulo'], ['**', 'Exponentiation (2**3 = 8)']],
+    bonus: {
+      title: 'Two more operators',
+      desc: 'Using the same a = 8 and b = 3, also print a ** b (power) and a // b (floor division) as two extra lines after your three required ones.',
+      xp: 40,
+      check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('11') && l.includes('24') && l.includes('2') && l.includes('512') && l.includes('2'); },
+    },
   },
 
   5: {
@@ -842,22 +951,26 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 5 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Conditions (if/else) 🔀</h1>
       <div class="lesson-body">
-        <p>The <code>if</code> statement runs code only when a condition is <code>True</code>. Note the colon and 4-space indent.</p>
+        <p>Programs need to make decisions. The <code>if</code> statement lets you run a block of code <em>only when</em> a condition is true.</p>
+        <p>Two things to remember: end the condition line with a <strong>colon</strong> <code>:</code>, and indent the code inside the block by <strong>4 spaces</strong> (Python uses indentation to define blocks, unlike many languages that use curly braces).</p>
         <div class="code-block"><span class="vr">age</span> = <span class="nm">18</span>
 <span class="kw">if</span> <span class="vr">age</span> >= <span class="nm">18</span>:
     <span class="kw">print</span>(<span class="st">"Adult"</span>)
 <span class="kw">else</span>:
     <span class="kw">print</span>(<span class="st">"Minor"</span>)</div>
+        <h3>Comparison operators</h3>
+        <p>Use these to build conditions: <code>==</code> (equal), <code>!=</code> (not equal), <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code>. Note: <code>=</code> assigns, <code>==</code> compares!</p>
         <h3>elif — multiple branches</h3>
+        <p>When you have more than two possibilities, chain conditions with <code>elif</code> (short for "else if"). Python checks each one in order and runs the first true branch:</p>
         <div class="code-block"><span class="kw">if</span> <span class="vr">score</span> >= <span class="nm">90</span>:
     <span class="kw">print</span>(<span class="st">"A"</span>)
 <span class="kw">elif</span> <span class="vr">score</span> >= <span class="nm">70</span>:
     <span class="kw">print</span>(<span class="st">"B"</span>)
 <span class="kw">else</span>:
     <span class="kw">print</span>(<span class="st">"C"</span>)</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Set <code>temperature = 35</code>. If it's above 30 print <code>It's hot!</code>, otherwise print <code>Nice weather.</code></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Set <code>temperature = 35</code>. If it's above 30 print <code>It's hot!</code>, otherwise print <code>Nice weather.</code></div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="vr">temperature</span> = <span class="nm">35</span>
@@ -873,6 +986,12 @@ const LESSONS = {
     starter: `temperature = 35\n# Write your if/else below\n\n`,
     check: (out) => out.includes("It's hot!"),
     cheatsheet: [['if x > 0:', 'If condition'], ['elif x == 0:', 'Else-if branch'], ['else:', 'Default branch'], ['and  or  not', 'Logical operators'], ['== != > < >= <=', 'Comparison operators']],
+    bonus: {
+      title: 'Add a warm range',
+      desc: 'Extend your if/else to three branches: above 30 → "It\'s hot!", between 20 and 30 (inclusive) → "Warm.", below 20 → "Nice weather."',
+      xp: 50,
+      check: (out, code) => /elif/.test(code) && out.includes("It's hot!"),
+    },
   },
 
   6: {
@@ -881,20 +1000,23 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 6 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Loops (for/while) 🔁</h1>
       <div class="lesson-body">
-        <h3>for loop</h3>
+        <p>Loops let you repeat code without copy-pasting it. Python has two types: <code>for</code> loops (when you know how many times) and <code>while</code> loops (when you repeat until a condition changes).</p>
+        <h3>for loop with range()</h3>
+        <p><code>range(n)</code> generates numbers from 0 up to (but not including) n. <code>range(1, 6)</code> gives 1, 2, 3, 4, 5.</p>
         <div class="code-block"><span class="kw">for</span> <span class="vr">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>):
-    <span class="kw">print</span>(<span class="vr">i</span>)   <span class="cm"># 0 1 2 3 4</span></div>
-        <p>Loop over a list:</p>
+    <span class="kw">print</span>(<span class="vr">i</span>)   <span class="cm"># prints 0, 1, 2, 3, 4</span></div>
+        <p>You can also loop directly over a list or any sequence:</p>
         <div class="code-block"><span class="kw">for</span> <span class="vr">item</span> <span class="kw">in</span> [<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]:
-    <span class="kw">print</span>(<span class="vr">item</span>)</div>
+    <span class="kw">print</span>(<span class="vr">item</span>)  <span class="cm"># a, then b, then c</span></div>
         <h3>while loop</h3>
+        <p>A <code>while</code> loop keeps running as long as its condition stays true. Always make sure the condition eventually becomes false — otherwise you'll have an infinite loop!</p>
         <div class="code-block"><span class="vr">n</span> = <span class="nm">0</span>
 <span class="kw">while</span> <span class="vr">n</span> < <span class="nm">3</span>:
     <span class="kw">print</span>(<span class="vr">n</span>)
-    <span class="vr">n</span> += <span class="nm">1</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Use a <code>for</code> loop to print numbers <strong>1 through 5</strong>.</div>
+    <span class="vr">n</span> += <span class="nm">1</span>  <span class="cm"># n grows each time → loop eventually stops</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Use a <code>for</code> loop to print numbers <strong>1 through 5</strong>.</div>
         </div>
       </div>`,
     hint: `<p><code>range(1, 6)</code> gives 1, 2, 3, 4, 5:</p>
@@ -905,6 +1027,12 @@ const LESSONS = {
     starter: `# Print 1 through 5\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
     cheatsheet: [['for i in range(5):', 'Loop 0-4'], ['for x in list:', 'Loop over list items'], ['while x < 10:', 'While loop'], ['break', 'Exit loop early'], ['continue', 'Skip to next iteration'], ['range(1, 6)', 'Range 1-5 inclusive']],
+    bonus: {
+      title: 'Print only even numbers',
+      desc: 'Modify your loop to print only the even numbers from 1 to 10 (2, 4, 6, 8, 10). Hint: use the modulo operator % inside the loop.',
+      xp: 60,
+      check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['2','4','6','8','10'].every(n=>l.includes(n)) && !l.includes('1') && !l.includes('3'); },
+    },
   },
 
   7: {
@@ -913,18 +1041,21 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 7 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Lists 📋</h1>
       <div class="lesson-body">
-        <p>A <strong>list</strong> stores multiple values in order. Index starts at 0.</p>
+        <p>A <strong>list</strong> is Python's most versatile data structure. It stores an ordered collection of values — and those values can be any type, even mixed.</p>
+        <p>Lists use square brackets <code>[]</code> and items are separated by commas. Indexing starts at <strong>0</strong>, and you can use negative indices to count from the end.</p>
         <div class="code-block"><span class="vr">fruits</span> = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]
-<span class="kw">print</span>(<span class="vr">fruits</span>[<span class="nm">0</span>])   <span class="cm"># apple</span>
-<span class="kw">print</span>(<span class="vr">fruits</span>[-<span class="nm">1</span>])  <span class="cm"># cherry (last)</span>
+<span class="kw">print</span>(<span class="vr">fruits</span>[<span class="nm">0</span>])   <span class="cm"># apple  (first element)</span>
+<span class="kw">print</span>(<span class="vr">fruits</span>[-<span class="nm">1</span>])  <span class="cm"># cherry (last element)</span>
 <span class="kw">print</span>(<span class="fn">len</span>(<span class="vr">fruits</span>)) <span class="cm"># 3</span></div>
-        <h3>Common methods</h3>
-        <div class="code-block"><span class="vr">fruits</span>.append(<span class="st">"mango"</span>)   <span class="cm"># add to end</span>
-<span class="vr">fruits</span>.remove(<span class="st">"banana"</span>)  <span class="cm"># remove by value</span>
-<span class="vr">fruits</span>.sort()              <span class="cm"># sort in place</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a list called <code>numbers</code> with values <code>[3, 1, 4, 1, 5, 9]</code>. Print its length, then print the first and last elements.</div>
+        <h3>Modifying lists</h3>
+        <p>Unlike strings, lists are <em>mutable</em> — you can change them after creation:</p>
+        <div class="code-block"><span class="vr">fruits</span>.append(<span class="st">"mango"</span>)   <span class="cm"># add item to the end</span>
+<span class="vr">fruits</span>.remove(<span class="st">"banana"</span>)  <span class="cm"># remove first matching value</span>
+<span class="vr">fruits</span>.sort()              <span class="cm"># sort alphabetically in place</span>
+<span class="vr">fruits</span>[<span class="nm">0</span>] = <span class="st">"avocado"</span>    <span class="cm"># replace an element</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a list called <code>numbers</code> with values <code>[3, 1, 4, 1, 5, 9]</code>. Print its length, then print the first and last elements.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="vr">numbers</span> = [<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">9</span>]
@@ -938,6 +1069,12 @@ const LESSONS = {
     starter: `numbers = [3, 1, 4, 1, 5, 9]\n# Print length, first, and last element\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('6') && l.includes('3') && l.includes('9'); },
     cheatsheet: [['nums = [1, 2, 3]', 'Create list'], ['nums[0]', 'First element (index 0)'], ['nums[-1]', 'Last element'], ['nums.append(4)', 'Add to end'], ['nums.remove(2)', 'Remove value'], ['len(nums)', 'Number of elements'], ['nums[1:3]', 'Slice index 1–2']],
+    bonus: {
+      title: 'Sort and slice',
+      desc: 'Sort the numbers list, then print only the first three elements using list slicing: numbers[:3]',
+      xp: 60,
+      check: (out, code) => /\.sort\(\)/.test(code) && /\[:\s*3\]/.test(code) && out.trim().includes('1'),
+    },
   },
 
   8: {
@@ -946,20 +1083,26 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 8 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Dictionaries 🗂️</h1>
       <div class="lesson-body">
-        <p>A <strong>dictionary</strong> maps <em>keys</em> to <em>values</em> — like a real dictionary word → definition.</p>
+        <p>A <strong>dictionary</strong> (dict) maps <em>keys</em> to <em>values</em> — like a lookup table. Instead of accessing data by position (like lists), you access it by a meaningful name.</p>
+        <p>Dictionaries use curly braces <code>{}</code>. Keys are usually strings; values can be anything:</p>
         <div class="code-block"><span class="vr">person</span> = {
     <span class="st">"name"</span>: <span class="st">"Alex"</span>,
     <span class="st">"age"</span>:  <span class="nm">21</span>,
     <span class="st">"level"</span>: <span class="nm">3</span>
 }
 <span class="kw">print</span>(<span class="vr">person</span>[<span class="st">"name"</span>])   <span class="cm"># Alex</span>
-<span class="vr">person</span>[<span class="st">"age"</span>] = <span class="nm">22</span>     <span class="cm"># update</span></div>
-        <h3>Looping a dict</h3>
-        <div class="code-block"><span class="kw">for</span> <span class="vr">key</span>, <span class="vr">val</span> <span class="kw">in</span> <span class="vr">person</span>.items():
-    <span class="kw">print</span>(<span class="st">f"<span class="vr">{key}</span>: <span class="vr">{val}</span>"</span>)</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a <code>student</code> dict with keys <code>"name"</code> and <code>"grade"</code>. Print both values using the keys.</div>
+<span class="vr">person</span>[<span class="st">"age"</span>] = <span class="nm">22</span>     <span class="cm"># update existing key</span>
+<span class="vr">person</span>[<span class="st">"city"</span>] = <span class="st">"NY"</span>  <span class="cm"># add new key</span></div>
+        <h3>Checking and looping</h3>
+        <p>Use <code>"key" in d</code> to check if a key exists before accessing it, avoiding errors:</p>
+        <div class="code-block"><span class="kw">if</span> <span class="st">"name"</span> <span class="kw">in</span> <span class="vr">person</span>:
+    <span class="kw">print</span>(<span class="vr">person</span>[<span class="st">"name"</span>])
+
+<span class="kw">for</span> <span class="vr">key</span>, <span class="vr">val</span> <span class="kw">in</span> <span class="vr">person</span>.items():
+    <span class="kw">print</span>(<span class="st">f"{key}: {val}"</span>)</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a <code>student</code> dict with keys <code>"name"</code> and <code>"grade"</code>. Print both values using the keys.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="vr">student</span> = {<span class="st">"name"</span>: <span class="st">"Sam"</span>, <span class="st">"grade"</span>: <span class="st">"A"</span>}
@@ -971,6 +1114,12 @@ const LESSONS = {
     starter: `# Create a student dict with "name" and "grade", then print both\n\n`,
     check: (out, code) => /student\s*=\s*\{/.test(code) && out.trim().split('\n').length >= 2,
     cheatsheet: [['d = {"key": "val"}', 'Create dict'], ['d["key"]', 'Get value by key'], ['d["key"] = x', 'Set / update value'], ['"key" in d', 'Check if key exists'], ['d.keys()', 'All keys'], ['d.values()', 'All values'], ['d.items()', 'Key-value pairs']],
+    bonus: {
+      title: 'Loop and print all entries',
+      desc: 'After creating your student dict, use a for loop over .items() to print every key-value pair in the format: key: value',
+      xp: 65,
+      check: (out, code) => /\.items\(\)/.test(code) && out.trim().split('\n').length >= 2,
+    },
   },
 
   9: {
@@ -979,21 +1128,24 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 9 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Functions 🧩</h1>
       <div class="lesson-body">
-        <p>A <strong>function</strong> is a reusable block of code. Define with <code>def</code>, call by name.</p>
+        <p>Functions let you package a block of code under a name so you can reuse it. Instead of copy-pasting the same logic, you define it once and call it as many times as needed — with different inputs each time.</p>
+        <p>Define with <code>def</code>, give it a name, list its <strong>parameters</strong> in parentheses, then indent the body:</p>
         <div class="code-block"><span class="kw">def</span> <span class="fn">greet</span>(<span class="vr">name</span>):
-    <span class="kw">print</span>(<span class="st">f"Hello, <span class="vr">{name}</span>!"</span>)
+    <span class="kw">print</span>(<span class="st">f"Hello, {name}!"</span>)
 
 <span class="fn">greet</span>(<span class="st">"Alice"</span>)  <span class="cm"># Hello, Alice!</span>
 <span class="fn">greet</span>(<span class="st">"Bob"</span>)    <span class="cm"># Hello, Bob!</span></div>
-        <h3>Returning values</h3>
+        <h3>Return values</h3>
+        <p>Use <code>return</code> to send a value back to whoever called the function. The result can be stored in a variable:</p>
         <div class="code-block"><span class="kw">def</span> <span class="fn">add</span>(<span class="vr">a</span>, <span class="vr">b</span>):
     <span class="kw">return</span> <span class="vr">a</span> + <span class="vr">b</span>
 
-<span class="vr">result</span> = <span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">4</span>)
-<span class="kw">print</span>(<span class="vr">result</span>)  <span class="cm"># 7</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Define a function <code>square(n)</code> that returns <code>n * n</code>. Then print <code>square(5)</code> and <code>square(9)</code>.</div>
+<span class="vr">result</span> = <span class="fn">add</span>(<span class="nm">3</span>, <span class="nm">4</span>)   <span class="cm"># result = 7</span>
+<span class="kw">print</span>(<span class="vr">result</span>)         <span class="cm"># 7</span></div>
+        <p>If a function has no <code>return</code>, it returns <code>None</code> implicitly. Functions that just <code>print</code> and don't return are called for their <em>side effects</em>.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Define a function <code>square(n)</code> that returns <code>n * n</code>. Then print <code>square(5)</code> and <code>square(9)</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">def</span> <span class="fn">square</span>(<span class="vr">n</span>):
@@ -1009,6 +1161,12 @@ const LESSONS = {
     starter: `# Define square(n) and call it\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('25') && l.includes('81'); },
     cheatsheet: [['def greet(name):', 'Define function'], ['return x', 'Return a value'], ['greet("Alice")', 'Call function'], ['def add(a, b=0):', 'Default parameter'], ['*args', 'Variable positional args'], ['**kwargs', 'Variable keyword args']],
+    bonus: {
+      title: 'Define a second function',
+      desc: 'Also define a cube(n) function that returns n * n * n, then print cube(3) and cube(4).',
+      xp: 75,
+      check: (out, code) => /def\s+cube/.test(code) && out.trim().split('\n').map(s=>s.trim()).includes('27') && out.includes('64'),
+    },
   },
 
   10: {
@@ -1017,21 +1175,21 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 10 · Python Fundamentals</div>
       <h1 class="lesson-title-h">String Methods 🔤</h1>
       <div class="lesson-body">
-        <p>Strings have many built-in methods for manipulation:</p>
+        <p>Strings in Python come loaded with built-in methods. These are functions you call directly on a string using dot notation: <code>string.method()</code>.</p>
+        <p>Remember: strings are <em>immutable</em>. Methods always return a <strong>new</strong> string — the original is unchanged.</p>
         <div class="code-block"><span class="vr">s</span> = <span class="st">"  Hello, Python!  "</span>
-<span class="kw">print</span>(<span class="vr">s</span>.strip())       <span class="cm"># "Hello, Python!"</span>
+<span class="kw">print</span>(<span class="vr">s</span>.strip())       <span class="cm"># "Hello, Python!" — removes whitespace</span>
 <span class="kw">print</span>(<span class="vr">s</span>.lower())       <span class="cm"># "  hello, python!  "</span>
 <span class="kw">print</span>(<span class="vr">s</span>.upper())       <span class="cm"># "  HELLO, PYTHON!  "</span>
-<span class="kw">print</span>(<span class="vr">s</span>.count(<span class="st">"l"</span>))   <span class="cm"># 3</span>
+<span class="kw">print</span>(<span class="vr">s</span>.count(<span class="st">"l"</span>))   <span class="cm"># 3 — counts occurrences</span>
 <span class="kw">print</span>(<span class="vr">s</span>.startswith(<span class="st">"  H"</span>))  <span class="cm"># True</span></div>
         <h3>Split & Join</h3>
-        <div class="code-block"><span class="vr">words</span> = <span class="st">"one two three"</span>.split()
-<span class="cm"># ['one', 'two', 'three']</span>
-<span class="vr">joined</span> = <span class="st">"-"</span>.join(<span class="vr">words</span>)
-<span class="cm"># "one-two-three"</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>sentence = "the quick brown fox"</code>, print it in <strong>uppercase</strong> and print the number of <strong>words</strong> in it.</div>
+        <p><code>split()</code> breaks a string into a list of words; <code>join()</code> does the reverse. Together they're great for parsing and formatting text:</p>
+        <div class="code-block"><span class="vr">words</span> = <span class="st">"one two three"</span>.split()  <span class="cm"># ['one', 'two', 'three']</span>
+<span class="vr">joined</span> = <span class="st">"-"</span>.join(<span class="vr">words</span>)       <span class="cm"># "one-two-three"</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>sentence = "the quick brown fox"</code>, print it in <strong>uppercase</strong> and print the number of <strong>words</strong> in it.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="vr">sentence</span> = <span class="st">"the quick brown fox"</span>
@@ -1043,6 +1201,12 @@ const LESSONS = {
     starter: `sentence = "the quick brown fox"\n# Print uppercase and word count\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('THE QUICK BROWN FOX') && l.includes('4'); },
     cheatsheet: [['"hi".upper()', '"HI"'], ['"HI".lower()', '"hi"'], ['"hi".strip()', 'Remove whitespace'], ['"a,b".split(",")', '["a","b"]'], ['",".join(list)', 'Join list to string'], ['"hello".replace("l","r")', '"herro"'], ['len("hello")', '5'], ['"lo" in "hello"', 'True']],
+    bonus: {
+      title: 'Reverse the sentence',
+      desc: 'Print the sentence reversed — use slicing with [::-1] on the string itself.',
+      xp: 65,
+      check: (out, code) => /\[::-1\]/.test(code) && out.includes('xof nworb kciuq eht'),
+    },
   },
 
   11: {
@@ -1051,17 +1215,23 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 11 · Python Fundamentals</div>
       <h1 class="lesson-title-h">List Comprehensions ⚡</h1>
       <div class="lesson-body">
-        <p>A <strong>list comprehension</strong> builds a new list in a single, readable line.</p>
-        <h3>The pattern</h3>
-        <div class="code-block"><span class="cm"># [expression  for  item  in  iterable]</span>
+        <p>List comprehensions are one of Python's most loved features. They let you create a new list by transforming or filtering an existing sequence — all in one readable line.</p>
+        <p>The long way vs. the comprehension way:</p>
+        <div class="code-block"><span class="cm"># Long way — 4 lines</span>
+<span class="vr">squares</span> = []
+<span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>):
+    <span class="vr">squares</span>.append(<span class="vr">x</span>**<span class="nm">2</span>)
+
+<span class="cm"># Comprehension — 1 line, same result</span>
 <span class="vr">squares</span> = [<span class="vr">x</span>**<span class="nm">2</span> <span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">5</span>)]
 <span class="kw">print</span>(<span class="vr">squares</span>)  <span class="cm"># [0, 1, 4, 9, 16]</span></div>
-        <h3>With a condition</h3>
+        <h3>Adding a filter</h3>
+        <p>Add an <code>if</code> clause at the end to only include items matching a condition:</p>
         <div class="code-block"><span class="vr">evens</span> = [<span class="vr">x</span> <span class="kw">for</span> <span class="vr">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">10</span>) <span class="kw">if</span> <span class="vr">x</span> % <span class="nm">2</span> == <span class="nm">0</span>]
 <span class="kw">print</span>(<span class="vr">evens</span>)  <span class="cm"># [0, 2, 4, 6, 8]</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Use a list comprehension to create a list of <strong>cubes</strong> of numbers 1–5 (i.e. [1, 8, 27, 64, 125]) and print it.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Use a list comprehension to create a list of <strong>cubes</strong> of numbers 1–5 (i.e. [1, 8, 27, 64, 125]) and print it.</div>
         </div>
       </div>`,
     hint: `<p>Use <code>x**3</code> and <code>range(1, 6)</code>:</p>
@@ -1072,6 +1242,12 @@ const LESSONS = {
     starter: `# Create cubes list using a comprehension\n\n`,
     check: (out) => out.includes('[1, 8, 27, 64, 125]'),
     cheatsheet: [['[x*2 for x in lst]', 'Double each item'], ['[x for x in lst if x>0]', 'Filter positive'], ['[f(x) for x in range(5)]', 'Apply function'], ['{k:v for k,v in d.items()}', 'Dict comprehension'], ['{x for x in lst}', 'Set comprehension']],
+    bonus: {
+      title: 'Squares of even numbers',
+      desc: 'Create a second list called even_squares containing the squares of all even numbers from 1 to 10. Print it. Expected: [4, 16, 36, 64, 100]',
+      xp: 75,
+      check: (out) => out.includes('[4, 16, 36, 64, 100]'),
+    },
   },
 
   12: {
@@ -1080,21 +1256,29 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 12 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Error Handling 🛡️</h1>
       <div class="lesson-body">
-        <p>Errors crash your program. <code>try / except</code> lets you catch them gracefully.</p>
+        <p>In real programs, things go wrong. A user types letters when you expect a number, a file doesn't exist, a network request fails. Without error handling, your program crashes — with it, you can respond gracefully.</p>
+        <p>Python uses <code>try / except</code> blocks. Code inside <code>try</code> is attempted; if an error occurs, execution jumps straight to <code>except</code>:</p>
         <div class="code-block"><span class="kw">try</span>:
-    <span class="vr">result</span> = <span class="nm">10</span> / <span class="nm">0</span>
+    <span class="vr">result</span> = <span class="nm">10</span> / <span class="nm">0</span>        <span class="cm"># this raises ZeroDivisionError</span>
 <span class="kw">except</span> ZeroDivisionError:
     <span class="kw">print</span>(<span class="st">"Can't divide by zero!"</span>)</div>
-        <h3>Catching any error</h3>
+        <h3>Catching specific errors</h3>
+        <p>Always catch the most specific error type possible. Use <code>as e</code> to access the error message:</p>
         <div class="code-block"><span class="kw">try</span>:
-    <span class="vr">x</span> = <span class="fn">int</span>(<span class="st">"hello"</span>)
+    <span class="vr">x</span> = <span class="fn">int</span>(<span class="st">"hello"</span>)         <span class="cm"># raises ValueError</span>
 <span class="kw">except</span> ValueError <span class="kw">as</span> <span class="vr">e</span>:
-    <span class="kw">print</span>(<span class="st">f"Error: <span class="vr">{e}</span>"</span>)</div>
-        <h3>finally</h3>
-        <p><code>finally</code> always runs, error or not — useful for cleanup.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a <code>try/except</code> that tries to convert the string <code>"abc"</code> to an int. Catch the <code>ValueError</code> and print <code>Invalid number!</code></div>
+    <span class="kw">print</span>(<span class="st">f"Error: {e}"</span>)</div>
+        <h3>finally — always runs</h3>
+        <p>The <code>finally</code> block runs whether an error happened or not — perfect for closing files, releasing resources, or cleanup code:</p>
+        <div class="code-block"><span class="kw">try</span>:
+    <span class="vr">f</span> = <span class="fn">open</span>(<span class="st">"data.txt"</span>)
+<span class="kw">except</span> FileNotFoundError:
+    <span class="kw">print</span>(<span class="st">"File missing"</span>)
+<span class="kw">finally</span>:
+    <span class="kw">print</span>(<span class="st">"Cleanup done"</span>)  <span class="cm"># always runs</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a <code>try/except</code> that tries to convert the string <code>"abc"</code> to an int. Catch the <code>ValueError</code> and print <code>Invalid number!</code></div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">try</span>:
@@ -1108,6 +1292,12 @@ const LESSONS = {
     starter: `# Try to convert "abc" to int and catch the error\n\n`,
     check: (out) => out.includes("Invalid number!"),
     cheatsheet: [['try:', 'Start try block'], ['except ValueError:', 'Catch specific error'], ['except Exception as e:', 'Catch any error'], ['finally:', 'Always runs'], ['raise ValueError("msg")', 'Raise an error'], ['str(e)', 'Get error message']],
+    bonus: {
+      title: 'Add a finally clause',
+      desc: 'After your except block, add a finally clause that prints "Attempted conversion." — it should print regardless of whether the conversion succeeded or failed.',
+      xp: 75,
+      check: (out, code) => /finally/.test(code) && out.includes('Invalid number!') && out.includes('Attempted conversion.'),
+    },
   },
 
   13: {
@@ -1116,20 +1306,23 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 13 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Classes & Objects 🏗️</h1>
       <div class="lesson-body">
-        <p>A <strong>class</strong> is a blueprint. An <strong>object</strong> is an instance created from it.</p>
+        <p><strong>Object-Oriented Programming (OOP)</strong> lets you model real-world things as code. A <strong>class</strong> is a blueprint that defines what an object knows (attributes) and what it can do (methods).</p>
+        <p>An <strong>object</strong> is a specific instance built from that blueprint. You can create many objects from one class, each with their own data:</p>
         <div class="code-block"><span class="kw">class</span> <span class="fn">Dog</span>:
     <span class="kw">def</span> <span class="fn">__init__</span>(<span class="vr">self</span>, <span class="vr">name</span>):
-        <span class="vr">self</span>.name = <span class="vr">name</span>
+        <span class="vr">self</span>.name = <span class="vr">name</span>  <span class="cm"># instance attribute</span>
 
     <span class="kw">def</span> <span class="fn">bark</span>(<span class="vr">self</span>):
-        <span class="kw">print</span>(<span class="st">f"<span class="vr">{self.name}</span> says: Woof!"</span>)
+        <span class="kw">print</span>(<span class="st">f"{self.name} says: Woof!"</span>)
 
-<span class="vr">d</span> = <span class="fn">Dog</span>(<span class="st">"Rex"</span>)
-<span class="vr">d</span>.<span class="fn">bark</span>()  <span class="cm"># Rex says: Woof!</span></div>
-        <p><code>__init__</code> runs when an object is created. <code>self</code> refers to the instance itself.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a class <code>Circle</code> with an <code>__init__</code> that takes <code>radius</code>. Add a method <code>area()</code> that prints the area (<code>3.14 * radius ** 2</code>). Create a Circle with radius 5 and call <code>area()</code>.</div>
+<span class="vr">d1</span> = <span class="fn">Dog</span>(<span class="st">"Rex"</span>)
+<span class="vr">d2</span> = <span class="fn">Dog</span>(<span class="st">"Luna"</span>)
+<span class="vr">d1</span>.<span class="fn">bark</span>()  <span class="cm"># Rex says: Woof!</span>
+<span class="vr">d2</span>.<span class="fn">bark</span>()  <span class="cm"># Luna says: Woof!</span></div>
+        <p><code>__init__</code> is a special method called the <em>constructor</em> — it runs automatically when you create a new object. <code>self</code> always refers to the current instance, and is the first parameter of every method.</p>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a class <code>Circle</code> with an <code>__init__</code> that takes <code>radius</code>. Add a method <code>area()</code> that prints the area (<code>3.14 * radius ** 2</code>). Create a Circle with radius 5 and call <code>area()</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Circle</span>:
@@ -1151,6 +1344,12 @@ const LESSONS = {
     starter: `# Define class Circle with __init__(radius) and area()\n\n`,
     check: (out) => out.includes('78.5'),
     cheatsheet: [['class Dog:', 'Define class'], ['def __init__(self, name):', 'Constructor'], ['self.name = name', 'Instance attribute'], ['d = Dog("Rex")', 'Create instance'], ['d.name', 'Access attribute'], ['def bark(self):', 'Instance method'], ['super().__init__()', 'Call parent constructor']],
+    bonus: {
+      title: 'Create a second Circle',
+      desc: 'Create a second Circle with radius 3 and call area() on it too. Both areas should be printed.',
+      xp: 80,
+      check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('78.5') && l.includes('28.26'); },
+    },
   },
 
   14: {
@@ -1159,20 +1358,25 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 14 · Python Fundamentals</div>
       <h1 class="lesson-title-h">Modules & Imports 📦</h1>
       <div class="lesson-body">
-        <p>Python's standard library has hundreds of ready-to-use modules. Import them with <code>import</code>.</p>
+        <p>Python's real power comes from its <strong>standard library</strong> — hundreds of built-in modules covering math, dates, files, networking, and more. You don't need to install anything extra.</p>
+        <p>Use <code>import module</code> to load it, then access its contents with <code>module.name</code>:</p>
         <div class="code-block"><span class="kw">import</span> math
 <span class="kw">print</span>(math.pi)           <span class="cm"># 3.14159…</span>
 <span class="kw">print</span>(math.sqrt(<span class="nm">16</span>))    <span class="cm"># 4.0</span>
-<span class="kw">print</span>(math.floor(<span class="nm">3.9</span>))  <span class="cm"># 3</span></div>
+<span class="kw">print</span>(math.floor(<span class="nm">3.9</span>))  <span class="cm"># 3 — round down</span>
+<span class="kw">print</span>(math.ceil(<span class="nm">3.1</span>))   <span class="cm"># 4 — round up</span></div>
         <h3>Import specific names</h3>
+        <p>Use <code>from module import name</code> to bring a specific item into scope — no prefix needed:</p>
         <div class="code-block"><span class="kw">from</span> math <span class="kw">import</span> sqrt, pi
 <span class="kw">print</span>(sqrt(<span class="nm">25</span>))   <span class="cm"># 5.0</span></div>
         <h3>random module</h3>
+        <p>Useful for games, simulations, and testing:</p>
         <div class="code-block"><span class="kw">import</span> random
-<span class="kw">print</span>(random.randint(<span class="nm">1</span>, <span class="nm">10</span>))  <span class="cm"># random 1–10</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Import <code>math</code> and print the square root of 144, and the value of <code>math.pi</code> rounded to 2 decimal places.</div>
+<span class="kw">print</span>(random.randint(<span class="nm">1</span>, <span class="nm">6</span>))   <span class="cm"># dice roll: 1–6</span>
+<span class="kw">print</span>(random.choice([<span class="st">"a"</span>,<span class="st">"b"</span>,<span class="st">"c"</span>]))  <span class="cm"># random item</span></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Import <code>math</code> and print the square root of 144, and the value of <code>math.pi</code> rounded to 2 decimal places.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">import</span> math
@@ -1184,6 +1388,12 @@ const LESSONS = {
     starter: `# Import math, print sqrt(144) and pi rounded to 2 decimals\n\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('12.0') && l.includes('3.14'); },
     cheatsheet: [['import math', 'Import stdlib module'], ['from math import pi', 'Import specific name'], ['import random', 'Random numbers'], ['random.randint(1, 6)', 'Random int 1-6'], ['math.sqrt(x)', 'Square root'], ['math.floor(x)', 'Round down'], ['import datetime', 'Date/time module']],
+    bonus: {
+      title: 'Random number + math',
+      desc: 'Import random and generate a random integer between 1 and 100. Print it, then print its square root using math.sqrt(). Round the square root to 2 decimal places.',
+      xp: 75,
+      check: (out, code) => /import\s+random/.test(code) && /randint/.test(code) && /sqrt/.test(code) && /round/.test(code),
+    },
   },
 
   15: {
@@ -1192,19 +1402,25 @@ const LESSONS = {
       <div class="lesson-num-tag">Lesson 15 · Python Fundamentals</div>
       <h1 class="lesson-title-h">File I/O 📁</h1>
       <div class="lesson-body">
-        <p>Python can read and write files using the built-in <code>open()</code> function.</p>
+        <p>Real applications constantly read and write files — config files, logs, data exports. Python's built-in <code>open()</code> function handles this.</p>
+        <p>Always use the <code>with</code> statement when working with files. It automatically closes the file when the block ends, even if an error occurs:</p>
         <h3>Writing to a file</h3>
         <div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"note.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="vr">f</span>:
     <span class="vr">f</span>.write(<span class="st">"Hello from Python!\n"</span>)
     <span class="vr">f</span>.write(<span class="st">"Second line.\n"</span>)</div>
         <h3>Reading from a file</h3>
         <div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"note.txt"</span>, <span class="st">"r"</span>) <span class="kw">as</span> <span class="vr">f</span>:
-    <span class="vr">content</span> = <span class="vr">f</span>.read()
+    <span class="vr">content</span> = <span class="vr">f</span>.read()   <span class="cm"># whole file as string</span>
     <span class="kw">print</span>(<span class="vr">content</span>)</div>
-        <p>The <code>with</code> statement auto-closes the file when done. Mode <code>"w"</code> writes, <code>"r"</code> reads, <code>"a"</code> appends.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write <code>"Helix is awesome!\n"</code> to a file called <code>helix.txt</code>, then read it back and print its content.</div>
+        <h3>File modes</h3>
+        <ul>
+          <li><code>"r"</code> — read (default) — error if file doesn't exist</li>
+          <li><code>"w"</code> — write — creates or overwrites the file</li>
+          <li><code>"a"</code> — append — adds to the end without overwriting</li>
+        </ul>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write <code>"Helix is awesome!\n"</code> to a file called <code>helix.txt</code>, then read it back and print its content.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">with</span> <span class="fn">open</span>(<span class="st">"helix.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> <span class="vr">f</span>:
@@ -1218,6 +1434,12 @@ const LESSONS = {
     starter: `# Write to helix.txt, then read and print it\n\n`,
     check: (out) => out.includes("Helix is awesome!"),
     cheatsheet: [['open("f.txt","r")', 'Open for reading'], ['open("f.txt","w")', 'Open for writing'], ['f.read()', 'Read whole file'], ['f.readlines()', 'Read as list of lines'], ['f.write("text")', 'Write to file'], ['with open(...) as f:', 'Auto-close file (preferred)'], ['f.close()', 'Manually close file']],
+    bonus: {
+      title: 'Append a second line',
+      desc: 'After writing and reading helix.txt, open it in "a" (append) mode and add a second line: "Python is powerful!\n". Then read the whole file again and print it.',
+      xp: 90,
+      check: (out, code) => /["']a["']/.test(code) && out.includes('Helix is awesome!') && out.includes('Python is powerful!'),
+    },
   },
 };
 
@@ -1400,15 +1622,102 @@ function updateLineNums() {
   const n = editor.value.split('\n').length;
   document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
-editor.addEventListener('input', updateLineNums);
-editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+
+// ─── Python Syntax Highlighter ─────────────────────────────
+const PY_KEYWORDS = new Set(['False','None','True','and','as','assert','async','await',
+  'break','class','continue','def','del','elif','else','except','finally','for','from',
+  'global','if','import','in','is','lambda','nonlocal','not','or','pass','raise','return',
+  'try','while','with','yield']);
+const PY_BUILTINS = new Set(['abs','all','any','bool','chr','dict','dir','divmod','enumerate',
+  'filter','float','format','getattr','hasattr','hash','help','hex','id','input','int',
+  'isinstance','issubclass','iter','len','list','map','max','min','next','object','open',
+  'ord','pow','print','property','range','repr','reversed','round','set','setattr','slice',
+  'sorted','staticmethod','str','sum','super','tuple','type','vars','zip']);
+
+function pyHighlight(src) {
+  let out = ''; let i = 0; const n = src.length;
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  while (i < n) {
+    // Comment
+    if (src[i] === '#') {
+      let j = i; while (j < n && src[j] !== '\n') j++;
+      out += `<span class="cm">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Triple-quoted strings
+    if ((src[i]==="'" && src[i+1]==="'" && src[i+2]==="'") ||
+        (src[i]==='"' && src[i+1]==='"' && src[i+2]==='"')) {
+      const q = src.slice(i,i+3); let j = i+3;
+      while (j < n && src.slice(j,j+3) !== q) j++;
+      j += 3;
+      out += `<span class="st">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Single/double quoted strings (f-strings included)
+    if ((src[i]==='f'||src[i]==='b'||src[i]==='r') &&
+        (src[i+1]==='"'||src[i+1]==="'")) {
+      const q = src[i+1]; let j = i+2;
+      while (j < n && src[j] !== q && src[j] !== '\n') {
+        if (src[j]==='\\') j++;
+        j++;
+      }
+      j++;
+      out += `<span class="st">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    if (src[i]==='"' || src[i]==="'") {
+      const q = src[i]; let j = i+1;
+      while (j < n && src[j] !== q && src[j] !== '\n') {
+        if (src[j]==='\\') j++;
+        j++;
+      }
+      j++;
+      out += `<span class="st">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Numbers
+    if (src[i] >= '0' && src[i] <= '9') {
+      let j = i;
+      while (j < n && (src[j] >= '0' && src[j] <= '9' || src[j]==='.' || src[j]==='x' ||
+             src[j]==='b' || src[j]==='o' || (src[j] >= 'a' && src[j] <= 'f') ||
+             (src[j] >= 'A' && src[j] <= 'F'))) j++;
+      out += `<span class="nm">${esc(src.slice(i,j))}</span>`; i = j; continue;
+    }
+    // Identifiers / keywords / builtins
+    if ((src[i] >= 'a' && src[i] <= 'z') || (src[i] >= 'A' && src[i] <= 'Z') || src[i]==='_') {
+      let j = i;
+      while (j < n && ((src[j] >= 'a' && src[j] <= 'z') || (src[j] >= 'A' && src[j] <= 'Z') ||
+             (src[j] >= '0' && src[j] <= '9') || src[j]==='_')) j++;
+      const word = src.slice(i,j);
+      if (PY_KEYWORDS.has(word))  out += `<span class="kw">${esc(word)}</span>`;
+      else if (PY_BUILTINS.has(word)) out += `<span class="fn">${esc(word)}</span>`;
+      else out += `<span class="vr">${esc(word)}</span>`;
+      i = j; continue;
+    }
+    out += esc(src[i]); i++;
+  }
+  return out;
+}
+
+const hlPre = document.getElementById('hl-pre');
+function updateHighlight() {
+  const code = editor.value;
+  // Trailing newline trick to prevent layout collapse
+  hlPre.innerHTML = pyHighlight(code) + '\n';
+}
+updateHighlight();
+
+function syncScroll() {
+  hlPre.scrollTop  = editor.scrollTop;
+  hlPre.scrollLeft = editor.scrollLeft;
+  document.getElementById('line-nums').scrollTop = editor.scrollTop;
+}
+
+editor.addEventListener('input', () => { updateLineNums(); updateHighlight(); });
+editor.addEventListener('scroll', syncScroll);
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') {
     e.preventDefault();
     const s = editor.selectionStart, end = editor.selectionEnd;
     editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
     editor.selectionStart = editor.selectionEnd = s + 4;
-    updateLineNums();
+    updateLineNums(); updateHighlight();
     return;
   }
   // ⌘/Ctrl + Enter → Run;  ⌘/Ctrl + Shift + Enter → Submit
@@ -1425,9 +1734,31 @@ editor.addEventListener('keydown', (e) => {
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
   editor.value = lesson.starter || '';
-  updateLineNums();
+  updateLineNums(); updateHighlight();
   setOutput([{type:'placeholder',text:'Code reset.'}], 'idle');
 });
+
+// ─── Stdin section (show for lessons that use input()) ──────
+(function() {
+  const STDIN_DEFAULTS = { 3: 'Alex' };
+  if (STDIN_DEFAULTS[lessonId] !== undefined) {
+    const sec = document.getElementById('stdin-section');
+    sec.style.display = '';
+    document.getElementById('stdin-input').value = STDIN_DEFAULTS[lessonId];
+  }
+})();
+
+// ─── Bonus challenge rendering ───────────────────────────────
+let bonusCompleted = false;
+(function() {
+  const b = lesson.bonus;
+  if (!b) return;
+  const box = document.getElementById('bonus-box');
+  box.style.display = '';
+  document.getElementById('bonus-title').textContent = b.title;
+  document.getElementById('bonus-desc').textContent  = b.desc;
+  document.getElementById('btn-bonus-submit').addEventListener('click', () => runCode(false, true));
+})();
 
 // ═══════════════════════════════════════════════════════════
 // COLLAPSIBLES
@@ -1502,33 +1833,53 @@ async function loadPy() {
     document.getElementById('py-loader').classList.add('hidden');
     document.getElementById('btn-run').disabled    = false;
     document.getElementById('btn-submit').disabled = false;
+    const _bb = document.getElementById('btn-bonus-submit');
+    if (_bb) _bb.disabled = false;
   } catch(e) {
     document.querySelector('.py-loader-text').textContent = 'Failed to load Python engine.';
   }
 }
 loadPy();
 
-async function runCode(forSubmit = false) {
+async function runCode(forSubmit = false, forBonus = false) {
   if (!pyodide) return;
+
+  // Guard: empty editor should not count as a run
+  if (editor.value.trim() === '') {
+    setOutput([{type:'error', text:'⚠️  Write some code first before running!'}], 'error');
+    return;
+  }
+
   outputLines = [];
   setOutput([{type:'placeholder',text:''}], 'running');
   document.getElementById('btn-run').disabled    = true;
   document.getElementById('btn-submit').disabled = true;
+  const bonusBtn = document.getElementById('btn-bonus-submit');
+  if (bonusBtn) bonusBtn.disabled = true;
 
-  const inputMocks = { 3: 'Alex' };
-  const mock = inputMocks[lessonId] || '';
+  // Build stdin queue from the stdin textarea (one value per line)
+  const stdinRaw = (document.getElementById('stdin-input') || {value:''}).value;
+  const stdinLines = stdinRaw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+  let stdinIdx = 0;
 
   try {
     await pyodide.runPythonAsync(`
-import builtins
-_mock = ${JSON.stringify(mock)}
-_orig = builtins.input
-def _pi(prompt=''):
-    import sys; sys.stdout.write(prompt + _mock + '\\n'); return _mock
-builtins.input = _pi
+import builtins, sys
+_stdin_lines = ${JSON.stringify(stdinLines)}
+_stdin_idx   = [0]
+_orig_input  = builtins.input
+def _mock_input(prompt=''):
+    sys.stdout.write(str(prompt))
+    if _stdin_idx[0] < len(_stdin_lines):
+        val = _stdin_lines[_stdin_idx[0]]
+        _stdin_idx[0] += 1
+        sys.stdout.write(val + '\\n')
+        return val
+    return ''
+builtins.input = _mock_input
 `);
     await pyodide.runPythonAsync(editor.value);
-    await pyodide.runPythonAsync(`builtins.input = _orig`);
+    await pyodide.runPythonAsync(`builtins.input = _orig_input`);
   } catch(err) {
     outputLines.push({type:'error', text: String(err)});
   }
@@ -1538,10 +1889,12 @@ builtins.input = _pi
   setOutput(outputLines, hasErr ? 'error' : 'ok');
   document.getElementById('btn-run').disabled    = false;
   document.getElementById('btn-submit').disabled = false;
+  if (bonusBtn) bonusBtn.disabled = false;
 
-  // Unlock solution after first attempt
+  // Unlock solution after first real attempt
   if (!hasRun) { hasRun = true; unlockSolution(); }
 
+  if (forBonus) { checkBonus(); return; }
   if (forSubmit) checkAnswer();
 }
 
@@ -1567,6 +1920,40 @@ function checkAnswer() {
     const st = document.getElementById('output-status');
     st.className = 'output-status os-error'; st.textContent = 'Not quite — check the hint!';
     setTimeout(() => { st.className = 'output-status os-ok'; st.textContent = 'Done'; }, 2500);
+  }
+}
+
+function checkBonus() {
+  if (!lesson.bonus || bonusCompleted) return;
+  const out  = outputLines.map(l=>l.text).join('\n');
+  const code = editor.value;
+  const fb   = document.getElementById('bonus-feedback');
+  const btn  = document.getElementById('btn-bonus-submit');
+  if (lesson.bonus.check(out, code)) {
+    bonusCompleted = true;
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP`;
+    fb.className = 'bonus-feedback success';
+    btn.disabled = true;
+    btn.textContent = '✅ Done';
+    // Award bonus XP
+    const state = loadState();
+    const bonusKey = `helix_bonus_${lessonId}`;
+    if (!localStorage.getItem(bonusKey)) {
+      localStorage.setItem(bonusKey, '1');
+      state.xp += lesson.bonus.xp;
+      state.level = getLevel(state.xp);
+      saveState(state);
+      document.getElementById('nav-xp').textContent = state.xp;
+      // Log XP
+      const today = new Date().toISOString().slice(0,10);
+      const log = JSON.parse(localStorage.getItem('helix_xp_log') || '{}');
+      log[today] = (log[today] || 0) + lesson.bonus.xp;
+      localStorage.setItem('helix_xp_log', JSON.stringify(log));
+    }
+  } else {
+    fb.textContent = '✗ Not quite — read the bonus description carefully!';
+    fb.className = 'bonus-feedback fail';
+    setTimeout(() => { fb.className = 'bonus-feedback'; fb.style.display = 'none'; }, 2800);
   }
 }
 
