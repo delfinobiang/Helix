@@ -462,6 +462,11 @@
     .cl-btn:hover { opacity: 0.8; transform: translateY(-1px); }
     .cl-card.not-started { opacity: 0.7; }
     .cl-card.not-started:hover { opacity: 1; }
+    .cl-next {
+      font-size: 0.69rem; color: var(--text-3); margin: 0.1rem 0 0.25rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+    }
+    .stat-card-sub { font-size: 0.68rem; color: var(--text-3); margin-top: 0.2rem; }
 
     /* ─── ACHIEVEMENTS ────────────────────────────────────── */
     /* ─── TROPHY MINI-SUMMARY ───────────────────────────── */
@@ -846,6 +851,7 @@
       <div class="stat-card sc-xp">
         <div class="stat-card-val" id="stat-xp">0</div>
         <div class="stat-card-lbl">⚡ Total XP</div>
+        <div class="stat-card-sub" id="stat-bonus-xp"></div>
       </div>
       <div class="stat-card sc-str">
         <div class="stat-card-val" id="stat-streak">1</div>
@@ -854,6 +860,7 @@
       <div class="stat-card sc-lvl">
         <div class="stat-card-val" id="stat-level">1</div>
         <div class="stat-card-lbl">✨ Level</div>
+        <div class="stat-card-sub" id="stat-xp-to-level"></div>
       </div>
       <div class="stat-card sc-les">
         <div class="stat-card-val" id="stat-lessons">0</div>
@@ -1404,6 +1411,73 @@ function getLevelTitle(level) {
   return titles[Math.min(level, titles.length - 1)] || 'Legend';
 }
 
+// ─── Next-lesson helpers ─────────────────────────────────
+function getNextHref(strand) {
+  if (strand.key === 'coding') {
+    const py = JSON.parse(localStorage.getItem('helix_progress') || '{}');
+    const pyDone = new Set(py.completedIds || []);
+    for (let i = 1; i <= 15; i++) {
+      if (!pyDone.has(i)) return { href: `lesson.html?id=${i}`, label: `Python · Lesson ${i}` };
+    }
+    const jsP = JSON.parse(localStorage.getItem('helix_js_progress') || '{}');
+    const jsDone = new Set(jsP.completedIds || []);
+    for (let i = 1; i <= 15; i++) {
+      if (!jsDone.has(i)) return { href: `lesson-js.html?id=${i}`, label: `JS · Lesson ${i}` };
+    }
+    return null;
+  }
+  const MODULE_ORDER = {
+    math: [
+      { key: 'logic',    href: 'math-logic.html',    label: 'Logic Gates'       },
+      { key: 'numbers',  href: 'math-numbers.html',  label: 'Number Systems'    },
+      { key: 'algebra',  href: 'math-algebra.html',  label: 'Algebra'           },
+      { key: 'discrete', href: 'math-discrete.html', label: 'Discrete Math'     },
+      { key: 'stats',    href: 'math-stats.html',    label: 'Statistics'        },
+      { key: 'pseudo',   href: 'math-pseudo.html',   label: 'Pseudocode'        },
+    ],
+    cs: [
+      { key: 'bigO',    href: 'cs-bigO.html',        label: 'Big-O Notation'    },
+      { key: 'arrays',  href: 'cs-arrays.html',      label: 'Arrays'            },
+      { key: 'sorting', href: 'cs-sorting.html',     label: 'Sorting'           },
+      { key: 'trees',   href: 'cs-trees.html',       label: 'Trees'             },
+      { key: 'graphs',  href: 'cs-graphs.html',      label: 'Graphs'            },
+    ],
+    data: [
+      { key: 'intro',   href: 'data-intro.html',     label: 'Intro to Data'     },
+      { key: 'stats',   href: 'data-stats.html',     label: 'Statistics'        },
+      { key: 'ml',      href: 'data-ml.html',        label: 'Machine Learning'  },
+      { key: 'neural',  href: 'data-neural.html',    label: 'Neural Networks'   },
+    ],
+    web: [
+      { key: 'how',      href: 'web-how.html',       label: 'How the Web Works' },
+      { key: 'http',     href: 'web-http.html',      label: 'HTTP'              },
+      { key: 'security', href: 'web-security.html',  label: 'Web Security'      },
+      { key: 'browser',  href: 'web-browser.html',   label: 'Browsers'          },
+    ],
+  };
+  const mods = MODULE_ORDER[strand.key];
+  if (!mods) return null;
+  const s = JSON.parse(localStorage.getItem(`helix_${strand.key}_progress`) || '{}');
+  const modData = s.modules || {};
+  for (const m of mods) {
+    if (!modData[m.key]?.completed) return { href: m.href, label: m.label };
+  }
+  return null;
+}
+
+function getTotalBonusXP() {
+  const prefixes = ['helix_bonus_','helix_js_bonus_','helix_html_bonus_','helix_sql_bonus_','helix_cpp_bonus_','helix_ts_bonus_'];
+  let total = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (prefixes.some(p => key.startsWith(p))) {
+      const val = parseInt(localStorage.getItem(key) || '0', 10);
+      if (val > 0) total += val;
+    }
+  }
+  return total;
+}
+
 // ─── Render ──────────────────────────────────────────────
 function render() {
   const state = loadState();
@@ -1484,6 +1558,16 @@ function render() {
   function langDone(key) { const s=localStorage.getItem(key); return s?(JSON.parse(s).completedIds||[]).length:0; }
   const totalDone = (state.completedIds||[]).length + langDone('helix_js_progress') + langDone('helix_html_progress') + langDone('helix_sql_progress') + langDone('helix_cpp_progress') + langDone('helix_ts_progress');
   document.getElementById('stat-lessons').textContent  = totalDone;
+
+  // Bonus XP sub-label
+  const bonusXP = getTotalBonusXP();
+  const bonusEl = document.getElementById('stat-bonus-xp');
+  if (bonusEl) bonusEl.textContent = bonusXP > 0 ? `+${bonusXP} bonus XP` : '';
+
+  // XP to next level sub-label
+  const xpToNext = lxp.next - state.xp;
+  const levelNextEl = document.getElementById('stat-xp-to-level');
+  if (levelNextEl) levelNextEl.textContent = level < 7 ? `${xpToNext} XP to Level ${level + 1}` : 'Max level';
 
   // sidebar
   document.getElementById('sidebar-level').textContent   = `Level ${level} · ${getLevelTitle(level)}`;
@@ -1680,8 +1764,12 @@ function render() {
     const prog   = getStrandProg(strand);
     const offset = +(CL_C * (1 - prog.pct / 100)).toFixed(2);
     const ns     = !prog.started ? ' not-started' : '';
+    const next   = prog.started && prog.pct < 100 ? getNextHref(strand) : null;
+    const cardHref = next ? next.href : strand.hub;
+    const btnLabel = prog.pct >= 100 ? 'Review →' : (prog.started ? 'Resume →' : 'Start →');
+    const nextLine = next ? `<div class="cl-next">Next: ${next.label}</div>` : '';
     return `
-      <a class="cl-card${ns}" href="${strand.hub}"
+      <a class="cl-card${ns}" href="${cardHref}"
         style="--cl-glow:rgba(${strand.rgb},0.08);border-color:rgba(${strand.rgb},${prog.started?'0.22':'0.1'});">
         <div class="cl-ring-wrap">
           <svg width="76" height="76" viewBox="0 0 76 76">
@@ -1696,7 +1784,8 @@ function render() {
         <div class="cl-strand-name">${strand.label}</div>
         <div class="cl-pct" style="color:${strand.color};">${prog.pct}%</div>
         <div class="cl-meta">${prog.xp.toLocaleString()} XP &nbsp;·&nbsp; ${prog.done}&thinsp;/&thinsp;${strand.maxItems} ${strand.itemLabel}</div>
-        <span class="cl-btn" style="background:rgba(${strand.rgb},0.12);color:${strand.color};">${prog.started ? 'Resume →' : 'Start →'}</span>
+        ${nextLine}
+        <span class="cl-btn" style="background:rgba(${strand.rgb},0.12);color:${strand.color};">${btnLabel}</span>
       </a>`;
   }).join('');
 
