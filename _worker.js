@@ -1,4 +1,112 @@
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── email ─────────────────────────────────────────────────────────────────────
+
+async function sendEmail(env, to, subject, html) {
+  if (!env.RESEND_API_KEY) return;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: 'Helix <hello@learnhelix.org>', to: [to], subject, html }),
+    });
+  } catch (e) {}
+}
+
+function emailWelcome(username) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#050816;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#050816;padding:40px 0;">
+  <tr><td align="center">
+    <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+      <!-- Logo -->
+      <tr><td style="padding:0 0 28px 0;">
+        <span style="font-size:22px;font-weight:900;letter-spacing:-0.04em;color:#EEF2F8;">⬡ Helix</span>
+      </td></tr>
+      <!-- Card -->
+      <tr><td style="background:#0C1022;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:36px 40px;">
+        <p style="font-size:26px;font-weight:800;color:#EEF2F8;margin:0 0 8px 0;letter-spacing:-0.03em;">Welcome to Helix, ${username}! 👋</p>
+        <p style="font-size:15px;color:#8892A4;margin:0 0 28px 0;line-height:1.6;">You've just joined a community of people learning to code the right way — through practice, not theory.</p>
+        <table cellpadding="0" cellspacing="0" style="margin:0 0 28px 0;width:100%;">
+          <tr>
+            <td style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:16px 18px;">
+              <p style="margin:0 0 4px 0;font-size:13px;font-weight:700;color:#818CF8;letter-spacing:0.04em;text-transform:uppercase;">What's next?</p>
+              <p style="margin:0;font-size:14px;color:#8892A4;line-height:1.65;">
+                🐍 Start with <strong style="color:#EEF2F8;">Python</strong> — the friendliest language to learn first<br>
+                🟨 Try <strong style="color:#EEF2F8;">JavaScript</strong> — power the web<br>
+                📊 Explore <strong style="color:#EEF2F8;">SQL</strong> — talk to databases<br>
+              </p>
+            </td>
+          </tr>
+        </table>
+        <a href="https://learnhelix.org/dashboard.html"
+           style="display:inline-block;background:#6366F1;color:white;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:10px;letter-spacing:-0.01em;">
+          Go to Dashboard →
+        </a>
+        <p style="margin:28px 0 0 0;font-size:13px;color:#8892A4;line-height:1.6;">
+          Free accounts get <strong style="color:#EEF2F8;">3 lessons per language</strong>. When you're ready for more,
+          <a href="https://learnhelix.org/pricing.html" style="color:#818CF8;text-decoration:none;">upgrade to Pro</a>
+          and unlock all 90 lessons across 6 languages.
+        </p>
+      </td></tr>
+      <!-- Footer -->
+      <tr><td style="padding:24px 0 0 0;font-size:12px;color:rgba(136,146,164,0.6);line-height:1.6;">
+        You're receiving this because you created a Helix account.<br>
+        <a href="https://learnhelix.org" style="color:rgba(136,146,164,0.6);">learnhelix.org</a>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+function emailProWelcome(username, tier) {
+  const tierLabel = tier === 'annual' ? 'Annual' : 'Monthly';
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#050816;font-family:'Helvetica Neue',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#050816;padding:40px 0;">
+  <tr><td align="center">
+    <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+      <tr><td style="padding:0 0 28px 0;">
+        <span style="font-size:22px;font-weight:900;letter-spacing:-0.04em;color:#EEF2F8;">⬡ Helix</span>
+      </td></tr>
+      <tr><td style="background:#0C1022;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:36px 40px;">
+        <!-- Pro badge -->
+        <div style="display:inline-block;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:100px;padding:5px 14px;margin-bottom:20px;">
+          <span style="font-size:13px;font-weight:700;color:#10B981;">⭐ Pro · ${tierLabel}</span>
+        </div>
+        <p style="font-size:26px;font-weight:800;color:#EEF2F8;margin:0 0 8px 0;letter-spacing:-0.03em;">You're now a Helix Pro member!</p>
+        <p style="font-size:15px;color:#8892A4;margin:0 0 28px 0;line-height:1.6;">Thanks for upgrading, ${username}. You now have full access to everything Helix has to offer.</p>
+        <table cellpadding="0" cellspacing="0" style="margin:0 0 28px 0;width:100%;">
+          <tr><td style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px;padding:18px 20px;">
+            <p style="margin:0 0 12px 0;font-size:13px;font-weight:700;color:#10B981;letter-spacing:0.04em;text-transform:uppercase;">Unlocked with Pro</p>
+            <table cellpadding="0" cellspacing="0">
+              <tr><td style="padding:3px 0;font-size:14px;color:#EEF2F8;">✓&nbsp; All 90 lessons across 6 languages</td></tr>
+              <tr><td style="padding:3px 0;font-size:14px;color:#EEF2F8;">✓&nbsp; Python, JavaScript, HTML &amp; CSS, SQL, TypeScript, C++</td></tr>
+              <tr><td style="padding:3px 0;font-size:14px;color:#EEF2F8;">✓&nbsp; Full XP, streaks, and trophies system</td></tr>
+              <tr><td style="padding:3px 0;font-size:14px;color:#EEF2F8;">✓&nbsp; Priority support</td></tr>
+            </table>
+          </td></tr>
+        </table>
+        <a href="https://learnhelix.org/dashboard.html"
+           style="display:inline-block;background:#6366F1;color:white;text-decoration:none;font-weight:700;font-size:15px;padding:14px 32px;border-radius:10px;letter-spacing:-0.01em;">
+          Start Learning →
+        </a>
+        <p style="margin:28px 0 0 0;font-size:13px;color:#8892A4;line-height:1.6;">
+          You can manage your subscription at any time from your
+          <a href="https://learnhelix.org/settings.html" style="color:#818CF8;text-decoration:none;">account settings</a>.
+          If you have any questions, just reply to this email.
+        </p>
+      </td></tr>
+      <tr><td style="padding:24px 0 0 0;font-size:12px;color:rgba(136,146,164,0.6);line-height:1.6;">
+        You're receiving this because you upgraded to Helix Pro.<br>
+        <a href="https://learnhelix.org" style="color:rgba(136,146,164,0.6);">learnhelix.org</a>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 const toHex = arr => Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
 
@@ -81,6 +189,8 @@ async function handleAuthSignup(request, env) {
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     await env.DB.prepare('INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)').bind(token, id, expires).run();
 
+    sendEmail(env, norm, 'Welcome to Helix, ' + username + '! 👋', emailWelcome(username));
+
     return json({ ok: true, session: { token, userId: id, email: norm, username, isAdmin: false } });
   } catch (e) {
     return json({ ok: false, error: 'Server error.' }, 500);
@@ -133,6 +243,7 @@ async function handleAuthGoogle(request, env) {
         "INSERT INTO users (id, email, username, profile_pic, plan, is_admin, provider, google_id, joined_at) VALUES (?, ?, ?, ?, 'free', 0, 'google', ?, ?)"
       ).bind(id, norm, uname, profilePic || null, googleId, now).run();
       user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
+      sendEmail(env, norm, 'Welcome to Helix, ' + user.username + '! 👋', emailWelcome(user.username));
     } else if (profilePic && !user.profile_pic) {
       await env.DB.prepare('UPDATE users SET profile_pic = ? WHERE id = ?').bind(profilePic, user.id).run();
     }
@@ -422,6 +533,11 @@ async function handleStripeWebhook(request, env) {
         await env.DB.prepare(
           "UPDATE users SET plan = 'pro', plan_tier = ?, plan_started_at = ?, stripe_customer_id = ?, stripe_subscription_id = ? WHERE id = ?"
         ).bind(tier, new Date().toISOString(), customerId, subscriptionId, userId).run();
+
+        const upgraded = await env.DB.prepare('SELECT email, username FROM users WHERE id = ?').bind(userId).first();
+        if (upgraded) {
+          sendEmail(env, upgraded.email, "You're now a Helix Pro member! ⭐", emailProWelcome(upgraded.username, tier));
+        }
       }
     }
   } else if (event.type === 'customer.subscription.deleted') {
