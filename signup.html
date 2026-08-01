@@ -714,32 +714,6 @@
 
   <script>
     /* =========================================================
-       ADMIN SEED (idempotent)
-    ========================================================= */
-    function seedAdmin() {
-      let users = JSON.parse(localStorage.getItem('helix_users') || '[]');
-      const adminExists = users.some(u => u.id === 'admin-001');
-      if (!adminExists) {
-        users.push({
-          id: 'admin-001',
-          email: 'admin@helix.dev',
-          username: 'admin',
-          password: btoa('Helix@Admin2026'),
-          profilePic: null,
-          bio: 'Helix Administrator',
-          plan: 'pro',
-          planExpiry: null,
-          createdAt: new Date().toISOString(),
-          isAdmin: true,
-          provider: 'email'
-        });
-        localStorage.setItem('helix_users', JSON.stringify(users));
-      }
-    }
-
-    seedAdmin();
-
-    /* =========================================================
        REDIRECT IF ALREADY LOGGED IN
     ========================================================= */
     (function checkSession() {
@@ -856,7 +830,7 @@
     /* =========================================================
        SIGNUP SUBMIT
     ========================================================= */
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       // Reset all errors
@@ -914,56 +888,40 @@
 
       if (!valid) return;
 
-      // Check for duplicate email or username
-      const users = JSON.parse(localStorage.getItem('helix_users') || '[]');
-
-      const emailTaken    = users.some(u => u.email.toLowerCase() === email);
-      const usernameTaken = users.some(u => u.username.toLowerCase() === username.toLowerCase());
-
-      if (emailTaken) {
-        markFieldError(emailInput, emailError, emailErrorText, 'An account with this email already exists.');
-        return;
-      }
-
-      if (usernameTaken) {
-        markFieldError(usernameInput, usernameError, usernameErrorText, 'That username is already taken.');
-        return;
-      }
-
-      // Create user
-      const newUser = {
-        id:          crypto.randomUUID(),
-        email:       email,
-        username:    username,
-        password:    btoa(password),
-        profilePic:  null,
-        bio:         '',
-        plan:        'free',
-        planExpiry:  null,
-        createdAt:   new Date().toISOString(),
-        isAdmin:     false,
-        provider:    'email'
-      };
-
-      users.push(newUser);
-      localStorage.setItem('helix_users', JSON.stringify(users));
-
-      // Create session
-      const session = {
-        userId:   newUser.id,
-        email:    newUser.email,
-        username: newUser.username,
-        isAdmin:  false
-      };
-      localStorage.setItem('helix_session', JSON.stringify(session));
-
-      // Redirect
       submitBtn.textContent = 'Creating your account…';
       submitBtn.disabled = true;
 
-      setTimeout(() => {
+      try {
+        const resp = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, username, password })
+        });
+        const data = await resp.json();
+
+        if (!data.ok) {
+          const msg = data.error || 'Could not create account.';
+          if (msg.toLowerCase().includes('email')) {
+            markFieldError(emailInput, emailError, emailErrorText, 'An account with this email already exists.');
+          } else if (msg.toLowerCase().includes('username')) {
+            markFieldError(usernameInput, usernameError, usernameErrorText, 'That username is already taken.');
+          } else {
+            globalError.textContent = msg;
+            globalError.classList.add('visible');
+          }
+          submitBtn.textContent = 'Create Account';
+          submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem('helix_session', JSON.stringify(data.session));
         window.location.href = 'dashboard.html';
-      }, 500);
+      } catch (err) {
+        globalError.textContent = 'Could not connect. Please try again.';
+        globalError.classList.add('visible');
+        submitBtn.textContent = 'Create Account';
+        submitBtn.disabled = false;
+      }
     });
 
     /* =========================================================
@@ -971,7 +929,7 @@
     ========================================================= */
     const GOOGLE_CLIENT_ID = '136269760870-dmshmj0qkfs5rsgru5hl044t2g034u1k.apps.googleusercontent.com';
 
-    function handleGoogleUser(info) {
+    async function handleGoogleUser(info) {
       const email    = (info.email || '').toLowerCase();
       const name     = info.name || email.split('@')[0] || 'user';
       const picture  = info.picture || null;
@@ -982,48 +940,22 @@
         return;
       }
 
-      let users = JSON.parse(localStorage.getItem('helix_users') || '[]');
-      let user  = users.find(function(u) { return u.email.toLowerCase() === email; });
-
-      if (!user) {
-        // Generate unique username from display name
-        let base = name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'user';
-        let username = base;
-        let counter  = 1;
-        while (users.some(function(u) { return u.username.toLowerCase() === username; })) {
-          username = base + counter++;
+      try {
+        const resp = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, username: name, googleId, profilePic: picture })
+        });
+        const data = await resp.json();
+        if (!data.ok) {
+          alert(data.error || 'Sign-in failed. Please try again.');
+          return;
         }
-
-        user = {
-          id:         crypto.randomUUID(),
-          email:      email,
-          username:   username,
-          password:   null,
-          profilePic: picture,
-          bio:        '',
-          plan:       'free',
-          planExpiry: null,
-          createdAt:  new Date().toISOString(),
-          isAdmin:    false,
-          provider:   'google',
-          googleId:   googleId
-        };
-        users.push(user);
-        localStorage.setItem('helix_users', JSON.stringify(users));
-      } else if (!user.profilePic && picture) {
-        user.profilePic = picture;
-        users = users.map(function(u) { return u.id === user.id ? user : u; });
-        localStorage.setItem('helix_users', JSON.stringify(users));
+        localStorage.setItem('helix_session', JSON.stringify(data.session));
+        window.location.href = data.session.isAdmin ? 'admin.html' : 'dashboard.html';
+      } catch (err) {
+        alert('Sign-in failed. Please try again.');
       }
-
-      const session = {
-        userId:   user.id,
-        email:    user.email,
-        username: user.username,
-        isAdmin:  user.isAdmin || false
-      };
-      localStorage.setItem('helix_session', JSON.stringify(session));
-      window.location.href = user.isAdmin ? 'admin.html' : 'dashboard.html';
     }
 
     function triggerGoogleSignIn() {

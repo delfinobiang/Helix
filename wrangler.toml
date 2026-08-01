@@ -1,0 +1,7 @@
+name = "helix"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "helix-db"
+database_id = "7b06f470-1248-4edc-9149-59a99c8a6a68"

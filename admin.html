@@ -1042,12 +1042,37 @@
   }
 
   /* ── Helpers ─────────────────────────────────────────── */
-  function getUsers() {
-    return JSON.parse(localStorage.getItem('helix_users') || '[]');
+  let _usersCache = [];
+
+  function getUsers() { return _usersCache; }
+
+  async function refreshUsers() {
+    try {
+      const resp = await fetch('/api/admin/users', {
+        headers: { 'Authorization': 'Bearer ' + (session?.token || '') }
+      });
+      if (resp.ok) _usersCache = await resp.json();
+    } catch (e) { /* network error — keep cache */ }
+    return _usersCache;
   }
-  function saveUsers(users) {
-    localStorage.setItem('helix_users', JSON.stringify(users));
+
+  async function apiPatch(userId, body) {
+    const resp = await fetch('/api/admin/users/' + userId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (session?.token || '') },
+      body: JSON.stringify(body)
+    });
+    return resp.json();
   }
+
+  async function apiDelete(userId) {
+    const resp = await fetch('/api/admin/users/' + userId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + (session?.token || '') }
+    });
+    return resp.json();
+  }
+
   function getProgress() {
     return JSON.parse(localStorage.getItem('helix_progress') || '{}');
   }
@@ -1412,79 +1437,67 @@
 
   /* ── View Password ───────────────────────────────────── */
   function openViewPw(userId) {
-    const users = getUsers();
-    const u = users.find(x => x.id === userId);
+    const u = getUsers().find(x => x.id === userId);
     if (!u) return;
-    let decoded = '(no password stored)';
-    if (u.password) {
-      try { decoded = atob(u.password); } catch { decoded = '(could not decode)'; }
-    }
-    document.getElementById('viewpw-sub').textContent = 'Decoded password for: ' + (u.username || u.email || userId);
-    document.getElementById('viewpw-value').textContent = decoded;
+    document.getElementById('viewpw-sub').textContent = 'Password info for: ' + (u.username || u.email || userId);
+    document.getElementById('viewpw-value').textContent = u.provider === 'google'
+      ? '(Google sign-in — no password)'
+      : '(securely hashed — use Reset to set a new one)';
     openModal('modal-viewpw');
   }
 
   /* ── Reset Password ──────────────────────────────────── */
   function openResetPw(userId) {
-    const users = getUsers();
-    const u = users.find(x => x.id === userId);
+    const u = getUsers().find(x => x.id === userId);
     if (!u) return;
     _pendingResetId = userId;
     document.getElementById('resetpw-sub').textContent = 'Set a new password for: ' + (u.username || u.email || userId);
     document.getElementById('resetpw-input').value = '';
     openModal('modal-resetpw');
   }
-  function confirmResetPassword() {
+  async function confirmResetPassword() {
     if (!_pendingResetId) return;
     const newPw = document.getElementById('resetpw-input').value.trim();
     if (!newPw) { showToast('error', '✗ Please enter a password.'); return; }
-    const users = getUsers();
-    const idx = users.findIndex(x => x.id === _pendingResetId);
-    if (idx === -1) { showToast('error', '✗ User not found.'); return; }
-    users[idx].password = btoa(newPw);
-    saveUsers(users);
+    const data = await apiPatch(_pendingResetId, { password: newPw });
+    if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Update failed.')); return; }
     closeModal('modal-resetpw');
     _pendingResetId = null;
     showToast('success', '✓ Password updated successfully.');
   }
 
   /* ── Toggle Plan (downgrade only; upgrades go via openUpgradeModal) ── */
-  function togglePlan(userId, newPlan) {
-    const users = getUsers();
-    const idx = users.findIndex(x => x.id === userId);
-    if (idx === -1) return;
-    users[idx].plan = newPlan;
-    if (newPlan === 'free') {
-      delete users[idx].planTier;
-      delete users[idx].planStartedAt;
-    }
-    saveUsers(users);
+  async function togglePlan(userId, newPlan) {
+    const body = { plan: newPlan };
+    if (newPlan === 'free') { body.planTier = null; body.planStartedAt = null; }
+    const data = await apiPatch(userId, body);
+    if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Update failed.')); return; }
+    await refreshUsers();
     renderUsers();
     renderOverview();
-    showToast('success', `✓ User moved to Free plan.`);
+    showToast('success', '✓ User moved to Free plan.');
   }
 
   /* ── Upgrade with Tier ───────────────────────────────── */
   let _pendingUpgradeId = null;
   function openUpgradeModal(userId) {
-    const users = getUsers();
-    const u = users.find(x => x.id === userId);
+    const u = getUsers().find(x => x.id === userId);
     if (!u) return;
     _pendingUpgradeId = userId;
     document.getElementById('upgrade-sub').textContent = 'Select billing tier for: ' + esc(u.username || u.email || userId);
     openModal('modal-upgrade');
   }
-  function confirmUpgrade(tier) {
+  async function confirmUpgrade(tier) {
     if (!_pendingUpgradeId) return;
-    const users = getUsers();
-    const idx = users.findIndex(x => x.id === _pendingUpgradeId);
-    if (idx === -1) return;
-    users[idx].plan = 'pro';
-    users[idx].planTier = tier;
-    users[idx].planStartedAt = new Date().toISOString();
-    saveUsers(users);
+    const data = await apiPatch(_pendingUpgradeId, {
+      plan: 'pro',
+      planTier: tier,
+      planStartedAt: new Date().toISOString()
+    });
+    if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Update failed.')); return; }
     _pendingUpgradeId = null;
     closeModal('modal-upgrade');
+    await refreshUsers();
     renderUsers();
     renderOverview();
     showToast('success', `✓ Upgraded to Pro · ${tier === 'annual' ? 'Annual' : 'Monthly'}.`);
@@ -1577,18 +1590,13 @@
     document.getElementById('delete-target-name').textContent = (u.username || u.email || userId);
     openModal('modal-delete');
   }
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!_pendingDeleteId) return;
-    let users = getUsers();
-    const u = users.find(x => x.id === _pendingDeleteId);
-    users = users.filter(x => x.id !== _pendingDeleteId);
-    saveUsers(users);
-    // Clean up per-user progress
-    if (u && u.id) {
-      localStorage.removeItem('helix_' + u.id + '_progress');
-    }
+    const data = await apiDelete(_pendingDeleteId);
+    if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Delete failed.')); return; }
     _pendingDeleteId = null;
     closeModal('modal-delete');
+    await refreshUsers();
     renderUsers();
     renderOverview();
     showToast('success', '✓ User deleted.');
@@ -1669,28 +1677,23 @@
     previewEl.style.background = avatarColor(u?.username || '');
   }
 
-  function confirmEditProfile() {
+  async function confirmEditProfile() {
     if (!_pendingEditProfileId) return;
-    const users = getUsers();
-    const idx = users.findIndex(x => x.id === _pendingEditProfileId);
-    if (idx === -1) { showToast('error', '✗ User not found.'); return; }
-
     const newUsername = document.getElementById('editprofile-username').value.trim();
     const newBio = document.getElementById('editprofile-bio').value.trim();
 
-    if (newUsername) users[idx].username = newUsername;
-    users[idx].bio = newBio;
+    const body = { bio: newBio };
+    if (newUsername) body.username = newUsername;
+    if (_editProfileNewPic === '__remove__') body.profilePic = null;
+    else if (_editProfileNewPic) body.profilePic = _editProfileNewPic;
 
-    if (_editProfileNewPic === '__remove__') {
-      delete users[idx].profilePic;
-    } else if (_editProfileNewPic) {
-      users[idx].profilePic = _editProfileNewPic;
-    }
+    const data = await apiPatch(_pendingEditProfileId, body);
+    if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Update failed.')); return; }
 
-    saveUsers(users);
     _pendingEditProfileId = null;
     _editProfileNewPic = null;
     closeModal('modal-editprofile');
+    await refreshUsers();
     renderUsers();
     showToast('success', '✓ User profile updated.');
   }
@@ -1731,32 +1734,33 @@
     event.target.value = '';
   }
 
-  function saveAdminProfile() {
-    const users = getUsers();
-    const idx = users.findIndex(u => u.isAdmin === true || u.email === 'admin@helix.dev');
-    if (idx === -1) { showToast('error', '✗ Admin user not found.'); return; }
+  async function saveAdminProfile() {
+    const adminUser = getUsers().find(u => u.isAdmin === true || u.email === 'admin@helix.dev');
+    if (!adminUser) { showToast('error', '✗ Admin user not found.'); return; }
 
     const newName = document.getElementById('adminNameInput').value.trim();
     const newBio  = document.getElementById('adminBioInput').value.trim();
     const previewEl = document.getElementById('adminAvatarPreview');
     const newPic  = previewEl.dataset.pic || null;
 
+    const body = { bio: newBio };
+    if (newName) body.username = newName;
+    if (newPic)  body.profilePic = newPic;
+
+    const data = await apiPatch(adminUser.id, body);
+    if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Save failed.')); return; }
+
     if (newName) {
-      users[idx].username = newName;
-      // Update session display
       const sess = JSON.parse(localStorage.getItem('helix_session') || 'null');
       if (sess) { sess.username = newName; localStorage.setItem('helix_session', JSON.stringify(sess)); }
       document.getElementById('admin-username-top').textContent = newName;
     }
-    users[idx].bio = newBio;
-    if (newPic) users[idx].profilePic = newPic;
-
-    saveUsers(users);
+    await refreshUsers();
     showToast('success', '✓ Profile saved successfully.');
   }
 
   /* ── Initial render ──────────────────────────────────── */
-  renderOverview();
+  refreshUsers().then(() => renderOverview());
 </script>
 </body>
 </html>
