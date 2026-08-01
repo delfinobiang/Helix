@@ -63,13 +63,21 @@
     .lesson-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
     .lesson-body ul li { margin-bottom: 0.3rem; }
     .lesson-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; background: rgba(99,102,241,0.1); color: #C4B5FD; padding: 0.12em 0.38em; border-radius: 5px; border: 1px solid rgba(99,102,241,0.18); }
-    .lesson-body .code-block { background: #05091A; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; overflow-x: auto; }
+    .lesson-body .code-block { background: #05091A; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; overflow-x: auto; white-space: pre-wrap; }
     .kw { color: #C792EA; } .fn { color: #82AAFF; } .st { color: #C3E88D; }
     .cm { color: #3D4F5C; font-style: italic; } .vr { color: #F78C6C; } .nm { color: #F78C6C; }
-    .tp { color: #82AAFF; }
-    .challenge-box { margin: 1.5rem 0 0; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 14px; padding: 1.2rem 1.3rem; }
-    .challenge-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); margin-bottom: 0.6rem; }
-    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .tp { color: #4EC9B0; }
+    .objective-box { margin: 1.5rem 0 0; background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18); border-radius: 14px; padding: 1.2rem 1.3rem; }
+    .objective-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary); margin-bottom: 0.6rem; }
+    .objective-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .bonus-box { margin: 1.5rem 0 0; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.22); border-radius: 14px; padding: 1.2rem 1.3rem; }
+    .bonus-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #60A5FA; margin-bottom: 0.3rem; }
+    .bonus-title { font-size: 0.9rem; color: var(--text); font-weight: 700; margin-bottom: 0.4rem; }
+    .bonus-text  { font-size: 0.85rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.9rem; }
+    .btn-bonus-submit { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #60A5FA; font-family: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; padding: 0.45rem 1.1rem; border-radius: 8px; transition: background 0.15s, border-color 0.15s; }
+    .btn-bonus-submit:hover { background: rgba(59,130,246,0.2); border-color: rgba(59,130,246,0.5); }
+    .btn-bonus-submit:disabled { opacity: 0.4; pointer-events: none; }
+    .bonus-feedback { font-size: 0.82rem; margin-top: 0.6rem; min-height: 1.2em; font-weight: 600; }
     .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
     .collapsible { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
     .collapsible-header { width: 100%; display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; background: var(--bg-card); border: none; cursor: pointer; font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text-2); text-align: left; transition: background 0.18s, color 0.18s; }
@@ -88,7 +96,7 @@
     .collapsible-body { display: none; padding: 1rem; font-size: 0.85rem; line-height: 1.72; color: var(--text-2); background: rgba(0,0,0,0.15); border-top: 1px solid var(--border); }
     .collapsible-body.open { display: block; }
     .collapsible-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; background: rgba(99,102,241,0.08); color: #C4B5FD; padding: 0.1em 0.35em; border-radius: 5px; }
-    .collapsible-body .code-block { background: #05091A; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9; overflow-x: auto; }
+    .collapsible-body .code-block { background: #05091A; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9; overflow-x: auto; white-space: pre-wrap; }
     .panel-right { display: flex; flex-direction: column; overflow: hidden; }
     .editor-toolbar { padding: 0.65rem 1.2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem; background: rgba(6,10,20,0.6); flex-shrink: 0; }
     .win-dots { display: flex; gap: 5px; }
@@ -102,7 +110,9 @@
     .btn-clear:hover { background: rgba(255,255,255,0.07); color: var(--text-2); }
     .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; min-height: 0; }
     .line-nums { padding: 1.1rem 0.75rem 1.1rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; color: var(--text-3); text-align: right; user-select: none; background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04); min-width: 44px; overflow: hidden; flex-shrink: 0; }
-    .editor-textarea { flex: 1; resize: none; border: none; outline: none; background: #050C1A; color: #D4D4F8; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; padding: 1.1rem 1.2rem; tab-size: 4; caret-color: var(--primary); overflow-y: auto; overflow-x: auto; }
+    .editor-code-area { flex: 1; position: relative; overflow: hidden; min-height: 0; background: #050C1A; }
+    .hl-pre { position: absolute; inset: 0; z-index: 0; pointer-events: none; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; padding: 1.1rem 1.2rem; tab-size: 4; white-space: pre-wrap; word-break: break-all; overflow: hidden; margin: 0; color: transparent; background: transparent; }
+    .editor-textarea { position: absolute; inset: 0; z-index: 1; resize: none; border: none; outline: none; background: transparent; color: transparent; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; padding: 1.1rem 1.2rem; tab-size: 4; caret-color: var(--primary); overflow-y: auto; overflow-x: auto; }
     .editor-textarea::selection { background: rgba(99,102,241,0.3); }
     .editor-textarea::-webkit-scrollbar { width: 4px; height: 4px; }
     .editor-textarea::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
@@ -192,6 +202,13 @@
         </button>
         <div class="collapsible-body" id="solution-body"></div>
       </div>
+      <div class="bonus-box" id="bonus-box" style="display:none">
+        <div class="bonus-label">⭐ Bonus Challenge</div>
+        <div class="bonus-title" id="bonus-title"></div>
+        <div class="bonus-text"  id="bonus-desc"></div>
+        <button class="btn-bonus-submit" id="btn-bonus-submit">Submit Bonus ⚡</button>
+        <div class="bonus-feedback" id="bonus-feedback"></div>
+      </div>
     </div>
   </div>
 
@@ -208,7 +225,10 @@
         <div class="py-loader-text">Compiling…</div>
       </div>
       <div class="line-nums" id="line-nums">1</div>
-      <textarea class="editor-textarea" id="editor" spellcheck="false" autocorrect="off" autocapitalize="off" placeholder="// Write your C++ code here..."></textarea>
+      <div class="editor-code-area">
+        <pre class="hl-pre" id="hl-pre" aria-hidden="true"> </pre>
+        <textarea class="editor-textarea" id="editor" spellcheck="false" autocorrect="off" autocapitalize="off" placeholder="// Write your C++ code here..."></textarea>
+      </div>
     </div>
     <div class="output-panel">
       <div class="output-header">
@@ -281,9 +301,9 @@ const LESSONS = {
 }</div>
         <p><code>&lt;&lt;</code> is the insertion operator — it sends data to <code>cout</code> (console output). <code>endl</code> adds a newline.</p>
         <p><strong>Note:</strong> C++ code is compiled remotely via GCC and the result is shown below.</p>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Print two lines: <code>Hello, World!</code> and <code>I am learning C++!</code></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Print two lines: <code>Hello, World!</code> and <code>I am learning C++!</code></div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
@@ -302,6 +322,7 @@ const LESSONS = {
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Print two lines below\n    \n    return 0;\n}\n`,
     check: (out) => out.includes("Hello, World!") && out.includes("I am learning C++!"),
+    bonus: { title: "Third Line", desc: "Add a third cout that prints exactly: C++ is compiled!", xp: 25, check: (out) => out.includes("C++ is compiled!") },
   },
 
   2: {
@@ -319,9 +340,9 @@ const LESSONS = {
         <h3>Printing variables</h3>
         <div class="code-block">cout &lt;&lt; <span class="st">"Name: "</span> &lt;&lt; <span class="vr">name</span> &lt;&lt; endl;
 cout &lt;&lt; <span class="st">"Age: "</span>  &lt;&lt; <span class="vr">age</span>  &lt;&lt; endl;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Declare <code>string name = "Helix"</code>, <code>int version = 2</code>, <code>double rating = 4.9</code>. Print all three on separate lines.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Declare <code>string name = "Helix"</code>, <code>int version = 2</code>, <code>double rating = 4.9</code>. Print all three on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
@@ -350,6 +371,7 @@ cout &lt;&lt; <span class="st">"Age: "</span>  &lt;&lt; <span class="vr">age</sp
 }</div>`,
     starter: `#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    // Declare name, version, rating and print them\n    \n    return 0;\n}\n`,
     check: (out) => out.includes("Helix") && out.includes("2") && out.includes("4.9"),
+    bonus: { title: "Boolean Output", desc: "Add bool active = false and print it using cout << boolalpha << active — output should include: false", xp: 30, check: (out) => out.includes("false") },
   },
 
   3: {
@@ -369,9 +391,9 @@ cout &lt;&lt; <span class="vr">a</span> % <span class="vr">b</span>  &lt;&lt; en
         <div class="code-block"><span class="vr">a</span> += <span class="nm">5</span>;   <span class="cm">// a = a + 5  → 20</span>
 <span class="vr">a</span>++;      <span class="cm">// a = a + 1  → 21</span>
 <span class="vr">a</span>--;      <span class="cm">// a = a - 1  → 20</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>a = 15</code> and <code>b = 4</code>, print their sum, product, and remainder on separate lines.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>a = 15</code> and <code>b = 4</code>, print their sum, product, and remainder on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">int</span> <span class="vr">a</span> = <span class="nm">15</span>, <span class="vr">b</span> = <span class="nm">4</span>;
@@ -389,6 +411,7 @@ cout &lt;&lt; <span class="vr">a</span> % <span class="vr">b</span> &lt;&lt; end
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int a = 15, b = 4;\n    // Print sum, product, and remainder\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('19') && l.includes('60') && l.includes('3'); },
+    bonus: { title: "Floating Division", desc: "Print (double)a / b — cast to double first so you get the decimal result 3.75.", xp: 30, check: (out) => out.includes("3.75") },
   },
 
   4: {
@@ -409,9 +432,9 @@ cout &lt;&lt; <span class="vr">a</span> % <span class="vr">b</span> &lt;&lt; end
 <span class="kw">if</span> (<span class="vr">score</span> >= <span class="nm">90</span>)      cout &lt;&lt; <span class="st">"A"</span> &lt;&lt; endl;
 <span class="kw">else if</span> (<span class="vr">score</span> >= <span class="nm">70</span>) cout &lt;&lt; <span class="st">"B"</span> &lt;&lt; endl;
 <span class="kw">else</span>                   cout &lt;&lt; <span class="st">"C"</span> &lt;&lt; endl;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Set <code>int score = 72</code>. If >= 90 print <code>A</code>, else if >= 70 print <code>B</code>, else print <code>C</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Set <code>int score = 72</code>. If >= 90 print <code>A</code>, else if >= 70 print <code>B</code>, else print <code>C</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">int</span> <span class="vr">score</span> = <span class="nm">72</span>;
@@ -429,6 +452,7 @@ cout &lt;&lt; <span class="vr">a</span> % <span class="vr">b</span> &lt;&lt; end
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int score = 72;\n    // Print A, B, or C based on score\n    \n    return 0;\n}\n`,
     check: (out) => out.trim().includes('B'),
+    bonus: { title: "Score 95 → A", desc: "Change score to 95 and make your condition print A instead of B.", xp: 35, check: (out) => out.trim().includes('A') && !out.trim().includes('B') },
   },
 
   5: {
@@ -450,9 +474,9 @@ cout &lt;&lt; <span class="vr">a</span> % <span class="vr">b</span> &lt;&lt; end
         <h3>Range-based for (C++11)</h3>
         <div class="code-block"><span class="tp">int</span> <span class="vr">arr</span>[] = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>};
 <span class="kw">for</span> (<span class="tp">int</span> <span class="vr">x</span> : <span class="vr">arr</span>) cout &lt;&lt; <span class="vr">x</span> &lt;&lt; endl;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Use a <code>for</code> loop to print numbers <strong>1 through 5</strong>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Use a <code>for</code> loop to print numbers <strong>1 through 5</strong>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">for</span> (<span class="tp">int</span> <span class="vr">i</span> = <span class="nm">1</span>; <span class="vr">i</span> &lt;= <span class="nm">5</span>; <span class="vr">i</span>++) {
@@ -468,6 +492,7 @@ cout &lt;&lt; <span class="vr">a</span> % <span class="vr">b</span> &lt;&lt; end
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Print 1 through 5\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3','4','5'].every(n=>l.includes(n)); },
+    bonus: { title: "While Loop 1–3", desc: "Use a while loop (not for) to print 1, 2, 3 on separate lines.", xp: 35, check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['1','2','3'].every(n=>l.includes(n)); } },
   },
 
   6: {
@@ -484,9 +509,9 @@ cout &lt;&lt; <span class="vr">nums</span>[<span class="nm">4</span>] &lt;&lt; e
         <div class="code-block"><span class="kw">for</span> (<span class="tp">int</span> <span class="vr">i</span> = <span class="nm">0</span>; <span class="vr">i</span> &lt; <span class="nm">5</span>; <span class="vr">i</span>++) {
     cout &lt;&lt; <span class="vr">nums</span>[<span class="vr">i</span>] &lt;&lt; endl;
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Declare <code>int scores[] = {85, 92, 78, 95, 88}</code>. Print each score on its own line using a loop.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Declare <code>int scores[] = {85, 92, 78, 95, 88}</code>. Print each score on its own line using a loop.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">int</span> <span class="vr">scores</span>[] = {<span class="nm">85</span>, <span class="nm">92</span>, <span class="nm">78</span>, <span class="nm">95</span>, <span class="nm">88</span>};
@@ -500,6 +525,7 @@ cout &lt;&lt; <span class="vr">nums</span>[<span class="nm">4</span>] &lt;&lt; e
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int scores[] = {85, 92, 78, 95, 88};\n    // Print each score\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return ['85','92','78','95','88'].every(n=>l.includes(n)); },
+    bonus: { title: "Find the Max", desc: "After printing all scores, find and print the maximum score (95) on its own line using a loop.", xp: 40, check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.filter(x=>x==='95').length >= 2; } },
   },
 
   7: {
@@ -520,9 +546,9 @@ cout &lt;&lt; <span class="vr">nums</span>[<span class="nm">4</span>] &lt;&lt; e
         <div class="code-block"><span class="tp">void</span> <span class="fn">greet</span>(<span class="tp">string</span> <span class="vr">name</span>) {
     cout &lt;&lt; <span class="st">"Hello, "</span> &lt;&lt; <span class="vr">name</span> &lt;&lt; <span class="st">"!"</span> &lt;&lt; endl;
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a function <code>int square(int n)</code> that returns <code>n * n</code>. Print <code>square(7)</code> and <code>square(9)</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a function <code>int square(int n)</code> that returns <code>n * n</code>. Print <code>square(7)</code> and <code>square(9)</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">int</span> <span class="fn">square</span>(<span class="tp">int</span> <span class="vr">n</span>) {
@@ -538,6 +564,7 @@ cout &lt;&lt; <span class="vr">nums</span>[<span class="nm">4</span>] &lt;&lt; e
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\n// Define square(n) here\n\nint main() {\n    // Print square(7) and square(9)\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('49') && l.includes('81'); },
+    bonus: { title: "Cube Function", desc: "Write int cube(int n) returning n*n*n. Print cube(3) — output should include 27.", xp: 40, check: (out) => out.includes("27") },
   },
 
   8: {
@@ -557,9 +584,9 @@ cout &lt;&lt; <span class="vr">s</span>.<span class="fn">find</span>(<span class
 <span class="tp">string</span> <span class="vr">last</span>  = <span class="st">"World"</span>;
 <span class="tp">string</span> <span class="vr">full</span>  = <span class="vr">first</span> + <span class="st">", "</span> + <span class="vr">last</span>;
 cout &lt;&lt; <span class="vr">full</span> &lt;&lt; endl;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>string s = "Hello, Helix!"</code>, print its <strong>length</strong> and the result of <code>s.substr(7, 5)</code> (should be <code>Helix</code>).</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>string s = "Hello, Helix!"</code>, print its <strong>length</strong> and the result of <code>s.substr(7, 5)</code> (should be <code>Helix</code>).</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">string</span> <span class="vr">s</span> = <span class="st">"Hello, Helix!"</span>;
@@ -576,6 +603,7 @@ cout &lt;&lt; <span class="vr">s</span>.<span class="fn">substr</span>(<span cla
 }</div>`,
     starter: `#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s = "Hello, Helix!";\n    // Print length and substr(7, 5)\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('13') && l.includes('Helix'); },
+    bonus: { title: "Find Position", desc: "Print s.find(\"Helix\") — the position of \"Helix\" in \"Hello, Helix!\" is 7.", xp: 40, check: (out) => out.includes("7") },
   },
 
   9: {
@@ -594,9 +622,9 @@ cout &lt;&lt; <span class="vr">x</span> &lt;&lt; endl;   <span class="cm">// 20<
 <span class="tp">int</span>* <span class="vr">ptr</span> = &amp;<span class="vr">val</span>;    <span class="cm">// ptr holds address of val</span>
 cout &lt;&lt; *<span class="vr">ptr</span> &lt;&lt; endl; <span class="cm">// 42  (dereference)</span>
 *<span class="vr">ptr</span> = <span class="nm">99</span>;             <span class="cm">// changes val to 99</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Declare <code>int x = 10</code>, create reference <code>ref</code>, set <code>ref = 20</code>, then print <code>x</code> (should be 20).</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Declare <code>int x = 10</code>, create reference <code>ref</code>, set <code>ref = 20</code>, then print <code>x</code> (should be 20).</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">int</span> <span class="vr">x</span>   = <span class="nm">10</span>;
@@ -614,6 +642,7 @@ cout &lt;&lt; <span class="vr">x</span> &lt;&lt; endl;</div>`,
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int x = 10;\n    // Create a reference to x, change it to 20, print x\n    \n    return 0;\n}\n`,
     check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('20'),
+    bonus: { title: "Pointer Dereference", desc: "Declare int val = 42; use a pointer to change val to 99; print val — output should include 99.", xp: 45, check: (out) => out.includes("99") },
   },
 
   10: {
@@ -631,9 +660,9 @@ cout &lt;&lt; <span class="vr">v</span>[<span class="nm">0</span>]    &lt;&lt; e
         <h3>Iterate</h3>
         <div class="code-block"><span class="kw">for</span> (<span class="tp">int</span> <span class="vr">x</span> : <span class="vr">v</span>) cout &lt;&lt; <span class="vr">x</span> &lt;&lt; <span class="st">" "</span>;
 cout &lt;&lt; endl;  <span class="cm">// 1 2 3 4</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create an empty <code>vector&lt;int&gt;</code>, push 5, 10, 15. Print its <strong>size</strong> (3), then print each element on its own line.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create an empty <code>vector&lt;int&gt;</code>, push 5, 10, 15. Print its <strong>size</strong> (3), then print each element on its own line.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">vector</span>&lt;<span class="tp">int</span>&gt; <span class="vr">v</span>;
@@ -656,6 +685,7 @@ cout &lt;&lt; <span class="vr">v</span>.<span class="fn">size</span>() &lt;&lt; 
 }</div>`,
     starter: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> v;\n    // Push 5, 10, 15 then print size and each element\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('3') && l.includes('5') && l.includes('15'); },
+    bonus: { title: "Push and Pop", desc: "After printing, push_back 20 and print the last element v.back() — output should include 20.", xp: 45, check: (out) => out.includes("20") },
   },
 
   11: {
@@ -677,9 +707,9 @@ cout &lt;&lt; <span class="vr">p</span>.name &lt;&lt; endl;  <span class="cm">//
         <h3>Initializer list syntax</h3>
         <div class="code-block"><span class="fn">Person</span> <span class="vr">q</span> = {<span class="st">"Bob"</span>, <span class="nm">25</span>};
 cout &lt;&lt; <span class="vr">q</span>.name &lt;&lt; <span class="st">", "</span> &lt;&lt; <span class="vr">q</span>.age &lt;&lt; endl;</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Define <code>struct Point</code> with <code>int x, y</code>. Create <code>Point p = {3, 7}</code>. Print <code>p.x</code> and <code>p.y</code> on separate lines.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Define <code>struct Point</code> with <code>int x, y</code>. Create <code>Point p = {3, 7}</code>. Print <code>p.x</code> and <code>p.y</code> on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">struct</span> <span class="fn">Point</span> { <span class="tp">int</span> <span class="vr">x</span>, <span class="vr">y</span>; };
@@ -697,6 +727,7 @@ cout &lt;&lt; <span class="vr">p</span>.y &lt;&lt; endl;</div>`,
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\n// Define struct Point here\n\nint main() {\n    // Create Point p = {3, 7}, print x and y\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('3') && l.includes('7'); },
+    bonus: { title: "Sum the Coordinates", desc: "Create a second Point q = {10, 5} and print q.x + q.y — output should include 15.", xp: 45, check: (out) => out.includes("15") },
   },
 
   12: {
@@ -718,9 +749,9 @@ cout &lt;&lt; <span class="vr">p</span>.y &lt;&lt; endl;</div>`,
 
 <span class="fn">Dog</span> <span class="vr">d</span>(<span class="st">"Rex"</span>);
 <span class="vr">d</span>.<span class="fn">bark</span>();  <span class="cm">// Rex says: Woof!</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create class <code>Rectangle</code> with private <code>width</code> and <code>height</code>, a constructor, and public method <code>area()</code> returning <code>width * height</code>. Create a 6×4 Rectangle and print its area.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create class <code>Rectangle</code> with private <code>width</code> and <code>height</code>, a constructor, and public method <code>area()</code> returning <code>width * height</code>. Create a 6×4 Rectangle and print its area.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Rectangle</span> {
@@ -745,6 +776,7 @@ cout &lt;&lt; <span class="vr">p</span>.y &lt;&lt; endl;</div>`,
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\n// Define class Rectangle here\n\nint main() {\n    // Create Rectangle(6, 4) and print area()\n    \n    return 0;\n}\n`,
     check: (out) => out.trim().split('\n').map(s=>s.trim()).includes('24'),
+    bonus: { title: "Perimeter Method", desc: "Add public int perimeter() returning 2*(width+height). For Rectangle(6,4) this is 20. Print it.", xp: 45, check: (out) => out.includes("20") },
   },
 
   13: {
@@ -767,9 +799,9 @@ cout &lt;&lt; <span class="vr">p</span>.y &lt;&lt; endl;</div>`,
         cout &lt;&lt; <span class="st">"Meow!"</span> &lt;&lt; endl;
     }
 };</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create base class <code>Shape</code> with virtual method <code>name()</code> printing <code>"Shape"</code>. Create <code>Circle</code> extending <code>Shape</code>, overriding <code>name()</code> to print <code>"Circle"</code>. Instantiate Circle, call <code>name()</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create base class <code>Shape</code> with virtual method <code>name()</code> printing <code>"Shape"</code>. Create <code>Circle</code> extending <code>Shape</code>, overriding <code>name()</code> to print <code>"Circle"</code>. Instantiate Circle, call <code>name()</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Circle</span> : <span class="kw">public</span> <span class="fn">Shape</span> {
@@ -793,6 +825,7 @@ cout &lt;&lt; <span class="vr">p</span>.y &lt;&lt; endl;</div>`,
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\n// Define Shape and Circle here\n\nint main() {\n    // Create Circle and call name()\n    \n    return 0;\n}\n`,
     check: (out) => out.includes('Circle'),
+    bonus: { title: "Second Subclass", desc: "Add class Dog extending Animal with speak() override that prints \"Woof!\". Create a Dog and call speak().", xp: 50, check: (out) => out.includes("Woof!") },
   },
 
   14: {
@@ -817,9 +850,9 @@ cout &lt;&lt; <span class="fn">maxOf</span>(<span class="nm">3.14</span>, <span 
     <span class="fn">Box</span>(<span class="tp">T</span> <span class="vr">v</span>) : value(<span class="vr">v</span>) {}
     <span class="tp">T</span> <span class="fn">get</span>() { <span class="kw">return</span> <span class="vr">value</span>; }
 };</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a template function <code>add(a, b)</code> that returns <code>a + b</code>. Print <code>add(3, 4)</code> (7) and <code>add(1.5, 2.5)</code> (4).</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a template function <code>add(a, b)</code> that returns <code>a + b</code>. Print <code>add(3, 4)</code> (7) and <code>add(1.5, 2.5)</code> (4).</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> <span class="tp">T</span>&gt;
@@ -837,6 +870,7 @@ cout &lt;&lt; <span class="fn">add</span>(<span class="nm">1.5</span>, <span cla
 }</div>`,
     starter: `#include <iostream>\nusing namespace std;\n\n// Write template function add(a, b) here\n\nint main() {\n    // Print add(3, 4) and add(1.5, 2.5)\n    \n    return 0;\n}\n`,
     check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('7') && (l.includes('4') || l.includes('4.0')); },
+    bonus: { title: "Template minOf", desc: "Write template T minOf(T a, T b) returning the smaller value. Print minOf(10, 3) — output should include 3.", xp: 50, check: (out) => { const l = out.trim().split('\n').map(s=>s.trim()); return l.includes('3'); } },
   },
 
   15: {
@@ -858,9 +892,9 @@ cout &lt;&lt; <span class="fn">add</span>(<span class="nm">1.5</span>, <span cla
     cout &lt;&lt; <span class="vr">line</span> &lt;&lt; endl;
 }
 <span class="vr">in</span>.<span class="fn">close</span>();</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write <code>"Helix is awesome!"</code> to a file called <code>helix.txt</code>, then read it back and print its content.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write <code>"Helix is awesome!"</code> to a file called <code>helix.txt</code>, then read it back and print its content.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="tp">ofstream</span> <span class="vr">out</span>(<span class="st">"helix.txt"</span>);
@@ -884,6 +918,7 @@ cout &lt;&lt; <span class="fn">add</span>(<span class="nm">1.5</span>, <span cla
 }</div>`,
     starter: `#include <iostream>\n#include <fstream>\n#include <string>\nusing namespace std;\n\nint main() {\n    // Write "Helix is awesome!" to helix.txt, then read and print\n    \n    return 0;\n}\n`,
     check: (out) => out.includes("Helix is awesome!"),
+    bonus: { title: "Two Lines to File", desc: "Write two lines to the file: \"Helix is awesome!\" and \"File I/O rules!\" — then read both back. Output must include: File I/O rules!", xp: 55, check: (out) => out.includes("File I/O rules!") },
   },
 };
 
@@ -966,22 +1001,27 @@ function updateLineNums() {
   const n = editor.value.split('\n').length;
   document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
-editor.addEventListener('input', updateLineNums);
-editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('input', () => { updateLineNums(); updateHighlight(); });
+editor.addEventListener('scroll', () => {
+  document.getElementById('line-nums').scrollTop = editor.scrollTop;
+  const pre = document.getElementById('hl-pre');
+  if (pre) { pre.scrollTop = editor.scrollTop; pre.scrollLeft = editor.scrollLeft; }
+});
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') {
     e.preventDefault();
     const s = editor.selectionStart, end = editor.selectionEnd;
     editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
     editor.selectionStart = editor.selectionEnd = s + 4;
-    updateLineNums();
+    updateLineNums(); updateHighlight();
   }
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
   editor.value = lesson.starter || '';
-  updateLineNums();
+  updateLineNums(); updateHighlight();
   setOutput([{type:'placeholder',text:'Code reset.'}], 'idle');
 });
+updateHighlight();
 
 // ═══════════════════════════════════════════════════════════
 // COLLAPSIBLES
@@ -1038,11 +1078,76 @@ function setOutput(lines, status) {
 const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 // ═══════════════════════════════════════════════════════════
+// SYNTAX HIGHLIGHTING
+// ═══════════════════════════════════════════════════════════
+function cppHighlight(src) {
+  const KW = /^(break|case|catch|class|const|continue|default|delete|do|else|extern|for|if|inline|namespace|new|override|private|protected|public|return|static|struct|switch|template|this|throw|try|typedef|typename|using|virtual|while|and|or|not|nullptr|true|false|#include|#define|#pragma|#ifndef|#endif|#ifdef)\b/;
+  const TY = /^(int|double|float|char|bool|void|string|size_t|long|short|unsigned|signed|auto|ofstream|ifstream|fstream|vector|map|set|pair|array)\b/;
+  const FN = /^[A-Za-z_][A-Za-z0-9_]*(?=\s*[<(])/;
+  const ID = /^[A-Za-z_][A-Za-z0-9_]*/;
+  const NM = /^-?(?:0x[\da-fA-F]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[fFlL]?)/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+  let r = '', i = 0, n = src.length;
+  while (i < n) {
+    let rest = src.slice(i);
+    if (rest.startsWith('//')) {
+      const end = src.indexOf('\n', i);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end);
+      r += `<span class="cm">${esc(chunk)}</span>`; i += chunk.length; continue;
+    }
+    if (rest.startsWith('/*')) {
+      const end = src.indexOf('*/', i + 2);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end + 2);
+      r += `<span class="cm">${esc(chunk)}</span>`; i += chunk.length; continue;
+    }
+    if (src[i] === '"') {
+      let j = i + 1, s = '"';
+      while (j < n) { if (src[j] === '\\') { s += src[j] + src[j+1]; j += 2; } else if (src[j] === '"') { s += '"'; j++; break; } else { s += src[j++]; } }
+      r += `<span class="st">${esc(s)}</span>`; i = j; continue;
+    }
+    if (src[i] === "'") {
+      let j = i + 1, s = "'";
+      while (j < n && j < i + 4) { if (src[j] === '\\') { s += src[j] + src[j+1]; j += 2; } else if (src[j] === "'") { s += "'"; j++; break; } else { s += src[j++]; } }
+      r += `<span class="st">${esc(s)}</span>`; i = j; continue;
+    }
+    let nm = NM.exec(rest);
+    if (nm && /\d/.test(nm[0][0])) { r += `<span class="nm">${esc(nm[0])}</span>`; i += nm[0].length; continue; }
+    let id = ID.exec(rest);
+    if (id) {
+      const w = id[0];
+      if (KW.test(w) || rest.startsWith('#')) {
+        if (rest.startsWith('#')) {
+          const pp = /^#\w+/.exec(rest);
+          if (pp) { r += `<span class="kw">${esc(pp[0])}</span>`; i += pp[0].length; continue; }
+        }
+        r += `<span class="kw">${esc(w)}</span>`;
+      } else if (TY.test(w)) r += `<span class="tp">${esc(w)}</span>`;
+      else if (FN.test(rest)) r += `<span class="fn">${esc(w)}</span>`;
+      else r += `<span class="vr">${esc(w)}</span>`;
+      i += w.length; continue;
+    }
+    r += esc(src[i++]);
+  }
+  return r;
+}
+
+function updateHighlight() {
+  const pre = document.getElementById('hl-pre');
+  if (!pre) return;
+  pre.innerHTML = cppHighlight(editor.value) + '\n';
+}
+
+// ═══════════════════════════════════════════════════════════
 // WANDBOX RUNNER
 // ═══════════════════════════════════════════════════════════
 let outputLines = [];
 
-async function runCode(forSubmit = false) {
+async function runCode(forSubmit = false, forBonus = false) {
+  const meaningful = editor.value.split('\n').some(l => {
+    const t = l.trim();
+    return t.length > 0 && !t.startsWith('//');
+  });
+  if (!meaningful) { setOutput([{type:'placeholder',text:'Write some C++ first!'}], 'idle'); return; }
   outputLines = [];
   setOutput([{type:'placeholder', text:'Compiling with GCC…'}], 'running');
   document.getElementById('btn-run').disabled    = true;
@@ -1085,11 +1190,57 @@ async function runCode(forSubmit = false) {
   document.getElementById('btn-submit').disabled = false;
 
   if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forBonus) { checkBonus(); return; }
   if (forSubmit) checkAnswer();
 }
 
 document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
 document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// BONUS SYSTEM
+// ═══════════════════════════════════════════════════════════
+let bonusCompleted = false;
+;(function initBonus() {
+  if (!lesson.bonus) return;
+  bonusCompleted = !!localStorage.getItem(`helix_cpp_bonus_${lessonId}`);
+  const box = document.getElementById('bonus-box');
+  box.style.display = '';
+  document.getElementById('bonus-title').textContent = lesson.bonus.title;
+  document.getElementById('bonus-desc').textContent  = lesson.bonus.desc;
+  const fb = document.getElementById('bonus-feedback');
+  if (bonusCompleted) {
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP earned.`;
+    fb.style.color = '#60A5FA';
+    document.getElementById('btn-bonus-submit').disabled = true;
+  }
+})();
+
+function checkBonus() {
+  if (!lesson.bonus || bonusCompleted) return;
+  const out = outputLines.map(l => l.text || '').join('\n');
+  const fb  = document.getElementById('bonus-feedback');
+  if (lesson.bonus.check(out)) {
+    bonusCompleted = true;
+    localStorage.setItem(`helix_cpp_bonus_${lessonId}`, '1');
+    const state = loadState();
+    state.xp += lesson.bonus.xp;
+    state.level = getLevel(state.xp);
+    saveState(state);
+    document.getElementById('nav-xp').textContent = state.xp;
+    document.getElementById('btn-bonus-submit').disabled = true;
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP earned.`;
+    fb.style.color = '#60A5FA';
+  } else {
+    fb.textContent = '✗ Not quite — read the bonus description carefully.';
+    fb.style.color = 'var(--red)';
+    setTimeout(() => { if (fb.style.color !== '#60A5FA') fb.textContent = ''; }, 2500);
+  }
+}
+
+document.getElementById('btn-bonus-submit').addEventListener('click', () => {
+  if (!hasRun) { runCode(false, true); } else { checkBonus(); }
+});
 
 // ═══════════════════════════════════════════════════════════
 // CHECK & COMPLETE
