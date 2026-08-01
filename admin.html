@@ -1017,6 +1017,10 @@
         <button class="btn btn-yellow" onclick="confirmUpgrade('annual')" style="padding:0.8rem 1rem;font-size:0.88rem;justify-content:center;border-radius:10px;">
           ⭐ Annual Subscription <span style="font-size:0.72rem;opacity:0.8;">(best value)</span>
         </button>
+        <div style="border-top:1px solid var(--border);padding-top:0.75rem;margin-top:0.25rem;">
+          <label class="form-label" style="font-size:0.75rem;color:var(--text-2);margin-bottom:0.35rem;display:block;">Stripe Subscription ID <span style="font-weight:400;opacity:0.7;">(optional — paste from Stripe dashboard)</span></label>
+          <input class="form-input" type="text" id="upgrade-stripe-id" placeholder="sub_…" autocomplete="off" style="font-family:monospace;font-size:0.82rem;">
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1366,6 +1370,9 @@
           <td>
             <span class="plan-badge ${planBadgeClass}">${planBadgeText}</span>
             ${u.plan === 'pro' && u.planStartedAt ? `<div style="font-size:0.68rem;color:var(--text-3);margin-top:3px;">since ${fmtDate(u.planStartedAt)}</div>` : ''}
+            ${u.plan === 'pro' ? (u.stripeSubscriptionId
+              ? `<div style="font-size:0.65rem;color:var(--green);margin-top:2px;" title="${esc(u.stripeSubscriptionId)}">🔗 Stripe linked</div>`
+              : `<div style="font-size:0.65rem;color:var(--yellow, #F59E0B);margin-top:2px;" title="No Stripe subscription ID — set it via ↑ Pro button">⚠️ No Stripe ID</div>`) : ''}
           </td>
           <td><span style="font-size:0.82rem;font-weight:600;color:var(--primary-l);">⚡ ${xpVal.toLocaleString()}</span></td>
           <td><span class="provider-badge">${providerIcon(u.provider)} ${esc(u.provider||'Email')}</span></td>
@@ -1485,15 +1492,15 @@
     if (!u) return;
     _pendingUpgradeId = userId;
     document.getElementById('upgrade-sub').textContent = 'Select billing tier for: ' + esc(u.username || u.email || userId);
+    document.getElementById('upgrade-stripe-id').value = u.stripeSubscriptionId || '';
     openModal('modal-upgrade');
   }
   async function confirmUpgrade(tier) {
     if (!_pendingUpgradeId) return;
-    const data = await apiPatch(_pendingUpgradeId, {
-      plan: 'pro',
-      planTier: tier,
-      planStartedAt: new Date().toISOString()
-    });
+    const stripeId = document.getElementById('upgrade-stripe-id').value.trim();
+    const body = { plan: 'pro', planTier: tier, planStartedAt: new Date().toISOString() };
+    if (stripeId) body.stripeSubscriptionId = stripeId;
+    const data = await apiPatch(_pendingUpgradeId, body);
     if (!data.ok) { showToast('error', '✗ ' + (data.error || 'Update failed.')); return; }
     _pendingUpgradeId = null;
     closeModal('modal-upgrade');

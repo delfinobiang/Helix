@@ -52,6 +52,8 @@ function mapUser(u) {
     provider: u.provider || 'email',
     joinedAt: u.joined_at,
     xp: u.xp || 0,
+    stripeCustomerId: u.stripe_customer_id || null,
+    stripeSubscriptionId: u.stripe_subscription_id || null,
   };
 }
 
@@ -203,13 +205,15 @@ async function handleAdminUsersById(request, env, userId) {
       const updates = [];
       const values = [];
 
-      if (body.plan !== undefined)          { updates.push('plan = ?');           values.push(body.plan); }
-      if (body.planTier !== undefined)      { updates.push('plan_tier = ?');      values.push(body.planTier || null); }
-      if (body.planStartedAt !== undefined) { updates.push('plan_started_at = ?'); values.push(body.planStartedAt || null); }
-      if (body.username !== undefined)      { updates.push('username = ?');       values.push(body.username); }
-      if (body.bio !== undefined)           { updates.push('bio = ?');            values.push(body.bio); }
-      if (body.profilePic !== undefined)    { updates.push('profile_pic = ?');    values.push(body.profilePic || null); }
-      if (body.xp !== undefined)            { updates.push('xp = ?');             values.push(body.xp); }
+      if (body.plan !== undefined)                 { updates.push('plan = ?');                   values.push(body.plan); }
+      if (body.planTier !== undefined)             { updates.push('plan_tier = ?');              values.push(body.planTier || null); }
+      if (body.planStartedAt !== undefined)        { updates.push('plan_started_at = ?');        values.push(body.planStartedAt || null); }
+      if (body.stripeSubscriptionId !== undefined) { updates.push('stripe_subscription_id = ?'); values.push(body.stripeSubscriptionId || null); }
+      if (body.stripeCustomerId !== undefined)     { updates.push('stripe_customer_id = ?');     values.push(body.stripeCustomerId || null); }
+      if (body.username !== undefined)             { updates.push('username = ?');               values.push(body.username); }
+      if (body.bio !== undefined)                  { updates.push('bio = ?');                    values.push(body.bio); }
+      if (body.profilePic !== undefined)           { updates.push('profile_pic = ?');            values.push(body.profilePic || null); }
+      if (body.xp !== undefined)                   { updates.push('xp = ?');                     values.push(body.xp); }
 
       if (body.password) {
         const { hash, salt } = await hashPassword(body.password);
