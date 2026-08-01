@@ -133,21 +133,37 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.9; overflow-x: auto;
+      line-height: 1.9; overflow-x: auto; white-space: pre-wrap;
     }
     .kw  { color: #C792EA; } .fn  { color: #82AAFF; } .st  { color: #C3E88D; }
     .cm  { color: #3D4F5C; font-style: italic; } .vr  { color: #F78C6C; } .nm  { color: #F78C6C; }
 
-    .challenge-box {
+    .objective-box {
       margin: 1.5rem 0 0;
       background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.18);
       border-radius: 14px; padding: 1.2rem 1.3rem;
     }
-    .challenge-label {
+    .objective-label {
       font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
       color: var(--primary); margin-bottom: 0.6rem;
     }
-    .challenge-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+    .objective-text { font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.55; }
+
+    /* Bonus challenge */
+    .bonus-box { margin: 1.5rem 0 0; background: rgba(14,165,233,0.06); border: 1px solid rgba(14,165,233,0.22); border-radius: 14px; padding: 1.2rem 1.3rem; }
+    .bonus-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #38BDF8; margin-bottom: 0.3rem; }
+    .bonus-title { font-size: 0.9rem; color: var(--text); font-weight: 700; margin-bottom: 0.4rem; }
+    .bonus-text  { font-size: 0.85rem; color: var(--text-2); line-height: 1.55; margin-bottom: 0.9rem; }
+    .btn-bonus-submit {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(14,165,233,0.12); border: 1px solid rgba(14,165,233,0.3);
+      color: #38BDF8; font-family: inherit; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; padding: 0.45rem 1.1rem; border-radius: 8px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-bonus-submit:hover { background: rgba(14,165,233,0.2); border-color: rgba(14,165,233,0.5); }
+    .btn-bonus-submit:disabled { opacity: 0.4; pointer-events: none; }
+    .bonus-feedback { font-size: 0.82rem; margin-top: 0.6rem; min-height: 1.2em; font-weight: 600; }
 
     /* Hint / solution */
     .extras { padding: 0 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -201,7 +217,7 @@
       background: #05091A; border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px; padding: 0.9rem 1.1rem; margin-top: 0.75rem;
       font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.9;
-      overflow-x: auto;
+      overflow-x: auto; white-space: pre-wrap;
     }
 
     /* ─── RIGHT PANEL ─────────────────────────────────────── */
@@ -242,9 +258,18 @@
       background: rgba(0,0,0,0.15); border-right: 1px solid rgba(255,255,255,0.04);
       min-width: 44px; overflow: hidden; flex-shrink: 0;
     }
+    .editor-code-area { flex: 1; position: relative; overflow: hidden; min-height: 0; background: #050C1A; }
+    .hl-pre {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
+      padding: 1.1rem 1.2rem; tab-size: 4;
+      white-space: pre-wrap; word-break: break-all;
+      overflow: hidden; margin: 0; color: transparent; background: transparent;
+    }
     .editor-textarea {
-      flex: 1; resize: none; border: none; outline: none;
-      background: #050C1A; color: #D4D4F8;
+      position: absolute; inset: 0; z-index: 1;
+      resize: none; border: none; outline: none;
+      background: transparent; color: transparent;
       font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9;
       padding: 1.1rem 1.2rem; tab-size: 4;
       caret-color: var(--primary);
@@ -410,6 +435,13 @@
         </button>
         <div class="collapsible-body" id="solution-body"></div>
       </div>
+      <div class="bonus-box" id="bonus-box" style="display:none">
+        <div class="bonus-label">⭐ Bonus Challenge</div>
+        <div class="bonus-title" id="bonus-title"></div>
+        <div class="bonus-text"  id="bonus-desc"></div>
+        <button class="btn-bonus-submit" id="btn-bonus-submit">Submit Bonus ⚡</button>
+        <div class="bonus-feedback" id="bonus-feedback"></div>
+      </div>
     </div>
   </div>
 
@@ -428,10 +460,13 @@
         <div class="py-loader-text">Loading TypeScript compiler…</div>
       </div>
       <div class="line-nums" id="line-nums">1</div>
-      <textarea
-        class="editor-textarea" id="editor"
-        spellcheck="false" autocorrect="off" autocapitalize="off"
-        placeholder="// Write your TypeScript here..."></textarea>
+      <div class="editor-code-area">
+        <pre class="hl-pre" id="hl-pre" aria-hidden="true"> </pre>
+        <textarea
+          class="editor-textarea" id="editor"
+          spellcheck="false" autocorrect="off" autocapitalize="off"
+          placeholder="// Write your TypeScript here..."></textarea>
+      </div>
     </div>
     <div class="output-panel">
       <div class="output-header">
@@ -508,9 +543,9 @@ const LESSONS = {
         <div class="code-block"><span class="cm">// TypeScript knows this is a mistake:</span>
 <span class="kw">let</span> <span class="vr">age</span>: <span class="fn">number</span> = <span class="st">"twenty"</span>  <span class="cm">// ❌ Type error!</span>
 <span class="kw">let</span> <span class="vr">age</span>: <span class="fn">number</span> = <span class="nm">20</span>        <span class="cm">// ✅ Correct</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Print exactly two lines:<br><code>Hello, TypeScript!</code><br><code>Types keep me safe!</code></div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Print exactly two lines:<br><code>Hello, TypeScript!</code><br><code>Types keep me safe!</code></div>
         </div>
       </div>`,
     hint: `<p>Call <code>console.log()</code> twice — once per line:</p>
@@ -520,6 +555,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Types keep me safe!"</span>)</div>`,
     starter: `// Print two lines below\n`,
     check: (out) => out.includes("Hello, TypeScript!") && out.includes("Types keep me safe!"),
+    bonus: { title: "Third Line", desc: "Add a third console.log that prints exactly: Learning TypeScript!", xp: 25, check: (out) => out.includes("Learning TypeScript!") },
   },
 
   2: {
@@ -541,9 +577,9 @@ const LESSONS = {
         <p>TypeScript will warn you if you try to assign the wrong type:</p>
         <div class="code-block"><span class="kw">let</span> <span class="vr">score</span>: <span class="fn">number</span> = <span class="nm">100</span>
 <span class="vr">score</span> = <span class="st">"high"</span>  <span class="cm">// ❌ Type 'string' is not assignable to type 'number'</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Declare three variables:<br>• <code>name: string = "Helix"</code><br>• <code>version: number = 2</code><br>• <code>isActive: boolean = true</code><br>Then log all three.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Declare three variables:<br>• <code>name: string = "Helix"</code><br>• <code>version: number = 2</code><br>• <code>isActive: boolean = true</code><br>Then log all three.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">let</span> <span class="vr">name</span>: <span class="fn">string</span> = <span class="st">"Helix"</span>
@@ -560,6 +596,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">isActive</span>)<span class="cm">// true</span></div>`,
     starter: `// Declare name, version, and isActive with type annotations\n\n`,
     check: (out) => out.includes("Helix") && out.includes("2"),
+    bonus: { title: "Two More Variables", desc: "Declare count: number = 5 and isValid: boolean = false and log both on separate lines.", xp: 30, check: (out) => out.includes("5") && out.includes("false") },
   },
 
   3: {
@@ -581,9 +618,9 @@ const LESSONS = {
         <div class="code-block"><span class="kw">function</span> <span class="fn">sayHi</span>(<span class="vr">name</span>: <span class="fn">string</span>): <span class="fn">void</span> {
   <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Hi, "</span> + <span class="vr">name</span>)
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a function <code>greet(name: string): string</code> that returns <code>"Hello, " + name + "!"</code>. Then log <code>greet("World")</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a function <code>greet(name: string): string</code> that returns <code>"Hello, " + name + "!"</code>. Then log <code>greet("World")</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">greet</span>(<span class="vr">name</span>: <span class="fn">string</span>): <span class="fn">string</span> {
@@ -596,6 +633,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="st">"World"</span>))  <span class="cm">// Hello, World!</span></div>`,
     starter: `// Write greet(name: string): string and call it\n\n`,
     check: (out) => out.includes("Hello, World!"),
+    bonus: { title: "Multiply Function", desc: "Write multiply(a: number, b: number): number that returns a * b. Log multiply(4, 5).", xp: 30, check: (out, code) => code.includes("multiply") && out.includes("20") },
   },
 
   4: {
@@ -614,9 +652,9 @@ const LESSONS = {
         <div class="code-block"><span class="kw">let</span> <span class="vr">person</span>: [<span class="fn">string</span>, <span class="fn">number</span>] = [<span class="st">"Alex"</span>, <span class="nm">21</span>]
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">0</span>])  <span class="cm">// "Alex"</span>
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">1</span>])  <span class="cm">// 21</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Declare <code>scores: number[] = [95, 87, 92]</code>. Log its length and first element. Also declare tuple <code>person: [string, number] = ["Alex", 21]</code> and log both elements.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Declare <code>scores: number[] = [95, 87, 92]</code>. Log its length and first element. Also declare tuple <code>person: [string, number] = ["Alex", 21]</code> and log both elements.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">let</span> <span class="vr">scores</span>: <span class="fn">number</span>[] = [<span class="nm">95</span>, <span class="nm">87</span>, <span class="nm">92</span>]
@@ -633,6 +671,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">person</span>[<span class="nm">1</span>])  <span class="cm">// 21</span></div>`,
     starter: `// Declare scores array and person tuple, then log values\n\n`,
     check: (out) => out.includes("3") && out.includes("95") && out.includes("Alex") && out.includes("21"),
+    bonus: { title: "Join Words", desc: "Declare words: string[] = [\"hello\", \"world\"] and log words.join(\", \") — output should be: hello, world", xp: 35, check: (out) => out.includes("hello, world") },
   },
 
   5: {
@@ -659,9 +698,9 @@ const LESSONS = {
         <div class="code-block"><span class="kw">interface</span> <span class="fn">Config</span> {
   <span class="kw">readonly</span> <span class="vr">host</span>: <span class="fn">string</span>  <span class="cm">// cannot be changed after creation</span>
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Define <code>interface User &#123; name: string; age: number; email?: string; &#125;</code>. Create a user object, then log the name and age on separate lines.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Define <code>interface User &#123; name: string; age: number; email?: string; &#125;</code>. Create a user object, then log the name and age on separate lines.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">interface</span> <span class="fn">User</span> {
@@ -682,6 +721,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">user</span>.age)   <span class="cm">// 25</span></div>`,
     starter: `// Define interface User and create a user object\n\n`,
     check: (out, code) => code.includes("interface") && out.trim().split('\n').length >= 2,
+    bonus: { title: "Optional Email", desc: "Add email?: string to your User interface, create a user with email: \"alice@example.com\" and log the email.", xp: 35, check: (out, code) => code.includes("email") && out.includes("@") },
   },
 
   6: {
@@ -705,9 +745,9 @@ const LESSONS = {
         <div class="code-block"><span class="kw">type</span> <span class="fn">Named</span>  = { <span class="vr">name</span>: <span class="fn">string</span> }
 <span class="kw">type</span> <span class="fn">Aged</span>   = { <span class="vr">age</span>: <span class="fn">number</span> }
 <span class="kw">type</span> <span class="fn">Person</span> = <span class="fn">Named</span> & <span class="fn">Aged</span>  <span class="cm">// has both</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create <code>type ID = string | number</code>. Declare <code>let userId: ID = "abc-123"</code> and log it, then reassign it to <code>456</code> and log again.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create <code>type ID = string | number</code>. Declare <code>let userId: ID = "abc-123"</code> and log it, then reassign it to <code>456</code> and log again.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">type</span> <span class="fn">ID</span> = <span class="fn">string</span> | <span class="fn">number</span>
@@ -722,6 +762,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">userId</span>)  <span class="cm">// 456</span></div>`,
     starter: `// Create type ID and demonstrate union types\n\n`,
     check: (out) => out.includes("abc-123") && out.includes("456"),
+    bonus: { title: "Point Type", desc: "Create type Point = { x: number; y: number }. Declare point = { x: 3, y: 4 } and log point.x + point.y — output should be 7.", xp: 40, check: (out, code) => code.includes("Point") && out.includes("7") },
   },
 
   7: {
@@ -746,9 +787,9 @@ const LESSONS = {
   Inactive = <span class="st">"INACTIVE"</span>
 }
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">Status</span>.Active)  <span class="cm">// "ACTIVE"</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create <code>enum Status &#123; Active = "ACTIVE", Inactive = "INACTIVE" &#125;</code>. Declare <code>let s: Status = Status.Active</code> and log it.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create <code>enum Status &#123; Active = "ACTIVE", Inactive = "INACTIVE" &#125;</code>. Declare <code>let s: Status = Status.Active</code> and log it.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">enum</span> <span class="fn">Status</span> {
@@ -765,6 +806,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">s</span>)  <span class="cm">// ACTIVE</span></div>`,
     starter: `// Create enum Status with string values and log Status.Active\n\n`,
     check: (out, code) => code.includes("enum") && out.includes("ACTIVE"),
+    bonus: { title: "Pending Status", desc: "Add Pending = \"PENDING\" to your Status enum and log Status.Pending.", xp: 40, check: (out, code) => code.includes("Pending") && out.includes("PENDING") },
   },
 
   8: {
@@ -795,9 +837,9 @@ const LESSONS = {
           <li><code>private</code> — only accessible inside the class</li>
           <li><code>protected</code> — accessible in the class and subclasses</li>
         </ul>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create a <code>class Animal</code> with a <code>private name: string</code>, a constructor that sets it, and a <code>public getName(): string</code> method. Instantiate with "Lion" and log <code>getName()</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create a <code>class Animal</code> with a <code>private name: string</code>, a constructor that sets it, and a <code>public getName(): string</code> method. Instantiate with "Lion" and log <code>getName()</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">class</span> <span class="fn">Animal</span> {
@@ -824,6 +866,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">a</span>.<span class="fn">getName</span>())  <span class="cm">// Lion</span></div>`,
     starter: `// Create class Animal with private name and public getName()\n\n`,
     check: (out) => out.includes("Lion"),
+    bonus: { title: "Speak Method", desc: "Add a public speak(): string method to Animal that returns \"Roar!\". Create an Animal and log speak().", xp: 40, check: (out, code) => code.includes("speak") && out.includes("Roar!") },
   },
 
   9: {
@@ -844,9 +887,9 @@ const LESSONS = {
 }
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">last</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>]))       <span class="cm">// 3</span>
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">last</span>([<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]))  <span class="cm">// c</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write a generic function <code>first&lt;T&gt;(arr: T[]): T</code> that returns <code>arr[0]</code>. Call it with <code>[10, 20, 30]</code> and <code>["a","b","c"]</code>, logging both results.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write a generic function <code>first&lt;T&gt;(arr: T[]): T</code> that returns <code>arr[0]</code>. Call it with <code>[10, 20, 30]</code> and <code>["a","b","c"]</code>, logging both results.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">first</span>&lt;<span class="fn">T</span>&gt;(<span class="vr">arr</span>: <span class="fn">T</span>[]): <span class="fn">T</span> {
@@ -861,6 +904,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">first</span>([<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>]))  <span class="cm">// a</span></div>`,
     starter: `// Write generic function first<T> and call it\n\n`,
     check: (out) => out.includes("10") && out.includes("a"),
+    bonus: { title: "Last Element", desc: "Write last<T>(arr: T[]): T that returns arr[arr.length - 1]. Call last([10, 20, 30]) and log the result.", xp: 45, check: (out, code) => code.includes("last") && out.includes("30") },
   },
 
   10: {
@@ -886,9 +930,9 @@ const LESSONS = {
         <div class="code-block"><span class="kw">function</span> <span class="fn">sum</span>(...<span class="vr">nums</span>: <span class="fn">number</span>[]): <span class="fn">number</span> {
   <span class="kw">return</span> <span class="vr">nums</span>.reduce((<span class="vr">a</span>, <span class="vr">b</span>) =&gt; <span class="vr">a</span> + <span class="vr">b</span>, <span class="nm">0</span>)
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write <code>function introduce(name: string, title: string = "Developer"): string</code> returning <code>\`\${name} is a \${title}\`</code>. Call with just "Alice" and log the result.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write <code>function introduce(name: string, title: string = "Developer"): string</code> returning <code>\`\${name} is a \${title}\`</code>. Call with just "Alice" and log the result.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">introduce</span>(<span class="vr">name</span>: <span class="fn">string</span>, <span class="vr">title</span>: <span class="fn">string</span> = <span class="st">"Developer"</span>): <span class="fn">string</span> {
@@ -901,6 +945,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">introduce</span>(<span class="st">"Alice"</span>))  <span class="cm">// Alice is a Developer</span></div>`,
     starter: `// Write introduce(name, title = "Developer") and call it\n\n`,
     check: (out) => out.includes("Alice") && out.includes("Developer"),
+    bonus: { title: "Override the Default", desc: "Call introduce(\"Alice\", \"Designer\") and log the result — prove the default can be overridden.", xp: 45, check: (out) => out.includes("Alice") && out.includes("Designer") },
   },
 
   11: {
@@ -924,9 +969,9 @@ const LESSONS = {
     <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"Number times 2:"</span>, <span class="vr">x</span> * <span class="nm">2</span>)
   }
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write <code>function format(val: string | number): string</code> — if val is a number, return <code>String(val)</code>; if string, return <code>val.toUpperCase()</code>. Call with <code>42</code> and <code>"hello"</code>, log both results.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write <code>function format(val: string | number): string</code> — if val is a number, return <code>String(val)</code>; if string, return <code>val.toUpperCase()</code>. Call with <code>42</code> and <code>"hello"</code>, log both results.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">format</span>(<span class="vr">val</span>: <span class="fn">string</span> | <span class="fn">number</span>): <span class="fn">string</span> {
@@ -943,6 +988,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">format</span>(<span class="st">"hello"</span>))  <span class="cm">// HELLO</span></div>`,
     starter: `// Write format(val: string | number) and call it\n\n`,
     check: (out) => out.includes("HELLO") && out.includes("42"),
+    bonus: { title: "Format World", desc: "Call format(\"world\") and log the result — output should be WORLD.", xp: 45, check: (out) => out.includes("WORLD") },
   },
 
   12: {
@@ -968,9 +1014,9 @@ const LESSONS = {
     <span class="fn">console</span>.<span class="fn">log</span>(<span class="st">"String:"</span>, <span class="vr">val</span>)
   }
 }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Write <code>function process(input: string | number[])</code> — if string, log its length; if array, log its length. Call with <code>"TypeScript"</code> and <code>[1,2,3,4,5]</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Write <code>function process(input: string | number[])</code> — if string, log its length; if array, log its length. Call with <code>"TypeScript"</code> and <code>[1,2,3,4,5]</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">function</span> <span class="fn">process</span>(<span class="vr">input</span>: <span class="fn">string</span> | <span class="fn">number</span>[]) {
@@ -993,6 +1039,7 @@ const LESSONS = {
 <span class="fn">process</span>([<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>])  <span class="cm">// 5</span></div>`,
     starter: `// Write process(input: string | number[]) and call it twice\n\n`,
     check: (out) => out.includes("10") && out.includes("5"),
+    bonus: { title: "Process Hello World", desc: "Call process(\"Hello World\") and log the result — \"Hello World\" has 11 characters.", xp: 45, check: (out) => out.includes("11") },
   },
 
   13: {
@@ -1017,9 +1064,9 @@ const LESSONS = {
 
 <span class="kw">const</span> <span class="vr">config</span> = { <span class="vr">host</span>: <span class="st">"localhost"</span>, <span class="vr">port</span>: <span class="nm">3000</span> } <span class="kw">as const</span>
 <span class="cm">// config.port is type 3000, not just number</span></div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Create <code>const config = &#123; host: "localhost", port: 3000 &#125; as const</code>. Log <code>config.host</code> and <code>config.port</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Create <code>const config = &#123; host: "localhost", port: 3000 &#125; as const</code>. Log <code>config.host</code> and <code>config.port</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">const</span> <span class="vr">config</span> = { <span class="vr">host</span>: <span class="st">"localhost"</span>, <span class="vr">port</span>: <span class="nm">3000</span> } <span class="kw">as const</span>
@@ -1030,6 +1077,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">config</span>.port)  <span class="cm">// 3000</span></div>`,
     starter: `// Create config as const and log its properties\n\n`,
     check: (out) => out.includes("localhost") && out.includes("3000"),
+    bonus: { title: "Const Point Sum", desc: "Create const point = { x: 10, y: 20 } as const and log point.x + point.y — output should be 30.", xp: 50, check: (out, code) => code.includes("as const") && out.includes("30") },
   },
 
   14: {
@@ -1056,9 +1104,9 @@ const LESSONS = {
 }
 <span class="cm">// Both properties now required:</span>
 <span class="kw">const</span> <span class="vr">opts</span>: <span class="fn">Required</span>&lt;<span class="fn">Options</span>&gt; = { <span class="vr">debug</span>: <span class="kw">true</span>, <span class="vr">verbose</span>: <span class="kw">false</span> }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Define interface <code>Config &#123; host: string; port: number; debug: boolean; &#125;</code>. Use <code>Partial&lt;Config&gt;</code> to create a partial config with just <code>host: "api.example.com"</code>. Log <code>cfg.host ?? "no host"</code>.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Define interface <code>Config &#123; host: string; port: number; debug: boolean; &#125;</code>. Use <code>Partial&lt;Config&gt;</code> to create a partial config with just <code>host: "api.example.com"</code>. Log <code>cfg.host ?? "no host"</code>.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">interface</span> <span class="fn">Config</span> {
@@ -1077,6 +1125,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">cfg</span>.host ?? <span class="st">"no host"</span>)  <span class="cm">// api.example.com</span></div>`,
     starter: `// Define Config interface and create a Partial<Config>\n\n`,
     check: (out, code) => code.includes("Partial") && out.trim().length > 0,
+    bonus: { title: "Required Config", desc: "Use Required<Config> to create an object with all three properties filled in. Log host, port, and debug on separate lines.", xp: 50, check: (out, code) => code.includes("Required") && out.trim().split('\n').filter(l=>l.trim()).length >= 3 },
   },
 
   15: {
@@ -1097,9 +1146,9 @@ const LESSONS = {
         <h3>Record&lt;K, V&gt;</h3>
         <div class="code-block"><span class="kw">type</span> <span class="fn">Scores</span> = <span class="fn">Record</span>&lt;<span class="fn">string</span>, <span class="fn">number</span>&gt;
 <span class="kw">const</span> <span class="vr">grades</span>: <span class="fn">Scores</span> = { <span class="vr">alice</span>: <span class="nm">95</span>, <span class="vr">bob</span>: <span class="nm">87</span> }</div>
-        <div class="challenge-box">
-          <div class="challenge-label">🎯 Challenge</div>
-          <div class="challenge-text">Given <code>interface Product &#123; id: number; name: string; price: number; stock: number; &#125;</code>, use <code>Pick&lt;Product, "name" | "price"&gt;</code> as the type for a display object. Create one and log its name and price.</div>
+        <div class="objective-box">
+          <div class="objective-label">🎯 Objective</div>
+          <div class="objective-text">Given <code>interface Product &#123; id: number; name: string; price: number; stock: number; &#125;</code>, use <code>Pick&lt;Product, "name" | "price"&gt;</code> as the type for a display object. Create one and log its name and price.</div>
         </div>
       </div>`,
     hint: `<div class="code-block"><span class="kw">interface</span> <span class="fn">Product</span> {
@@ -1122,6 +1171,7 @@ const LESSONS = {
 <span class="fn">console</span>.<span class="fn">log</span>(<span class="vr">display</span>.price)  <span class="cm">// 9.99</span></div>`,
     starter: `// Define Product interface and use Pick to create a display type\n\n`,
     check: (out, code) => code.includes("Pick") && out.trim().split('\n').length >= 2,
+    bonus: { title: "Omit Stock", desc: "Use Omit<Product, \"stock\"> to create a type. Make an object with id, name, and price and log all three on separate lines.", xp: 55, check: (out, code) => code.includes("Omit") && out.trim().split('\n').filter(l=>l.trim()).length >= 3 },
   },
 
 };
@@ -1205,22 +1255,27 @@ function updateLineNums() {
   const n = editor.value.split('\n').length;
   document.getElementById('line-nums').textContent = Array.from({length:n},(_,i)=>i+1).join('\n');
 }
-editor.addEventListener('input', updateLineNums);
-editor.addEventListener('scroll', () => { document.getElementById('line-nums').scrollTop = editor.scrollTop; });
+editor.addEventListener('input', () => { updateLineNums(); updateHighlight(); });
+editor.addEventListener('scroll', () => {
+  document.getElementById('line-nums').scrollTop = editor.scrollTop;
+  const pre = document.getElementById('hl-pre');
+  if (pre) { pre.scrollTop = editor.scrollTop; pre.scrollLeft = editor.scrollLeft; }
+});
 editor.addEventListener('keydown', (e) => {
   if (e.key === 'Tab') {
     e.preventDefault();
     const s = editor.selectionStart, end = editor.selectionEnd;
     editor.value = editor.value.substring(0,s) + '    ' + editor.value.substring(end);
     editor.selectionStart = editor.selectionEnd = s + 4;
-    updateLineNums();
+    updateLineNums(); updateHighlight();
   }
 });
 document.getElementById('btn-reset').addEventListener('click', () => {
   editor.value = lesson.starter || '';
-  updateLineNums();
+  updateLineNums(); updateHighlight();
   setOutput([{type:'placeholder',text:'Code reset.'}], 'idle');
 });
+updateHighlight();
 
 // ═══════════════════════════════════════════════════════════
 // COLLAPSIBLES
@@ -1279,6 +1334,68 @@ function setOutput(lines, status) {
 const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 // ═══════════════════════════════════════════════════════════
+// SYNTAX HIGHLIGHTING
+// ═══════════════════════════════════════════════════════════
+function tsHighlight(src) {
+  const KW = /^(break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|if|import|in|instanceof|interface|let|new|of|readonly|return|static|switch|throw|try|type|typeof|var|void|while|with|yield|async|await|implements|override|abstract|declare|namespace|as|satisfies|infer|keyof|never|unknown|any|asserts)\b/;
+  const TY = /^(string|number|boolean|object|symbol|bigint|null|undefined|void|never|unknown|any|Array|Promise|Record|Partial|Required|Pick|Omit|Readonly|ReturnType|Parameters|ConstructorParameters|InstanceType|Awaited|NonNullable|Extract|Exclude)\b/;
+  const FN = /^[A-Za-z_$][A-Za-z0-9_$]*(?=\s*[<(])/;
+  const ID = /^[A-Za-z_$][A-Za-z0-9_$]*/;
+  const NM = /^-?(?:0x[\da-fA-F]+|0b[01]+|0o[0-7]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+  let r = '', i = 0, n = src.length;
+  while (i < n) {
+    let rest = src.slice(i);
+    // line comment
+    if (rest.startsWith('//')) {
+      const end = src.indexOf('\n', i);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end);
+      r += `<span class="cm">${esc(chunk)}</span>`; i += chunk.length; continue;
+    }
+    // block comment
+    if (rest.startsWith('/*')) {
+      const end = src.indexOf('*/', i + 2);
+      const chunk = end === -1 ? src.slice(i) : src.slice(i, end + 2);
+      r += `<span class="cm">${esc(chunk)}</span>`; i += chunk.length; continue;
+    }
+    // template literal
+    if (src[i] === '`') {
+      let j = i + 1, s = '`';
+      while (j < n) { if (src[j] === '\\') { s += src[j] + src[j+1]; j += 2; } else if (src[j] === '`') { s += '`'; j++; break; } else { s += src[j++]; } }
+      r += `<span class="st">${esc(s)}</span>`; i = j; continue;
+    }
+    // string
+    if (src[i] === '"' || src[i] === "'") {
+      const q = src[i]; let j = i + 1, s = q;
+      while (j < n) { if (src[j] === '\\') { s += src[j] + src[j+1]; j += 2; } else if (src[j] === q) { s += q; j++; break; } else { s += src[j++]; } }
+      r += `<span class="st">${esc(s)}</span>`; i = j; continue;
+    }
+    // number
+    let nm = NM.exec(rest);
+    if (nm) { r += `<span class="nm">${esc(nm[0])}</span>`; i += nm[0].length; continue; }
+    // identifier / keyword
+    let id = ID.exec(rest);
+    if (id) {
+      const w = id[0];
+      if (KW.test(w)) r += `<span class="kw">${esc(w)}</span>`;
+      else if (TY.test(w)) r += `<span class="fn">${esc(w)}</span>`;
+      else if (FN.test(rest)) r += `<span class="fn">${esc(w)}</span>`;
+      else if (w === 'true' || w === 'false') r += `<span class="kw">${esc(w)}</span>`;
+      else r += `<span class="vr">${esc(w)}</span>`;
+      i += w.length; continue;
+    }
+    r += esc(src[i++]);
+  }
+  return r;
+}
+
+function updateHighlight() {
+  const pre = document.getElementById('hl-pre');
+  if (!pre) return;
+  pre.innerHTML = tsHighlight(editor.value) + '\n';
+}
+
+// ═══════════════════════════════════════════════════════════
 // TYPESCRIPT RUNNER
 // ═══════════════════════════════════════════════════════════
 let outputLines = [];
@@ -1296,8 +1413,13 @@ function initTS() {
 }
 initTS();
 
-async function runCode(forSubmit = false) {
+async function runCode(forSubmit = false, forBonus = false) {
   if (!tsReady) return;
+  const meaningful = editor.value.split('\n').some(l => {
+    const t = l.trim();
+    return t.length > 0 && !t.startsWith('//');
+  });
+  if (!meaningful) { setOutput([{type:'placeholder',text:'Write some TypeScript first!'}], 'idle'); return; }
   outputLines = [];
   setOutput([{type:'placeholder',text:''}], 'running');
   document.getElementById('btn-run').disabled    = true;
@@ -1339,11 +1461,58 @@ async function runCode(forSubmit = false) {
   document.getElementById('btn-submit').disabled = false;
 
   if (!hasRun) { hasRun = true; unlockSolution(); }
+  if (forBonus) { checkBonus(); return; }
   if (forSubmit) checkAnswer();
 }
 
 document.getElementById('btn-run').addEventListener('click',    () => runCode(false));
 document.getElementById('btn-submit').addEventListener('click', () => runCode(true));
+
+// ═══════════════════════════════════════════════════════════
+// BONUS SYSTEM
+// ═══════════════════════════════════════════════════════════
+let bonusCompleted = false;
+;(function initBonus() {
+  if (!lesson.bonus) return;
+  bonusCompleted = !!localStorage.getItem(`helix_ts_bonus_${lessonId}`);
+  const box = document.getElementById('bonus-box');
+  box.style.display = '';
+  document.getElementById('bonus-title').textContent = lesson.bonus.title;
+  document.getElementById('bonus-desc').textContent  = lesson.bonus.desc;
+  const fb = document.getElementById('bonus-feedback');
+  if (bonusCompleted) {
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP earned.`;
+    fb.style.color = '#38BDF8';
+    document.getElementById('btn-bonus-submit').disabled = true;
+  }
+})();
+
+function checkBonus() {
+  if (!lesson.bonus || bonusCompleted) return;
+  const out  = outputLines.map(l => l.text || '').join('\n');
+  const code = editor.value;
+  const fb   = document.getElementById('bonus-feedback');
+  if (lesson.bonus.check(out, code)) {
+    bonusCompleted = true;
+    localStorage.setItem(`helix_ts_bonus_${lessonId}`, '1');
+    const state = loadState();
+    state.xp += lesson.bonus.xp;
+    state.level = getLevel(state.xp);
+    saveState(state);
+    document.getElementById('nav-xp').textContent = state.xp;
+    document.getElementById('btn-bonus-submit').disabled = true;
+    fb.textContent = `✅ Bonus complete! +${lesson.bonus.xp} XP earned.`;
+    fb.style.color = '#38BDF8';
+  } else {
+    fb.textContent = '✗ Not quite — read the bonus description carefully.';
+    fb.style.color = 'var(--red)';
+    setTimeout(() => { if (fb.style.color !== '#38BDF8') fb.textContent = ''; }, 2500);
+  }
+}
+
+document.getElementById('btn-bonus-submit').addEventListener('click', () => {
+  if (!hasRun) { runCode(false, true); } else { checkBonus(); }
+});
 
 // ═══════════════════════════════════════════════════════════
 // CHECK & COMPLETE
