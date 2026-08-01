@@ -476,6 +476,32 @@
     }
     .stats-panel-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 1.25rem; }
 
+    /* ─── PLAN TIER BADGE ────────────────────────────────── */
+    .plan-annual {
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+      color: var(--yellow);
+    }
+    .plan-tier-pill {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em;
+      background: rgba(255,255,255,0.08); border-radius: 4px;
+      padding: 0.1rem 0.35rem; margin-left: 0.25rem;
+    }
+
+    /* ─── PROGRESS MODAL ─────────────────────────────────── */
+    .prog-stat-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.25rem;
+    }
+    .prog-stat-box {
+      border-radius: 12px; padding: 0.9rem; text-align: center;
+    }
+    .prog-stat-val { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .prog-stat-lbl { font-size: 0.72rem; color: var(--text-2); margin-top: 0.3rem; }
+    .prog-plan-row {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 1.25rem;
+      font-size: 0.83rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+
     /* ─── RESPONSIVE ──────────────────────────────────────── */
     @media (max-width: 1100px) {
       .stats-row { grid-template-columns: repeat(2,1fr); }
@@ -650,6 +676,7 @@
             <tr>
               <th>User</th>
               <th>Plan</th>
+              <th>XP</th>
               <th>Provider</th>
               <th>Joined</th>
               <th>Actions</th>
@@ -965,6 +992,39 @@
   </div>
 </div>
 
+<!-- Progress Modal -->
+<div class="modal-overlay" id="modal-progress">
+  <div class="modal" style="max-width:560px; width:90%;">
+    <div class="modal-title" id="prog-title">📊 User Progress</div>
+    <div class="modal-sub" id="prog-sub"></div>
+    <div class="modal-body" id="prog-body" style="margin-bottom:1rem;"></div>
+    <div class="modal-footer">
+      <button class="modal-close-btn" onclick="closeModal('modal-progress')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Plan Upgrade Tier Modal -->
+<div class="modal-overlay" id="modal-upgrade">
+  <div class="modal">
+    <div class="modal-title">⭐ Upgrade to Pro</div>
+    <div class="modal-sub" id="upgrade-sub">Select the billing tier for this account.</div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <button class="btn btn-green" onclick="confirmUpgrade('monthly')" style="padding:0.8rem 1rem;font-size:0.88rem;justify-content:center;border-radius:10px;">
+          📅 Monthly Subscription
+        </button>
+        <button class="btn btn-yellow" onclick="confirmUpgrade('annual')" style="padding:0.8rem 1rem;font-size:0.88rem;justify-content:center;border-radius:10px;">
+          ⭐ Annual Subscription <span style="font-size:0.72rem;opacity:0.8;">(best value)</span>
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-close-btn" onclick="closeModal('modal-upgrade')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <span id="toast-icon">✓</span>
@@ -1256,12 +1316,17 @@
     }
 
     const adminId = session?.id || session?.userId || null;
-    // Identify admin user: by isAdmin flag or email
     tbody.innerHTML = users.map(u => {
       const isMe = (u.email === 'admin@helix.dev') || (u.isAdmin === true);
       const upBtn = u.plan === 'pro'
         ? `<button class="btn btn-yellow" onclick="togglePlan('${u.id}', 'free')">↓ Free</button>`
-        : `<button class="btn btn-green" onclick="togglePlan('${u.id}', 'pro')">↑ Pro</button>`;
+        : `<button class="btn btn-green" onclick="openUpgradeModal('${u.id}')">↑ Pro</button>`;
+      const tierLabel = u.planTier === 'annual' ? ' · Annual' : u.planTier === 'monthly' ? ' · Monthly' : '';
+      const planBadgeClass = u.plan === 'pro' ? (u.planTier === 'annual' ? 'plan-pro plan-annual' : 'plan-pro') : 'plan-free';
+      const planBadgeText = u.plan === 'pro' ? `⭐ Pro${tierLabel}` : 'Free';
+      // Fetch XP for quick display
+      const prog = JSON.parse(localStorage.getItem('helix_' + (u.id||'') + '_progress') || 'null');
+      const xpVal = (prog?.xp) || u.xp || 0;
       return `
         <tr>
           <td>
@@ -1273,16 +1338,21 @@
               </div>
             </div>
           </td>
-          <td><span class="plan-badge ${u.plan==='pro'?'plan-pro':'plan-free'}">${u.plan==='pro'?'⭐ Pro':'Free'}</span></td>
+          <td>
+            <span class="plan-badge ${planBadgeClass}">${planBadgeText}</span>
+            ${u.plan === 'pro' && u.planStartedAt ? `<div style="font-size:0.68rem;color:var(--text-3);margin-top:3px;">since ${fmtDate(u.planStartedAt)}</div>` : ''}
+          </td>
+          <td><span style="font-size:0.82rem;font-weight:600;color:var(--primary-l);">⚡ ${xpVal.toLocaleString()}</span></td>
           <td><span class="provider-badge">${providerIcon(u.provider)} ${esc(u.provider||'Email')}</span></td>
           <td style="color:var(--text-2); font-size:0.8rem;">${fmtDate(u.joinedAt)}</td>
           <td>
             <div class="actions-cell">
-              <button class="btn btn-ghost" onclick="openViewPw('${u.id}')">🔑 Password</button>
+              <button class="btn btn-ghost" onclick="openProgress('${u.id}')">📊 Progress</button>
+              <button class="btn btn-ghost" onclick="openViewPw('${u.id}')">🔑 Pw</button>
               <button class="btn btn-ghost" onclick="openResetPw('${u.id}')">🔄 Reset</button>
-              <button class="btn btn-ghost" onclick="openEditProfile('${u.id}')">✏️ Profile</button>
+              <button class="btn btn-ghost" onclick="openEditProfile('${u.id}')">✏️ Edit</button>
               ${upBtn}
-              <button class="btn btn-red" onclick="openDelete('${u.id}')" ${isMe ? 'disabled title="Cannot delete the admin account"' : ''}>🗑️ Delete</button>
+              <button class="btn btn-red" onclick="openDelete('${u.id}')" ${isMe ? 'disabled title="Cannot delete the admin account"' : ''}>🗑️</button>
             </div>
           </td>
         </tr>
@@ -1378,16 +1448,124 @@
     showToast('success', '✓ Password updated successfully.');
   }
 
-  /* ── Toggle Plan ─────────────────────────────────────── */
+  /* ── Toggle Plan (downgrade only; upgrades go via openUpgradeModal) ── */
   function togglePlan(userId, newPlan) {
     const users = getUsers();
     const idx = users.findIndex(x => x.id === userId);
     if (idx === -1) return;
     users[idx].plan = newPlan;
+    if (newPlan === 'free') {
+      delete users[idx].planTier;
+      delete users[idx].planStartedAt;
+    }
     saveUsers(users);
     renderUsers();
     renderOverview();
-    showToast('success', `✓ User upgraded to ${newPlan === 'pro' ? 'Pro' : 'Free'} plan.`);
+    showToast('success', `✓ User moved to Free plan.`);
+  }
+
+  /* ── Upgrade with Tier ───────────────────────────────── */
+  let _pendingUpgradeId = null;
+  function openUpgradeModal(userId) {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+    _pendingUpgradeId = userId;
+    document.getElementById('upgrade-sub').textContent = 'Select billing tier for: ' + esc(u.username || u.email || userId);
+    openModal('modal-upgrade');
+  }
+  function confirmUpgrade(tier) {
+    if (!_pendingUpgradeId) return;
+    const users = getUsers();
+    const idx = users.findIndex(x => x.id === _pendingUpgradeId);
+    if (idx === -1) return;
+    users[idx].plan = 'pro';
+    users[idx].planTier = tier;
+    users[idx].planStartedAt = new Date().toISOString();
+    saveUsers(users);
+    _pendingUpgradeId = null;
+    closeModal('modal-upgrade');
+    renderUsers();
+    renderOverview();
+    showToast('success', `✓ Upgraded to Pro · ${tier === 'annual' ? 'Annual' : 'Monthly'}.`);
+  }
+
+  /* ── User Progress Modal ─────────────────────────────── */
+  function openProgress(userId) {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return;
+
+    const prog = JSON.parse(localStorage.getItem('helix_' + (u.id || '') + '_progress') || 'null');
+    const xp      = (prog?.xp)     || u.xp     || 0;
+    const streak  = (prog?.streak)  || u.streak  || 0;
+    const level   = Math.max(1, Math.floor(xp / 500) + 1);
+
+    const langs = [
+      { key: 'py',  name: 'Python',      color: '#F59E0B', icon: '🐍' },
+      { key: 'js',  name: 'JavaScript',  color: '#EAB308', icon: '🟨' },
+      { key: 'html',name: 'HTML & CSS',  color: '#F97316', icon: '🟠' },
+      { key: 'sql', name: 'SQL',         color: '#22D3EE', icon: '🗃️' },
+      { key: 'ts',  name: 'TypeScript',  color: '#60A5FA', icon: '🔵' },
+      { key: 'cpp', name: 'C++',         color: '#818CF8', icon: '⚙️' },
+    ];
+    const langProgress = langs.map(l => {
+      let done = 0;
+      for (let i = 1; i <= 15; i++) {
+        if (localStorage.getItem(`helix_${l.key}_${i}`) ||
+            localStorage.getItem(`helix_${l.key}_lesson_${i}`) ||
+            localStorage.getItem(`helix_${l.key}_done_${i}`) ||
+            localStorage.getItem(`helix_${l.key}_${i}_done`)) {
+          done++;
+        }
+      }
+      // Also check per-user progress object
+      if (prog && prog[l.key + '_done']) done = Math.max(done, prog[l.key + '_done']);
+      return { ...l, done };
+    });
+
+    const tierStr = u.planTier ? ' · ' + u.planTier.charAt(0).toUpperCase() + u.planTier.slice(1) : '';
+    const planLine = u.plan === 'pro'
+      ? `<span style="color:var(--green);font-weight:700;">⭐ Pro${tierStr}</span>${u.planStartedAt ? ' <span style="color:var(--text-3);">since ' + fmtDate(u.planStartedAt) + '</span>' : ''}`
+      : `<span style="color:var(--text-2);">Free</span>`;
+
+    document.getElementById('prog-title').textContent = '📊 ' + (u.username || u.email || 'User');
+    document.getElementById('prog-sub').textContent = u.email || '';
+    document.getElementById('prog-body').innerHTML = `
+      <div class="prog-stat-grid">
+        <div class="prog-stat-box" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.18);">
+          <div class="prog-stat-val" style="color:var(--primary-l);">⚡${xp.toLocaleString()}</div>
+          <div class="prog-stat-lbl">Total XP</div>
+        </div>
+        <div class="prog-stat-box" style="background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.18);">
+          <div class="prog-stat-val" style="color:var(--cyan);">Lv.${level}</div>
+          <div class="prog-stat-lbl">Level</div>
+        </div>
+        <div class="prog-stat-box" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.18);">
+          <div class="prog-stat-val" style="color:var(--yellow);">${streak}🔥</div>
+          <div class="prog-stat-lbl">Day Streak</div>
+        </div>
+      </div>
+      <div class="prog-plan-row">
+        <span style="color:var(--text-2);font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Plan</span>
+        ${planLine}
+      </div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);margin-bottom:0.75rem;">Coding Strand</div>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        ${langProgress.map(l => `
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.3rem;">
+              <span style="font-weight:600;">${l.icon} ${l.name}</span>
+              <span style="color:var(--text-2);">${l.done}/15${l.done === 15 ? ' ✅' : ''}</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--bar-color:${l.color};width:${Math.round((l.done/15)*100)}%"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    openModal('modal-progress');
   }
 
   /* ── Delete User ─────────────────────────────────────── */
