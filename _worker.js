@@ -255,8 +255,100 @@ async function handleUserCancelSubscription(request, env) {
   const user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(session.id).first();
   if (!user) return json({ ok: false, error: 'Not found.' }, 404);
   if (user.plan !== 'pro') return json({ ok: false, error: 'No active Pro subscription to cancel.' }, 400);
-  await env.DB.prepare("UPDATE users SET plan = 'free', plan_tier = NULL, plan_started_at = NULL WHERE id = ?").bind(session.id).run();
+  if (!user.stripe_subscription_id) {
+    return json({ ok: false, error: 'Your subscription was set up manually. Please contact support at delfinobiang@gmail.com to cancel.' }, 400);
+  }
+
+  const res = await fetch(`https://api.stripe.com/v1/subscriptions/${user.stripe_subscription_id}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'cancel_at_period_end=true',
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    return json({ ok: false, error: err.error?.message || 'Stripe error. Please try again.' }, 502);
+  }
+
   return json({ ok: true });
+}
+
+async function handleStripeWebhook(request, env) {
+  if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
+
+  const sig = request.headers.get('stripe-signature');
+  if (!sig || !env.STRIPE_WEBHOOK_SECRET) return new Response('Unauthorized', { status: 401 });
+
+  const body = await request.text();
+
+  // Parse signature header — collect all v1 values (Stripe supports multiple for key rotation)
+  let timestamp = null;
+  const v1Sigs = [];
+  for (const part of sig.split(',')) {
+    const eq = part.indexOf('=');
+    const k = part.slice(0, eq);
+    const v = part.slice(eq + 1);
+    if (k === 't') timestamp = v;
+    if (k === 'v1') v1Sigs.push(v);
+  }
+
+  if (!timestamp || v1Sigs.length === 0) return new Response('Invalid signature', { status: 400 });
+  if (Math.abs(Date.now() / 1000 - parseInt(timestamp)) > 300) return new Response('Timestamp expired', { status: 400 });
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(env.STRIPE_WEBHOOK_SECRET),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sigBytes = await crypto.subtle.sign('HMAC', key, encoder.encode(`${timestamp}.${body}`));
+  const computed = toHex(new Uint8Array(sigBytes));
+
+  if (!v1Sigs.includes(computed)) return new Response('Invalid signature', { status: 400 });
+
+  let event;
+  try { event = JSON.parse(body); } catch (e) { return new Response('Invalid JSON', { status: 400 }); }
+
+  if (event.type === 'checkout.session.completed') {
+    const cs = event.data.object;
+    const userId = cs.client_reference_id;
+    const customerId = cs.customer;
+    const subscriptionId = cs.subscription;
+
+    if (userId && subscriptionId) {
+      const user = await env.DB.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
+      if (user) {
+        // Fetch subscription to determine billing interval
+        let tier = 'monthly';
+        try {
+          const subRes = await fetch(`https://api.stripe.com/v1/subscriptions/${subscriptionId}`, {
+            headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` }
+          });
+          if (subRes.ok) {
+            const sub = await subRes.json();
+            const interval = sub.items?.data?.[0]?.price?.recurring?.interval;
+            if (interval === 'year') tier = 'annual';
+          }
+        } catch (e) {}
+
+        await env.DB.prepare(
+          "UPDATE users SET plan = 'pro', plan_tier = ?, plan_started_at = ?, stripe_customer_id = ?, stripe_subscription_id = ? WHERE id = ?"
+        ).bind(tier, new Date().toISOString(), customerId, subscriptionId, userId).run();
+      }
+    }
+  } else if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object;
+    const user = await env.DB.prepare('SELECT id FROM users WHERE stripe_customer_id = ?').bind(sub.customer).first();
+    if (user) {
+      await env.DB.prepare(
+        "UPDATE users SET plan = 'free', plan_tier = NULL, plan_started_at = NULL, stripe_subscription_id = NULL WHERE id = ?"
+      ).bind(user.id).run();
+    }
+  }
+
+  return new Response('ok', { status: 200 });
 }
 
 // ── main entry point ──────────────────────────────────────────────────────────
@@ -273,6 +365,7 @@ export default {
       if (path === '/api/auth/logout')               return handleAuthLogout(request, env);
       if (path === '/api/user/me')                   return handleUserMe(request, env);
       if (path === '/api/user/subscription/cancel')  return handleUserCancelSubscription(request, env);
+      if (path === '/api/stripe/webhook')            return handleStripeWebhook(request, env);
       if (path === '/api/admin/users')               return handleAdminUsers(request, env);
 
       const adminUserMatch = path.match(/^\/api\/admin\/users\/([^/]+)$/);

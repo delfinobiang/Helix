@@ -1963,8 +1963,10 @@
       var _session = null;
       try { _session = JSON.parse(localStorage.getItem('helix_session') || 'null'); } catch(e) {}
       if (_session && _session.userId) {
-        // Logged in — go straight to Stripe
-        window.location.href = stripeUrl;
+        // Logged in — pass user ID and email to Stripe so the webhook can match the payment to the account
+        var params = new URLSearchParams({ client_reference_id: _session.userId });
+        if (_session.email) params.set('prefilled_email', _session.email);
+        window.location.href = stripeUrl + '?' + params.toString();
       } else {
         // Not logged in — send to signup first
         window.location.href = 'signup.html?redirect=pricing.html';
