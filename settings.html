@@ -291,6 +291,13 @@
           </div>
           <a href="pricing.html" class="btn btn-primary" id="manage-plan-btn" style="flex-shrink:0;">Upgrade to Pro →</a>
         </div>
+        <div class="settings-row" id="cancel-sub-row" style="display:none; border-top:1px solid var(--border); margin-top:0; padding-top:1.1rem;">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Cancel Subscription</div>
+            <div class="settings-row-desc">Your Pro access will remain active until the end of your current billing period.</div>
+          </div>
+          <button class="btn btn-red" onclick="cancelSubscription()" style="flex-shrink:0;">Cancel Plan</button>
+        </div>
       </div>
     </div>
 
@@ -343,32 +350,76 @@
     return users.find(u => u.id === session.userId) || null;
   }
 
-  /* ── Populate UI ───────────────────────────────────────── */
-  function populateUI() {
-    const user = getCurrentUser();
-    if (!user) { window.location.href = 'login.html'; return; }
+  let currentUser = null;
 
-    document.getElementById('display-username').textContent = user.username || '—';
-    document.getElementById('display-email').textContent    = user.email    || '—';
+  /* ── Populate UI ───────────────────────────────────────── */
+  async function populateUI() {
+    // Fetch live plan data from D1
+    try {
+      const res = await fetch('/api/user/me', {
+        headers: { 'Authorization': `Bearer ${session.token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) currentUser = data.user;
+      }
+    } catch (e) {}
+
+    // Fallback to localStorage for pre-D1 accounts
+    if (!currentUser) currentUser = getCurrentUser();
+    if (!currentUser) { window.location.href = 'login.html'; return; }
+
+    document.getElementById('display-username').textContent = currentUser.username || '—';
+    document.getElementById('display-email').textContent    = currentUser.email    || '—';
 
     const planEl = document.getElementById('display-plan');
     const descEl = document.getElementById('plan-desc-text');
     const manageBtnEl = document.getElementById('manage-plan-btn');
+    const cancelRow = document.getElementById('cancel-sub-row');
 
-    if (user.plan === 'pro') {
+    if (currentUser.plan === 'pro') {
       planEl.innerHTML = '<span class="plan-badge plan-pro">⭐ Pro</span>';
       descEl.textContent = 'You\'re on the Pro plan — full access to all 90 lessons across 6 languages.';
       manageBtnEl.textContent = 'Manage Plan';
+      cancelRow.style.display = 'flex';
     } else {
       planEl.innerHTML = '<span class="plan-badge plan-free">Free</span>';
+      cancelRow.style.display = 'none';
     }
 
-    const joinedDate = user.joinedAt
-      ? new Date(user.joinedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    const joinedDate = currentUser.joinedAt
+      ? new Date(currentUser.joinedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
       : '—';
     document.getElementById('display-joined').textContent = joinedDate;
   }
   populateUI();
+
+  /* ── Cancel Subscription ─────────────────────────────── */
+  async function cancelSubscription() {
+    if (!confirm('Are you sure you want to cancel your Pro subscription?\n\nYou\'ll keep Pro access until the end of your current billing period, then move to the Free plan.')) return;
+    const btn = document.querySelector('#cancel-sub-row .btn-red');
+    btn.disabled = true;
+    btn.textContent = 'Cancelling…';
+    try {
+      const res = await fetch('/api/user/subscription/cancel', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.token}` }
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('success', '✓ Subscription cancelled. You\'ve been moved to the Free plan.');
+        await populateUI();
+      } else {
+        showToast('error', data.error || 'Failed to cancel subscription.');
+        btn.disabled = false;
+        btn.textContent = 'Cancel Plan';
+      }
+    } catch (e) {
+      showToast('error', 'Network error. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Cancel Plan';
+    }
+  }
 
   /* ── Change Username ──────────────────────────────────── */
   function changeUsername() {

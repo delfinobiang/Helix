@@ -240,6 +240,25 @@ async function handleAdminUsersById(request, env, userId) {
   return json({ ok: false, error: 'Method not allowed.' }, 405);
 }
 
+async function handleUserMe(request, env) {
+  const session = await getSession(request, env.DB);
+  if (!session) return json({ ok: false, error: 'Unauthorized.' }, 401);
+  const user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(session.id).first();
+  if (!user) return json({ ok: false, error: 'Not found.' }, 404);
+  return json({ ok: true, user: mapUser(user) });
+}
+
+async function handleUserCancelSubscription(request, env) {
+  if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
+  const session = await getSession(request, env.DB);
+  if (!session) return json({ ok: false, error: 'Unauthorized.' }, 401);
+  const user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(session.id).first();
+  if (!user) return json({ ok: false, error: 'Not found.' }, 404);
+  if (user.plan !== 'pro') return json({ ok: false, error: 'No active Pro subscription to cancel.' }, 400);
+  await env.DB.prepare("UPDATE users SET plan = 'free', plan_tier = NULL, plan_started_at = NULL WHERE id = ?").bind(session.id).run();
+  return json({ ok: true });
+}
+
 // ── main entry point ──────────────────────────────────────────────────────────
 
 export default {
@@ -248,11 +267,13 @@ export default {
     const path = url.pathname;
 
     try {
-      if (path === '/api/auth/signup')  return handleAuthSignup(request, env);
-      if (path === '/api/auth/login')   return handleAuthLogin(request, env);
-      if (path === '/api/auth/google')  return handleAuthGoogle(request, env);
-      if (path === '/api/auth/logout')  return handleAuthLogout(request, env);
-      if (path === '/api/admin/users')  return handleAdminUsers(request, env);
+      if (path === '/api/auth/signup')               return handleAuthSignup(request, env);
+      if (path === '/api/auth/login')                return handleAuthLogin(request, env);
+      if (path === '/api/auth/google')               return handleAuthGoogle(request, env);
+      if (path === '/api/auth/logout')               return handleAuthLogout(request, env);
+      if (path === '/api/user/me')                   return handleUserMe(request, env);
+      if (path === '/api/user/subscription/cancel')  return handleUserCancelSubscription(request, env);
+      if (path === '/api/admin/users')               return handleAdminUsers(request, env);
 
       const adminUserMatch = path.match(/^\/api\/admin\/users\/([^/]+)$/);
       if (adminUserMatch) return handleAdminUsersById(request, env, adminUserMatch[1]);
