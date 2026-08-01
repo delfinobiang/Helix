@@ -554,7 +554,8 @@ const LESSONS = {
     <span class="kw">&lt;p&gt;</span><span class="st">Hello, Helix!</span><span class="kw">&lt;/p&gt;</span>
   <span class="kw">&lt;/body&gt;</span>
 <span class="kw">&lt;/html&gt;</span></div>`,
-    starter: `<!DOCTYPE html>\n<html>\n  <head>\n    \n  </head>\n  <body>\n    \n  </body>\n</html>`,
+    starter: `<!DOCTYPE html>\n<html>\n  <head>\n    \n  </head>\n  <body>\n    \n  <script src="chat.js"></script>
+</body>\n</html>`,
     check: (code) => /<!DOCTYPE\s+html>/i.test(code) && /<title>/i.test(code) && /Hello,\s*Helix!/i.test(code),
     bonus: {
       title: 'Add a meta charset tag',
@@ -1785,5 +1786,6 @@ function launchConfetti() {
   requestAnimationFrame(draw);
 }
 </script>
+<script src="chat.js"></script>
 </body>
 </html>

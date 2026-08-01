@@ -498,5 +498,6 @@ seen = <span class="c-fn">set</span>()
 
   function scrollToLesson(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.lesson-item').forEach(el=>el.classList.remove('active'));const map={l1:0,l2:1,l3:2,l4:3,quiz:4};const items=document.querySelectorAll('.lesson-item');if(map[id]!==undefined&&items[map[id]])items[map[id]].classList.add('active');}
 </script>
+<script src="chat.js"></script>
 </body>
 </html>

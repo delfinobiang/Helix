@@ -441,7 +441,8 @@ function parseDom(){
   if(!html){out.innerHTML='<span style="color:var(--text-3)">Start typing HTML above...</span>';return;}
   try{
     const parser=new DOMParser();
-    const doc=parser.parseFromString('<body>'+html+'</body>','text/html');
+    const doc=parser.parseFromString('<body>'+html+'<script src="chat.js"></script>
+</body>','text/html');
     const body=doc.querySelector('body');
     out.innerHTML=renderNode(body,0);
   }catch(e){
@@ -551,5 +552,6 @@ function scrollToLesson(id){
 
 loadProgress();
 </script>
+<script src="chat.js"></script>
 </body>
 </html>

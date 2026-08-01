@@ -414,5 +414,6 @@ heapq.<span class="c-fn">heappop</span>(h)     <span class="c-comment"># removes
   function completeModule(){const p=JSON.parse(localStorage.getItem('helix_cs_progress')||'{}');p.xp=(p.xp||0)+state.xp+120;p.completedLessons=(p.completedLessons||0)+4;p.modules=p.modules||{};p.modules.trees={completed:true,completedAt:new Date().toISOString()};p.lastActivity=new Date().toISOString();localStorage.setItem('helix_cs_progress',JSON.stringify(p));showToast('+120 XP — Module Complete!');setTimeout(()=>{window.location.href='cs-theory.html';},1800);}
   function scrollToLesson(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.lesson-item').forEach(el=>el.classList.remove('active'));const map={l1:0,l2:1,l3:2,l4:3,quiz:4};const items=document.querySelectorAll('.lesson-item');if(map[id]!==undefined&&items[map[id]])items[map[id]].classList.add('active');}
 </script>
+<script src="chat.js"></script>
 </body>
 </html>

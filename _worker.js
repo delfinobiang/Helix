@@ -280,6 +280,88 @@ async function handleUserCancelSubscription(request, env) {
   return json({ ok: true });
 }
 
+async function handleChat(request, env) {
+  const session = await getSession(request, env.DB);
+  if (!session) return json({ ok: false, error: 'Unauthorized.' }, 401);
+
+  if (request.method === 'GET') {
+    const { results } = await env.DB.prepare(
+      'SELECT * FROM messages WHERE user_id = ? ORDER BY created_at ASC'
+    ).bind(session.id).all();
+    await env.DB.prepare(
+      'UPDATE messages SET is_read = 1 WHERE user_id = ? AND is_from_admin = 1 AND is_read = 0'
+    ).bind(session.id).run();
+    return json({ ok: true, messages: results });
+  }
+
+  if (request.method === 'POST') {
+    const { content } = await request.json();
+    if (!content || !content.trim()) return json({ ok: false, error: 'Message is empty.' }, 400);
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      'INSERT INTO messages (id, user_id, content, is_from_admin, is_read, created_at) VALUES (?, ?, ?, 0, 0, ?)'
+    ).bind(id, session.id, content.trim().slice(0, 2000), now).run();
+    return json({ ok: true });
+  }
+
+  return json({ ok: false, error: 'Method not allowed.' }, 405);
+}
+
+async function handleChatUnread(request, env) {
+  const session = await getSession(request, env.DB);
+  if (!session) return json({ ok: false, error: 'Unauthorized.' }, 401);
+  const row = await env.DB.prepare(
+    'SELECT COUNT(*) as count FROM messages WHERE user_id = ? AND is_from_admin = 1 AND is_read = 0'
+  ).bind(session.id).first();
+  return json({ ok: true, count: row?.count || 0 });
+}
+
+async function handleAdminChat(request, env) {
+  const session = await getSession(request, env.DB);
+  if (!session || !session.isAdmin) return json({ ok: false, error: 'Forbidden.' }, 403);
+
+  const { results } = await env.DB.prepare(`
+    SELECT u.id, u.username, u.email, u.profile_pic,
+      SUM(CASE WHEN m.is_from_admin = 0 AND m.is_read = 0 THEN 1 ELSE 0 END) AS unread_count,
+      MAX(m.created_at) AS last_message_at,
+      (SELECT content FROM messages WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) AS last_message
+    FROM messages m JOIN users u ON m.user_id = u.id
+    GROUP BY u.id ORDER BY last_message_at DESC
+  `).all();
+  return json({ ok: true, conversations: results });
+}
+
+async function handleAdminChatUser(request, env, userId) {
+  const session = await getSession(request, env.DB);
+  if (!session || !session.isAdmin) return json({ ok: false, error: 'Forbidden.' }, 403);
+
+  if (request.method === 'GET') {
+    const user = await env.DB.prepare('SELECT id, username, email FROM users WHERE id = ?').bind(userId).first();
+    if (!user) return json({ ok: false, error: 'User not found.' }, 404);
+    const { results } = await env.DB.prepare(
+      'SELECT * FROM messages WHERE user_id = ? ORDER BY created_at ASC'
+    ).bind(userId).all();
+    await env.DB.prepare(
+      'UPDATE messages SET is_read = 1 WHERE user_id = ? AND is_from_admin = 0 AND is_read = 0'
+    ).bind(userId).run();
+    return json({ ok: true, messages: results, user });
+  }
+
+  if (request.method === 'POST') {
+    const { content } = await request.json();
+    if (!content || !content.trim()) return json({ ok: false, error: 'Message is empty.' }, 400);
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
+    await env.DB.prepare(
+      'INSERT INTO messages (id, user_id, content, is_from_admin, is_read, created_at) VALUES (?, ?, ?, 1, 0, ?)'
+    ).bind(id, userId, content.trim().slice(0, 2000), now).run();
+    return json({ ok: true });
+  }
+
+  return json({ ok: false, error: 'Method not allowed.' }, 405);
+}
+
 async function handleStripeWebhook(request, env) {
   if (request.method !== 'POST') return json({ ok: false, error: 'Method not allowed.' }, 405);
 
@@ -370,6 +452,12 @@ export default {
       if (path === '/api/user/me')                   return handleUserMe(request, env);
       if (path === '/api/user/subscription/cancel')  return handleUserCancelSubscription(request, env);
       if (path === '/api/stripe/webhook')            return handleStripeWebhook(request, env);
+      if (path === '/api/chat/unread')               return handleChatUnread(request, env);
+      if (path === '/api/chat')                      return handleChat(request, env);
+      if (path === '/api/admin/chat')                return handleAdminChat(request, env);
+
+      const adminChatMatch = path.match(/^\/api\/admin\/chat\/([^/]+)$/);
+      if (adminChatMatch) return handleAdminChatUser(request, env, adminChatMatch[1]);
       if (path === '/api/admin/users')               return handleAdminUsers(request, env);
 
       const adminUserMatch = path.match(/^\/api\/admin\/users\/([^/]+)$/);
