@@ -1,14 +1,17 @@
 // ── email ─────────────────────────────────────────────────────────────────────
 
 async function sendEmail(env, to, subject, html) {
-  if (!env.RESEND_API_KEY) return;
+  if (!env.RESEND_API_KEY) { console.error('[email] RESEND_API_KEY not set'); return; }
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ from: 'Helix <hello@learnhelix.org>', to: [to], subject, html }),
     });
-  } catch (e) {}
+    const data = await res.json();
+    if (!res.ok) console.error('[email] Resend error:', JSON.stringify(data));
+    else console.log('[email] sent to', to, '| id:', data.id);
+  } catch (e) { console.error('[email] fetch error:', e.message); }
 }
 
 function emailWelcome(username) {
