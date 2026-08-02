@@ -358,6 +358,36 @@ async function handleAdminUsersById(request, env, userId) {
   return json({ ok: false, error: 'Method not allowed.' }, 405);
 }
 
+async function handleDebugEmail(request, env) {
+  const session = await getSession(request, env.DB);
+  if (!session || !session.isAdmin) return json({ ok: false, error: 'Forbidden.' }, 403);
+
+  const keySet = !!env.RESEND_API_KEY;
+  const keyPreview = env.RESEND_API_KEY ? env.RESEND_API_KEY.slice(0, 8) + '...' : null;
+
+  let resendStatus = null, resendBody = null;
+  if (env.RESEND_API_KEY) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Helix <hello@learnhelix.org>',
+          to: [session.email],
+          subject: 'Helix email test',
+          html: '<p>If you see this, emails are working!</p>',
+        }),
+      });
+      resendStatus = res.status;
+      resendBody = await res.json();
+    } catch (e) {
+      resendBody = { fetchError: e.message };
+    }
+  }
+
+  return json({ keySet, keyPreview, resendStatus, resendBody });
+}
+
 async function handleUserMe(request, env) {
   const session = await getSession(request, env.DB);
   if (!session) return json({ ok: false, error: 'Unauthorized.' }, 401);
@@ -568,6 +598,7 @@ export default {
       if (path === '/api/auth/login')                return handleAuthLogin(request, env);
       if (path === '/api/auth/google')               return handleAuthGoogle(request, env);
       if (path === '/api/auth/logout')               return handleAuthLogout(request, env);
+      if (path === '/api/debug/email')               return handleDebugEmail(request, env);
       if (path === '/api/user/me')                   return handleUserMe(request, env);
       if (path === '/api/user/subscription/cancel')  return handleUserCancelSubscription(request, env);
       if (path === '/api/stripe/webhook')            return handleStripeWebhook(request, env);
